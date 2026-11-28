@@ -1,7 +1,7 @@
 // EMERGENT COSMOLOGICAL EXPANSION a(t), H(t), q(t), w_eff(t) FROM A FINITE DISTURBANCE SPREADING
-// IN THE FIXED INFINITE {3,4,3,4} HONEYCOMB WITHOUT MESH GROWTH (E-CSM-0064, gaps B-18, B-42).
+// IN THE FIXED INFINITE {3,4,3,4} HONEYCOMB WITHOUT MESH GROWTH (E-CSM-0064).
 //
-// Under Proposal 003 (adopted), the {3,4,3,4} honeycomb is FIXED and INFINITE (no irreversible mesh growth).
+// Under the adopted board proposal, the {3,4,3,4} honeycomb is FIXED and INFINITE (no irreversible mesh growth).
 // Yet when a finite, low-entropy disturbance starts at the cusp layer (D = 0) and propagates into the calm
 // bulk V1 under the exact reversible unitary walk (split coin + F-G frame mixer / M_pair pair mixer), the
 // exponential horosphere branching of {3,4,3,4} (exact per-column shell counts N_D = 1, 18, 330, 6034; every

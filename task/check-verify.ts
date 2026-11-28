@@ -1,6 +1,6 @@
 // One-Command Verification Gate + Automated Mutant Negative-Control Harness.
 //
-// Strictly deterministic (zero Math.random), laptop-safe sequential execution,
+// Strictly deterministic (zero Math.random), memory-safe sequential execution,
 // bounded per-suite timeout & peak RSS telemetry, zero disk writes during mutant probing.
 //
 // Usage:
@@ -358,7 +358,7 @@ function runStage1Typecheck(
 }
 
 // =================================================================================================
-// STAGE 2: SEQUENTIAL LAPTOP-SAFE SUITE EXECUTION WITH RSS & TIMEOUT ENFORCEMENT
+// STAGE 2: SEQUENTIAL memory-safe SUITE EXECUTION WITH RSS & TIMEOUT ENFORCEMENT
 // =================================================================================================
 
 function runSingleSuite(

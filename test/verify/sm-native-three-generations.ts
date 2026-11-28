@@ -3,7 +3,7 @@
 // Zero-hack replacement for the RETIRED range-3 B_3 existence proof (G4 in
 // three-generations-index-audit.ts). Strictly deterministic (ZERO Math.random),
 // zero external imports, strict TypeScript (--strict --noUncheckedIndexedAccess),
-// laptop-safe (< 6 s, < 200 MB RSS), hard assert() on all 10 gates (N1.1..N5.1).
+// fast (< 6 s, < 200 MB RSS), hard assert() on all 10 gates (N1.1..N5.1).
 //
 // ============================================================================
 // EPISTEMIC SCOPE LEDGER (BRUTALLY HONEST TIER A vs TIER B DISCLOSURE)

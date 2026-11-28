@@ -1,4 +1,4 @@
-// THE PARITY SECTOR WITH STORES (item vibe-roadmap-grounding-0034). E-SLF-0192 (item 0032) found the working rule keeps
+// THE PARITY SECTOR WITH STORES. E-SLF-0192 found the working rule keeps
 // every pairwise separation's parity on the {3,4,3,4} honeycomb for loves with no store, so the any-neighbour lock
 // never opens on an all-even self (B1's cut exactly bare). Its stated limit: a store that holds a vibe still for a beat
 // would break the parity. This experiment tests that limit.
@@ -27,7 +27,7 @@
 // An earlier full run ran out of the default 4 GB heap on MEET's locked t 3 (733,260 branches); the lock then beat now
 // runs one branch at a time (storeLockBeat) on a 32 GB heap, checked equal to the whole-state path.
 //
-// SETTINGS. Default SMOKE (box 8, the R = 3 ball; seconds; open by rule). STORE_SWEEP=full for the M3 (box 12, the
+// SETTINGS. Default SMOKE (box 8, the R = 3 ball; seconds; open by rule). STORE_SWEEP=full for a large machine (box 12, the
 // R = 4 ball).
 //
 // Depth L2: every run exact in Z[w][1/2] per start configuration; the summed reads in floats.

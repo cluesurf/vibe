@@ -253,7 +253,7 @@ export default experiment({
         unmaintainedFidelity: r.unmaintainedFidelity,
       },
       notes:
-        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is an open roadmap item. ' +
         'honest hyperbolic limits hold, no compact blobs and no free permanence without a work cost, nothing is hand-placed and nothing creates charge from nothing',
     })
   },

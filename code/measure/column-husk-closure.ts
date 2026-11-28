@@ -1,5 +1,5 @@
-// COLUMN-SUM HUSK CLOSURE, FREEZING AND PARITY MIXING (item vibe-roadmap-board-0028, gaps B-36, B-55).
-// Tests proposal 005 on buildExactCusp (period 2, floors 1 to 3) under split coin with bare rule and F-G:
+// COLUMN-SUM HUSK CLOSURE, FREEZING AND PARITY MIXING.
+// Tests the board proposal on buildExactCusp (period 2, floors 1 to 3) under split coin with bare rule and F-G:
 //   (1) Exact cross-column neighbor share by depth D = 0, 1, 2, 3 (measures structural freezing of flat column sums).
 //   (2) Closure test (C2-7): two bulk states with identical initial column-sum reading Q_c(0) = delta_{c,0} (depth 0
 //       vs depth 1 inside column 0) evolved 1 and 2 beats under bare and F-G -> measures L1 divergence on the husk.

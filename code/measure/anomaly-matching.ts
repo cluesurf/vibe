@@ -1,4 +1,4 @@
-// 'T HOOFT ANOMALY MATCHING FOR A THREE-MEMBER COMPOSITE (E-FRC-0289, moving-matter item 0018, Key 3).
+// 'T HOOFT ANOMALY MATCHING FOR A THREE-MEMBER COMPOSITE (E-FRC-0289, Key 3).
 // The constituents are Weyl multiplets on one chiral face (E-FRC-0267's in-gap levels), the composites the three-member
 // J = 1/2 multiplets a colour singlet allows (E-SPN-0192's census). This module holds the exact pieces:
 //
@@ -332,7 +332,7 @@ export const SCALE: Record<Coefficient, number> = {
 
 export type SymmetrySet = 'S1' | 'S2' | 'S3'
 
-// frozen before computing (item 0018): S1 = U(1)_Q, S2 = U(1)_Q x SU(2)+, S3 = S2 x U(1)_N
+// frozen before computing: S1 = U(1)_Q, S2 = U(1)_Q x SU(2)+, S3 = S2 x U(1)_N
 export const SETS: Record<SymmetrySet, readonly Coefficient[]> = {
   S1: ['QQQ', 'Q'],
   S2: ['QQQ', 'Q', 'QTT', 'witten'],

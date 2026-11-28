@@ -1,4 +1,4 @@
-// THE LIGHT-CONE LINE (item vibe-roadmap-grounding-0019, B3's engine). B1's line rule (code/measure/cold-line.ts, the
+// THE LIGHT-CONE LINE (B3's engine). B1's line rule (code/measure/cold-line.ts, the
 // working knit's line sector with E-SPN-0103's drift cost and fermion sign, pass contact, flat links, in floats) on an
 // OPEN line of absolute docks, storing only the configurations the start reaches. cold-line.ts holds every
 // configuration of n loves on at most 32 docks; here a run of B beats needs only the start's light cone, so the line can
@@ -14,14 +14,14 @@
 // THE BEAT, operation for operation cold-line.ts's: the cost zeta_14^(-links) and the full docks' w^2 (a = 28 of 42;
 // the links are those with flux Q(l) not 0 mod 3, which on an open neutral line lie between the first and the last
 // love), the coin dock by dock from the left, the line block's sign, the stream (label 0 one dock forward, label 1 one
-// back). With `split` the coin is D P D (decision 004). The arithmetic of each pair update is cold-line.ts's own, in
+// back). With `split` the coin is D P D. The arithmetic of each pair update is cold-line.ts's own, in
 // the same order, so the two agree bit for bit wherever cold-line.ts's open line is the infinite line.
 //
 // NOTHING MOVES the rule: no amplitude is cut. A store that would pass its cap throws ConeCap and the run stops at the
 // last whole beat.
 //
-// THE CLOCK (opt-in, item vibe-roadmap-grounding-0021, board proposal 012): a store made with `clock` 2N charges
-// zeta_(2N)^(-1) a flux link in place of zeta_14^(-1) (clock 18 is pi/9, proposal 012's S1 coupling, exact in
+// THE CLOCK (opt-in): a store made with `clock` 2N charges
+// zeta_(2N)^(-1) a flux link in place of zeta_14^(-1) (clock 18 is pi/9, the board proposal's S1 coupling, exact in
 // Z[zeta9][1/6]). The phases run on a table of lcm(clock, 3) turns; the default clock 14 keeps the table of 42 and every
 // amplitude bit for bit. halfPass, phasePass and streamInto expose the split beat's three parts, so a dock block can be
 // put between the two half coins (code/measure/cross-line-dock).
@@ -589,7 +589,7 @@ export function streamInto(from: ConeStore, to: ConeStore): void {
   streamPass(from, to, false, 0)
 }
 
-// A DOCK MIXER'S ON-LINE BLOCK (item vibe-roadmap-grounding-0020, note/line-confinement.md section 4), in place: every
+// A DOCK MIXER'S ON-LINE BLOCK (note/line-confinement.md section 4), in place: every
 // lone dock takes [[keep, cross], [cross, keep]] on its two labels (coinBlock's form), every full dock the scalar
 // `full`. Not unitary: the weight a mixer sends off the line leaves the store, which is the P part Lemma W reads.
 export function mixPass(
@@ -639,7 +639,7 @@ export function mixPass(
   }
 }
 
-// THE LOCKED BLOCK (opt-in, item vibe-roadmap-grounding-0026, future-models.md base possibility 5): mixPass with the
+// THE LOCKED BLOCK (opt-in, future-models.md base possibility 5): mixPass with the
 // any-neighbour lock read on one line. A dock takes the block (`lone` on a lone dock's two labels, `full` on a full
 // dock) only when the dock x - 1 or x + 1 holds a love. The lock reads the shape alone and the block keeps the shape,
 // so every lock is kept and the pass is the P part of a product of commuting controlled blocks. Returns the number of
@@ -1397,7 +1397,7 @@ export function storeDifference(a: ConeStore, b: ConeStore): number {
   return worst
 }
 
-// ---- the keel's pieces (opt-in, item vibe-roadmap-grounding-0027, code/measure/keel-flame.ts) ----
+// ---- the keel's pieces (opt-in, code/measure/keel-flame.ts) ----
 
 // the shape index of packed key `key` in s, or -1 (nothing is made)
 function findShape(s: ConeStore, key: Int32Array): number {
@@ -1577,7 +1577,7 @@ export function coneInner(a: ConeStore, b: ConeStore): [number, number] {
   return [sr, si]
 }
 
-// <P_A a | P_A b>, P_A every love on docks lo..hi (item vibe-roadmap-grounding-0035, the reference closure): coneInner
+// <P_A a | P_A b>, P_A every love on docks lo..hi (the reference closure): coneInner
 // over the shapes of a whose positions all lie in the region (a block's configurations share their shape's positions)
 export function coneRegionInner(a: ConeStore, b: ConeStore, lo: number, hi: number): [number, number] {
   const pos = new Int32Array(a.n)

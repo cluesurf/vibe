@@ -1,6 +1,6 @@
-// 'T HOOFT MATCHING ON BOTH WALLS, EVERY INPUT READ FROM THE RULE (E-FRC-0290, note/project/vibe/roadmap/moving-matter
-// item 0028, route 1 of research/charge-one-after-anomaly.md). RULE: the register rule R*, with the spinor lift L(s) as
-// the member's rotation (decision 0006).
+// 'T HOOFT MATCHING ON BOTH WALLS, EVERY INPUT READ FROM THE RULE (E-FRC-0290, the moving-matter
+// roadmap, route 1 of research/charge-one-after-anomaly.md). RULE: the register rule R*, with the spinor lift L(s) as
+// the member's rotation.
 //
 // E-FRC-0289 killed a light three-member electron on one face with the member number of that face. Three of its inputs
 // were not read from the rule: the hand (a parameter), the colour (both tones 3, but the fear tone carries 3-bar), and
@@ -67,7 +67,7 @@
 //
 // WHAT THIS CAN AND CANNOT SHOW. Matching is necessary, not sufficient: QCD satisfies it at two flavours and breaks
 // chiral symmetry anyway. It assumes the confining force is colour and that SU(2)_A x SU(2)_B emerge as the walls
-// separate; whether colour on R* (the finite Sigma(648)) breaks the one-wall number is item 0029, and whether members
+// separate; whether colour on R* (the finite Sigma(648)) breaks the one-wall number is an earlier step, and whether members
 // are caged at all is 0019. Tr X C^2 is the continuous-group coefficient; for a finite colour group it is the
 // admissibility test the brief fixes, not a derivation.
 //

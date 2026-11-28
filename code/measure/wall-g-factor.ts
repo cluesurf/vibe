@@ -1,5 +1,5 @@
-// g OF THE LIGHT WALL PAIR BY LINEAR RESPONSE AT k = 0 (E-SPN-0197, moving-matter item 0009 as rewritten by decision
-// 002). The pair is the wall-A and wall-B in-gap levels of E-FRC-0267's chiral slab (code/measure/anomaly-matching-walls
+// g OF THE LIGHT WALL PAIR BY LINEAR RESPONSE AT k = 0 (E-SPN-0197, as rewritten by a later decision).
+// The pair is the wall-A and wall-B in-gap levels of E-FRC-0267's chiral slab (code/measure/anomaly-matching-walls
 // chiralSlab), joined by the inter-wall leak delta into one massive Dirac member on the 3+1d wall. Its moment is read
 // from the cycle alone, with no flux quantum and no real-space plane:
 //
@@ -920,7 +920,7 @@ export function turnCommutator(ops: CycleOps, vs: readonly CVec[]): number {
 
 export { norm as vecNorm, add as vecAdd }
 
-// ==== THE LANDAU READER (decision 007) ====
+// ==== THE LANDAU READER ====
 //
 // g is a property of the walk's quasienergies in a uniform field with exact Peierls phases on every hop, so it is read
 // from the zero Landau level, never from U(k). The slab (or one bulk class) sits in F01 = B = 2 pi p / qa in the tangent

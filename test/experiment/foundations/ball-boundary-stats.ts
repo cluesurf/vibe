@@ -1,4 +1,4 @@
-// INTERIOR SHELL STATISTICS VS BOUNDARY CONDITION ON EXACT {3,4,3,4} BALLS (E-FND-0182, item vibe-roadmap-board-0019, gap B-22).
+// INTERIOR SHELL STATISTICS VS BOUNDARY CONDITION ON EXACT {3,4,3,4} BALLS (E-FND-0182).
 // Compares reflecting, calm-open (absorbing), and vacuum-phase-twisted boundaries on cached exact R = 2 (481 docks)
 // and R = 3 (8,857 docks) honeycomb balls under F-G + split coin.
 //

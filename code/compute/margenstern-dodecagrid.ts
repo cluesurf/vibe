@@ -3,7 +3,7 @@
 // invariant under the dodecahedron's rotation group (order 60). NOTE, unlike the planar automata, these 3D
 // rules are NOT a clean function of the 12-neighbour snapshot alone (one collision exists, rules 4 vs 118),
 // because the construction also uses shadowed-face / phase context the snapshot does not carry, so the table is
-// compiled with keep-first and the collision is reported. See land/text/papers/more-5/2104.01561.pdf and the
+// compiled with keep-first and the collision is reported. See arXiv:2104.01561 and the
 // shared engine in margenstern-ca.ts. Rotation handling for the full 60-element dodecahedral group is a further
 // step; the rules themselves are loaded here verbatim.
 import {

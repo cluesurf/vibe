@@ -56,7 +56,7 @@
 //    on the axis is 3.7e-4 away and weighs 0.011, on the body diagonal 1.07e-3 away and 0.004), which is where the
 //    branches with n . u = 0 would stay. E-RLT-0117 gates that "still share" fresh.
 //
-// AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
+// AFTER THE ENGINE FIX (2026-10-21). code/measure/register-reduced now builds the
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
 // are unchanged bit for bit (tmp/rrfix-tables.ts). Rerun after the fix (test/record/E-RLT-0116/rrfix-rlt116.log): the level and the first
 // 513 lags of the axis K = 0 and the body K = 0.32 correlations equal test/record/E-RLT-0116/rlt116.json to the bit, and the verdict from the

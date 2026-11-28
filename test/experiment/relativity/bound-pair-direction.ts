@@ -127,7 +127,7 @@
 //    lineon's 0.158.
 //  VERDICT: OPEN, by I4. Leading-order isotropy holds at both points (G1, G1'). Mobility off lines is not read here.
 //
-// REDO AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008; test/record/E-RLT-0115/rrfix-rlt115.log, test/record/E-RLT-0115/rlt115-one-fixed.json,
+// REDO AFTER THE ENGINE FIX (2026-10-21; test/record/E-RLT-0115/rrfix-rlt115.log, test/record/E-RLT-0115/rlt115-one-fixed.json,
 // test/record/E-RLT-0115/rrfix-verdict115.log). The instability was in code/measure/register-reduced, not in the pair: at representatives
 // with a stabilizer the reduced engine also stores a part no invariant state has, and for the tables sector() built
 // directly for (1, 1, -1) and (1, -1, 1) the cycle amplified that part about 5% a cycle from rounding. Those two sectors
@@ -143,8 +143,8 @@
 //    off-line reads. So the fail reads the instrument's floor, not twelve line branches; the line-resolving reads of
 //    E-RLT-0116 and E-RLT-0117 found no weight left at rest on the body diagonal. Whether G2 should count as an instrument
 //    failure is filed as a decision, not settled here.
-//  - Decision 002 of the moving-matter project (2026-10-22): FAIL stands as registered; mobility above the floor is
-//    E-RLT-0118. RERUN (2026-10-22, vibe-roadmap-moving-matter-0008, test/record/E-RLT-0115/rerun-0008.log): FAIL, I4
+//  - A recorded decision of the moving-matter project (2026-10-22): FAIL stands as registered; mobility above the floor is
+//    E-RLT-0118. RERUN (2026-10-22, test/record/E-RLT-0115/rerun-0008.log): FAIL, I4
 //    holding (far bases spread 2.2e-16), off-line residuals 9.84e-4 and 9.96e-4, stuck true, every other number as
 //    above. It recombines the recorded parts, which the parts' path now finds from this file (it was tmp/rlt115, lost
 //    with the old worktree). E-SPN-0216 shows the sectors behind them unchanged bit for bit and all four body
@@ -419,7 +419,7 @@ export function stageOne(
   }
 }
 
-// THE REDO after code/measure/register-reduced's fix (vibe-roadmap-moving-matter-0008): the sectors of (1, 1, -1) and
+// THE REDO after code/measure/register-reduced's fix: the sectors of (1, 1, -1) and
 // (1, -1, 1) are now built as images of (1, 1, 1)'s, and every other sector's tables are unchanged bit for bit
 // (tmp/rrfix-tables.ts), so only those two directions' reads (DIRECTIONS 10 and 11, far reads 2 and 3) can move. The
 // redo reads them again on the same level and splices them into the recorded stage, and reads the axis (0) and the face

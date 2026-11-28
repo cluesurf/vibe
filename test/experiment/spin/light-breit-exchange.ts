@@ -6,7 +6,7 @@
 //
 // WHERE THE LIGHT IS (read before anything was computed here). The pair engine's pull is alpha G(y), G the Green
 // function of the husk symbol eps(k) = sum over the 24 husk steps of (1 - cos k . rho) (code/measure/husk-meson
-// huskGreenTable, setupFor's table; G(0) is decision 001's on-site value). That symbol is the Coulomb kernel of the
+// huskGreenTable, setupFor's table; G(0) is a recorded decision's on-site value). That symbol is the Coulomb kernel of the
 // husk light (code/measure/darwin-exchange, E-FRC-0179, E-FRC-0241): the light's leapfrog on the link columns,
 // Lagrangian (1/2) Adot^T G^-1 Adot - (kappa / 2) A^T G^(-1/2) H G^(-1/2) A + J^T G^-1 A - rho phi, dispersion
 // 4 sin^2(omega / 2) = kappa lambda(k) per beat, lambda = (2/3) k^2 at long wave, so c_l^2 = 2 kappa / 3. The engine keeps
@@ -85,7 +85,7 @@
 //   partial otherwise (the light supplies S = 1 up to the lattice's correction, on a light at the member's speed, but
 //   the clock is not resolved or the excess is not the light's).
 //
-// FIRST RUN (2026-10-23, laptop, 23 s; test/record/E-SPN-0218/run/breit-run.sh, test/record/E-SPN-0218/breit-verdict.log):
+// FIRST RUN (2026-10-23, small machine, 23 s; test/record/E-SPN-0218/run/breit-run.sh, test/record/E-SPN-0218/breit-verdict.log):
 // FAIL AS REGISTERED, on one clause of a control. No gate moved.
 //  - N1 fails on its bit-for-bit clause: with the light off, clockDecomposition's R_full = (R + d) - s comes back 1 ulp
 //    off R (2.2e-16) and ratioDarwin 1.2e-14 off ratio at two points (test/record/E-SPN-0218/n1-probe.log, read after

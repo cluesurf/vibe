@@ -4,9 +4,9 @@
 #
 #   droplet-launch.sh <run dir> <cap seconds> <cpu list, or -> <job script> [job arguments]
 #
-# The job runs in its own session (setsid), so a dropped connection or a closed laptop does not stop it, and it is
+# The job runs in its own session (setsid), so a dropped connection or a closed local session does not stop it, and it is
 # bounded ON THE MACHINE by `timeout`: at the cap it gets SIGTERM, and SIGKILL a minute later, whatever happened to the
-# laptop. It runs at the lowest priority (nice 19, and the idle I/O class where ionice exists), and, given a cpu list,
+# local machine. It runs at the lowest priority (nice 19, and the idle I/O class where ionice exists), and, given a cpu list,
 # pinned to those cpus with taskset, so a host that has other work (a deploy build) is never starved by it.
 #
 # It writes <run dir>/job.pid (the session id, which is also its process group, for a stop), <run dir>/job.log (the

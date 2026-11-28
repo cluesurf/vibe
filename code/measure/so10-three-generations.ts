@@ -1,7 +1,7 @@
 // COMPLETE 16-STATE SO(10) GENERATION x 3 TRIALITY FRAMES (48 WEYL FERMIONS),
 // EXACT 6/6 BIGINT-RATIONAL ANOMALY CANCELLATION, GEOMETRIC WEINBERG ANGLE,
 // AND SPONTANEOUS DYNAMICAL S_3 TRIALITY BREAKING ON {3,4,3,4} CUSP SHELLS
-// (E-FRC-0324, Frontier 7, gaps B-25 and m-11).
+// (E-FRC-0324, Frontier 7).
 //
 // Closes the two structural gaps flagged honestly in E-FRC-0323 (three-generation-spectrum.ts):
 //   1. Exact 16 = 8_+ + 8_- Spin(10) completion of each 8-slot D4 triality frame on the 24-cell

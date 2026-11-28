@@ -1,8 +1,8 @@
-// SPIN AND STATISTICS FROM THE REGISTER RULE (E-SPN-0191; OPEN-MAT-03, OP-08; moving-matter item 0002). E-SPN-0014 typed its
+// SPIN AND STATISTICS FROM THE REGISTER RULE (E-SPN-0191; OPEN-MAT-03, OP-08). E-SPN-0014 typed its
 // exchange signs and E-SPN-0083 disagrees; E-SPN-0163 second-quantized the register rule by minors, so its fermion sign
 // is a construction unless the bosonic quantization breaks one of the rule's own invariants. This file decides that,
 // and compares the sign that survives with a member's 2 pi turn sign. CANDIDATE RULE (the register rule of E-SPN-0160,
-// E-SPN-0163, E-SPN-0175): every result here is provisional until the rule is adopted (moving-matter item 0006).
+// E-SPN-0163, E-SPN-0175): every result here is provisional until the rule is adopted.
 //
 // DERIVED BEFORE THE RUN (code/measure/register-statistics).
 // 1. TWO QUANTIZATIONS, ONE BOX. Every piece of the register rule is one-body (E-SPN-0163 point 1), so a many-body rule
@@ -435,6 +435,6 @@ export function registerStatisticsRun(): Verdict {
       seconds: (Date.now() - started) / 1000,
     },
     control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
-    notes: `L1. Candidate (register) rule, provisional until moving-matter item 0006. Box: two docks of 4 modes, light unit ringUnit(${LIGHT.join(', ')}), two beats. Boson exchange sign ${eBoson.sign}, hard-core (typed) ${eHard.sign}. Real 192-mode pieces, bosonic 2-member doubling weight from (slot 0, reg 0) and (slot e, reg 0), worst over e: beat 1 ${leak192[0]!.toExponential(3)}, beat 2 ${leak192[1]!.toExponential(3)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L1. Candidate (register) rule, provisional until the rule is adopted. Box: two docks of 4 modes, light unit ringUnit(${LIGHT.join(', ')}), two beats. Boson exchange sign ${eBoson.sign}, hard-core (typed) ${eHard.sign}. Real 192-mode pieces, bosonic 2-member doubling weight from (slot 0, reg 0) and (slot e, reg 0), worst over e: beat 1 ${leak192[0]!.toExponential(3)}, beat 2 ${leak192[1]!.toExponential(3)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

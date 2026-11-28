@@ -1,8 +1,8 @@
-// E-FRC-0320 RERUN, A TWO-BODY READ OF F-G AGAINST F-L, AND THE HELD-OUT C, P, CP TABLE (item vibe-roadmap-board-0045;
-// board decisions 010, 011, 013). Every gate was written into the item's `what` before this file existed (gate
+// E-FRC-0320 RERUN, A TWO-BODY READ OF F-G AGAINST F-L, AND THE HELD-OUT C, P, CP TABLE.
+// Every gate was registered before this file existed (gate
 // e6106c2e478a, 2026-11-17T06:26:51Z), and every run goes through task/pre-register.
 //
-// WHY. E-FRC-0320 (board-0034) read open: its norm gate K2 (1e-12) was too tight for a float engine summing about 3e5
+// WHY. E-FRC-0320 read open: its norm gate K2 (1e-12) was too tight for a float engine summing about 3e5
 // irrational amplitudes (board trap). Its readings named (F-G or F-L, m1) as a product of halves, but F-G and F-L agree
 // on a lone vibe (the lift Gamma(G) differs from G only on a frame holding two or more vibes), and the held-out tests
 // were not run. This file:
@@ -12,7 +12,7 @@
 //   C reads the C, P and CP table of the chosen rule (the working rule with F-G or F-L, the bare rule as the control)
 //     exactly on the R = 2 ball for 2 beats, and, reported only, m1's link update under C, P and CP one sweep at a time.
 //
-// The pair stays a product of halves (decision 013): no rule couples a mixer to a link, so a bound moving pair is not
+// The pair stays a product of halves: no rule couples a mixer to a link, so a bound moving pair is not
 // tested. Bell, interference and size are not run.
 //
 // GRADE. A's motion and parts B and C: honeycomb (exact balls within their horizon). Binding and the link table:
@@ -584,10 +584,10 @@ export function rerunVerdict(input: RerunInput): Verdict {
 
   return verdict({
     status,
-    claim: `${selection}. A bound moving pair is NOT tested (decision 013); Bell, interference and size were not run. A, E-FRC-0320 rerun with K2 at 1e-10: ${motion.readings.map(row).join(' || ')}; binding m1 PASS (E-FRC-0319), ${grades.map(g => `${g.member} ${g.status.toUpperCase()} (${g.both} both-confining, ${g.beyond} past 25 percent)`).join(', ')}; equal to 0034's parts ${rr}. B, two loves on a full line of the base dock (12 lines, exact R = 2 ball, beats 1 and 2): ${two.readings.map(twoRow).join(' || ')}; F-G against F-L differ by up to ${gap.toExponential(2)}. C, the C, P, CP table (beats off of 2, exact R = 2 ball, P the first ${P_MAPS} det -1 slot maps): ${['bare', 'F-G', 'F-L'].map(tableRow).join(' || ')}. Link m1 one sweep at a time on I-A f 0.14 (reported): C ${lt.c.differ} of ${lt.links} links differ (energy kept ${lt.c.energyKept}), P ${lt.p ? `${lt.p.differ} (energy kept ${lt.p.energyKept}, map ${lt.pFound})` : 'no 0-conflict det -1 map'}, CP ${lt.cp ? `${lt.cp.differ} (energy kept ${lt.cp.energyKept})` : 'not read'}. Instruments ${instrumentsHold ? 'hold' : 'FAIL'} (K0 ${mg.k0}, K1 ${mg.k1}, K2 ${mg.k2}, K3 ${mg.k3}, H1 ${mg.h1}, C0 ${mg.c0}, R' ${rPrime}, RR ${rr}, link ${linkInstruments}, B1 ${b1}, B2 ${b2}, P0 ${p0}, Z ${z})`,
+    claim: `${selection}. A bound moving pair is NOT tested; Bell, interference and size were not run. A, E-FRC-0320 rerun with K2 at 1e-10: ${motion.readings.map(row).join(' || ')}; binding m1 PASS (E-FRC-0319), ${grades.map(g => `${g.member} ${g.status.toUpperCase()} (${g.both} both-confining, ${g.beyond} past 25 percent)`).join(', ')}; equal to 0034's parts ${rr}. B, two loves on a full line of the base dock (12 lines, exact R = 2 ball, beats 1 and 2): ${two.readings.map(twoRow).join(' || ')}; F-G against F-L differ by up to ${gap.toExponential(2)}. C, the C, P, CP table (beats off of 2, exact R = 2 ball, P the first ${P_MAPS} det -1 slot maps): ${['bare', 'F-G', 'F-L'].map(tableRow).join(' || ')}. Link m1 one sweep at a time on I-A f 0.14 (reported): C ${lt.c.differ} of ${lt.links} links differ (energy kept ${lt.c.energyKept}), P ${lt.p ? `${lt.p.differ} (energy kept ${lt.p.energyKept}, map ${lt.pFound})` : 'no 0-conflict det -1 map'}, CP ${lt.cp ? `${lt.cp.differ} (energy kept ${lt.cp.energyKept})` : 'not read'}. Instruments ${instrumentsHold ? 'hold' : 'FAIL'} (K0 ${mg.k0}, K1 ${mg.k1}, K2 ${mg.k2}, K3 ${mg.k3}, H1 ${mg.h1}, C0 ${mg.c0}, R' ${rPrime}, RR ${rr}, link ${linkInstruments}, B1 ${b1}, B2 ${b2}, P0 ${p0}, Z ${z})`,
     metrics,
     control: { c0: mg.c0 ? 1 : 0, z: z ? 1 : 0 },
-    notes: `L2. Gates: board-0045 what, gate e6106c2e478a. Motion, B and C honeycomb grade (exact within the horizon), binding and the link table mirrored. P maps ${JSON.stringify(table.pMaps)}. Link table ${JSON.stringify(lt)}.`,
+    notes: `L2. Gates registered before the run, gate e6106c2e478a. Motion, B and C honeycomb grade (exact within the horizon), binding and the link table mirrored. P maps ${JSON.stringify(table.pMaps)}. Link table ${JSON.stringify(lt)}.`,
   })
 }
 

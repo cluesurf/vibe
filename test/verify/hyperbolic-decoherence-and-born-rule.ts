@@ -7,7 +7,7 @@
 // Closes the gaps in E-QTM-0205 (R=2 ball algebraic check only) and E-QTM-0206 (L1 abstract
 // 1+4 qubit circuit without {3,4,3,4} cusp geometry, Holevo/discord decomposition, or Bell bath transition).
 //
-// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), laptop-safe
+// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), fast
 // (< 10 s, < 300 MB RAM), strict TypeScript (noUncheckedIndexedAccess: true safe).
 
 // ============================================================================

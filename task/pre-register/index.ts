@@ -1,9 +1,9 @@
 // Pre-registration for Vibe board experiments: the only way a board experiment runs.
 //
-// A board experiment is a checklist item under note/project/vibe/roadmap/. Its gates (each number and
+// A board experiment is a checklist item in the roadmap (VIBE_ROADMAP_ROOT). Its gates (each number and
 // tolerance) go into the item's `what` before any code, with
 //
-//   pnpm --silent --dir <cluesurf> checklist set vibe/roadmap/<project> <id> --set what="..." --commit
+//   pnpm checklist set <project> <id> --set what="..." --commit
 //
 // which appends a hashed, dated line to the checklist.ledger.jsonl beside it. This tool then runs every probe:
 //
@@ -17,19 +17,19 @@
 // (exit 3) when any probe of the item predates the gate line, or ran under a different gate hash, so a gate
 // changed after a probe taints the item for good.
 //
-// Options: --repo <cluesurf dir> (default: found above this file), --log-dir <dir> (default: test/probe-log).
+// Options: --roadmap <dir> (default: VIBE_ROADMAP_ROOT), --log-dir <dir> (default: test/probe-log).
 
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { findGate, findRepoBase } from './gate'
+import { findGate, findRoadmap } from './gate'
 import { readProbes } from './probe-log'
 import { runProbe } from './probe'
 
 const deck = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 function usage(): never {
-  console.error('usage: pre-register gate <id> | run <id> -- <probe...> | history <id> [--repo dir] [--log-dir dir]')
+  console.error('usage: pre-register gate <id> | run <id> -- <probe...> | history <id> [--roadmap dir] [--log-dir dir]')
   process.exit(2)
 }
 
@@ -59,8 +59,13 @@ if (!verb || !item) {
   usage()
 }
 
-const repo = flags.get('repo') ? resolve(flags.get('repo')!) : findRepoBase()
-const roadmap = join(repo, 'note', 'project', 'vibe', 'roadmap')
+let roadmap: string
+try {
+  roadmap = flags.get('roadmap') ? resolve(flags.get('roadmap')!) : findRoadmap()
+} catch (error) {
+  console.error((error as Error).message)
+  process.exit(2)
+}
 const logDir = flags.get('log-dir') ? resolve(flags.get('log-dir')!) : join(deck, 'test', 'probe-log')
 
 if (verb === 'gate') {

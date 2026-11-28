@@ -1,5 +1,5 @@
 #!/bin/sh
-# The laptop smoke test of E-RLT-0120's whole path at the tiny pair (a_B 1, ball 5, 1,023 lags): the droplet step
+# The local smoke test of E-RLT-0120's whole path at the tiny pair (a_B 1, ball 5, 1,023 lags): the droplet step
 # itself (droplet-step.sh with SMOKE=1), then the combine on the smoke parts with run/smoke-gates.json, then the pack
 # the launcher would send (launch.sh without --commit). Everything goes to the package's tmp/ (tmp/rlt120-smoke/ and
 # tmp/rlt120-smoke.log); a smoke run already on disk is refused, so a fresh smoke test needs that folder gone.

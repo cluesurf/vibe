@@ -1,5 +1,5 @@
-// THE CAUSAL CONE AND THE GROUP SPEEDS OF A LONE EXCITATION UNDER THE FRAME MIXER (E-SPN-0136). note/research/vibe/
-// roadmap/remaining-pieces.md, "Auditing the candidate rule (E-SPN-0134)": under the candidate rule (flat links, the love
+// THE CAUSAL CONE AND THE GROUP SPEEDS OF A LONE EXCITATION UNDER THE FRAME MIXER (E-SPN-0136). The remaining-pieces
+// notes, "Auditing the candidate rule (E-SPN-0134)": under the candidate rule (flat links, the love
 // sea, E-SPN-0130's fermionic frame mixer) a hole's keyed front reached 4 box steps in 8 beats against the working
 // lineon's 8. These are the readings that ask whether that is the cone or the weight at the front.
 //

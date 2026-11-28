@@ -16,11 +16,11 @@
 //                   reads only a dock and its root neighbors, so it is local; and a chi that is one Fock state keeps the
 //                   region one Slater determinant (one branch)
 //
-// ONE PRESENT (decision 001, note/project/vibe/roadmap/one-present/review.md). growthBeat steps every born dock every
+// ONE PRESENT (the one-present review). growthBeat steps every born dock every
 // beat, so the present is the whole born region at this beat, never its frontier. New docks join the present, they are
 // not the present, and the older docks are not the past. What E-FND-0168 calls a vacuum "chosen by history" means one
 // written by the growth law's birth state chi. "Reversible from birth" is argued above but no inverse growth step exists
-// in this module yet, so it is asserted, not run: item 0010 writes inverseGrowthBeat and checks it.
+// in this module yet, so it is asserted, not run: a follow-up writes inverseGrowthBeat and checks it.
 //
 // A SLATER STATE IS RUN THROUGH ITS MINORITY ORBITALS. The rule is one-body, so a Slater determinant stays one. Relative
 // to a reference sea (the full sea, or the empty mesh) the state is spanned by the orbitals where it differs: holes of

@@ -66,4 +66,3 @@ a self that persists, a here that localises, structure that survives every viewp
 
 - [../triangulating-invariants.md](../triangulating-invariants.md), the method and the full list of recurring invariants across theories.
 - [readme.md](readme.md), the index of every theory map.
-- Fuller by-author treatment: `deck/note/base/substack.com/josephmccard/notes/`.

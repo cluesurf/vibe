@@ -1,1 +1,1 @@
-{"at":"2026-11-17T08:51:10.867Z","item":"vibe-roadmap-grounding-0025","command":["sh","tmp/m3-theta-sweep.sh","theta-sweep-2","full","any"],"gate":{"hash":"dc5337b6b730","at":"2026-11-17T07:20:12.567Z"},"exit":0,"verdict":"fail","recorded":true,"refused":[]}
+{"at":"2026-11-17T08:51:10.867Z","item":"vibe-roadmap-grounding-0025","command":["sh","tmp/remote-theta-sweep.sh","theta-sweep-2","full","any"],"gate":{"hash":"dc5337b6b730","at":"2026-11-17T07:20:12.567Z"},"exit":0,"verdict":"fail","recorded":true,"refused":[]}

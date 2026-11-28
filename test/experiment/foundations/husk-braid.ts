@@ -1,5 +1,5 @@
 // THE DOUBLE-EXCHANGE PHASE OF TWO HOLES ON R*, READ AS A WILSON LOOP OF THE EXACT RELATIVE TRANSFER (E-FND-0176, item
-// 0023 of moving-matter, decision 005; OPEN-MAT-07 first half, OPEN-FND-03). Two holes of the register sea on
+// 0023 of moving-matter; OPEN-MAT-07 first half, OPEN-FND-03). Two holes of the register sea on
 // E-FND-0161's exact two-hole engine at total momentum 0, L = 8, the 3d slice w = 0 of the relative dock y. For each
 // slice link y -> y + e the one-cycle hop block B(y, e) is read exactly; its unitary polar part U(y, e) is the
 // connection, and a loop's holonomy is the ordered product of U along it (code/measure/husk-braid).
@@ -271,11 +271,11 @@ export function huskBraidDetail(log: (s: string) => void = () => {}): HuskBraidR
   }
 }
 
-// ---- part 'chern' (item 0045, OPEN-MAT-07 first half) ----
+// ---- part 'chern' (OPEN-MAT-07 first half) ----
 //
 // Does the pair string's field on the relative coordinate carry net flux? C of the U(1) (determinant) part of the
 // sector-pair connection over each closed lattice plane of the w = 0 slice, the free hop's det-phase divided out.
-// GATES (fixed in the item 2026-10-08, before any run of this read):
+// GATES (fixed in the an earlier step-10-08, before any run of this read):
 //   ADMISSIBLE  every plaquette's principal det-phase at most pi - 0.1 in magnitude, else the plane is unread (OPEN at
 //               L 8, the count reported, the margin never moved).
 //   PASS        every read plane C = 0 to 1e-9: no net flux, 0023's partial is a smooth string interaction.
@@ -487,11 +487,11 @@ export function huskChernDetail(log: (s: string) => void = () => {}, store?: Blo
   }
 }
 
-// ---- part 'flux' (item 0045 rewritten by decision 010, OPEN-MAT-07 first half) ----
+// ---- part 'flux' (an earlier step rewritten by a recorded decision, OPEN-MAT-07 first half) ----
 //
-// The same stored sector blocks, read on the reciprocal connection V = U_f (X^dag)^(1/2) of decision 010 (rule, free,
+// The same stored sector blocks, read on the reciprocal connection V = U_f (X^dag)^(1/2) of a recorded decision (rule, free,
 // string removed). READ 1: C of det V per closed plane. READ 2: 0023's loop table on V.
-// GATES (fixed in the item 2026-10-08, before any V loop read):
+// GATES (fixed in the an earlier step-10-08, before any V loop read):
 //   INSTRUMENT  |V(y + e, -e) V(y, e) - 1| <= 1e-12 on every admissible link; a link whose X has an eigenphase within 0.1
 //               of pi is inadmissible and every plane and loop through it is unread (counted, the margin never moved).
 //   READ 1      every read plane's C an integer to 1e-9 (else instrument failure); all 0: no net flux; any nonzero: flux

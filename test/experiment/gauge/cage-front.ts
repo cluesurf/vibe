@@ -1,5 +1,5 @@
-// THE FRONT LEMMA: IS R*'S STRAIGHT-THROUGH TRANSFER NILPOTENT ON A LONE THIRD'S START? (note/project/vibe/roadmap/
-// moving-matter item 0086, decision 019 point 3). Explores whether any colour field could cage a lone third on R*'s cycle.
+// THE FRONT LEMMA: IS R*'S STRAIGHT-THROUGH TRANSFER NILPOTENT ON A LONE THIRD'S START? (the
+// moving-matter roadmap, point 3 of a recorded decision). Explores whether any colour field could cage a lone third on R*'s cycle.
 // On the D4 box the farthest dock one cycle reaches along root d is x0 + 2d, by one path (out along d, straight through
 // the hub x0 + d), so after n cycles x0 + 2n d holds (product of link unitaries) times N_d^n s0, with N_d the colour-free
 // straight-through block: |front| = |N_d^n s0| for every colour field. If N_d^n s0 never vanishes, the support grows for
@@ -13,7 +13,7 @@
 // and N_a is the extremal Fourier block of U(theta): the coefficient of e^(-4 i t) on the line theta = t w_a,
 // w_a . m_d = r_a . r_d, where only a = b = d reaches frequency 4. STEP 1 reads N_a both ways (the DFT is the instrument).
 //
-// GATES, fixed 2026-10-09 before any read (item 0086):
+// GATES, fixed 2026-10-09 before any read:
 //   KILL-ALL   on both sets (plain and Wilson, each half), some d has N_d^n s0 nonzero (above 1e-12 relative to rho_d^n)
 //              for every n up to 4 times the span dimension
 //   NILPOTENT  on some set every N_d is nilpotent on the reachable span (then the next extremal displacements are reported)

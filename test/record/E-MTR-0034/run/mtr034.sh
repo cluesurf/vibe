@@ -1,6 +1,6 @@
 #!/bin/sh
 # The record runner of the shared droplet run of E-MTR-0034 and E-SPN-0219's stage 2 (the droplet only through
-# mesh/work, never a raw ssh):
+# the $WORK command, never a raw ssh):
 #   sh mtr034.sh smoke     both part runners' paths at a tiny size on this machine (tmp/mtr034-smoke/, tmp/spn219-smoke/;
 #                          the clock's runner also checks its first 31 lags against the saved read)
 #   sh mtr034.sh ship      copy the package to the work droplet's /root/vibe-runs/spn219-mtr034/pkg and start the job
@@ -12,8 +12,7 @@
 #   sh mtr034.sh verdict   E-MTR-0034's verdict from the saved parts (log mtr034-verdict.log; refuses to overwrite it)
 R=$(cd "$(dirname "$0")/.." && pwd)
 W=$(cd "$R/../../.." && pwd)
-ROOT=$(cd "$W/../../../.." && pwd)
-WORK="$ROOT/mesh/work"
+WORK="${WORK:?set WORK to the command that runs a shell line on the work droplet}"
 S="$W/test/record/E-SPN-0219"
 D=/root/vibe-runs/spn219-mtr034
 TSX="node $W/node_modules/tsx/dist/cli.mjs --tsconfig $W/tsconfig.json --no-warnings=ExperimentalWarning"
@@ -25,7 +24,7 @@ case "$1" in
   ship)
     if "$WORK" "test -e $D/job.pid"; then echo "refusing: a job was already started in $D"; exit 3; fi
     "$WORK" "mkdir -p $D/pkg" || exit 2
-    # only what the parts import and run: code/ and the two run folders, never the 250 MB of saved records (the home
+    # only what the parts import and run: code/ and the two run folders, never the 250 MB of saved records (the
     # upload is slow, and the first full-package copy broke at 50 MB)
     COPYFILE_DISABLE=1 tar -C "$W" --exclude='tmp' --exclude='node_modules' --exclude='code/kernel/crate/host' --exclude='code/kernel/crate/target' -cf - package.json tsconfig.json tsconfig.check.json code task test/record/E-MTR-0034/run test/record/E-MTR-0034/gates.json test/record/E-SPN-0219/run test/record/E-SPN-0219/gates.json test/record/E-SPN-0219/gates-stage2.json | "$WORK" "tar -xf - -C $D/pkg" || exit 2
     "$WORK" "printf 'queues\t0\tbash test/record/E-MTR-0034/run/droplet-queues.sh\n' > $D/pkg/job-steps.tsv" || exit 2
@@ -47,6 +46,8 @@ case "$1" in
     done
     for q in 1 2 3; do "$WORK" "cat $D/pkg/tmp/droplet-logs/queue$q.log" > "$R/droplet-queue$q.log"; done
     "$WORK" "cat $D/job.log" > "$R/droplet-job.log"
+    # the fetched files are committed: the droplet's package folder reads ".", and no machine is named
+    $TSX "$W/task/scrub-log.ts" --root "$D/pkg" --root "$D" "$R"/droplet-queue*.log "$R/droplet-job.log" "$W"/test/record/E-MTR-0034/mtr034-*.json "$W"/test/record/E-SPN-0219/spn219-*.json
     echo "logs refreshed: $R/droplet-queue1.log .. 3, $R/droplet-job.log" ;;
   verdict)
     L="$R/mtr034-verdict.log"
@@ -54,6 +55,7 @@ case "$1" in
     cd "$W/test" || exit 2
     $TSX "$R/run/mtr034-combine.ts" > "$L" 2>&1
     echo "exit=$?" >> "$L"
+    $TSX "$W/task/scrub-log.ts" "$L"
     head -2 "$L" ;;
   *) echo "usage: mtr034.sh smoke | ship | status | fetch | verdict"; exit 2 ;;
 esac

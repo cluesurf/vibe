@@ -1,4 +1,4 @@
-// CALM ROOM (item vibe-roadmap-grounding-0058, B3 refiled by grounding decision 016). B1's cluster and bath on a closed
+// CALM ROOM (B3 refiled by the grounding decision). B1's cluster and bath on a closed
 // ring of L docks, the start lifted beside L - W calm docks, read as a long-time level over a window set by the ring's
 // light-crossing time. Everything runs on code/measure/cold-line.ts's closed engines (B1's rule, nothing changed) and
 // code/measure/cone-line.ts's sparse open line for the before-the-wrap check.

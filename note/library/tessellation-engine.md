@@ -230,7 +230,7 @@ frontier research agenda needs.
   engine validation) and
   `test/experiment/substrate-survey/tessellation-survey.ts` (the
   whole-catalog survey).
-- `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`,
+- `tessellations.csv` in the research notes,
   every substrate and its measured properties.
-- The source catalog notes in
-  `note/project/vibe/research/explorations/emergent-geometry/paper/notes/hyperbolic-tessellations`.
+- The source catalog notes on hyperbolic tessellations, in the
+  research notes.

@@ -1,4 +1,4 @@
-// THE SELF READER RERUN (item vibe-roadmap-grounding-0029; decision 005; note/self-reader.md). E-SLF-0187 (item 0004)
+// THE SELF READER RERUN (note/self-reader.md). E-SLF-0187
 // read B1's line self as a self, but failed on S3: on the exact R = 4 ball's 3-beat horizon a lone love's closure c and
 // its free null c0 both stay at or above 1/2, so tau_c = tau_0 = Infinity and "tau_c < 2 tau_0" is false by
 // construction. That verdict stands. This file is the new pre-registration: S3' reads the lone love on the line engine

@@ -230,7 +230,7 @@ export default experiment({
         momentumDistinctPhases: controlDistinctPhases,
       },
       notes:
-        'The survivor of the middle-layer search after E-FND-0082 and 0083: a coarse Z_3 amplitude the rule supplies, whose vacuum cancels exactly and whose defects carry the vacuum clock as a phase. The exact negative that comes with it: births happen only in the empty beat, so every defect has the same phase and nothing in the single-tone sector shifts it. The next test is an interaction that shifts one defect clock against another (roadmap quantum-coverage-0006). |A|^2 has no probability meaning yet, which is why this is L2.',
+        'The survivor of the middle-layer search after E-FND-0082 and 0083: a coarse Z_3 amplitude the rule supplies, whose vacuum cancels exactly and whose defects carry the vacuum clock as a phase. The exact negative that comes with it: births happen only in the empty beat, so every defect has the same phase and nothing in the single-tone sector shifts it. The next test is an interaction that shifts one defect clock against another (an open roadmap item). |A|^2 has no probability meaning yet, which is why this is L2.',
     })
   },
 })

@@ -1,4 +1,4 @@
-// THE PARITY SECTOR (item vibe-roadmap-grounding-0032, E-SLF-0192). On the line engine every love moves one dock a beat,
+// THE PARITY SECTOR (E-SLF-0192). On the line engine every love moves one dock a beat,
 // so every pairwise separation keeps its parity and a lock that needs a neighbour (separation 1) never opens on a start
 // whose separations are all even (T-0030a). This file holds what the experiment needs to ask the same on the honeycomb:
 //

@@ -1,9 +1,9 @@
-// The self reader's checks (E-SLF-0191, item vibe-roadmap-grounding-0029; note/self-reader.md): the exact R = 4 ball
+// The self reader's checks (E-SLF-0191; note/self-reader.md): the exact R = 4 ball
 // runs, W0's env, B1's level cut to 3 docks, the dock mixers' on-line blocks, and the lone love read on the line engine.
 // The ball parts are E-SLF-0187's own (test/experiment/selves/self-reader.ts), moved here unchanged so the rerun shares
-// them without importing an experiment; E-SLF-0187 keeps its copy as the record of item 0004.
+// them without importing an experiment; E-SLF-0187 keeps its copy as the record of the first reader run.
 //
-// THE LONE LOVE ON THE LINE (S3', decision 005): one love has no flux link and no full dock, so B1's line rule runs it
+// THE LONE LOVE ON THE LINE (S3'): one love has no flux link and no full dock, so B1's line rule runs it
 // with no phase at all, as the free walk on the honeycomb line (line-transfer Lemma 2). A slot s of dock 0 lies on the
 // line LINE_OF[s]; the love carries the forward label when s is that line's LINE_FIRSTS slot and the back label
 // otherwise (the orientation cutOnBall gives the line along LINE_FIRSTS). c is read from the line engine run, c0 from

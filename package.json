@@ -31,6 +31,7 @@
     "check:labels": "npx tsx --no-warnings=ExperimentalWarning task/check-labels.ts",
     "check:constants": "npx tsx --no-warnings=ExperimentalWarning task/check-constants.ts",
     "check:coverage": "npx tsx --no-warnings=ExperimentalWarning task/check-coverage.ts",
+    "check:private": "npx tsx --no-warnings=ExperimentalWarning task/check-private.ts",
     "test:full": "npx tsx --no-warnings=ExperimentalWarning test/run.ts && npx tsx --no-warnings=ExperimentalWarning test/test.ts",
     "call": "npx tsx --no-warnings=ExperimentalWarning",
     "rerun": "npx tsx --no-warnings=ExperimentalWarning test/rerun.ts",

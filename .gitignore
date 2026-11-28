@@ -6,6 +6,9 @@ make/
 *.blg
 *.out
 *.thm
+# latexmk state: absolute paths of the TeX install that built the paper
+*.fls
+*.fdb_latexmk
 *.log
 # kept experiment records (pre-registrations, verdict logs, saved parts) are tracked
 !test/record/**/*.log

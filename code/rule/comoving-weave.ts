@@ -7,7 +7,7 @@
 // mode: the swap phase where like vibes meet and the singlet phase (a fear's coordinate stored at the reflected
 // point) where a love meets a fear, with E-QTM-0123's frame tracking.
 //
-// ADOPTED 2026-09-26. The user made the comoving beat the knit's fear beat, so the law now lives in fear-weave
+// ADOPTED 2026-09-26. The author made the comoving beat the knit's fear beat, so the law now lives in fear-weave
 // advanceWhole itself (on by default, `comoving: false` the fixed-frame control) and this module is a thin use of
 // it: one implementation, not two. What it adds is a whole type whose own points are always present, and the
 // fermion-number reading.

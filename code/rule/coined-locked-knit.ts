@@ -207,7 +207,7 @@ export function coinLines(
   return out
 }
 
-// ---- the split coin (grounding decision 004, item vibe-roadmap-grounding-0017) ----
+// ---- the split coin ----
 //
 // THE HALF COIN D = C^(1/2). On a line's doublet C = P+ + w P- (P+- the projectors on e0 +- e1), and D = P+ + zeta6 P-
 // with zeta6 = 1 + w (zeta6^2 = w): keep (2 + w)/2, cross -w/2, and on a line of two open vibes the pair's determinant
@@ -774,7 +774,7 @@ export function mixBranch(
   return out
 }
 
-// G AT STRENGTH theta (opt-in, item vibe-roadmap-grounding-0025): G_theta = I + (u - 1) P_u on each lone frame, P_u the
+// G AT STRENGTH theta (opt-in): G_theta = I + (u - 1) P_u on each lone frame, P_u the
 // frame's uniform-mode projector and u = e^(i theta) = p + q w in Z[w], so keep (u + 7)/8 and each other frame slot
 // (u - 1)/8. u = -1 is G (mixBranch, same values), u = 1 the identity. Z[w] holds only the sixth roots of unity on the
 // unit circle, so theta is a multiple of pi/3 here. The adjoint is u's conjugate (p - q) - q w. mixBranch is unchanged.

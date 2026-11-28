@@ -1,4 +1,4 @@
-// The FINITE QUOTIENT of the {3,4,3,4} honeycomb modulo a prime ideal of Z[sqrt 2] (item vibe-roadmap-honeycomb-0008,
+// The FINITE QUOTIENT of the {3,4,3,4} honeycomb modulo a prime ideal of Z[sqrt 2] (
 // audit.md section 3.3, note/honeycomb-transfer-radius.md section 6). exact-3434.ts gives the transports k_a = F_a Z as
 // exact matrices over Z[sqrt 2]. Reduced modulo (3 + sqrt 2) (residue field F_7, sqrt 2 -> 4) they generate a finite
 // group K_7, the image of the frame group K. Its Cayley graph (docks = elements, slot a = right multiplication by k_a)

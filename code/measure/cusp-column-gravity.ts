@@ -1,11 +1,10 @@
-// CUSP COLUMN COUNTS, BRANCHING STEP-FIELD SCREENING, AND PAIR-DENSITY (1/N_D^2 = l^-6) WARPED 1/r GRAVITY
-// (item vibe-roadmap-board-0012, gaps B-14, B-37, B-52, m-10).
+// CUSP COLUMN COUNTS, BRANCHING STEP-FIELD SCREENING, AND PAIR-DENSITY (1/N_D^2 = l^-6) WARPED 1/r GRAVITY.
 //
 // Derivation (zero free parameters):
 //   On the {3,4,3,4} cusp, the horosphere at Busemann level l has area A(l) = l^3 per husk window (E-GRV-0155),
 //   and exact graph-depth column dock counts grow as N_D = 1, 18, 330, 6034 (cumulative 1, 19, 349, 6383) with
 //   lateral inter-column links m_D = 2 * 5^D = 10, 50, 250 (E-RLT-0122).
-//   - Raw unweighted bulk Laplacian / one-parent step field (Proposal 006 Option A): bulk volume grows exponentially
+//   - Raw unweighted bulk Laplacian / one-parent step field (the board proposal's Option A): bulk volume grows exponentially
 //     with depth, so flux leaks into deep bulk and screens exponentially along the 3D husk (matching E-GRV-0150).
 //   - Single-vibe probability density scales as 1 / A(l) = l^-3 (p = 3, logarithmic threshold).
 //   - Two-vibe pair-interaction density (M_pair / two-body stress-energy) scales as (1 / A(l))^2 = 1 / N_D^2 = l^-6
@@ -244,7 +243,7 @@ export function runCuspColumnGravity(): CuspColumnGravityResult {
   const geom = exactColumnGeometry()
   const side = 16
 
-  // (1) Unweighted raw bulk Laplacian / one-parent tree (Proposal 006 Option A control) at floor F = 12
+  // (1) Unweighted raw bulk Laplacian / one-parent tree (the board proposal's Option A control) at floor F = 12
   const raw = solveColumnHuskGreen(side, 12, false)
   const rawHuskG1 = raw.gAlongX[1]!
   const rawHuskG2 = raw.gAlongX[2]!

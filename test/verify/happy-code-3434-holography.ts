@@ -3,7 +3,7 @@
 // Built from the Unique W(F_4)-Covariant 5-Uniform [[24, 1, 8]]_3 and [[24, 0, 6]]_3 Tensors.
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), zero-float GF(3)
-// bit-sliced symplectic algebra + exact O^+(4,1; Z[sqrt(2)]) Coxeter geometry, laptop-safe (< 5 s),
+// bit-sliced symplectic algebra + exact O^+(4,1; Z[sqrt(2)]) Coxeter geometry, fast (< 5 s),
 // noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Machine-verified theorems proved in this script:

@@ -1,5 +1,5 @@
 // THE BERRY PHASE OF A ROLE TURNED ROUND A CLOSED LOOP BY THE RULE'S LINKS (E-QTM-0196, OPEN-QTM-12, quantum-coverage
-// item 0023). The ledger holds "Berry and geometric phase" as a stand-in (E-GMT-0036, E-QTM-0094); atoms-and-quanta.md
+// an earlier step). The ledger holds "Berry and geometric phase" as a stand-in (E-GMT-0036, E-QTM-0094); atoms-and-quanta.md
 // lists the Berry phase as not measured. This explores whether a role carried round a loop by Sigma(648), the rule's link
 // group, picks up a geometric phase, how it depends on the solid angle the loop encloses, and whether the value is the
 // spin-1 one a qutrit would suggest or the spin-1/2 one.

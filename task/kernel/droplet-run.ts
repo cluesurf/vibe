@@ -13,8 +13,8 @@
 //     4. wait for the droplet, for ssh to run a command and return that command's own marker, and for cloud-init
 //     5-7. as below, then destroy by id, confirm by tag that it is gone, stand the watchdog down, print minutes and cost
 //
-//   EXISTING  --host work       a machine that is already there and has other work (a work droplet that also builds
-//                               deploy images). Nothing is created or destroyed. The address is read at run time, never
+//   EXISTING  --host work       a machine that is already there and has other work (a shared host that also runs
+//                               other builds). Nothing is created or destroyed. The address is read at run time, never
 //                               written in this file: VIBE_WORK_HOST (user@address), or else the first droplet carrying
 //                               the tag --host-tag (default "work"), as root. Before anything runs:
 //     - refuse if a build is running there (a docker or buildx build process) or another vibe run is live
@@ -49,7 +49,7 @@
 //   environment: VIBE_DROPLET_REGION, VIBE_DROPLET_SSH_KEY, VIBE_DROPLET_IDENTITY, VIBE_WORK_HOST, VIBE_WORK_IDENTITY
 //                (and gpu-run.ts's VIBE_GPU_* names, still read)
 //
-// See note/project/vibe/kernel.md, "Running heavy jobs on a CPU droplet".
+// See the kernel notes, "Running heavy jobs on a CPU droplet".
 
 import { spawn, spawnSync } from 'node:child_process'
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs'

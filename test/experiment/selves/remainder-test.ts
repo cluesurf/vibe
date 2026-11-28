@@ -1,4 +1,4 @@
-// THE REMAINDER TEST OF A SELF (item vibe-roadmap-grounding-0053, refiled from 0046 under decision 015;
+// THE REMAINDER TEST OF A SELF (refiled from 0046 under a recorded decision;
 // code/measure/remainder.ts). A second, independent
 // definition of a self beside the closure reader: a region is a self when its own surroundings cannot rebuild its next
 // state. The idea is @OhWellMike's Rem(lambda) = U_lambda - U_field with his signs N1 (the prediction gap saturates
@@ -261,7 +261,7 @@ export default experiment({
     const gI7 = deltaMin >= DELTA_FLOOR && armDeltaOff <= TOL
     const gI8 = [B1, ...loves.map(l => l.reading)].every(r => r.reach === T) && [A0, ...armRuns].every(r => r.reach === armT)
     const nullOff = Math.max(
-      // no G0 <= r0 clause: the never-left and the returned amplitude interfere (trap T-0046a)
+      // no G0 <= r0 clause: the never-left and the returned amplitude interfere (a recorded trap)
       ...frees.map(f => Math.max(f.traceOff, f.wholeOff)),
     )
     const gI9 = nullOff <= TOL

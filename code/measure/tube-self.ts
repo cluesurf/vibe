@@ -1,16 +1,16 @@
-// B1'S LINE SELF ON THE EXACT TUBE (item vibe-roadmap-grounding-0031, E-SLF-0198). E-SLF-0189 read the line self
+// B1'S LINE SELF ON THE EXACT TUBE (E-SLF-0198). E-SLF-0189 read the line self
 // under the frame mixer at strength theta on the line engine, which is honeycomb-exact only through beat 2 (Lemma W,
 // note/line-confinement.md section 4): weight the mixer sends off the line never comes back there. Here the same self
 // runs on the whole honeycomb near its line (code/substrate/coxeter/exact-tube), so weight that leaves at beat 1 can
 // come back at beat 3.
 //
-// THE RULE: B1's line rule as board proposal 012 writes it for any state (code/measure/cross-ball sparseBeat, split
+// THE RULE: B1's line rule as the board proposal writes it for any state (code/measure/cross-ball sparseBeat, split
 // place, the sign and the cost on, clock 14, exact in Z[w][1/2] per clock count), with G_theta = I + (u - 1) P_u on
 // every lone frame before each beat (keep (7 + u)/8, each other slot of the frame (u - 1)/8, thetaMixBranch's values).
 // u = e^(i theta) is not in Z[w] for theta = 4pi/9, so it is carried as a power: a state is a map p -> an exact sparse
 // state, the physical state sum_p u^p psi_p. Keep sends 7/8 to p and 1/8 to p + 1, a cross -1/8 to p and 1/8 to p + 1.
 // The mixer hop's sign is a choice: 'parity' multiplies it by the reordering parity of the open modes in modeIndex
-// order (proposal 012's sign on every slot map), 'none' moves the vibe with no sign (thetaMixBranch).
+// order (the board proposal's sign on every slot map), 'none' moves the vibe with no sign (thetaMixBranch).
 //
 // THE START: a line engine store (code/measure/cone-line) placed on the tube's line l through dock 0 along D0 (mode
 // 2x + 1 the forward label on D0 at line position x - offset, 2x the back label on its opposite), times the gauge

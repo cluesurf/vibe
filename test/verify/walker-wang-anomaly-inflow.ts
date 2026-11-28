@@ -1,4 +1,4 @@
-// FRONTIER TRACK F7 (Game-Changer #3, board-0061):
+// FRONTIER TRACK F7 (Game-Changer #3):
 // 4+1D / 3+1D Bulk Topological Walker-Wang Order, Exact GNVW Chiral Index Analysis,
 // and Exact Z_3 / Z[omega] Clifford QCA Disentangler on {3,4,3,4} / D_4 / {4,3,4}.
 //
@@ -48,7 +48,7 @@
 //       - Honest 4+1D Betti-number audit (b_3(T^4) = 4 < b_2(T^4) = 6) contrasting 3+1D->2+1D bosonic
 //         anyon inflow against 4+1D->3+1D chiral Weyl fermion inflow (BT5 domain wall + F1 SMG).
 //
-// Strictly deterministic (ZERO Math.random), standalone, exact BigInt/GF(3) + Float64, laptop-safe (< 5s).
+// Strictly deterministic (ZERO Math.random), standalone, exact BigInt/GF(3) + Float64, fast (< 5s).
 
 type CheckRow = {
   readonly id: string

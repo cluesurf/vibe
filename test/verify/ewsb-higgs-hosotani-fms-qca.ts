@@ -1,7 +1,7 @@
 // WAVE-5 STANDARD MODEL CLOSURE — ROUTE A / B / C EWSB & HIGGS VERIFICATION SUITE
 //
 // Self-contained, zero-external-import, zero-Math.random, deterministic Float64/BigInt,
-// laptop-safe (< 6 s, < 250 MB RAM) verification suite.
+// fast (< 6 s, < 250 MB RAM) verification suite.
 //
 // TIER A vs TIER B SCOPE:
 //   - Tier A (bare substrate / exact internal-group baseline):
@@ -3480,7 +3480,7 @@ console.log(`Runtime: ${(elapsedMs / 1000).toFixed(3)} s | RSS: ${rssMB.toFixed(
 console.log('========================================================================')
 
 assert(passed === CHECKS.length, `Only ${passed}/${CHECKS.length} checks passed`)
-assert(elapsedMs < 6000, `Exceeded 6 s laptop-safe budget: ${elapsedMs.toFixed(1)} ms`)
+assert(elapsedMs < 6000, `Exceeded 6 s fast budget: ${elapsedMs.toFixed(1)} ms`)
 if (rssMB > 0) {
   assert(rssMB < 250, `Exceeded 250 MB RAM budget: ${rssMB.toFixed(1)} MB`)
 }

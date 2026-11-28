@@ -18,11 +18,11 @@
 // why heating the body does not erase the outcome: the outcome is made by the settling
 // against the slab, which thermal noise in the body does not stop.
 //
-// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab was once called
+// UNDER REVIEW (a recorded decision of the one-present roadmap). The open slab was once called
 // the growing edge and the arrow, but it is not growth and not part of the rule:
 // zeroing it destroys information every beat. There is one present, the whole state at
 // this beat, and the arrow is the second law read from it. So the record gated here is
-// the erasure's, and the rerun with a bath that stays in the present (item 0011, X4 in
+// the erasure's, and the rerun with a bath that stays in the present (X4 in
 // the review) decides the verdict. The gates and verdict below are unchanged until then.
 //
 // Depth L2. This reads the substrate's measurement-as-settling against the warm prong of
@@ -145,7 +145,7 @@ export default experiment({
       // CONTROL: closed run from the hottest body, no wake, so a much weaker record.
       control: { closedRecord: Number(closedRecord.toFixed(4)) },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  Rerun at sides 5 and 7 on 2026-08-31: the record holds at every temperature at both (minimum record 1.32 and 1.24 against the closed control 0.03 and 0.02), so the even side changes nothing here.' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until an open roadmap item decides whether to switch to an odd side.  Rerun at sides 5 and 7 on 2026-08-31: the record holds at every temperature at both (minimum record 1.32 and 1.24 against the closed control 0.03 and 0.02), so the even side changes nothing here.' +
         "Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md, point 6), the warm prong. Companion to decoherence-immunity (the wet prong). Together they show vibe's definite outcome carries neither the warm nor the coherence bill.",
     })
   },

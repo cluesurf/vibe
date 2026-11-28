@@ -1,4 +1,4 @@
-// 4D M_pair(zeta_18) s-WAVE SELF, SPECTRAL ERROR FILTER, AND FAST SPARSE BATH CHECK (E-SLF-0200, gaps B-19, B-49, B-50).
+// 4D M_pair(zeta_18) s-WAVE SELF, SPECTRAL ERROR FILTER, AND FAST SPARSE BATH CHECK (E-SLF-0200).
 //
 // Two coupled breakthroughs toward a 4D self on the {3,4,3,4} honeycomb and its bath survival:
 //

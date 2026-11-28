@@ -1,6 +1,6 @@
 // THE GPU WATCHDOG: the teardown a rented GPU machine gets whether or not anyone remembers it. task/kernel/
 // A GPU droplet bills by the hour whether it is working, idle or powered off (only DESTROYING it stops the bill), and a
-// benchmark run can die at any step: a crashed script, a lost laptop session, an ssh that never returns. So the run that
+// benchmark run can die at any step: a crashed script, a lost local session, an ssh that never returns. So the run that
 // creates the machine (task/kernel/gpu-run.ts) starts this at the moment of creation, as a detached process that
 // outlives it, and this destroys the machine at the deadline no matter what happened in between.
 //
@@ -13,8 +13,7 @@
 //           one command for a leftover from a crashed run
 //
 // The DigitalOcean token is read from the environment only (DIGITALOCEAN_ACCESS_TOKEN, which doctl reads itself), never
-// from a file or an argument; this project supplies it with `term zone load cluesurf -- ...` (note/research/vibe/
-// kernel.md). Every action is appended to tmp/gpu-watchdog.log (gitignored), or to --log.
+// from a file or an argument. Every action is appended to tmp/gpu-watchdog.log (gitignored), or to --log.
 
 import { execFileSync } from 'node:child_process'
 import { appendFileSync, mkdirSync } from 'node:fs'
@@ -45,7 +44,7 @@ export type Droplet = { id: number; name: string; tags: string[]; created_at: st
 // doctl with the token from the environment; its JSON output parsed
 export function doctl(args: string[]): string {
   if (!process.env.DIGITALOCEAN_ACCESS_TOKEN) {
-    throw new Error('DIGITALOCEAN_ACCESS_TOKEN is not set (run under term zone load, or export it)')
+    throw new Error('DIGITALOCEAN_ACCESS_TOKEN is not set (export it)')
   }
 
   return execFileSync('doctl', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })

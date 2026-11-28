@@ -1,9 +1,9 @@
-// THE READER ON FEAR CONFIGURATIONS (item vibe-roadmap-grounding-0059, grounding decision 017): item 0039's readings
-// on the two-species store's configurations (code/measure/fear-store), each one 0039's operation for operation on a
+// THE READER ON FEAR CONFIGURATIONS: the line reader's readings
+// on the two-species store's configurations (code/measure/fear-store), each one the line reader's operation for operation on a
 // configuration with no fear and no store.
 //
-// F, the bound count (decision 017 section 1). F = sum over anchors X of ||(<phi_X| on the love modes, identity on the
-// rest) psi||^2, phi_X 0039's level (cold-line lineReader) at anchor X. A placement counts on a configuration when each
+// F, the bound count. F = sum over anchors X of ||(<phi_X| on the love modes, identity on the
+// rest) psi||^2, phi_X the line reader's level (cold-line lineReader) at anchor X. A placement counts on a configuration when each
 // of its three modes holds an OPEN love (+1); a fear is never in a trio and a stored love is on no mode. The anchor dock
 // must hold an open love (boundCount's anchored test, read on loves). What is left (the other loves, every open fear,
 // every store trit) is the rest configuration, kept under the identity, and the cut shifts by the trio modes that wrap

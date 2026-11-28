@@ -8,7 +8,7 @@
 //
 // 1. the cell: |H| = 1,152, Z in H and central, 24 facets, the facet-direction Gram equal to the D4 root Gram,
 //    Z F_a Z = F_{-a}, and a chamber point with trivial stabilizer (so a center and one more image fix a frame)
-// 2. shells 1, 24, 456, 8,376 (radius 3), and 153,192 (radius 4, the M3 run)
+// 2. shells 1, 24, 456, 8,376 (radius 3), and 153,192 (radius 4, the large run)
 // 3. 0 inconsistent steps (the antipodal labels close on every loop), and neighbour(neighbour(c, a), -a) = c
 // 4. the exact table equals label-transport.ts's float buildHyperbolicBall at radius 3, cell for cell and slot
 //    for slot (the same breadth-first order), so the float version was right where it was used
@@ -16,7 +16,7 @@
 //    at most R - 2) all 192 walks (a, -b, a, -b) with a.b = 1 close and none of the 192 walks (a, b - a, -b)
 // 6. the class map k_a -> a mod 2 D4 is well defined on every edge of the ball (0 conflicts)
 // 7. the transports reduced mod (3 + sqrt 2) keep the group's relations, k_a k_{-a} = 1 and (k_a k_{-b})^2 = 1
-//    for a.b = 1, the input of the finite quotient (item 0008)
+//    for a.b = 1, the input of the finite quotient
 //
 // CONTROLS: the flat D4 box (side 8) reads shell 2 = 144 and closes all 192 triangle walks and no square walk at
 // every dock, the opposite of the honeycomb. And the translation transport (parallel transport, float) is
@@ -342,7 +342,7 @@ export function honeycombTransfer(radius: number): Verdict {
       translationInconsistentSteps: translation.inconsistentSteps,
     },
     notes:
-      'L2, exact. The ball has a frontier: the outermost shell lacks its outward neighbours (-1), so the walk counts are read only at docks within R - 2 of the base cell, where every walk of length 4 stays inside. The labels are antipodal (F_a Z), which reverse orientation at each step relative to parallel transport, so directions across docks are compared by parallel transport, never by label. The float ball is compared only at radius 3, where its rounded keys are safe. Absorbs tmp/honeycomb-transfer-probe.ts. Radius 4 (153,192 in shell 4) is the M3 run.',
+      'L2, exact. The ball has a frontier: the outermost shell lacks its outward neighbours (-1), so the walk counts are read only at docks within R - 2 of the base cell, where every walk of length 4 stays inside. The labels are antipodal (F_a Z), which reverse orientation at each step relative to parallel transport, so directions across docks are compared by parallel transport, never by label. The float ball is compared only at radius 3, where its rounded keys are safe. Absorbs tmp/honeycomb-transfer-probe.ts. Radius 4 (153,192 in shell 4) is the large run.',
   })
 }
 

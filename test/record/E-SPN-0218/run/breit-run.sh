@@ -6,3 +6,7 @@ OUT="$D/${1:-breit-verdict.log}"
 if [ -e "$OUT" ]; then echo "refusing to overwrite $OUT"; exit 1; fi
 cd "$W" || exit 2
 node "$W/node_modules/tsx/dist/cli.mjs" --tsconfig "$W/tsconfig.json" --no-warnings=ExperimentalWarning "$D/run/breit-run.ts" "$OUT"
+code=$?
+# the log is committed: it must not name this machine's paths
+node "$W/node_modules/tsx/dist/cli.mjs" --tsconfig "$W/tsconfig.json" --no-warnings=ExperimentalWarning "$W/task/scrub-log.ts" "$OUT"
+exit "$code"

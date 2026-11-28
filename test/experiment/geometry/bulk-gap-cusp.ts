@@ -1,5 +1,5 @@
-// IS THE BULK GAPPED AND ARE THE CUSPS GAPLESS? (item vibe-roadmap-board-0050, future-models.md new base possibility
-// 3, gaps B-38, B-10, B-11, B-22, B-59). Gates pre-registered in the item's `what` before any probe.
+// IS THE BULK GAPPED AND ARE THE CUSPS GAPLESS? (future-models.md new base possibility
+// 3). Gates pre-registered in the item's `what` before any probe.
 //
 // The claim under test: on a non-amenable mesh the dock adjacency has a spectral gap, so the bulk holds no long soft
 // waves, while along a cusp the husk is a cubic lattice with Z^3 Bloch momentum where long waves could live. Then key 1
@@ -850,7 +850,7 @@ export function bulkGapCuspRun(plan: BulkGapPlan): Verdict {
     claim: `the dock adjacency's top nontrivial eigenvalue is ${small.toFixed(6)} on K mod (sqrt 2)^${plan.quotients[0]!.twoPower} and ${large.toFixed(6)} on K mod (sqrt 2)^${plan.quotients[1]!.twoPower} (bulk gap ${bulkGap.toFixed(4)}); on the cusp neighborhood with a Dirichlet floor the band is lowest at husk momentum 0, where 24 - theta_F is ${cuspGap.map(v => v.toFixed(4)).join(', ')} at floors ${plan.floors.join(', ')}, so theta_F = ${theta.map(v => v.toFixed(4)).join(', ')} bound the honeycomb's spectral radius from below (Kesten ${KESTEN.toFixed(3)}, majorant ${MAJORANT}); period 4 floor ${plan.bandFloors[plan.bandFloors.length - 1]} Laplacian band bottoms by momentum (2 pi / 4 units): ${bandLine}; the reflecting floor's k = 0 mode is exact (the floor's finite volume) and its other sectors move by up to ${reflectMove.toFixed(4)} between floors; the lone vibe's walk is the fear walk on every quotient line (cos W = cos q / 2, residual ${worstWalk.toExponential(1)}); ${bar ? 'the bulk is gapped and the cusp gapless' : 'the cusp is not gapless: it carries the bulk gap'}`,
     metrics,
     notes:
-      'L1 (an instrument read, exact tables, float spectra with explicit residuals). Gates pre-registered in vibe-roadmap-board-0050 before any probe. No random numbers: Lanczos starts are the delta at the base dock (minus the mean, or projected onto a husk-momentum sector by the exact translation automorphisms). Status pass = G0, G1, G2 and the bar; fail = G0 to G2 hold and the bar is missed; open = an instrument, residual or reference gate breaks.',
+      'L1 (an instrument read, exact tables, float spectra with explicit residuals). Gates pre-registered before any probe. No random numbers: Lanczos starts are the delta at the base dock (minus the mean, or projected onto a husk-momentum sector by the exact translation automorphisms). Status pass = G0, G1, G2 and the bar; fail = G0 to G2 hold and the bar is missed; open = an instrument, residual or reference gate breaks.',
   })
 }
 

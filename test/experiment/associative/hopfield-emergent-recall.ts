@@ -208,7 +208,7 @@ export default experiment({
       },
       control: { bareRecall: r.bareRecall, chance: r.chance },
       notes:
-        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is an open roadmap item. ' +
         'the bare-rule recall near chance IS the honest negative, the reversible rule conserves charge and has no energy descent, so it has no attractors and cannot clean a noisy cue',
     })
   },

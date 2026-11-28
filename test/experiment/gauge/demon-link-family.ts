@@ -1,8 +1,8 @@
-// A NAMED FAMILY OF REVERSIBLE LINK UPDATES ON THE CUSP NEIGHBORHOOD (item vibe-roadmap-board-0035, proposal 008's
-// string half). Every gate, the family and its count were written into the item's `what` before this file existed
+// A NAMED FAMILY OF REVERSIBLE LINK UPDATES ON THE CUSP NEIGHBORHOOD (a board proposal's
+// string half). Every gate, the family and its count were registered before this file existed
 // (gate 2be6b63a895b, 2026-11-16T04:51:47Z), and every run goes through task/pre-register.
 //
-// THE QUESTION. Proposal 008 (board decision 008, amended after round 03) keeps one half: links become a dynamical
+// THE QUESTION. A board proposal (amended after round 03) keeps one half: links become a dynamical
 // field that can carry a confining string. Its falsifier: over a named family of reversible link updates, seeded from
 // E-FRC-0110 (the one reversible Sigma(648) link rule on record), the cusp neighborhood (E-GMT-0041) shows no
 // confining string with a Z3 centre under gates fixed first.
@@ -22,7 +22,7 @@
 //   m4 A12 with twice that capacity
 //
 // WHAT IT ADDS TO THE BASE, counted: a demon register per link (log2(c + 1) bits), a link update and its class
-// schedule. Links stop being elements that never change. This file adopts nothing; it informs board-0033.
+// schedule. Links stop being elements that never change. This file adopts nothing; it informs a later board review.
 //
 // NOT CLAIMED: orientation joining. A link field stores flux, not matter, and moves no value between the two
 // orientation classes (round 03 P3-1). Nothing here tests it.
@@ -35,8 +35,8 @@
 // transporting a frame through layer plaquettes, so rectangular Wilson loops and the wrap loops around the period are
 // exact paths. The Z3 centre symmetry is a wall cochain on the layer coordinate n1 carried down to every dock.
 //
-// GRADE. An equilibrium ensemble on the cusp feels the floor at once, so every reading is mirrored grade (honeycomb
-// decision 002), never honeycomb grade; the floor is read by running floor 1 against floor 2.
+// GRADE. An equilibrium ensemble on the cusp feels the floor at once, so every reading is mirrored grade (
+// a recorded decision), never honeycomb grade; the floor is read by running floor 1 against floor 2.
 //
 // Depth L2: a reproduction of finite-group lattice gauge theory (Creutz, Jacobs and Rebbi 1979; Bhanot and Rebbi
 // 1981) under a reversible demon rule, on the true mesh's cusp.
@@ -1254,7 +1254,7 @@ export type RunReading = {
   energyDrift: number
   plaquette: number
   layerPlaquette: number
-  // the layer plaquette mean over the first and the second half of the measured sweeps (board-0041's S0)
+  // the layer plaquette mean over the first and the second half of the measured sweeps (E-FRC-0318's S0)
   layerHalves: [number, number]
   beta: number
   loops: { value: number; error: number }[]
@@ -1377,8 +1377,8 @@ export function pointGates(r: RunReading): PointGates {
 // ---------------------------------------------------------------------------------------------------------------
 // the parts
 
-export type LaptopPart = {
-  part: 'laptop'
+export type SmallPart = {
+  part: 'small'
   group: { order: number; centre: number; omegaFound: number }
   members: { name: string; scale: number; capacity: number; lowest: number; registerBits: number }[]
   instrument: Record<string, number>
@@ -1451,7 +1451,7 @@ function centreCheck(input: {
   color: ColorGroup
   member: Member
   state: State
-}): LaptopPart['centre'] {
+}): SmallPart['centre'] {
   const { field, color, member, state } = input
   const graph = field.graph
   const layer = graph.layer!
@@ -1608,7 +1608,7 @@ function seedAutomaton(group: FiniteGroup, levels: Int32Array, capacity: number,
 
 const strip = ({ state: _, ...reading }: RunReading & { state: State }): RunReading => reading
 
-export function laptopPart(log: (line: string) => void): LaptopPart {
+export function smallPart(log: (line: string) => void): SmallPart {
   const color = colorGroup()
   const family = familyF35(color)
   const graph = cuspGraph({ period: 4, floor: 1 })
@@ -1708,7 +1708,7 @@ export function laptopPart(log: (line: string) => void): LaptopPart {
   })
 
   return {
-    part: 'laptop',
+    part: 'small',
     group: { order: color.group.order, centre: color.centre.length, omegaFound: color.omega >= 0 ? 1 : 0 },
     members: family.map(m => ({
       name: m.name,
@@ -1749,17 +1749,17 @@ export function gridPart(part: 'grid' | 'floor', log: (line: string) => void): G
 // ---------------------------------------------------------------------------------------------------------------
 // the verdict, as registered
 
-export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; floor: GridPart }): Verdict {
-  const { laptop, grid, floor } = input
-  const i1 = laptop.group.order === 648 && laptop.group.centre === 3 && laptop.group.omegaFound === 1
-  const i2 = i2Holds(laptop.instrument) && i2Holds(grid.instrument) && i2Holds(floor.instrument)
-  const i3 = [laptop.instrument, grid.instrument, floor.instrument].every(g => g.classConflicts === 0)
-  const i4 = [laptop.instrument, grid.instrument, floor.instrument].every(g => g.bipartiteConflicts === 0)
-  const i5 = laptop.reversal.every(r => r.moved === 1 && r.returns === 1)
-  const allRuns = [...laptop.runs, ...grid.runs, ...floor.runs]
+export function demonLinkVerdict(input: { small: SmallPart; grid: GridPart; floor: GridPart }): Verdict {
+  const { small, grid, floor } = input
+  const i1 = small.group.order === 648 && small.group.centre === 3 && small.group.omegaFound === 1
+  const i2 = i2Holds(small.instrument) && i2Holds(grid.instrument) && i2Holds(floor.instrument)
+  const i3 = [small.instrument, grid.instrument, floor.instrument].every(g => g.classConflicts === 0)
+  const i4 = [small.instrument, grid.instrument, floor.instrument].every(g => g.bipartiteConflicts === 0)
+  const i5 = small.reversal.every(r => r.moved === 1 && r.returns === 1)
+  const allRuns = [...small.runs, ...grid.runs, ...floor.runs]
   const i6 =
-    allRuns.every(r => r.energyDrift === 0) && laptop.box.every(b => b.drift === 0)
-  const c = laptop.centre
+    allRuns.every(r => r.energyDrift === 0) && small.box.every(b => b.drift === 0)
+  const c = small.centre
   const i7 =
     c.closedFailures === 0 &&
     c.wrapSums.length === 1 &&
@@ -1773,10 +1773,10 @@ export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; fl
   const frozenFails = gridGates
     .filter(({ r }) => r.layerPlaquette >= FROZEN_PLAQUETTE)
     .every(({ g }) => !g.s2 || !g.s3)
-  const vacuumFailsS2 = laptop.vacuum.every(v => !(v.chi22 >= 0.1))
+  const vacuumFailsS2 = small.vacuum.every(v => !(v.chi22 >= 0.1))
   const c1 = frozenFails && vacuumFailsS2
   const boxAt = (f: number): boolean => {
-    const b = laptop.box.find(x => x.fill === f)
+    const b = small.box.find(x => x.fill === f)
 
     return b !== undefined && Math.abs(b.engine - b.seed) <= 0.02
   }
@@ -1784,7 +1784,7 @@ export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; fl
   const passing = gridGates.filter(({ g }) => g.string).map(({ r }) => r)
   const m1Passing = passing.filter(r => r.member === 'm1')
   const floorStable = m1Passing.filter(r => {
-    const a = laptop.runs.find(x => x.member === 'm1' && x.fill === r.fill)
+    const a = small.runs.find(x => x.member === 'm1' && x.fill === r.fill)
     const b = floor.runs.find(x => x.member === 'm1' && x.fill === r.fill)
 
     if (a === undefined || b === undefined) {
@@ -1814,7 +1814,7 @@ export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; fl
       }),
     )
   const meltGrid = meltAt(grid.runs)
-  const v0Moves = laptop.vacuum.map(v => `${v.member} ${v.plaquetteMoves} plaquette links, ${v.freeMoves} free links`).join('; ')
+  const v0Moves = small.vacuum.map(v => `${v.member} ${v.plaquetteMoves} plaquette links, ${v.freeMoves} free links`).join('; ')
   const metrics: Record<string, number> = {
     i1: i1 ? 1 : 0,
     i2: i2 ? 1 : 0,
@@ -1847,7 +1847,7 @@ export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; fl
     metrics[`${m}_meltEnergyPerLink`] = meltGrid[m] ?? Number.NaN
   }
 
-  const v0Text = `V0 (the empty mesh, every link the identity and every demon 0) under every member: ${v0Moves} moved in ${VACUUM_SWEEPS} sweeps on I-A, every layer loop ${laptop.vacuum.every(v => v.loopsAllOne === 1) ? 'exactly 1' : 'NOT 1'}, so V0 is frozen and carries no string`
+  const v0Text = `V0 (the empty mesh, every link the identity and every demon 0) under every member: ${v0Moves} moved in ${VACUUM_SWEEPS} sweeps on I-A, every layer loop ${small.vacuum.every(v => v.loopsAllOne === 1) ? 'exactly 1' : 'NOT 1'}, so V0 is frozen and carries no string`
 
   return verdict({
     status,
@@ -1855,14 +1855,14 @@ export function demonLinkVerdict(input: { laptop: LaptopPart; grid: GridPart; fl
       passing.length > 0
         ? `A confining string with an unbroken Z3 centre (S2 to S4) holds at ${passing.length} of ${grid.runs.length} (member, fill) points on the period-8 cusp (${passing.map(r => `${r.member} f ${r.fill}`).join(', ')}), only at energy per link >= ${lowestPassing.toFixed(3)}, never in the vacuum`
         : `No (member, fill) point of F35 on the period-8 cusp gives a confining string with a Z3 centre`
-    }; ${floorStable.length} m1 points floor-stable; instruments ${instrumentsHold ? 'hold' : 'FAIL'}. Base addition: a demon register per link (${laptop.members.map(m => `${m.name} ${m.registerBits.toFixed(2)} bits`).join(', ')}). Orientation joining not tested and not claimed`,
+    }; ${floorStable.length} m1 points floor-stable; instruments ${instrumentsHold ? 'hold' : 'FAIL'}. Base addition: a demon register per link (${small.members.map(m => `${m.name} ${m.registerBits.toFixed(2)} bits`).join(', ')}). Orientation joining not tested and not claimed`,
     metrics,
     control: {
       frozenFails: frozenFails ? 1 : 0,
       vacuumFailsS2: vacuumFailsS2 ? 1 : 0,
-      ...Object.fromEntries(laptop.box.flatMap(b => [[`box_f${b.fill}_engine`, b.engine], [`box_f${b.fill}_seed`, b.seed]])),
+      ...Object.fromEntries(small.box.flatMap(b => [[`box_f${b.fill}_engine`, b.engine], [`box_f${b.fill}_seed`, b.seed]])),
     },
-    notes: `L2, mirrored grade (the floor is felt). Gates: board-0035 what, gate 2be6b63a895b. Melting energy per link on I-B: ${JSON.stringify(meltGrid)}. Instruments: I-A ${JSON.stringify(laptop.instrument)}; I-B ${JSON.stringify(grid.instrument)}; I-C ${JSON.stringify(floor.instrument)}. Centre: ${JSON.stringify(laptop.centre)}. Reversal: ${JSON.stringify(laptop.reversal)}.`,
+    notes: `L2, mirrored grade (the floor is felt). Gates registered before the run, gate 2be6b63a895b. Melting energy per link on I-B: ${JSON.stringify(meltGrid)}. Instruments: I-A ${JSON.stringify(small.instrument)}; I-B ${JSON.stringify(grid.instrument)}; I-C ${JSON.stringify(floor.instrument)}. Centre: ${JSON.stringify(small.centre)}. Reversal: ${JSON.stringify(small.reversal)}.`,
   })
 }
 
@@ -1879,7 +1879,7 @@ export default experiment({
     const log = (line: string): void => console.error(line)
 
     return demonLinkVerdict({
-      laptop: laptopPart(log),
+      small: smallPart(log),
       grid: gridPart('grid', log),
       floor: gridPart('floor', log),
     })

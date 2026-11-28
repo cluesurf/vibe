@@ -2,7 +2,7 @@
 //   Emergent Dynamical Gravity, Entanglement-Metric Backreaction, Composite Clock Redshift,
 //   and Massless Transverse-Traceless Spin-2 Gravitons on {3,4,3,4} and its 3D {4,3,4} Cusp.
 //
-// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), laptop-safe
+// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), fast
 // (< 10 s, < 300 MB RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Scientific tier discipline (strictly separated throughout):

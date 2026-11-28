@@ -18,6 +18,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { repoPath } from '@/code/tool/private-path'
 import { registerRun, splitCell } from '@/code/compute/lab/counter'
 import { KLEENE_TARGETS, gateRule, lineBrickRun, occupancyBlind, tableKey as gateTableKey } from '@/code/compute/lab/gates'
 import { wordIndex } from '@/code/intelligence/solver/develop/develop-router'
@@ -136,8 +137,10 @@ function header(input: {
   sources: readonly string[]
   lines: readonly string[]
 }): string {
+  // repoPath keeps the header repo-relative even if a source is ever listed absolute, so a
+  // committed Generated/ file never names the machine that ran the export.
   const sources = input.sources.map(
-    s => `Source: ${s}\nSHA-256: ${sourceDigest(s)}`,
+    s => `Source: ${repoPath(s)}\nSHA-256: ${sourceDigest(s)}`,
   )
 
   return [

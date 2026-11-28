@@ -1,6 +1,6 @@
 // THE WALKER STATE SPACE, SPECIES BY SPECIES (E-SPN-0205, from next-code and the overlay's claimed codes immediately
-// before writing; moving-matter item 0094, decision 020 gate G3, research/one-walker-costs.md sections 3 and 4).
-// Decision 020 replaced R*'s members by walkers whose internal space is Lambda(C^3) per tone times the register, grade k a
+// before writing; an earlier step, a recorded decision gate G3, research/one-walker-costs.md sections 3 and 4).
+// A recorded decision replaced R*'s members by walkers whose internal space is Lambda(C^3) per tone times the register, grade k a
 // conserved species label, the coin acting as G (x) 1 and a link as Lambda^k(R) (love) or Lambda^k(conj R) (fear), and
 // the Pauli principle per walker. This file re-reads, on that state space, what 0002 (E-SPN-0191) read on members, the
 // lift of R*'s pair piece between walkers of two grades, and states which charge 0001's Coulomb track put on the pair.
@@ -22,7 +22,7 @@
 //    exactly as 0002 read for members, since the second-quantized swap of two walker modes is a permutation matrix and
 //    its minor is the parity. This is per walker: the Pauli principle now forbids two walkers in one (box mode, colour)
 //    mode, in place of E-SPN-0175's one member per (slot, register, role) mode.
-// 3. THE TURN (L1). A walker carries ONE register whatever its grade (decision 020 point 1). A spatial rotation g acts on
+// 3. THE TURN (L1). A walker carries ONE register whatever its grade (point 1 of a recorded decision). A spatial rotation g acts on
 //    it by the spinor lift L(s) (s g's rotor in Cl+(4), 0002's lift with turn -1) and as the identity on colour, so a
 //    grade-k walker's action is L(s) (x) 1_C(3,k), and its 2 pi turn (the order-th power) is -1 on every grade. The
 //    minors action reads +1 on every grade (0002). The member reading would give a Lambda^k state k registers, turn
@@ -43,10 +43,10 @@
 //    constant a member pair's pull is 1/9 of what the track used; a Lambda^3 walker pair's is 9 times a member pair's
 //    (q^2, as G1's pump), i.e. exactly what the track used. Under the walker reading the ladder needs no rescaling.
 //
-// GATES (fixed 2026-10-09 in item 0094, copied here before any run).
+// GATES (fixed 2026-10-09 in an earlier step, copied here before any run).
 //   PASS when STEP 1 gives the minors and the -1 turn on every species to 1e-12, and STEP 2 agrees to 1e-12 on all 16
 //     (j, k), j, k in 0..3.
-//   REVERSE (decision 020 G3, reported as fail) when some species' minors quantization fails reversibility or the full
+//   REVERSE (a recorded decision G3, reported as fail) when some species' minors quantization fails reversibility or the full
 //     sea, or the Lambda^3 turn is +1.
 //   OPEN when STEP 2 disagrees (the lift is then not forced): the smallest (j, k) is reported.
 //   STEP 3 is read, not gated.
@@ -853,7 +853,7 @@ export function walkerSpeciesRun(): Verdict {
 
   return verdict({
     status,
-    claim: `STEP 1 ${STEP1}: ${speciesClaim}. Turn of the walker action L(s) (x) 1 over ${simple.length} one-plane rotations: ${walkerTurn.map((s, k) => `Lambda^${k} ${set(s)}`).join(', ')}; minors action ${set(minorsTurn)}. STEP 2 ${STEP2}: member piece against 1 + (e^(i j k phi) - 1) Q_A Q_B over ${angles.size} distinct angles (hole and member signs, both beats, L 4 torus), worst ${liftGap.toExponential(2)} on all 16 (j, k)${firstMiss ? `, first miss (${firstMiss.j}, ${firstMiss.k})` : ''}; self-phase gaps ${selfGap.map(g => g.toExponential(1)).join(', ')}; self-phase C(k, 2) phi(0), phi(0) ${phi0Hole.toFixed(6)} (holes, E-SPN-0175's rule) / ${phi0Member.toFixed(6)} (members): ${selfTable.map(s => `k ${s.k}: ${s.pairs} phi(0) = ${s.hole.toFixed(6)} / ${s.member.toFixed(6)}, love k - fear 3-k ${s.split} phi(0)`).join('; ')}. Controls C1 ${C1} C2 ${C2} (member-reading Lambda^2 turn ${set(memberTwo)}) C3 ${C3} (walker-pair lift misses by at least ${C3least.toExponential(2)}); instrument I1 ${I1} I2 ${I2} (det R = 1) I3 ${I3} (gap ${spinGap.toExponential(2)}) I4 ${I4}. ${reverse ? 'REVERSE (decision 020 G3).' : ''}`,
+    claim: `STEP 1 ${STEP1}: ${speciesClaim}. Turn of the walker action L(s) (x) 1 over ${simple.length} one-plane rotations: ${walkerTurn.map((s, k) => `Lambda^${k} ${set(s)}`).join(', ')}; minors action ${set(minorsTurn)}. STEP 2 ${STEP2}: member piece against 1 + (e^(i j k phi) - 1) Q_A Q_B over ${angles.size} distinct angles (hole and member signs, both beats, L 4 torus), worst ${liftGap.toExponential(2)} on all 16 (j, k)${firstMiss ? `, first miss (${firstMiss.j}, ${firstMiss.k})` : ''}; self-phase gaps ${selfGap.map(g => g.toExponential(1)).join(', ')}; self-phase C(k, 2) phi(0), phi(0) ${phi0Hole.toFixed(6)} (holes, E-SPN-0175's rule) / ${phi0Member.toFixed(6)} (members): ${selfTable.map(s => `k ${s.k}: ${s.pairs} phi(0) = ${s.hole.toFixed(6)} / ${s.member.toFixed(6)}, love k - fear 3-k ${s.split} phi(0)`).join('; ')}. Controls C1 ${C1} C2 ${C2} (member-reading Lambda^2 turn ${set(memberTwo)}) C3 ${C3} (walker-pair lift misses by at least ${C3least.toExponential(2)}); instrument I1 ${I1} I2 ${I2} (det R = 1) I3 ${I3} (gap ${spinGap.toExponential(2)}) I4 ${I4}. ${reverse ? 'REVERSE (a recorded decision G3).' : ''}`,
     metrics,
     control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), instrument: flag(instrument) },
     notes: `L1. STEP 3 (read): 0001's track (E-SPN-0200, and E-SPN-0183, E-SPN-0173 before it) puts no charge factor on the pull: alpha = 24 pi / (mu a_B) (register-coulomb-track.ts:177-178), n(y) = floor(alpha G(y) / theta) (register-reduced.ts:562-571), continuum hydrogen alpha' = alpha / (24 pi) = 1 / (mu a_B) (register-coulomb-hold.ts:27, :39, :519), so the pair's charge product is 1, folded into a_B. A member carries 1/3 (member-charge.ts:26-29), so at fixed fine structure a member pair's pull is 1/9 of the track's; a Lambda^3 walker (3 thirds) pair's is 9 times a member pair's, exactly the track's: the ladder needs no rescaling under the walker reading. Colour R = diag(1, w, w^2) F / (i sqrt 3). Q a rank-4 projector in the Hadamard frame (idempotent to ${Qidem.toExponential(1)}). ${((Date.now() - started) / 1000).toFixed(0)} s.`,

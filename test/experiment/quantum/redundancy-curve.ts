@@ -1,4 +1,4 @@
-// THE REDUNDANCY CURVE (E-QTM-0200, item vibe-roadmap-grounding-0003, research 21 brief B2). E-QTM-0162 posed
+// THE REDUNDANCY CURVE (E-QTM-0200, research brief B2). E-QTM-0162 posed
 // Wigner's friend on the rule's own gates and found that once the friend's record is copied to one third love, the
 // undo on system and friend fails (memory back with 91/256). This file copies the record to k = 0 to 5 further loves by
 // the same meeting and reads how fast a local undo fails, and whether the record becomes redundant (many disjoint
@@ -31,7 +31,7 @@
 // partial if every gate holds (the schedule is arranged and the friend is one vibe's point). The smoke setting (k to 2)
 // is open by rule.
 //
-// PROBES (test/probe-log/vibe-roadmap-grounding-0003.jsonl): smoke on the laptop (k to 2, open by rule), then full on
+// PROBES (the probe log): smoke on a small machine (k to 2, open by rule), then full on
 // M3 clone redundancy-curve (1.8 s), FAIL on M1 alone, every instrument and C1 true; title written after the run.
 // Star, k = 0 .. 5: B_SF 1, then 39/64 = 0.609375 at every k >= 1 (equal to 2e-16); B_S 1 to k = 4, 0.998474 at 5;
 // P_mem 1, 91/256, 199/1024, 631/4096, 2359/16384, 9271/65536; F_rule 4^-k; I(S : F) / H(S) 2 x 4^-k; R 1 at every k.

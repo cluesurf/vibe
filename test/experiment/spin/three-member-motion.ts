@@ -1,6 +1,6 @@
 // THE CHARGE-ONE, SPIN-HALF THREE-MEMBER STATE BOUND AND BOOSTED OFF THE HUSK AXES (E-SPN-0193, OPEN-MAT-01; moving-matter
-// item 0004, spec row B2). RULE: the candidate (register) rule, so the result is provisional until the rule is adopted
-// (moving-matter item 0006).
+// an earlier step, spec row B2). RULE: the candidate (register) rule, so the result is provisional until the rule is adopted
+// (still open).
 //
 // E-SPN-0192 found that three like-tone register members on one level carry Q = -1 with J = 1/2 (10 doublets per tone; in
 // one half, n+ = 3, all of Lambda^3 of the half's four register states is J = 1/2). This file asks whether the rule binds
@@ -388,7 +388,7 @@ export function threeMemberMotionRun(plan: MotionPlan): Verdict {
       .join('; ')} (VEL ${VEL}, BF ${BF}); control CT ${CT}, instruments I1 ${I1} I2 ${I2} I3 ${I3}`,
     metrics,
     control: { CT: flag(CT), freeShare: share.free },
-    notes: `Register rule, provisional until moving-matter item 0006. Lines at K = 0: ${ruleLines
+    notes: `Register rule, provisional until the rule is adopted. Lines at K = 0: ${ruleLines
       .map(l => `${l.E.toFixed(4)} (${l.height.toFixed(3)})`)
       .join(', ')}. Per direction: ${rows
       .map(r => `(${r.d.join(',')}) v ${r.v.map(x => x.toExponential(3)).join(' ')}, E ${r.E.toFixed(6)}, sign ${r.sign}, sigma ${r.sigma.toExponential(2)} against the FD difference ${r.minDiff.toExponential(2)}, level contact share ${r.share.toFixed(3)}, crossing time ${(plan.L / r.speed).toExponential(2)} cycles`)

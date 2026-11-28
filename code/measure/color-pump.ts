@@ -1,4 +1,4 @@
-// A LAUGHLIN PUMP ON THE COLOURED WALL SLAB (moving-matter item 0053, decision 011 point 3). The slab of E-FRC-0294
+// A LAUGHLIN PUMP ON THE COLOURED WALL SLAB. The slab of E-FRC-0294
 // (code/measure/color-slab: 8^3 x L, D4 modulo 8 D3 and L e_3) with every link multiplied by one colour-singlet U(1)
 // phase: a uniform field with exactly one flux quantum through the transverse (0, 1) torus, and a flat twist e^(i theta)
 // on the links that wrap the x2 period. Along the closed loop theta = 0 .. 2 pi each chiral wall member's lowest Landau

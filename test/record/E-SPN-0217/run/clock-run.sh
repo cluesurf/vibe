@@ -15,3 +15,5 @@ if [ -e "$L" ]; then echo "refusing to overwrite $L"; exit 3; fi
 cd "$W/test" || exit 2
 node "$W/node_modules/tsx/dist/cli.mjs" --tsconfig "$W/tsconfig.json" --no-warnings=ExperimentalWarning "$S" "$@" > "$L" 2>&1
 echo "exit=$?" >> "$L"
+# the log is committed: a crash's stack trace must not name this machine's paths
+node "$W/node_modules/tsx/dist/cli.mjs" --tsconfig "$W/tsconfig.json" --no-warnings=ExperimentalWarning "$W/task/scrub-log.ts" "$L"

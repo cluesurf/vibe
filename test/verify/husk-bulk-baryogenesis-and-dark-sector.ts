@@ -3,7 +3,7 @@
 //   & Sterile Deep-Bulk Dark-Matter Candidate on the 4D Hyperbolic {3,4,3,4} Honeycomb
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports),
-// laptop-safe (< 10 s, < 300 MB RAM), strict noUncheckedIndexedAccess-safe, ending with `export {}`.
+// fast (< 10 s, < 300 MB RAM), strict noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Machine-verified theorems and exact computations proved in this script:
 //   W19.1 (C1): Exact {3,4,3,4} O^+(4,1, Z[sqrt(2)]) cusp geometry (0 up / 6 lat / 18 down,

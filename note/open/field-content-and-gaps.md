@@ -218,7 +218,7 @@ committed rule held, plus what it could not: one connected interaction
 structure over all twelve species. The two known physical differences from
 the committed rule, stated plainly: the Sakharov commensurate null moves
 from three beats to the schedule period, and defect formation radiates a
-one-pass front. Adoption is the user's decision. On adoption, lineWeave
+one-pass front. Adoption is the author's decision. On adoption, lineWeave
 becomes the previous committed rule exactly as pairCollision did, and
 survives inside the turning weave as its frozen-schedule sector.
 
@@ -263,7 +263,7 @@ actionable either.
 
 ## ADOPTED (2026-09-02): turningWeave is the committed rule
 
-The user adopted the palindromic turning weave after the battery cleared.
+The author adopted the palindromic turning weave after the battery cleared.
 `code/rule/collision.ts` now exports `turningWeave` as THE COMMITTED RULE
 (the hardcoded G_TURN line permutation verified equal to element 148, and
 the exported collisions verified beat-for-beat identical to the battery's

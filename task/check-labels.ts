@@ -5,7 +5,7 @@
 // in their import graph or their own source. This check walks each experiment's transitive `@/code/...`
 // imports and its own body for substrate evidence, and reports every label the evidence contradicts.
 //
-// Since 2026-11-15 (vibe-roadmap-board-0024) the evidence is the mesh the code builds (task/mesh-reach): a 3434 claim
+// Since 2026-11-15 the evidence is the mesh the code builds (task/mesh-reach): a 3434 claim
 // holds only when the experiment builds a ball, a cusp or a quotient of the honeycomb. A D4 import, the D4 roots or a
 // rule module no longer count, because the flat D4 box has the same 24 directions and passed as the honeycomb.
 //
@@ -166,7 +166,7 @@ for (const file of files) {
 
   // the claim holds only when the code builds the honeycomb itself (a ball, a cusp or a quotient). The D4 roots, a
   // D4 import, the flat D4 box or any rule module are NOT evidence: the box has the same 24 directions per dock and
-  // is a stand-in (keys 6, vibe-roadmap-board-0024). The mesh comes from task/mesh-reach, which follows the code
+  // is a stand-in (keys 6). The mesh comes from task/mesh-reach, which follows the code
   const reach = meshReader.read(relative(root, file))
   const honeycomb = reach.meshes.filter(m => m.startsWith('honeycomb-'))
 

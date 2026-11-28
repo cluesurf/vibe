@@ -1,5 +1,5 @@
-// A CUSP NEIGHBORHOOD of the {3,4,3,4} honeycomb as an instrument for the working rule (item vibe-roadmap-board-0027,
-// gates pre-registered in the item's `what` before any rule probe). The mesh is code/substrate/coxeter/exact-cusp.ts:
+// A CUSP NEIGHBORHOOD of the {3,4,3,4} honeycomb as an instrument for the working rule
+// (gates pre-registered in the item's `what` before any rule probe). The mesh is code/substrate/coxeter/exact-cusp.ts:
 // the cells near one ideal vertex of the base cell, modulo the label-trivial cusp translations Lambda = 2L Z^3, down to
 // a reflecting floor at depth F, all exact in Z[sqrt 2]. What the period and the floor change: note/cusp-neighborhood.md.
 //
@@ -336,16 +336,16 @@ const asNumber = (p: { num: bigint; den: bigint }): number =>
 // ---- the run ----
 
 export type CuspOptions = {
-  // the ball of G2 (the floor is the same), 3 on the laptop and 4 on the M3
+  // the ball of G2 (the floor is the same), 3 on a small machine and 4 on a large one
   radius: number
-  // the floor of G3's period-4 run, 2 on the laptop and 3 on the M3
+  // the floor of G3's period-4 run, 2 on a small machine and 3 on a large one
   reversalFloor: number
-  // G3's superposed lone love (laptop size only)
+  // G3's superposed lone love (small size only)
   superposed: boolean
   beats: number
 }
 
-export const LAPTOP: CuspOptions = { radius: 3, reversalFloor: 2, superposed: true, beats: 96 }
+export const SMALL: CuspOptions = { radius: 3, reversalFloor: 2, superposed: true, beats: 96 }
 export const FULL: CuspOptions = { radius: 4, reversalFloor: 3, superposed: false, beats: 96 }
 
 export function cuspNeighborhood(options: CuspOptions): Verdict {
@@ -668,7 +668,7 @@ export function cuspNeighborhood(options: CuspOptions): Verdict {
       period2ClassConflicts: cusp2.classConflicts,
     },
     notes:
-      'L1 (an instrument, exact). Gates pre-registered in vibe-roadmap-board-0027 before any rule probe. The period is exact for every beat on Lambda-periodic states (the quotient is the honeycomb run on the periodic lift), the floor reflects, so a dock at depth d reads the infinite honeycomb only for t <= F - d. The stand-in store (held pattern of the union store, signs +1) is not the working vacuum (item vibe-roadmap-honeycomb-0002). Period 2 is used for the ball comparison since equality holds for any period; its class map is not defined (period 2 mod 4), so its store is the breadth-first class pattern, pulled back to the ball unchanged. See note/cusp-neighborhood.md.',
+      'L1 (an instrument, exact). Gates pre-registered before any rule probe. The period is exact for every beat on Lambda-periodic states (the quotient is the honeycomb run on the periodic lift), the floor reflects, so a dock at depth d reads the infinite honeycomb only for t <= F - d. The stand-in store (held pattern of the union store, signs +1) is not the working vacuum. Period 2 is used for the ball comparison since equality holds for any period; its class map is not defined (period 2 mod 4), so its store is the breadth-first class pattern, pulled back to the ball unchanged. See note/cusp-neighborhood.md.',
   })
 }
 

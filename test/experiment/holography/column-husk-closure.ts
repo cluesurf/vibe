@@ -1,6 +1,6 @@
 // NON-CLOSURE OF 3D COLUMN-SUM PROJECTION AND ACTIVE 4D BULK DYNAMICS ON {3,4,3,4}
-// (E-HLG-0043, item vibe-roadmap-board-0028, gaps B-36, B-55).
-// Tests proposal 005 on buildExactCusp (period 2, floors 1 to 3) under split coin with bare rule and F-G:
+// (E-HLG-0043).
+// Tests a board proposal on buildExactCusp (period 2, floors 1 to 3) under split coin with bare rule and F-G:
 // measures cross-column neighbor share by depth D = 0..3, L1 husk divergence of two bulk states sharing identical
 // initial column charge Q_c(0), and bipartite parity-class mixing in a single-beat column sum.
 // Scope note (HN-7): demonstrates non-closure of the flat 3D column-sum projection due to active 4D bulk dynamics

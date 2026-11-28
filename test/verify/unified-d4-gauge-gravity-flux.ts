@@ -3,7 +3,7 @@
 // =================================================================================================
 //
 // Standalone, ZERO external imports (pure TypeScript ending with `export {}`), strictly deterministic
-// (zero PRNG), strict TypeScript (--strict --noUncheckedIndexedAccess), laptop-safe
+// (zero PRNG), strict TypeScript (--strict --noUncheckedIndexedAccess), fast
 // (< 4.0 s, < 256 MB RSS), fail-closed (hard assert() on every gate U1..U5).
 //
 // =================================================================================================

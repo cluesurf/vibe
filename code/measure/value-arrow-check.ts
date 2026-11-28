@@ -1,5 +1,5 @@
-// KEY 5 VALUE ARROW FOR A RADIATING HISTORY & BOX CYCLE-MEAN FINGERPRINT (item vibe-roadmap-board-0013, gaps B-01, B-54, m-24).
-// Tests the adopted ODD value piece (grounding decision 003) under split coin on:
+// KEY 5 VALUE ARROW FOR A RADIATING HISTORY & BOX CYCLE-MEAN FINGERPRINT.
+// Tests the adopted ODD value piece under split coin on:
 //   (1) Exact R = 2 {3,4,3,4} ball (cached, 481 docks, 0 frontier hits): radiating history starting from a coherent
 //       superposition |psi_0> = (|X1> + |X1_alt>)/sqrt(2) where X1 is a 4-vibe chiral cluster (chi_odd != 0) and
 //       X1_alt is its 1-slot coin-shifted partner (reachable in 1 beat so both branches interfere directly!).

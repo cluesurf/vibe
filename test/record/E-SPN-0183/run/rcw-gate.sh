@@ -12,3 +12,5 @@ fi
 cd "$V" || exit 2
 NODE_OPTIONS=--max-old-space-size=24000 node_modules/.bin/tsx --no-warnings=ExperimentalWarning "$R/run/rcw-part.ts" "$N" "$R/rcw-part-$N.json" > "$R/rcw-gate-$N.log" 2>&1
 echo "exit=$?" >> "$R/rcw-gate-$N.log"
+# the log is committed: a crash's stack trace must not name this machine's paths
+node_modules/.bin/tsx --no-warnings=ExperimentalWarning task/scrub-log.ts "$R/rcw-gate-$N.log" "$R/rcw-part-$N.json"

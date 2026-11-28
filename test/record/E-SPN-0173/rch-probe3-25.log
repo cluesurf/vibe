@@ -8,15 +8,15 @@ E_b 0.239562 shares 0.7253 0.0953 0.0953 0.0842 mean r 6.606 edge 7.36e-3 shells
   K 0.012,0.021,0.032,0.000: E 0.521352052390 residual 3.60e-3 [1349.6s]
   K 0.006,0.010,0.016,0.000: E 0.521091059849 residual 3.57e-3 [1475.6s]
 a 0.2176236962 0.2176236829 isotropy 6.10e-8 R static 2.204920 formula 2.243676 tan m/m 1.012226 [1475.6s]
-/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120
+code/measure/standin-chemistry.ts:120
     throw new Error(`the FFT side ${n} is not a power of 2`)
           ^
 
 Error: the FFT side 24 is not a power of 2
-    at planOf (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120:11)
-    at fft3 (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:200:16)
-    at densityS (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/register-coulomb.ts:216:3)
-    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rch-probe3.ts:78:14)
+    at planOf (code/measure/standin-chemistry.ts:120:11)
+    at fft3 (code/measure/standin-chemistry.ts:200:16)
+    at densityS (code/measure/register-coulomb.ts:216:3)
+    at <anonymous> (tmp/rch-probe3.ts:78:14)
     at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)

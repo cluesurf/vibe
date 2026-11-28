@@ -1,4 +1,4 @@
-// THE EXACT TUBE (item vibe-roadmap-grounding-0031, E-SLF-0198): every dock of the {3,4,3,4} honeycomb within `radius`
+// THE EXACT TUBE (E-SLF-0198): every dock of the {3,4,3,4} honeycomb within `radius`
 // facet steps of a segment of one mesh line, in exact Z[sqrt 2] arithmetic. A ball centred on one dock cannot hold a
 // self spread along a line (the R = 4 ball holds 9 docks of the line through its centre), and a ball wide enough for
 // 23 docks would hold more docks than any run can store. The tube holds the segment and its light cone only.

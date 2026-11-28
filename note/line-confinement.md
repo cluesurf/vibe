@@ -1,7 +1,6 @@
 # Line confinement under the working rule
 
-Depth **L1** (proof from the rule's code, with an exact code witness). Written 2026-11-16 for item
-`vibe-roadmap-grounding-0020`, part 1. Records: `note/project/vibe/roadmap/grounding/` in the ClueSurf repo.
+Depth **L1** (proof from the rule's code, with an exact code witness). Written 2026-11-16.
 
 **The claim tested.** Under the working rule (`coinedVetoBeat`, veto `'none'`, collision `'pass'`, flat links), with
 the coin before the meetings (the default) or split around them (`VIBE_COIN=split`), the support of every state stays
@@ -9,7 +8,7 @@ on its mesh lines: no beat takes a vibe from the dock line of one mesh line to t
 
 **The verdict.** The claim is **false in general**. It fails in exactly one piece, the collision's whole-dock
 permutation K, on a dock that holds two or more single lines. Part 1 stops there. What does hold, for the states B3 and
-grounding 0019 run, is already proved in [`line-transfer.md`](line-transfer.md) (Lemmas 1 and 2) and is quoted in §3.
+the later grounding run use, is already proved in [`line-transfer.md`](line-transfer.md) (Lemmas 1 and 2) and is quoted in §3.
 
 ## 1. Lines
 
@@ -68,7 +67,7 @@ at every beat, because two honeycomb lines share at most one dock (Lemma 3), so 
 one dock line, which is at most one single line. The half coin D acts on one line exactly as C does (§2 item 1), so
 both lemmas hold for the split place unchanged.
 
-B3 (E-SLF-0183) and grounding 0019 (E-SLF-0184) run B1's cluster and bath on ONE mesh line in the empty vacuum V1. So
+B3 (E-SLF-0183) and E-SLF-0184 run B1's cluster and bath on ONE mesh line in the empty vacuum V1. So
 their support stays on that line at every beat, and on the honeycomb a self's export under the working rule is exactly
 the line engine's: it can leave only through the line's two ends, never into the 4D bulk. A state with vibes on two or
 more mesh lines that meet at a dock is outside this, and K can move its support between lines there.
@@ -77,7 +76,7 @@ more mesh lines that meet at a dock is outside this, and K can move its support 
 
 This section is not part of the claim above. It is the lemma the mixer screen (part 2) rests on.
 
-Let M be a dock-local mixer placed before the beat (board 0034's family: G, its lift Gamma(G), the ring mixer at u),
+Let M be a dock-local mixer placed before the beat (the board's mixer family: G, its lift Gamma(G), the ring mixer at u),
 and start from a state with every vibe on one mesh line l in the empty vacuum. Let P be the projector onto
 configurations with every vibe on l, Q = 1 - P.
 

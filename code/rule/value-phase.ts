@@ -1,4 +1,4 @@
-// THE VALUE PHASE (item vibe-roadmap-grounding-0005, grounding decision 001, board decision 002): an opt-in rule piece
+// THE VALUE PHASE: an opt-in rule piece
 // that tells a love (+1) from a fear (-1), added to the working rule (code/rule/coined-locked-knit coinedVetoBeat, the
 // coin, then the no-veto beat). With the piece off the beat is coinedVetoBeat, bit for bit.
 //

@@ -1,2 +1,2 @@
-{"at":"2026-11-17T06:29:46.375Z","item":"vibe-roadmap-board-0045","command":["sh","tmp/m3-mixer-link-rerun.sh","b45-select"],"gate":{"hash":"e6106c2e478a","at":"2026-11-17T06:26:51.494Z"},"exit":0,"verdict":"m3-done","recorded":true,"refused":[]}
+{"at":"2026-11-17T06:29:46.375Z","item":"vibe-roadmap-board-0045","command":["sh","tmp/remote-mixer-link-rerun.sh","b45-select"],"gate":{"hash":"e6106c2e478a","at":"2026-11-17T06:26:51.494Z"},"exit":0,"verdict":"remote-done","recorded":true,"refused":[]}
 {"at":"2026-11-17T07:00:36.941Z","item":"vibe-roadmap-board-0045","command":["node_modules/.bin/tsx","tmp/run-mixer-link-rerun.ts","verdict"],"gate":{"hash":"e6106c2e478a","at":"2026-11-17T06:26:51.494Z"},"exit":0,"verdict":"partial","recorded":true,"refused":[]}

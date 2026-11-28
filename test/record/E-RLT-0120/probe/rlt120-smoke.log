@@ -10,7 +10,7 @@ threads 3, nice , smoke 1
 step exit=0
 == combine
 {
-  "gates": "/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter-next/test/experiment/relativity/../../record/E-RLT-0120/run/smoke-gates.json",
+  "gates": "test/experiment/relativity/../../record/E-RLT-0120/run/smoke-gates.json",
   "sha256": "4ce7b98a808e4494b8346afce0b34f6ea9ad5153253ec4baf06e7fcf4bfbc761",
   "frozenSha256": "PENDING",
   "status": "open",

@@ -1,6 +1,6 @@
 // The continuous bald horizon (E-GRV-0115): the clock horizon of code/rule/clock-horizon with a tear that does not jolt
-// and a horizon that trades its source over its own surface as a reversible wave (note/research/vibe/roadmap/
-// discrete-gravity.md, "Measured, the no-hair horizon": "Next: a tear that is continuous as well as bald"). A STAND-IN,
+// and a horizon that trades its source over its own surface as a reversible wave (the
+// discrete-gravity notes, "Measured, the no-hair horizon": "Next: a tear that is continuous as well as bald"). A STAND-IN,
 // as the torn husk is: nothing in the model makes the depth read any state (E-GRV-0071).
 //
 // WHAT WENT WRONG BEFORE. The held tear (E-GRV-0112, code/rule/horizon-husk) keeps each torn link's step in the beat as

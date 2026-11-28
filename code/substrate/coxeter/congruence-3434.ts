@@ -1,5 +1,5 @@
-// CONGRUENCE QUOTIENTS of the {3,4,3,4} honeycomb at levels built from sqrt 2 and an odd integer (item
-// vibe-roadmap-honeycomb-0016, decision 002). quotient-3434.ts reduces modulo a split odd prime, where the frame group
+// CONGRUENCE QUOTIENTS of the {3,4,3,4} honeycomb at levels built from sqrt 2 and an odd integer.
+// quotient-3434.ts reduces modulo a split odd prime, where the frame group
 // K reduced (K_7) swallows all of W(F4) and has 276,595,200 docks. Here the ideal is I = (sqrt 2)^m (n), n odd, and
 // the dock graph is the Cayley graph of K_I, the image of K in GL(5, Z[sqrt 2] / I): docks = elements, slot a = right
 // multiplication by k_a. It is the coset graph N \ K of the congruence kernel N = K cap G(I), normal in K (G(I) is

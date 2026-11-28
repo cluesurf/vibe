@@ -15,9 +15,9 @@ correspondence that holds across both theories.)
 - **Time = accumulated irreversible distinction (under review).** Vibe used to read this
   off the wake (the mesh's growth, the new cells added each step): a count of existing cells,
   1 to 8857, whose arc length only ever rises ([`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts)). Under one present
-  (note/project/vibe/roadmap/one-present, decision 001) that count is the mesh's size, not a
-  record: no state is evolved, the wake runs back exactly (item 0010 checks it), and the new docks join the
-  present rather than being it. The match is under review pending items 0012 and 0013 there,
+  (the one-present review) that count is the mesh's size, not a
+  record: no state is evolved, the wake runs back exactly (a follow-up checks it), and the new docks join the
+  present rather than being it. The match is under review pending follow-up checks there,
   which test a record as a correlation inside the present and the arrow as the second law.
   TD: accumulated Fisher-Rao arc length.
 - **Records are kept.** Vibe: the knit (vibe's one reversible update rule) run
@@ -46,12 +46,12 @@ Five shared survivors, more than any other theory, one of them (time) under revi
 
 | vibe | Timeless Dynamics | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
-| the wake (the mesh's growth) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | under review (item 0012) |
+| the wake (the mesh's growth) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | under review |
 | the knit erases nothing (exact reverse) | the recordability condition | [`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts) | firm |
 | fixed-mesh knit is a closed loop, no arrow | the rule alone gives no arrow. Time's arrow is the second law, not the wake | [`E-FND-0048`](../../test/experiment/foundations/emergent-time-distinguishability.ts) | firm, claim restated |
 | Fisher-Rao forced by relabeling | Fisher-Rao forced by Chentsov | [`E-FND-0057`](../../test/experiment/foundations/chentsov-forced-distinguishability.ts) | firm |
-| record axis and radial-scale axis kept distinct | the five-coordinate argument | [`E-FND-0052`](../../test/experiment/foundations/record-phase-scale-distinct.ts) | under review (item 0012) |
-| a finite reversible system must repeat (recurrence) | records must accumulate for time | [`E-FND-0055`](../../test/experiment/foundations/recurrence-forces-wake.ts) | recurrence half firm, the "only growth escapes it" half under review (item 0012) |
+| record axis and radial-scale axis kept distinct | the five-coordinate argument | [`E-FND-0052`](../../test/experiment/foundations/record-phase-scale-distinct.ts) | under review |
+| a finite reversible system must repeat (recurrence) | records must accumulate for time | [`E-FND-0055`](../../test/experiment/foundations/recurrence-forces-wake.ts) | recurrence half firm, the "only growth escapes it" half under review |
 | Lyapunov ceiling on record contrast | the Hyperion chaos threshold | [`E-QTM-0092`](../../test/experiment/quantum/lyapunov-recordability-ceiling.ts) | firm |
 | a coarse block window records at most ln(B) bits, the excess spills out | recordability capacity, records at most the local channel limit | [`E-FND-0072`](../../test/experiment/foundations/recordability-capacity-ceiling.ts) | structural |
 | the gravity potential is short-ranged in the curved interior | TD Poisson gravity from the information potential | [`E-GRV-0049`](../../test/experiment/gravity/td-log-density-gravity-screened.ts) | structural |

@@ -89,7 +89,7 @@ function buildSvg(bulge: number): string {
 }
 
 function main(): void {
-  const dir = '/Users/lancepollard/base/crew/cluesurf/deck/vibe/make'
+  const dir = process.env.VIBE_MAKE_DIR ?? 'make'
   const panels: { name: string; bulge: number }[] = [
     { name: 'spherical', bulge: 24 }, // positive curvature, sides bow outward
     { name: 'euclidean', bulge: 0 }, // flat, straight sides

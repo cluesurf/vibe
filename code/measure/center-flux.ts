@@ -1,4 +1,4 @@
-// COHERENT CENTRE FLUX (moving-matter item 0058, candidate e of decision 012). Colour as a Z3 centre field: every directed
+// COHERENT CENTRE FLUX (candidate e of the decision). Colour as a Z3 centre field: every directed
 // link carries omega^n times 1 (omega = e^(2 pi i / 3)), its reverse the conjugate, with no coupling to choose: the
 // patterns are the most frustrated periodic ones.
 //

@@ -1,5 +1,5 @@
-// IS THE LIGHT PAIR'S EXTRA QUARTIC ITS MEMBERS' LATTICE BAND, CARRIED BY THE BOUND STATE? (E-MTR-0033, OPEN-MOT-01,
-// vibe-roadmap-moving-matter-0002). E-MTR-0031 and E-MTR-0032 read the light register pair's quartic fraction rho at
+// IS THE LIGHT PAIR'S EXTRA QUARTIC ITS MEMBERS' LATTICE BAND, CARRIED BY THE BOUND STATE? (E-MTR-0033, OPEN-MOT-01).
+// E-MTR-0031 and E-MTR-0032 read the light register pair's quartic fraction rho at
 // m 0.284 a_B 12 (2.21 +- 0.05) and m 0.380 a_B 10 (3.21 +- 0.14) against relativity's 1 and the members' own 1.77 and
 // 2.41, through a filter-diagonalization read that split the moving level into a "multiplet" differently at every
 // setting. This file changes two things and adds no engine run: it reads every saved correlation again with an

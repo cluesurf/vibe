@@ -1,10 +1,10 @@
 // IS THE BOUND REGISTER PAIR'S BAND ISOTROPIC AT A SECOND PAIR SIZE, a_B 4.5 AGAINST E-RLT-0119's 3.5 (E-RLT-0120)?
-// For vibe-roadmap-moving-matter-0003: bound matter moves off every line with less than 2% leading-order anisotropy, on
+// The goal: bound matter moves off every line with less than 2% leading-order anisotropy, on
 // the candidate rule's swap coin and register.
 //
 // WHY A SECOND SIZE. E-RLT-0119 read the pair (a_B 3.5, ball 16) in five husk directions: one band, mobile everywhere,
 // M = 1 / (2A) spread 0.13% against the 2% gate. Its two failing checks were instruments, not physics (the traps of
-// note/project/vibe/roadmap/moving-matter/traps.md): an exact-equality check across machines (1 ulp, x86 against arm),
+// the moving-matter traps notes): an exact-equality check across machines (1 ulp, x86 against arm),
 // and a lag check made of a half-length filter diagonalization that could not resolve satellite lines. The symmetry
 // argument (the cycle commutes with the 48 elements of O_h, so a non-degenerate band's K^2 term is a scalar) makes
 // isotropy come down to mobility and one band. A second size asks whether that holds as a property of the bound pair
@@ -44,7 +44,7 @@
 //  - EQUALITY ACROSS SECTORS AND MACHINES IS A TOLERANCE. I3 and I6 compare correlations lag by lag to 1e-12 (|x_l| <=
 //    1, so 1e-12 is about 4,500 ulps of 1; E-RLT-0119 read 1.2e-14 to 6.1e-14, and a real difference of the cycle, a
 //    phase change of 1e-9 a cycle, shows as 1e-6 by lag 1,024). The levels of the parts agree to 1e-12 of E_L (E-RLT-
-//    0119's droplet and laptop levels differ by 1 ulp, 1.4e-16 relative).
+//    0119's two machines' levels differ by 1 ulp, 1.4e-16 relative).
 //  - THE GATES ARE IN A FROZEN FILE. Every threshold and read setting is in test/record/E-RLT-0120/rlt120-gates.json,
 //    written with the pre-registration (test/record/E-RLT-0120/rlt120-preregistration.md) before any run, and its
 //    SHA-256 is fixed below: the combine refuses to give a verdict from a gates file that does not hash to it.
@@ -92,7 +92,7 @@
 // body 6,983, plane 20,142, generic 38,911 representatives, 2.26 times E-RLT-0119's. E-RLT-0119's generic part took
 // 19,602 s on the work droplet at 6 threads (3.3e-5 s a representative-lag), so the whole plan, 2.84e9
 // representative-lags, is about 26 h at 6 threads and 45 to 55 h at 3 threads (the droplet is shared with one other
-// run, nice 19). The laptop probe read 3.1e-5 s a representative-lag at 3 threads under load 16, the same rate.
+// run, nice 19). The local probe read 3.1e-5 s a representative-lag at 3 threads under load 16, the same rate.
 // One droplet step runs the parts axes, plane, generic in turn (test/record/E-RLT-0120/run/droplet-step.sh), each saved
 // as each read lands and resumable.
 //

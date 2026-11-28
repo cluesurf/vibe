@@ -1,4 +1,4 @@
-// THE PARITY SECTOR WITH STORES (item vibe-roadmap-grounding-0034). E-SLF-0192 (item 0032) found the working rule keeps
+// THE PARITY SECTOR WITH STORES. E-SLF-0192 found the working rule keeps
 // the parity of every pairwise separation on the {3,4,3,4} honeycomb for loves with no store: the dock graph is
 // bipartite and every love crosses one facet a beat. Its limit: the pair move's store holds a love and a fear on their
 // dock while the stream moves everything else. This file holds what the experiment needs to read that piece term by

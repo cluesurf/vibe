@@ -27,7 +27,7 @@
 //        finite-support witness psi in Z^V (ZERO sqrt, ZERO asymptotic limit) certifying rho >= L_new!
 //
 // Modes:
-//   --smoke (default; laptop-safe < 5 s, verifies D2->D3->D4 exact BigInt bounds, cold-start parallel
+//   --smoke (default; fast < 5 s, verifies D2->D3->D4 exact BigInt bounds, cold-start parallel
 //            worker parity, S6_STEP_WORKER_JS boot/step self-test, 1-step & quick 2-step CF lower
 //            bounds, BigInt witness, analytical gradient, and exact quadruple-orbit O(1) integrality!)
 //   --full  (full multi-core Depth-6 + 3-Step CF collapse; saves tmp/spectral-depth5-results.json)
@@ -3039,7 +3039,7 @@ async function main(): Promise<void> {
   } else {
     recordGate(
       'S3.1',
-      'Smoke-mode consistency & laptop time budget (< 8 s)',
+      'Smoke-mode consistency & time budget (< 8 s)',
       lower.bestLowerNum * upper.bestUpperDen < upper.bestUpperNum * lower.bestLowerDen && elapsedSec < 8.0,
       `smoke bracket [${finLo}, ${upHi}] (width=${finWidth.toFixed(6)}), time=${elapsedSec.toFixed(2)}s (< 8 s)`,
     )

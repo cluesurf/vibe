@@ -21,7 +21,7 @@
 //             and pure-SM + D_4 tadpole mismatch negative control).
 //
 // Standalone, zero external imports, zero Math.random, strict TypeScript (--noUncheckedIndexedAccess clean),
-// laptop-safe (< 10 s, < 200 MB RAM). Every gate and honest negative control is enforced via hard assert().
+// fast (< 10 s, < 200 MB RAM). Every gate and honest negative control is enforced via hard assert().
 
 const T0_MS = performance.now()
 const PI = Math.PI
@@ -2282,8 +2282,8 @@ function main(): void {
     `OVERALL: ${passCount}/${GATES.length} GATES PASSED | runtime: ${elapsedSec.toFixed(3)} s | RSS: ${rssMB.toFixed(1)} MB`,
   )
   assert(passCount === 9 && GATES.length === 9, `Expected 9/9 gates passed, got ${passCount}/${GATES.length}`)
-  assert(elapsedSec < 10.0, `Runtime exceeded 10 s laptop budget: ${elapsedSec.toFixed(3)} s`)
-  assert(rssMB < 200.0, `Memory exceeded 200 MB laptop budget: ${rssMB.toFixed(1)} MB`)
+  assert(elapsedSec < 10.0, `Runtime exceeded 10 s budget: ${elapsedSec.toFixed(3)} s`)
+  assert(rssMB < 200.0, `Memory exceeded 200 MB budget: ${rssMB.toFixed(1)} MB`)
 }
 
 main()

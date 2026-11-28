@@ -1,8 +1,8 @@
-// THE GROUNDING MIXER SCREEN (item vibe-roadmap-grounding-0020; grounding decisions 002, 004; board decision 010).
+// THE GROUNDING MIXER SCREEN (a recorded decision).
 // B3 (E-SLF-0183) and its engine (E-SLF-0184) found that B1's cluster on an open honeycomb line loses its excess at
 // 0.043 a beat, and that under the working rule it can export only along its line (note/line-confinement.md: true for a
 // state on one mesh line, false in general where K meets two single lines). Board 0034's six dock mixers are the pieces
-// that let a vibe leave its line. Here each is screened as a GROUNDING piece (not a binding piece: decision 010): does
+// that let a vibe leave its line. Here each is screened as a GROUNDING piece (not a binding piece: a recorded decision): does
 // it keep the self and slow the loss of its excess enough for a keeping time of 80 beats?
 //
 // THE INSTRUMENT (note/line-confinement.md section 4, Lemma W). With a dock mixer M before the beat, the part of the
@@ -20,8 +20,8 @@
 // PREDICTION (before the first run): all six fail; F-G and F-L with L(2) below 0.6, the ring members between 0.6 and
 // 0.9, the bare rule at least 0.9; screen verdict fail.
 //
-// SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, bare to beat 4; seconds on the laptop). MIXER_SWEEP=full for
-// the M3 (box-12 level, W 12 k 3 starts 0 1 2, bare to beat 11 at cap 1.5e8).
+// SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, bare to beat 4; seconds on a small machine). MIXER_SWEEP=full for
+// a large machine (box-12 level, W 12 k 3 starts 0 1 2, bare to beat 11 at cap 1.5e8).
 //
 // FULL RUN (M3, 2026-11-16, clone mixer-export, 317 s, gate 31ab68bfe595): FAIL. Every instrument gate holds (C1, W0,
 // X1, X2 with blocks off 1.4e-17, B0 with g off 0019 by 4e-4 and rate 0.0433). L(2): F-G 0.221, F-L 0.015, R-w 0.414,
@@ -810,7 +810,7 @@ export default experiment({
         status,
         claim: `${setting.name} setting, W ${W} k 3 (${setting.starts} start${setting.starts > 1 ? 's' : ''}), window beats 0 to ${WINDOW}: ${readings.map(row).join(' || ')} || bare control to beat ${bare.reach}: g ${bare.g.map(f4).join(' ')}, loss rate ${f4(rate)}, window ${row(bare)}`,
         metrics,
-        notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. Gates C1 ${gC1} (level off ${levelOff.toExponential(1)}), W0 ${gW0} (${witnesses.map(w => `${w.place}: ${w.found ? `${w.start}, ${w.moved} vibes off the start lines after ${w.tried} tries` : `none in ${w.tried}`}`).join('; ')}), X1 ${gX1} (${reversals.filter(r => !(r.equal && r.norm)).map(r => `${r.member} ${r.start} equal ${r.equal} norm ${r.norm}`).join(', ') || 'every member and start reverses exactly with exact norm'}), X2 ${gX2} (blocks off ${Math.max(...blocks.map(b => b.off)).toExponential(1)}, extra on-line outputs ${blocks.reduce((s, b) => s + b.extra, 0)}; windows ${windows.map(w => `${w.member} ${w.start} ${w.beats} beats ${w.differ} differ (${w.branches} branches)`).join(', ')}), B0 ${gB0} (g off 0019 ${Number.isFinite(gOff) ? gOff.toExponential(1) : gOff}, rate ${f4(rate)} against ${RATE_0019}, reach ${bare.reach}, norm drift ${bare.normDrift.toExponential(1)}). Honeycomb grade within beats 0 to ${WINDOW} by Lemma W (note/line-confinement.md section 4); tau is the 0019 linear projection, predicted. g is read on the P part, a lower bound, so r_exc is an upper bound. Grounding only: decision 010 holds 004 for binding.`,
+        notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. Gates C1 ${gC1} (level off ${levelOff.toExponential(1)}), W0 ${gW0} (${witnesses.map(w => `${w.place}: ${w.found ? `${w.start}, ${w.moved} vibes off the start lines after ${w.tried} tries` : `none in ${w.tried}`}`).join('; ')}), X1 ${gX1} (${reversals.filter(r => !(r.equal && r.norm)).map(r => `${r.member} ${r.start} equal ${r.equal} norm ${r.norm}`).join(', ') || 'every member and start reverses exactly with exact norm'}), X2 ${gX2} (blocks off ${Math.max(...blocks.map(b => b.off)).toExponential(1)}, extra on-line outputs ${blocks.reduce((s, b) => s + b.extra, 0)}; windows ${windows.map(w => `${w.member} ${w.start} ${w.beats} beats ${w.differ} differ (${w.branches} branches)`).join(', ')}), B0 ${gB0} (g off 0019 ${Number.isFinite(gOff) ? gOff.toExponential(1) : gOff}, rate ${f4(rate)} against ${RATE_0019}, reach ${bare.reach}, norm drift ${bare.normDrift.toExponential(1)}). Honeycomb grade within beats 0 to ${WINDOW} by Lemma W (note/line-confinement.md section 4); tau is the 0019 linear projection, predicted. g is read on the P part, a lower bound, so r_exc is an upper bound. Grounding only: a recorded decision holds 004 for binding.`,
       })
     } finally {
       setCoinPlace(place0)

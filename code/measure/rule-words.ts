@@ -1,4 +1,4 @@
-// WORDS OF THE RULE'S GATES ON SYSTEM AND FRIEND, enumerated exactly (decision 012 of vibe/roadmap/grounding).
+// WORDS OF THE RULE'S GATES ON SYSTEM AND FRIEND, enumerated exactly.
 //
 // THE ALPHABET: the rule gates that act on love A (its direction and point, register point 0) and the friend F (point 1)
 // alone, 8 letters from code/measure/rule-gates: the coin C; the line of two of A and F on arm R, on arm L, and on both

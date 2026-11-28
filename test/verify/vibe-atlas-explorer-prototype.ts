@@ -11,7 +11,7 @@
 //   A5: Atlas of Collectives: Bandwidth Floor T_min = N*b/B & Matched-Vector Hierarchical Pareto
 //   A6: Realization Compiler (D o B^tau o E = F) & Quarantined Competing ConstitutionHypotheses
 //
-// Strictly deterministic (ZERO Math.random()), laptop-safe (< 10 s, < 400 MB).
+// Strictly deterministic (ZERO Math.random()), fast (< 10 s, < 400 MB).
 
 import {
   AtlasRegistry,

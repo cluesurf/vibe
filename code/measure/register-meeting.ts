@@ -1,4 +1,4 @@
-// A MEETING'S EFFECT ON THE MEMBER SPIN (item 0036 of moving-matter, E-SLF-0180, decision 004). On R* the binding
+// A MEETING'S EFFECT ON THE MEMBER SPIN (E-SLF-0180). On R* the binding
 // content of E-QTM-0154 is read on a hole's own internal degree, its spin under the adopted spinor lift L(s): does a
 // meeting of two holes move one hole's spin onto the other, and at one rate for every axis?
 //

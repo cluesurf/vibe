@@ -1,5 +1,5 @@
 {
-  "gates": "/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter-next/test/experiment/relativity/../../record/E-RLT-0120/run/smoke-gates.json",
+  "gates": "test/experiment/relativity/../../record/E-RLT-0120/run/smoke-gates.json",
   "sha256": "db2469b7d85692317fd4c2e14bab9706540e5993c6f43266a92468bc47715929",
   "frozenSha256": "PENDING",
   "status": "open",

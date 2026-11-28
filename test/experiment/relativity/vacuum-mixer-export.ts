@@ -1,7 +1,7 @@
-// VACUUM COLD STATIONARITY UNDER F-G AND CUSP LATERAL LINKS (E-RLT-0122, item vibe-roadmap-board-0047, gaps B-38, B-43, B-59).
+// VACUUM COLD STATIONARITY UNDER F-G AND CUSP LATERAL LINKS (E-RLT-0122).
 // Verifies V1 (empty mesh) is an exact fixed point of F-G + ODD + working rule on R = 2 and R = 3 exact balls,
 // confirms s_in = 0 outside a lump's light cone (closing B-43 and giving exact export-bound.md E1 numbers for B-38),
-// and computes exact lateral links m_D between adjacent cusp columns at depths D = 1, 2, 3 (export-bound.md E2, B-59).
+// and computes exact lateral links m_D between adjacent cusp columns at depths D = 1, 2, 3 (export-bound.md E2).
 //
 // Depth L2: exact working rule + F-G + ODD on exact balls and exact cusp neighborhood. Zero random numbers.
 
@@ -13,7 +13,7 @@ export default experiment({
   id: 'relativity/vacuum-mixer-export',
   code: 'E-RLT-0122',
   title:
-    'Empty vacuum V1 stationarity and s_in = 0 under F-G and ODD (B-38, B-43), plus exact cusp lateral link count m_D (B-59)',
+    'Empty vacuum V1 stationarity and s_in = 0 under F-G and ODD, plus exact cusp lateral link count m_D',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

@@ -1,7 +1,7 @@
-// MOMENTUM TRANSPORT ON THE MANY-HOLE STORE (item 0026 of moving-matter, E-FLD-0035; OPEN-CSM-17, OPEN-FND-03). The
+// MOMENTUM TRANSPORT ON THE MANY-HOLE STORE (E-FLD-0035; OPEN-CSM-17, OPEN-FND-03). The
 // transverse momentum density at wave vector q is a one-body operator that moves one hole from class k to class k + q,
 // so on E-FND-0163's store, which holds one total momentum P, it maps the P store into the P + q store. Its expectation
-// in one total-momentum state is 0 (decision 001 of moving-matter, the lead's note for 0026): the wave lives in the
+// in one total-momentum state is 0 (the lead's note on it): the wave lives in the
 // cross term between the two sectors, which is the Kubo correlation
 //
 //   C(t) = < g_q U^t A | U^t g_q A >        (U one cycle of the rule, A the P store, g_q A the P + q store)

@@ -1,10 +1,10 @@
-// BOTH COLOUR GATES AT ONE BETA ON THE WILSON LINE (E-FRC-0298, note/project/vibe/roadmap/moving-matter item 0057, decision
-// 012 point 4, read in decision 013's order). Input: the stored Sigma(648) heat-bath configurations of E-FRC-0297 (gauge/
+// BOTH COLOUR GATES AT ONE BETA ON THE WILSON LINE (E-FRC-0298, the moving-matter roadmap,
+// point 4 of a recorded decision, read in a recorded decision's order). Input: the stored Sigma(648) heat-bath configurations of E-FRC-0297 (gauge/
 // color-ensemble, R*'s fcc triangles, Wilson form), one per box (bulk side 8, slab 8^3 x 8, slab 8^3 x 12), four a (beta,
 // start) at sweeps 40, 80, 120, 160. The hot start holds the CONFINED branch, the cold start the FROZEN branch. The k-th
 // configuration of a (beta, branch) is the k-th sweep on every box (independent chains per box, the same beta and start).
 //
-// PER CONFIGURATION, decision 013 point 1 (gates of 012 point 4, fixed 2026-10-08, none moved):
+// PER CONFIGURATION, point 1 of a recorded decision (gates of 012 point 4, fixed 2026-10-08, none moved):
 //   1. P, the mean triangle plaquette on the bulk box (and on each slab read)
 //   2. slab L 8: 24 levels within 0.1 of pi with wall weight >= 0.9 is a candidate, any other count NOT W-PASS
 //   3. slab L 12 only for a candidate: 24 W-PASS, else NOT W-PASS
@@ -154,7 +154,7 @@ export type ConfigRow = {
   slab12?: SlabWallRead
   bulk?: BulkWallRead
   W: WClass
-  // the next read decision 013 calls for, if any
+  // the next read a recorded decision calls for, if any
   next?: WindowRead | 'cage'
 }
 
@@ -349,7 +349,7 @@ export default experiment({
     const plan = WINDOW_PLAN
     const stages: WindowStage[] = []
 
-    // decision 013's order, run serially here: each read only when the class still needs it
+    // a recorded decision's order, run serially here: each read only when the class still needs it
     for (const branch of ['confined', 'frozen'] as const) {
       for (;;) {
         const b = branchRow(plan.gates, stages, plan.betaFKey, branch, true)

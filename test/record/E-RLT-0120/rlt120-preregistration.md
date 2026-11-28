@@ -4,7 +4,6 @@ Frozen 2026-10-23, before the droplet run. No a_B 4.5 correlation at any K other
 
 - Experiment: `test/experiment/relativity/bound-pair-size-isotropy.ts` (its header is the full design).
 - Gates file: `rlt120-gates.json`, SHA-256 `ad33bafac423211ad74cdc4bc15774341dd0ccc97429ee59765180e5e197bd4a`. The experiment holds the same hash as `GATES_SHA256`, and the combine reads every threshold from that file and reads open if the file does not hash to it.
-- Checklist item: vibe-roadmap-moving-matter-0003.
 
 ## The question
 

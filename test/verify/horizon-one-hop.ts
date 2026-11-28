@@ -1,5 +1,5 @@
 // Prototype A: Genuine Spatially Varying, Strictly 1-Hop-Causal Horizon-Crossing QCA
-// Closes Panel 2 F-02 (vibe-roadmap-board-0056) with:
+// Closes Panel 2 F-02 with:
 //   1. Exact local 1-hop-per-beat Lieb-Robinson causality (maxHopPerBeat === 1 EVERYWHERE, zero 2-hop/3-hop!).
 //   2. Spatially varying Gullstrand-Painleve profile v_river(r) = -c_flat * sqrt(r_s / r) with c_flat = 1/3.
 //   3. Dynamic horizon crossing (exterior -> trapped interior), interior trapping (dr/dt < 0),

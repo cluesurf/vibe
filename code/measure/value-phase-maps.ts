@@ -1,4 +1,4 @@
-// Maps and readings for the value phase (code/rule/value-phase, item vibe-roadmap-grounding-0005) on any mesh given as a
+// Maps and readings for the value phase (code/rule/value-phase) on any mesh given as a
 // slot table (dock x, slot d -> the neighbouring dock, or -1 past a ball's frontier):
 //
 //  - orientationOf: the 2-colouring of the dock graph from the base dock (+1 there). On the {3,4,3,4} honeycomb every

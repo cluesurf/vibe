@@ -4,7 +4,7 @@
 // =================================================================================================
 //
 // Standalone, ZERO external imports (pure TypeScript ending with `export {}`), strictly deterministic,
-// strict TypeScript (--strict --noUncheckedIndexedAccess), laptop-safe (< 6.0 s, < 180 MB RSS),
+// strict TypeScript (--strict --noUncheckedIndexedAccess), fast (< 6.0 s, < 180 MB RSS),
 // fail-closed (hard assert() on every gate G1..G9).
 //
 // =================================================================================================

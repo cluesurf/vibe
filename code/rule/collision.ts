@@ -463,7 +463,7 @@ export function linePalindrome(input: {
 // line, so every axis lies in exactly three wire planes and no direction is preferred, and every
 // couple's matter and wire planes share an axis, so every potential species is detectable). The
 // first couple is palindromic (swap, clock, swap), the matter sector; the other five run the
-// committed clock alone, the medium. Adopted by the user after the acceptance programme
+// committed clock alone, the medium. Adopted by the author after the acceptance programme
 // (E-FND-0102 through E-FND-0111): the unique setting whose domain walls stay exactly periodic
 // (quantized in whole cross-sectional sheets, quantum six times side cubed, period twelve at two
 // sizes), carrying the speed-one traveller with exact superposition, the wire-polarization law,
@@ -558,7 +558,7 @@ export function lineWeave(input: {
 // task/turning-weave-search.ts), TURN_POSITIONS is its out-and-back walk, and TURN_SWAP_ORDER
 // is the swap's own mirrored visiting order (the unique order class that makes the swap-edge
 // graph connect all twelve species while keeping CPT, task/turning-weave-palindrome-search.ts).
-// Adopted by the user after the candidate cleared the full acceptance battery (E-FND-0117
+// Adopted by the author after the candidate cleared the full acceptance battery (E-FND-0117
 // through E-FND-0119, E-FND-0113 through E-FND-0116 for the static sector): CPT exact under
 // pure charge conjugation with time reversal at the mirror phase (the cyclic schedule fails
 // CPT everywhere in the group, measured as the control), a connected interaction structure

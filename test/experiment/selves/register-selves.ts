@@ -1,5 +1,5 @@
-// INTEGRATION AND BINDING ACROSS LINES ON THE MANY-HOLE ENGINE (E-SLF-0179; moving-matter item 0022; rows OPEN-MND-03
-// integration, OPEN-MND-01 binding, under OPEN-FND-03). RULE: R* with the spinor lift (decision 0006), E-SPN-0175's
+// INTEGRATION AND BINDING ACROSS LINES ON THE MANY-HOLE ENGINE (E-SLF-0179; rows OPEN-MND-03
+// integration, OPEN-MND-01 binding, under OPEN-FND-03). RULE: R* with the spinor lift, E-SPN-0175's
 // pieces: the member mixers at ringUnit(-1, 4), the sector string ringUnit(-2, 1) (cap 8) and the contact v^2 with
 // v = ringUnit(2, 0), hole angles reversed. The free rule is the member mixers alone (no pair piece).
 //
@@ -35,7 +35,7 @@
 // free control, and whether the size holds from three holes to four. Depth L2 at most, on the 4d bulk torus, not the
 // husk: no ledger row is held from it.
 //
-// ENGINE: E-FND-0163's sorted store on the native kernel, the tie projection of item 0021 (code/measure/register-tie-
+// ENGINE: E-FND-0163's sorted store on the native kernel, the tie projection of an earlier step (code/measure/register-tie-
 // projection) applied every cycle. THREE HOLES ON L = 6 from E-FND-0165's starts A1 ('0,1,2', pick 300) and B1
 // ('6,7,9', pick 200); FOUR HOLES ON L = 4 from E-FND-0163's start (the first four distinct classes after 0 summing to
 // 0); read only, three holes on L = 4 from the same kind of start (the same torus as four). Each start runs 16 cycles
@@ -61,7 +61,7 @@
 //    give 0.885, so on one torus three and four agree to 0.5 percent: the drop is the larger torus's room, with I a
 //    fraction bounded by 1 and near saturation by cycle 8. Not a kill (far above 10 times the free read).
 //  - BINDING: E-SLF-0177's read passes (B 1.13 at three holes, 0.60 at four, against 1.4e-13 and 4.9e-14); the row is
-//    partial because E-QTM-0154's read needs C* (Decide item 0034 of moving-matter).
+//    partial because E-QTM-0154's read needs C* (an open decision).
 //  - CONTROL: the free rule's largest read 1.43e-13 (gate 1e-12). INSTRUMENT: drift at most 1.4e-13, ties 4.3e-19,
 //    sums 6.9e-13.
 //  - Read, gating nothing: B peaks at cycle 4 (1.13, 1.11) and settles near 0.7 to 0.9 at three holes, 0.55 at four;

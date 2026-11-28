@@ -1,4 +1,4 @@
-PWD /Users/lancepollard/base/crew/cluesurf/deck/vibe/text/v4
+PWD .
 INPUT /opt/homebrew/Cellar/texlive/20250308_1/share/texmf-var/web2c/luahbtex/lualatex.fmt
 INPUT ./vibe.tex
 OUTPUT vibe.log

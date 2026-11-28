@@ -1,15 +1,15 @@
 // FRONTIER TRACK F2:
-//   Part A (SM Pillar 3, board-0061): True Coupled 24-Slot Bare Bloch-Horosphere Zero-Mode Index,
+//   Part A (SM Pillar 3): True Coupled 24-Slot Bare Bloch-Horosphere Zero-Mode Index,
 //     Exact W(F_4) Inner vs Outer Triality Decomposition, Exact D<=1 Cusp Unit-Cell Bloch Check,
 //     Spatial Z_3 Orbifold Obstruction, and Coupled 24-Slot Internal-Triality Z_3 Chiral Wall (Zero I_3 Tensoring!).
-//   Part B (SM Pillar 4, board-0067): Exact Discrete 1-Loop Casimir Energy E_Casimir(D_*) Across D_* = 1..20
+//   Part B (SM Pillar 4): Exact Discrete 1-Loop Casimir Energy E_Casimir(D_*) Across D_* = 1..20
 //     (Exact Radial Cusp Laplacian & Bare 24-Slot Unitary Cusp Slab; Pure Boson, Pure Fermion, Mixed B/F with DD/NN/ND BCs;
 //      Exact Exponential Decay Rate vs Hyperbolic Bulk Gap & Sharp Stabilization / No-Go Theorem for D_* ~ 13).
-//   Part C (Game-Changer #15, board-0070): Complete Commutant Algebra {A : [A, U] = 0}, Exact 18-Charge U(1)
+//   Part C (Game-Changer #15): Complete Commutant Algebra {A : [A, U] = 0}, Exact 18-Charge U(1)
 //     Role-Tone Classification, Exact BigInt & Float64 Discrete Noether Continuity Equation, and Exact Microscopic
 //     Stress-Energy Tensor T^{mu nu}(x, t) (Conservation, Relativistic vs Massive Trace/EoS, O(k^4) D_4 Isotropy).
 //
-// Strictly deterministic (ZERO Math.random), standalone, exact BigInt + Float64, laptop-safe (< 20s).
+// Strictly deterministic (ZERO Math.random), standalone, exact BigInt + Float64, fast (< 20s).
 
 // ============================================================================
 // 0. VERIFICATION LEDGER & BASIC UTILITIES
@@ -2495,7 +2495,7 @@ function runPartB(): void {
 }
 
 // ============================================================================
-// PART C: GAME-CHANGER #15 (board-0070) — COMMUTANT, NOETHER CURRENTS & T^{mu nu}
+// PART C: GAME-CHANGER #15 — COMMUTANT, NOETHER CURRENTS & T^{mu nu}
 // ============================================================================
 
 function runPartC(): void {

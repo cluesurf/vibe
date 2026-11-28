@@ -1,4 +1,4 @@
-// 'T HOOFT MATCHING ON BOTH WALLS OF THE CHIRAL SLAB (E-FRC-0290, moving-matter item 0028, route 1 of
+// 'T HOOFT MATCHING ON BOTH WALLS OF THE CHIRAL SLAB (E-FRC-0290, route 1 of
 // research/charge-one-after-anomaly.md). E-FRC-0289 (code/measure/anomaly-matching) matched one face with a typed hand,
 // both tones in colour 3 and a one-wall member number. This module reads every one of those inputs from the rule and
 // holds the pieces for the two-wall set S4 = U(1)_Q x SU(2)_A x SU(2)_B x U(1)_V:

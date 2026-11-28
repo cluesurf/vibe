@@ -10,7 +10,7 @@
 //     every rule purely from observables (free-dispersive, integrable-bound,
 //     relativistic-Thirring, chaotic-COE) with zero hardcoded regime toggles.
 //
-// Strictly deterministic, ZERO Math.random(), laptop-safe.
+// Strictly deterministic, ZERO Math.random(), memory-safe.
 
 import {
   certifyCapability,

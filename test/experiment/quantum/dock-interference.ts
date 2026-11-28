@@ -77,7 +77,7 @@ import {
 } from '@/code/rule/fear-dock'
 
 const BEATS = 48
-// the largest joint map a run may hold before it stops: memory, not time, is the laptop's limit here
+// the largest joint map a run may hold before it stops: memory, not time, is a small machine's limit here
 const JOINT_CAP = 150000
 const CHECK_BEATS = 6
 

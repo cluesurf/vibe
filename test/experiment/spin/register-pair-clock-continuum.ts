@@ -1,4 +1,4 @@
-// THE MOVING CLOCK AS A CONTINUUM EXTRAPOLATION (E-SPN-0217, OPEN-MOT-01, vibe-roadmap-moving-matter-0001). E-SPN-0213 and
+// THE MOVING CLOCK AS A CONTINUUM EXTRAPOLATION (E-SPN-0217, OPEN-MOT-01). E-SPN-0213 and
 // E-SPN-0214 could not read the register pair's 1s-2s clock: the levels split into lines no tracking rule followed, and
 // at the one clean point (m 0.427, a_B 7.5) the 2s line came out lighter per unit energy than the 1s (R 1.283 against
 // 1.337), so the moving clock ran fast, alpha -1.09 times relativity's.

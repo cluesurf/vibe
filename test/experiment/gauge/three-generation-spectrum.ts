@@ -1,6 +1,6 @@
 // FRONTIER 2: STANDARD MODEL 3 CHIRAL FERMION GENERATIONS, EXPONENTIAL MASS HIERARCHY,
 // AND UNITARY CKM MIXING FROM D4 TRIALITY, Z[zeta_9][1/6] CUSP WALL, AND {3,4,3,4} WARP SHELLS
-// (E-FRC-0323, gaps B-25 and m-11).
+// (E-FRC-0323).
 //
 // Part 1: Lifts E-SPN-0222's exact Z[zeta_9][1/6] unitary cusp domain wall onto the 3 orthogonal 8-slot
 // D4 triality frames of the 24-cell (3 x 8 = 24, cycled by order-3 T_3 in W(D4) < W(F4), commuting with
@@ -33,7 +33,7 @@ export default experiment({
   id: 'gauge/three-generation-spectrum',
   code: 'E-FRC-0323',
   title:
-    'Three chiral fermion generations from 24-cell D4 triality + Z[zeta_9][1/6] unitary cusp wall, with exponential {3,4,3,4} warp-shell mass hierarchy, hierarchical unitary CKM + Jarlskog CP phase, and honest boundary audit (B-25, m-11)',
+    'Three chiral fermion generations from 24-cell D4 triality + Z[zeta_9][1/6] unitary cusp wall, with exponential {3,4,3,4} warp-shell mass hierarchy, hierarchical unitary CKM + Jarlskog CP phase, and honest boundary audit',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

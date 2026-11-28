@@ -1,4 +1,4 @@
-// THREE LIKE-TONE REGISTER HOLES BOUND AT CONTACT, BOOSTED (E-SPN-0193, moving-matter item 0004, OPEN-MAT-01). The many-hole
+// THREE LIKE-TONE REGISTER HOLES BOUND AT CONTACT, BOOSTED (E-SPN-0193, OPEN-MAT-01). The many-hole
 // engine of E-FND-0161 (code/measure/register-holes) runs three holes of one sea in one half on the L = 4 D4 torus under
 // E-SPN-0175's sector pieces. This module adds what the motion read needs and nothing else:
 //

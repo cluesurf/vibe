@@ -1,4 +1,4 @@
-// THE FINITE QUOTIENT of the {3,4,3,4} honeycomb modulo (3 + sqrt 2) (item vibe-roadmap-honeycomb-0008, gates
+// THE FINITE QUOTIENT of the {3,4,3,4} honeycomb modulo (3 + sqrt 2) (gates
 // pre-registered in the item's `what` before any probe). Code: code/substrate/coxeter/quotient-3434.ts. Spec:
 // audit.md section 3.3 and note/honeycomb-transfer-radius.md section 6.
 //
@@ -63,7 +63,7 @@ export type QuotientOptions = {
   beats: number
 }
 
-export const LAPTOP: QuotientOptions = { systoleRadius: 4, exactRadius: 3, beats: 96 }
+export const SMALL: QuotientOptions = { systoleRadius: 4, exactRadius: 3, beats: 96 }
 
 function bijective(tables: LockedTables): boolean {
   const seen = new Uint8Array(tables.target.length)
@@ -261,7 +261,7 @@ export function honeycombQuotient(options: QuotientOptions): Verdict {
       seconds: seconds(),
     },
     notes:
-      'L1 (an instrument, exact). Gates pre-registered in vibe-roadmap-honeycomb-0008 before any probe. Orders are exact (deterministic Schreier-Sims on F_7^5). The congruence kernel is not inside K (it holds u^7, whose label image is the twist), so the label-consistent quotient is a |K_7 cap H_7|-fold cover of the cell quotient. Status open = the item escalates (size or systole), not a failed measurement.',
+      'L1 (an instrument, exact). Gates pre-registered before any probe. Orders are exact (deterministic Schreier-Sims on F_7^5). The congruence kernel is not inside K (it holds u^7, whose label image is the twist), so the label-consistent quotient is a |K_7 cap H_7|-fold cover of the cell quotient. Status open = the item escalates (size or systole), not a failed measurement.',
   })
 }
 
@@ -275,6 +275,6 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    return honeycombQuotient(LAPTOP)
+    return honeycombQuotient(SMALL)
   },
 })

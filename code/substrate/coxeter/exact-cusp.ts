@@ -1,4 +1,4 @@
-// A CUSP NEIGHBORHOOD of the {3,4,3,4} honeycomb in exact arithmetic (item vibe-roadmap-board-0027): the cells near
+// A CUSP NEIGHBORHOOD of the {3,4,3,4} honeycomb in exact arithmetic: the cells near
 // one ideal vertex of the base cell, modulo a lattice of the cusp's own translations, down to a floor. It is the mesh
 // the working rule runs on (code/rule/vibe-weave makeVibeWeave on a mesh, lockedTables): degree 24, slots in rootsD4()
 // order, every neighbour facing back by the opposite slot, -1 only below the floor.

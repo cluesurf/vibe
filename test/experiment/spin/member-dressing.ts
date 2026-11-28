@@ -1,11 +1,11 @@
-// ONE MEMBER DRESSED BY AT MOST ONE HUSK PHOTON (item 0068 of roadmap/moving-matter, decision 015; code E-SPN-0201,
-// free in the log and the registry when taken, recheck at merge). Item 0008 (the pair and the quantum light as one exact
+// ONE MEMBER DRESSED BY AT MOST ONE HUSK PHOTON (code E-SPN-0201,
+// free in the log and the registry when taken, recheck at merge). An earlier step (the pair and the quantum light as one exact
 // dynamics) closed OPEN: its kill needs the joint R to depart from the linear-response Darwin R by 25% of R - tan m / m
 // (0.1026 at a_B 8, 0.0423 at a_B 12), about twice the whole Darwin shift, and the one piece estimated able to reach
 // that is the member's own self-energy, which linear response leaves out. This file explores whether one-photon
 // dressing could move one member's M2 / M1 that far.
 //
-// THE READ (decision 015 point 1; the model in code/measure/member-dressing). One member (m 0.427029, tan m / m
+// THE READ (point 1 of a recorded decision; the model in code/measure/member-dressing). One member (m 0.427029, tan m / m
 // 1.065572) and at most one non-gauge husk photon at fixed total K, on the light's box of the joint problem (side 72 at
 // a_B 8's coupling, 108 at a_B 12's), q^2 = 24 pi alpha', alpha' = 1 / (mu a_B), mu = tan m (0.2747 and 0.1831). The
 // lowest level of the cut Hamiltonian at K = 0 (O_h) is the dressed M1; on the x axis (C4v) at K 0.04, 0.02, 0.01 the
@@ -13,12 +13,12 @@
 // D(a_B) = dressed M2 / M1 - tan m / m. The third K step (0.01) is added to 0001's two: with two the bare read misses
 // tan m / m by 6.0e-7, with three by 9.6e-11 (test/record/E-SPN-0201/dress-probe.log), which control C1 needs.
 //
-// GATES (decision 015 point 2, fixed 2026-10-09 before any run; status: UNREACHABLE pass, REACHABLE fail, OPEN open):
+// GATES (point 2 of a recorded decision, fixed 2026-10-09 before any run; status: UNREACHABLE pass, REACHABLE fail, OPEN open):
 //   UNREACHABLE  |D| < 0.1026 at a_B 8 and < 0.0423 at a_B 12, with Z >= 0.8 at both
 //   REACHABLE    |D| at or above either with Z >= 0.8
 //   OPEN         Z < 0.8, or D moves by more than 25% of its threshold between the box and 3/4 of it (54, 81), or any
 //                control fails. D is also reported against gate A's 0.05 band, as information.
-// CONTROLS (decision 015 point 3), each to 1e-10:
+// CONTROLS (point 3 of a recorded decision), each to 1e-10:
 //   C1 coupling 0 gives tan m / m (the read itself, at side 54)
 //   C2 a gauge transform of the light leaves the dressed level: the gauge vector's second-order shift through the
 //      member's own vertex and seagull, paths k and -k, is 0 over its absolute scale, at every box momentum; and every
@@ -215,7 +215,7 @@ export default experiment({
   id: 'spin/member-dressing',
   code: 'E-SPN-0201',
   title:
-    "One member dressed by one husk photon: explores whether the R* member's one-photon self-energy at a_B 8 and 12's couplings moves its M2 / M1 far enough from tan m / m to reach item 0008's kill",
+    "One member dressed by one husk photon: explores whether the R* member's one-photon self-energy at a_B 8 and 12's couplings moves its M2 / M1 far enough from tan m / m to reach an earlier step's kill",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

@@ -1,5 +1,5 @@
-// PROJECTIVE COLOUR: DOES A LINK THAT MOVES ONLY TRIALITY-0 CONTENT GIVE A CONSISTENT WALK? (E-FRC-0312, item 0098 of
-// vibe/roadmap/moving-matter, research/confinement-many-walker.md section 3, candidate P; decisions 020 and 021).
+// PROJECTIVE COLOUR: DOES A LINK THAT MOVES ONLY TRIALITY-0 CONTENT GIVE A CONSISTENT WALK? (E-FRC-0312, an earlier step of
+// the moving-matter roadmap, research/confinement-many-walker.md section 3, candidate P).
 // Explores whether confinement could be a selection rule forced by the base's own link data. Each R* link holds one of the
 // 216 ASL(2, 3) grid moves, and its lift to Sigma(648) (U, omega U or omega^2 U) is a choice the rule does not make
 // (code/measure/holonomy-caging.ts:9-14, Sigma(648) non-split). Lambda^k(omega I) = omega^k, so only triality-0 content

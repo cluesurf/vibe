@@ -1,6 +1,6 @@
 // Measures for a content-addressable associative memory, recall accuracy, capacity versus radius, and search
 // latency. Built on the engine in operator/associative-memory and the shell BFS in measure/shells. See
-// note/project/vibe/archive/theory-v0.7.0/experiments/associative-engine-experiments.md.
+// the associative engine experiments notes.
 
 import { Weyl } from '@/code/tool/weyl'
 import { bfsShells } from '@/code/measure/shells'

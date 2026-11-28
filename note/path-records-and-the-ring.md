@@ -1,8 +1,7 @@
 # Two limits on the quantum reading: a keyed path is a local hidden variable, and the ring's single amplitudes have no even split
 
 Depth **L1** (known math). Written 2026-11-12 for the advisory board, round 01 (objections Q-1, Q-2, M-2, Q-7), and
-corrected the same day after round 02 (Q2-1, Q2-2, Q2-8, G2-8). Records:
-`note/project/vibe/roadmap/board/round-0N/response.md` in the ClueSurf repo. Nothing here is a run.
+corrected the same day after round 02 (Q2-1, Q2-2, Q2-8, G2-8). Nothing here is a run.
 
 ## 1. A keyed path cannot violate CHSH in its own records
 

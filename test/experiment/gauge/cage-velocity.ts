@@ -1,5 +1,5 @@
-// IS cf0 A CAGE OR A SLOWING? (note/project/vibe/roadmap/moving-matter item 0074, decision 017 point 3). Explores whether
-// the centre field cf0 (item 0058) could stop a lone third for ever, or only slows it. A static periodic field confines
+// IS cf0 A CAGE OR A SLOWING? (the moving-matter roadmap, point 3 of a recorded decision). Explores whether
+// the centre field cf0 could stop a lone third for ever, or only slows it. A static periodic field confines
 // only by Aharonov-Bohm flat bands, so the read is C_inf = v_inf(cf0) / v_inf(identity), the long-time speed of item
 // 0065's one-dock colour-mixed start from the Bloch bands of the cage engine itself (code/measure/cage-velocity).
 //
@@ -10,7 +10,7 @@
 //  reduction is checked against the dense 192 x 192 block at sample momenta.
 // STEP 3, printed, never gated: C over beats 16-32, 32-48, 48-64 and the rms log-log slope.
 //
-// GATES, fixed 2026-10-09 before any read (decision 017 point 3):
+// GATES, fixed 2026-10-09 before any read (point 3 of a recorded decision):
 //  CONFINED  C_inf under 1e-6 and the flat weight within 1e-6 of 1 (an Aharonov-Bohm cage)
 //  SLOWED    C_inf at least 1e-6 (part of the third moves ballistically for ever)
 //  OPEN      STEP 1 fails, or the grids do not converge
@@ -318,7 +318,7 @@ export function cageVelocityVerdict(stages: readonly CvelStage[], ref: CageRefer
     metrics,
     control: { identityCinf: identityC, chainCinf: chainC },
     notes: [
-      'v_inf is read on the 4D bulk mesh from the cage engine of item 0065, never on the husk. One field (cf0), uniform, so no ensemble.',
+      'v_inf is read on the 4D bulk mesh from the cage engine of an earlier step, never on the husk. One field (cf0), uniform, so no ensemble.',
       ...notes,
     ].join(' '),
   })

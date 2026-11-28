@@ -1,4 +1,4 @@
-// TSIRELSON WITHOUT THE WRAP (E-QTM-0199, item vibe-roadmap-board-0009, gap B-08, objections Q-6, Q2-9, M2-2, Q3-4).
+// TSIRELSON WITHOUT THE WRAP (E-QTM-0199, objections Q-6, Q2-9, M2-2, Q3-4).
 // E-QTM-0163 found that the like pair's knot passes the one-meeting ceiling sqrt 7 and comes within 2.4e-5 of 2 sqrt 2,
 // but only on the flat D4 box, where the pair meets again every 3 beats as its line wraps round. On the honeycomb a line
 // is an open geodesic and never closes. This file runs the same pair where its line is open and asks whether it still
@@ -17,7 +17,7 @@
 //
 // THE ARMS.
 //   BALL  the exact {3,4,3,4} ball of radius 4 (code/substrate/coxeter/exact-ball-mesh), 4 beats: nothing reaches the
-//         frontier (gate I4), so every read is the honeycomb's own (honeycomb decision 002). 18 link fields: E-MTH-0028's
+//         frontier (gate I4), so every read is the honeycomb's own. 18 link fields: E-MTH-0028's
 //         17 starts over the ball's own slots, and the identity
 //   LINE  an open line of 71 docks joined only through that line's two slots, identity links, 32 beats. Since the state
 //         never leaves the line (I3), the rule on it is the rule on a honeycomb line as long as no vibe reaches an end

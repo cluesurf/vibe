@@ -1,4 +1,4 @@
-// THE REGISTER MEMBER'S ONE-BODY MATCHING TABLE (E-SPN-0195, moving-matter item 0017, Key 1). The nonrelativistic
+// THE REGISTER MEMBER'S ONE-BODY MATCHING TABLE (E-SPN-0195, Key 1). The nonrelativistic
 // expansion of the register member's exact cycle (E-SPN-0160), read as the coefficients of NRQED:
 //
 //   E = M1 + p^2 / (2 M2) - p^4 / (8 M4^3) - c_F (q / 2 M2) sigma . B + c_D-term + ...

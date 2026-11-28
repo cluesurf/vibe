@@ -1,5 +1,5 @@
-// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205, gap B-05).
-// Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally
+// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205).
+// Under Key 8, the Born measure over record branches is posited operationally, not unconditionally
 // derived. This experiment verifies the algebraic Zurek envariance symmetry prerequisites on an explicit bipartite
 // state vector |Psi_SE> in H_S (x) H_E built from the actual single-beat branching amplitudes of R = 2 {3,4,3,4}:
 //   (1) 2-branch Z_6 x Z_6 phase envariance verified entry-by-entry on the 4-component bipartite vector
@@ -13,7 +13,7 @@
 //   (3) Branch-count symmetry weights derived directly from the verified equal-modulus Schmidt branch counts
 //       (keepCount / totalEqualBranches, crossCount / totalEqualBranches) without hardcoded literals.
 //
-// Conditional Zurek envariance premises (stated explicitly per Decision 007 C / Key 8):
+// Conditional Zurek envariance premises (stated explicitly per Key 8):
 //   (E1) Probabilities of outcomes on S are fixed by the joint state |psi_SE>.
 //   (E2) A unitary U_E acting strictly on the environment E does not change probabilities on S (no-signaling).
 //   (E3) Schmidt basis states correspond to mutually exclusive outcomes.

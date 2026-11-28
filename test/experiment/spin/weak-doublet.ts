@@ -1,5 +1,5 @@
-// IS THE WEAK DOUBLET THE TONE-FLIPPING HODGE STAR? (E-SPN-0204, moving-matter item 0092, decision 020 point 4,
-// research/one-walker-costs.md section 1). RULE: the register rule R* in the one-walker reading (decision 020 point 1): a
+// IS THE WEAK DOUBLET THE TONE-FLIPPING HODGE STAR? (E-SPN-0204, point 4 of a recorded decision,
+// research/one-walker-costs.md section 1). RULE: the register rule R* in the one-walker reading (point 1 of a recorded decision): a
 // walker of tone t and grade k carries Lambda^k(C^3) of its role, 8 states per tone, 16 in all, charge +k/3 (love) or
 // -k/3 (fear).
 //

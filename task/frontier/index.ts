@@ -9,7 +9,7 @@
 //                  (the same pipe tables `make:vibe` turns into physics.json)
 //   open.md        the open items OPEN-XXX-NN, each with "what closing it
 //                  takes", "depends on" and the ledger rows it names
-//   gaps.md        the seven decisions only the user can make (and the items
+//   gaps.md        the seven decisions only the author can make (and the items
 //                  each one gates), and the per-area "waits on" kind
 //
 // How a row is tied to its condition, in order, and nothing past that:
@@ -56,7 +56,7 @@
 //   --json        machine-readable output, every section
 //   --area, -a    limit the per-row listing to ledger section letters (A,B)
 //   --notes       the roadmap directory. Default: found by walking up from
-//                 the package to note/project/vibe/roadmap
+//                 the package to VIBE_ROADMAP_PATH
 
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -69,7 +69,7 @@ const PACKAGE_ROOT = resolve(
 )
 
 /** Where the roadmap notes sit below a repository root. */
-const ROADMAP_PATH = 'note/project/vibe/roadmap'
+const ROADMAP_PATH = process.env.VIBE_ROADMAP_PATH ?? 'roadmap'
 
 /** A lettered ledger section heading: `A. Quantum foundations`. */
 const SECTION_HEADING = /^([A-Z])\.\s+(.+)$/
@@ -123,7 +123,7 @@ const RERUN_WORDS = /\brerun\b|\bre-run\b|\bread again\b/i
 /** open.md's marker for a condition the notes do not name. */
 const PROPOSED = /\(proposed\)/i
 
-/** Words a dependency sentence uses for a decision only the user makes. */
+/** Words a dependency sentence uses for a decision only the author makes. */
 const USER_DECISION = /\buser's (?:decision|go-ahead)\b/i
 
 /** Words too common to identify a row by. */
@@ -182,7 +182,7 @@ type OpenItem = {
   primary: string[]
   /** ids in later sentences: qualified, noted or done, never gating */
   secondary: string[]
-  /** the first sentence names a decision only the user makes */
+  /** the first sentence names a decision only the author makes */
   wantsDecision: boolean
   /** ledger section letters the item cites */
   letters: Set<string>
@@ -908,7 +908,7 @@ function buildGraph({
       edges.push(decisionId(number))
     }
 
-    // A first sentence that wants the user's decision, on an item no
+    // A first sentence that wants the author's decision, on an item no
     // numbered decision names, waits on an unnumbered one.
     if (item.wantsDecision && !gatedBy.has(item.id)) {
       edges.push(`decision (unnumbered, ${item.id})`)

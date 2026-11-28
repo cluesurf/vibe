@@ -1,8 +1,8 @@
 // FRONTIER TRACK F3: MULTI-FLOOR BARE DISPERSION, QCA RG/MERA, UNITARY CONSERVED-FLUX STEADY STATE,
 // 24-LEG QUTRIT HOLOGRAPHIC CODE OVER GF(3), AND ENTANGLEMENT-GRAPH LIN-LU-YAU CURVATURE
 //
-// Targets: board-0059 (bare-to-column bridge & speed-lock), board-0060 (Game-Changer #4: block-unitary QCA RG/MERA),
-//          board-0058 (Game-Changer #1: 24-leg qutrit holographic code), board-0064 (Game-Changer #11: LLY curvature).
+// Targets: bare-to-column bridge & speed-lock, Game-Changer #4 (block-unitary QCA RG/MERA),
+//          Game-Changer #1 (24-leg qutrit holographic code), Game-Changer #11 (LLY curvature).
 //
 // Strict scientific integrity:
 // - ZERO Math.random(), ZERO external imports, deterministic exact computation only.
@@ -672,7 +672,7 @@ function wrapDiff(a: number, b: number): number {
 
 // ============================================================================
 // 3. PART A: MULTI-FLOOR CUSP BLOCH TRANSFER OPERATOR, BLOCK-UNITARY QCA RG / MERA,
-//    AND SITE-LOCAL MULTI-FLOOR FERMIONIC TRANSFER OPERATOR (board-0059, board-0060)
+//    AND SITE-LOCAL MULTI-FLOOR FERMIONIC TRANSFER OPERATOR
 // ============================================================================
 
 console.log('================================================================================')
@@ -1202,7 +1202,7 @@ recordCheck(
 )
 
 // ============================================================================
-// A2. REAL-SPACE BLOCK-UNITARY QCA RG / MERA ALONG HOROSPHERE DEPTH D (board-0060)
+// A2. REAL-SPACE BLOCK-UNITARY QCA RG / MERA ALONG HOROSPHERE DEPTH D
 // ============================================================================
 
 console.log('\n  A2. Real-Space Block-Unitary QCA RG / MERA Flow Along Horosphere Depth D = 0..3:')
@@ -1423,7 +1423,7 @@ recordCheck(
 )
 
 // ============================================================================
-// A3. SITE-LOCAL MULTI-FLOOR FERMIONIC TRANSFER OPERATOR vs CAUCHY-SCHWARZ (board-0059)
+// A3. SITE-LOCAL MULTI-FLOOR FERMIONIC TRANSFER OPERATOR vs CAUCHY-SCHWARZ
 // ============================================================================
 
 console.log('\n  A3. Site-Local Multi-Floor Fermionic (Dirac Split-Step) Transfer Operator vs Cauchy-Schwarz:')
@@ -1638,7 +1638,7 @@ recordCheck(
 )
 
 // ============================================================================
-// 4. PART B: EXPLICIT UNITARY CUSP-ANCHORED CONSERVED-FLUX STEADY STATE (board-0059)
+// 4. PART B: EXPLICIT UNITARY CUSP-ANCHORED CONSERVED-FLUX STEADY STATE
 // ============================================================================
 
 console.log('\n================================================================================')
@@ -2056,12 +2056,12 @@ recordCheck(
 )
 
 // ============================================================================
-// 5. PART C: GAME-CHANGER #1 (board-0058) — 4D-BULK-TO-3D-HUSK 24-LEG QUTRIT
+// 5. PART C: GAME-CHANGER #1 — 4D-BULK-TO-3D-HUSK 24-LEG QUTRIT
 //    HOLOGRAPHIC ERROR-CORRECTING CODE OVER GF(3)
 // ============================================================================
 
 console.log('\n================================================================================')
-console.log('PART C: 24-LEG QUTRIT HOLOGRAPHIC ERROR-CORRECTING CODE OVER GF(3) (board-0058)')
+console.log('PART C: 24-LEG QUTRIT HOLOGRAPHIC ERROR-CORRECTING CODE OVER GF(3)')
 console.log('================================================================================')
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
@@ -2845,7 +2845,7 @@ recordCheck(
 )
 
 // ============================================================================
-// 6. PART D: GAME-CHANGER #11 (board-0064) — ENTANGLEMENT-GRAPH OLLIVIER-RICCI /
+// 6. PART D: GAME-CHANGER #11 — ENTANGLEMENT-GRAPH OLLIVIER-RICCI /
 //    LIN-LU-YAU CURVATURE DIRECTLY FROM BARE MULTI-EXCITATION QCA STATES
 // ============================================================================
 

@@ -1,8 +1,7 @@
 # The working rule's line-wise transfer from the box to the honeycomb
 
-Depth **L1** (proof from the rule's definition, with exact probes). Written 2026-11-12 for board item
-`vibe-roadmap-board-0021`, gap B-12, objection G-1 (round 01) and G2-3 (round 02). Records:
-`note/project/vibe/roadmap/board/` in the ClueSurf repo.
+Depth **L1** (proof from the rule's definition, with exact probes). Written 2026-11-12 for
+the board's gap, objection G-1 (round 01) and G2-3 (round 02).
 
 [`honeycomb-transfer-radius.md`](honeycomb-transfer-radius.md) Theorem C proves that a general dock-local rule
 transfers from the flat D4 box to {3,4,3,4} only for one dock and one beat. That is the worst case. The working rule
@@ -11,7 +10,7 @@ is not a general rule: while K is idle it factors line by line (E-SPN-0157). Thi
 |D| + 2t <= L. Husk readings, readings that place several lines in space, K, every mixer and the dock-level vetoes
 never transfer.
 
-Probe: [`tmp/board-0021-line-transfer-probe.ts`](../tmp/board-0021-line-transfer-probe.ts) (seconds, laptop, exact).
+Probe: [`tmp/line-transfer-probe.ts`](../tmp/line-transfer-probe.ts) (seconds, one CPU, exact).
 
 ## 1. Lines on the two meshes
 
@@ -80,7 +79,7 @@ parity, the schedule's clock bit (`bounce-pair-knit.ts`:49-50), is global and th
 across lines. It is the working rule's only line mixer.
 
 **Lemma 1 fails for** the 'occupation' and 'pairing' vetoes (`dockAllows` reads all 12 lines of the dock, so a pair
-move on one line depends on the others), and for every mixer (G, the store mixer, the four-part mixer, proposal 004's
+move on one line depends on the others), and for every mixer (G, the store mixer, the four-part mixer, the board proposal's
 line mixer).
 
 ## 3. Lemma 2: K stays idle around a one-line disturbance
@@ -148,7 +147,7 @@ line effect with no honeycomb counterpart.
 **What the window is in practice.** A lone vibe (m = 1): t <= 3 on side 8, 7 on side 16, 11 on side 24, and 2 on the
 F_7 quotient. On the radius-R ball the same argument holds until the cone reaches the reflecting frontier.
 
-**An exact honeycomb instrument for line readings (bears on B-35).** Since U_line is one-dimensional, a single line of
+**An exact honeycomb instrument for line readings (bears on an open board gap).** Since U_line is one-dimensional, a single line of
 m + 2T docks with the unrolled vacuum computes the honeycomb's line reading exactly for T beats, at a cost growing as
 T^2. No ball and no quotient is needed for this class of readings.
 
@@ -173,15 +172,15 @@ window, which this note did not check. Box totals (466,944 pairs made per cycle)
 
 - **Husk readings.** The line's state carries but the map from the line to the husk does not. On the honeycomb a line
   meets the cusp layer in at most 2 docks and its husk shadow stops within 1.414 lattice units (E-SPN-0156 H3'). On the
-  box half the lines lie in the husk and run forever. Gap m-09.
+  box half the lines lie in the husk and run forever. That gap is open.
 - **Readings that place several lines in space.** Isotropy, speed by 4d direction, the light cone's shape, area or
   volume laws over a region (E-GRV-0083: a region's entropy sums the line pieces it cuts, and how a region cuts lines
   is mesh geometry: a box line crosses a slab twice a period, a geodesic crosses a convex region once).
-- **Anything past the wrap.** The box line's return (E-CMP-0018) and Tsirelson through the line wrap (B-08) have no
+- **Anything past the wrap.** The box line's return (E-CMP-0018) and Tsirelson through the line wrap have no
   counterpart on a line that never closes.
 - **K, mixers and dock-level vetoes.** Two single lines on one dock, the mixers G, the store mixer, the four-part
-  mixer and proposal 004's line mixer, and the 'occupation' and 'pairing' vetoes. G2-3 is right that this proof cannot
-  close B-12 for proposal 004.
+  mixer and the board proposal's line mixer, and the 'occupation' and 'pairing' vetoes. G2-3 is right that this proof cannot
+  close that gap for the board proposal.
 - **Keyed path records.** The registered key is a function of the box's dock index, the beat and the line
   (`code/measure/full-key-paths.ts`:1-16). A path reading carries only if the key along l_H is set to l_B's. Under key 7
   path records are not the base.

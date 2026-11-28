@@ -1,4 +1,4 @@
-// Breakthrough 2 (vibe-roadmap-board-0055):
+// Breakthrough 2:
 // Explicit Helffer-Sjostrand / Combes-Thomas Infinite-Volume Euclidean Spatial Mass Gap
 // on 4D D_4 Triangular Plaquettes for SU(2) and SU(3) (with 24-Cell Vertex-Corner Sharpening).
 //

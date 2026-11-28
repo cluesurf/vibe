@@ -7,7 +7,7 @@
 //
 // Strictly standalone (zero external imports), strictly deterministic (zero Math.random; fixed
 // LCG 1664525 / 1013904223), strict TypeScript (--strict --noUncheckedIndexedAccess clean),
-// laptop-safe (< 8 s runtime, < 220 MB RSS). Hard assert() on every gate (7/7).
+// fast (< 8 s runtime, < 220 MB RSS). Hard assert() on every gate (7/7).
 //
 // =================================================================================================
 // BRUTALLY HONEST EPISTEMIC SCOPE LEDGER (Tier A / Tier B / Tier B/C):
@@ -47,7 +47,7 @@
 //               2^3 x 6, anti-periodic temporal BC) at beta_D4 = 3.1: live W_2 Banks-Casher SBCS
 //               vs frozen Sigma(648) & Free U = I.
 //   - Tier B/C (Coarse quenched lattice hadron phenomenology & dynamical thermal leptogenesis):
-//       * G6.3: Quenched (N_f = 0), laptop-volume (2^3 x 6), coarse-spacing (beta_D4 = 3.1) naive
+//       * G6.3: Quenched (N_f = 0), small-volume (2^3 x 6), coarse-spacing (beta_D4 = 3.1) naive
 //               4D D_4 chiral fermion hadron spectrum (GMOR m_pi^2 ~ m_q, f_pi, m_rho, 3-quark
 //               nucleon m_p, WTI/PCAC-GMOR).
 //               HONEST DISCLOSURE: Explicitly subject to O(40-80%) finite-volume (L_s = 2),

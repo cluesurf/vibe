@@ -1,5 +1,5 @@
 // EXACT UNSCREENED 1/r SLOPE & GEOMETRIC NEWTON COUPLING G_eff FROM PARAMETER-FREE PAIR-DENSITY WARP 1/N_D^2
-// (E-GRV-0157, gaps B-52, m-10; resolves the small-box G(L/2) subtraction bias in E-GRV-0156).
+// (E-GRV-0157; resolves the small-box G(L/2) subtraction bias in E-GRV-0156).
 //
 // Depth L2: exact {3,4,3,4} column counts (N_D = 1, 18, 330, 6034; canonical unaliased single-face lateral links
 // [1, 4, 20, 100], cumulative m_D = 5^D), exact Riccati Schur complement,

@@ -1,4 +1,4 @@
-// INTERIOR SHELL STATISTICS VS BOUNDARY CONDITION ON EXACT {3,4,3,4} BALLS (item vibe-roadmap-board-0019, gap B-22).
+// INTERIOR SHELL STATISTICS VS BOUNDARY CONDITION ON EXACT {3,4,3,4} BALLS.
 // Compares three boundary conditions on exact R = 2 (481 docks) and R = 3 (8,857 docks) balls:
 //   (1) reflecting: frontier slots reflect into OPPOSITE[d] on the same outer-shell dock (exact unitary).
 //   (2) calm-open (absorbing): amplitude streaming across a frontier slot exits into the infinite calm bulk (lost from ball).
@@ -222,7 +222,7 @@ function runForRadius(radius: number): BallRadiusBoundaryReport {
   //     t = 1: r = R - 1 streams to r = R (no frontier hit yet! diff = 0 on ALL shells!).
   //     t = 2: r = R streams across frontier (reflects on r = R, stays on r = R; diff on r <= R - 1 is STILL 0!).
   //     t = 3: reflected wave on r = R streams back to r = R - 1 (diff > 0 on r = R - 1!).
-  //   AND if we seed on ALL docks (including r = R, like a thermal/equilibrium state on the whole ball — which IS what B-22 thermodynamics tests!!):
+  //   AND if we seed on ALL docks (including r = R, like a thermal/equilibrium state on the whole ball — which IS what the thermodynamics tests probe!!):
   //     On a ball-wide thermal/uniform state (equal amplitude on every dock r = 0..R):
   //     - At t = 1: frontier is hit at r = R (stays at r = R). Shell r <= R - 1 sees ZERO boundary difference at t = 1 (diff = 0)!
   //     - At t = 2: reflected/dropped wave from r = R enters shell r = R - 1!

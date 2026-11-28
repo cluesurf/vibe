@@ -1,4 +1,4 @@
-// THE LEAST-ROUGH ABELIAN SIGMA(648) FIELDS ON THE WALL SLAB (E-FRC-0291 STEP 4, moving-matter item 0029, decision 008).
+// THE LEAST-ROUGH ABELIAN SIGMA(648) FIELDS ON THE WALL SLAB (E-FRC-0291 STEP 4).
 // The walk samples the Landau potential at integer and half-integer x0 (a hop r from x0 = a has its midpoint at a + r0 / 2),
 // so a field whose links are h^(r1 G(a + r0 / 2)), G any integer function there, is group-valued. Colour component c
 // (theta_c an eigenphase of h, in turns) then sees the U(1) stream phase 2 pi theta_c r1 G(a + r0 / 2) in place of
@@ -9,7 +9,7 @@
 //   uniformG         G(x) = 2 x, the STEP 3 pattern h^(r1 (2 a + r0)) (cell holonomy h^2)
 //   sheetG           G(a + 1/2) = G(a) + 1 when a = 0 mod s, else G constant: h on one strip of every s-th column, cell
 //                    holonomy h there and 1 elsewhere; s = 1 is the lumpy field, s = 2, 3, 4 the dilute sheets
-//   levelsNearPiOn   wall-face's levelsNearPi with the stream as a parameter (a COPY of its Lanczos, decision 008 Why (b):
+//   levelsNearPiOn   wall-face's levelsNearPi with the stream as a parameter (a COPY of its Lanczos:
 //                    dropped at merge once wall-face takes a stream); the equivalence control E feeds it slabStream's own
 //                    stream and must reproduce wallFlow exactly
 //   wallFlowOn       wall-face's wallFlow pairing on levelsNearPiOn, the stream built per k2 by the caller; an optional

@@ -1,4 +1,4 @@
-// THE LOCKED MIXER (item vibe-roadmap-grounding-0026; future-models.md, new base possibility 5, "locks"). Opt-in only:
+// THE LOCKED MIXER (future-models.md, new base possibility 5, "locks"). Opt-in only:
 // adopting it is the author's base change.
 //
 // THE QUESTION. The F-G frame mixer (E-FRC-0321's motion pick) moves a lone vibe off its line, but it drains B1's line
@@ -34,7 +34,7 @@
 // The excess goes faster than bare (g(2) 0.44 against 0.87): the bath loves beside the cluster open locks and leave.
 //
 // SETTINGS. Default SMOKE (box 8, W 10, bare to beat 4, locked to beat 20, the R = 3 ball, pair beats 2; seconds).
-// LOCKED_SWEEP=full for the M3 (box 12, W 12 k 3 starts 0 1 2, bare to beat 11, locked to beat 120 at cap 1.5e8,
+// LOCKED_SWEEP=full for a large machine (box 12, W 12 k 3 starts 0 1 2, bare to beat 11, locked to beat 120 at cap 1.5e8,
 // the R = 4 ball, pair beats 3).
 //
 // Depth L2: the ball pieces exact; B1's line rule in floats on one line with the locked block from the exact code.

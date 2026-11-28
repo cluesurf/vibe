@@ -1,4 +1,4 @@
-// THE SELF READER (item vibe-roadmap-grounding-0004, note/self-reader.md). A region A of whole docks is read against its
+// THE SELF READER (note/self-reader.md). A region A of whole docks is read against its
 // complement E by its CLOSURE: write the state at beat t as psi_t = sum_e a_e (x) |e> over complement states e, and
 // a_eps = sum_e conj(eps_t(e)) a_e with eps_t the complement's self-free run (the vacuum when there is no named
 // environment). Then

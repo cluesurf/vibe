@@ -1,4 +1,4 @@
-// Conformance for code/rule/cross-line-pieces (board proposal 012, item vibe-roadmap-grounding-0021) and its sparse
+// Conformance for code/rule/cross-line-pieces and its sparse
 // form code/measure/cross-ball, on the exact radius-1 and radius-2 balls:
 //   - with both pieces off the beat is coinedVetoBeat (veto 'none') bit for bit, in both coin places
 //   - on a one-line state the pieces equal code/rule/bound-line-pieces (clock 14, coin before) after the gauge G

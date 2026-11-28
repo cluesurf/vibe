@@ -1,6 +1,6 @@
 // Dependence cones: which docks a change at one dock reaches (E-RLT-0091). MEASUREMENT: every count is an exact integer.
 //
-// THE USER'S DIRECTION (2026-09-26). Calm, love and fear are treated alike. Dock B at beat t arose from dock A at beat
+// THE PROJECT'S DIRECTION (2026-09-26). Calm, love and fear are treated alike. Dock B at beat t arose from dock A at beat
 // s when changing A's value at s (to any other value its slots and dock data can hold: the other two vibes, and the
 // role point or store the slot carries) changes B's value at t. Two histories, the reference and the changed one, run
 // in lockstep, both deterministic, and every dock whose state differs is marked. A copy of a value that a later

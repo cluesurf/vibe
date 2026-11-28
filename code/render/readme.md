@@ -2,7 +2,7 @@
 
 Centralized, renderer-agnostic hyperbolic tessellation rendering for the vibe project. Ported from the
 three.js code that drove the clue.surf `/vibe/mesh` page
-(`mesh/site/clue.surf/home/site/tool/honeycomb/`), and made fully independent of react and three.js so it
+and made fully independent of react and three.js so it
 runs in node (backend) today, with browser and GPU adapters planned.
 
 ## The idea

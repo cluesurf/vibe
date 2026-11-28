@@ -2,7 +2,7 @@
 // 12-Level TMS-EEG Wedge-Snap BIC Statistical Power Verification Pipeline
 //
 // Standalone, strictly deterministic (ZERO external imports, ZERO stochastic system RNG -- pure
-// Mulberry32 PRNG), strict TypeScript (--strict --noUncheckedIndexedAccess), laptop-safe (< 5 s,
+// Mulberry32 PRNG), strict TypeScript (--strict --noUncheckedIndexedAccess), fast (< 5 s,
 // peak RSS < 200 MB), fail-closed (throws on any failed check -> exit code 1), ending with `export {}`.
 //
 // Four Preregistered Verification Gates (N_subj in {20, 30, 40, 60}, R = 200 cohorts/condition,

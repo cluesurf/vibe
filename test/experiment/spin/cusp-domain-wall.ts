@@ -1,6 +1,6 @@
-// CHIRAL CUSP DOMAIN-WALL ZERO MODE FOR WEAK PARITY VIOLATION & MIRROR-CLASS GAPPING (E-SPN-0221, gaps B-23, B-55).
+// CHIRAL CUSP DOMAIN-WALL ZERO MODE FOR WEAK PARITY VIOLATION & MIRROR-CLASS GAPPING (E-SPN-0221).
 // On the bipartite {3,4,3,4} honeycomb, E-SPN-0220 proved the two parity classes are exact mirror/conjugate twins
-// under ODD (L*P = 8/8, L*C = 1). Proposal 008 round 03 noted that a gauge field cannot join parity classes and named
+// under ODD (L*P = 8/8, L*C = 1). A board proposal round 03 noted that a gauge field cannot join parity classes and named
 // a domain-wall reading as the route to a one-handed 3D weak sector.
 //
 // Here we test the natural one-sided cusp boundary D = 0 of the {3,4,3,4} honeycomb (18 links down, 0 up) with a
@@ -133,7 +133,7 @@ export default experiment({
   id: 'spin/cusp-domain-wall',
   code: 'E-SPN-0221',
   title:
-    'One-sided cusp domain wall (Kaplan/Shamir) localizes one handedness on the 3D cusp husk while pushing its mirror twin into the deep bulk and gapping all doublers (B-23, B-55)',
+    'One-sided cusp domain wall (Kaplan/Shamir) localizes one handedness on the 3D cusp husk while pushing its mirror twin into the deep bulk and gapping all doublers',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',

@@ -1,15 +1,15 @@
-// The mesh each experiment builds, and the grade its verdict can carry (vibe-roadmap-board-0024).
+// The mesh each experiment builds, and the grade its verdict can carry.
 //
 // Reads every row of test/registry.csv, finds the meshes the experiment's code builds (task/mesh-reach.ts, which
-// follows the code, never the title or the `3434` tag), and grades each mesh by honeycomb decisions 001 and 002:
+// follows the code, never the title or the `3434` tag), and grades each mesh by the honeycomb decisions:
 //
 //   box-specific   the flat D4 box (or the flat D4 lattice): a result there is box-specific until it is rerun on the
-//                  honeycomb (decision 001, keys 6)
+//                  honeycomb (keys 6)
 //   periodic       a finite quotient of the honeycomb, or the cusp modulo its translations: exact for any number of
-//                  beats, but only for states that repeat under the subgroup (decision 002)
+//                  beats, but only for states that repeat under the subgroup
 //   honeycomb      a ball or a cusp region of the honeycomb read within its horizon (beats <= radius), or read for
 //                  geometry alone (shells, labels, distances)
-//   mirrored       a ball or a cusp region read past its horizon, where the frontier answers (decision 002)
+//   mirrored       a ball or a cusp region read past its horizon, where the frontier answers
 //                  (an open honeycomb line read while no love reaches an end is honeycomb too: LINE_HORIZON)
 //   unread         a ball, a cusp region or an open honeycomb line whose horizon nobody has checked yet
 //   stand-in       a cubic grid, a ring or line, or another graph: not the model's mesh
@@ -49,7 +49,7 @@ type Grade =
   | 'stand-in'
   | 'no-mesh'
 
-// ball and cusp-region runs whose beats were read against their radius (decision 002: t <= R is honeycomb)
+// ball and cusp-region runs whose beats were read against their radius (the decision: t <= R is honeycomb)
 const HORIZON: Record<string, [Grade, string]> = {
   'E-GMT-0040': ['honeycomb', 'geometry only: shells, labels, triangles and squares'],
   'E-GMT-0041': ['honeycomb', 'the cusp quotient is compared with the exact ball only while t <= F - depth'],
@@ -68,7 +68,7 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0185': ['honeycomb', 'W0: R = 1 ball, 1 beat from the centre; X2: R = 2 ball, 2 beats from the centre, t <= R; X1 reverses 2 beats on the R = 1 ball exactly (reversal and norm), not read'],
   'E-SLF-0187': ['honeycomb', 'R = 4 ball: a lone love from the centre 3 beats (N1, S3), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits'],
   'E-SLF-0189': ['honeycomb', 'motion: one lone love from the centre of the R = 4 ball, beats 1 to 4, t <= R, 0 frontier hits (M0); V: the empty R = 4 ball, 4 beats; the R = 2 ball reads the kernel from the centre, 1 beat (K1); X1 reverses 2 beats on the R = 1 ball exactly (reversal and norm), not read'],
-  'E-SLF-0191': ['honeycomb', 'R = 4 ball: a lone love from the centre 3 beats (N1, and 0004 S3 reported), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits'],
+  'E-SLF-0191': ['honeycomb', 'R = 4 ball: a lone love from the centre 3 beats (N1, and the first run S3 reported), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits'],
   'E-SLF-0197': ['honeycomb', "E-SLF-0191's ball gates under both readers: a lone love from the centre 3 beats (N1), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits"],
   'E-SLF-0190': ['honeycomb', 'motion: a comoving pair from the centre and distance 1 of the R = 4 ball, beats 1 to 3, t + r0 <= R, and a lone love from the centre, beats 1 to 4, 0 frontier hits (K3); the R = 2 ball reads the kernels and checks the pair engine against the branch code, 1 beat from distance 1 or 2 beats from the centre (K1P); X1 reverses on the R = 1 ball exactly, V0 and V1 compare the R = 2 ball exactly, not read'],
   'E-SLF-0192': ['honeycomb', 'R = 4 ball: the cut start and the hand starts from radius 1 for R - 1 beats and W0 dock from the centre for 3, r0 + t <= R, 0 frontier hits (I2); the R = 2 ball checks the sparse beats against the branch code, 1 beat from radius 1 (I1); the (sqrt 2)^6 quotient is coloured only, geometry, no rule runs'],
@@ -286,7 +286,7 @@ if (showCounts || commit) {
 
   console.log(`experiments per mesh (an experiment on two meshes counts in both):\n${show(perMesh)}`)
   console.log(`experiments per grade:\n${show(perGrade)}`)
-  console.log(`experiments per bijectivity (m-15):\n${show(perBij)}`)
+  console.log(`experiments per bijectivity:\n${show(perBij)}`)
   console.log(`experiments per exact label:\n${show(perLabel)}`)
 }
 

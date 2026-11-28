@@ -1,7 +1,7 @@
 // Wave-4 Track W21: Perfected Proof-Carrying Multiscale Modeling Engine &
 // Miniature VIBE Universe Benchmark (Note 17: 50 Master Laws M01..M50, 13-Step Roadmap).
 //
-// Strictly deterministic (ZERO RNG), laptop-safe (< 10 s, < 350 MB),
+// Strictly deterministic (ZERO RNG), fast (< 10 s, < 350 MB),
 // directly exercising code/multiscale/{types,equivalence,composition,refinement} on
 // verbatim Vibe Theory objects (bare U gates, O^+(4,1; Z[sqrt(2)]) {3,4,3,4} Coxeter ball,
 // W10 [[24, 1, 8]]_3 GF(3) holographic stabilizer code, and Lean 4.35.0 proof certificates).

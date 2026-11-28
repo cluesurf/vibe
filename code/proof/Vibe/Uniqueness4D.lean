@@ -10,7 +10,7 @@ import Mathlib.Tactic.Linarith
 
 Formalization over Mathlib `Zsqrtd 5` (`ℤ[√5]`) of the complete Coxeter (1956) classification of
 regular 4D hyperbolic honeycombs `{p, q, r, s}` (`p, q, r, s ≥ 3`) and the unconditional
-structural uniqueness theorem selecting `{3,4,3,4}` (`vibe-roadmap-board-0054`):
+structural uniqueness theorem selecting `{3,4,3,4}`:
 
 1. **Exact `ℤ[√5]` (`Zsqrtd 5`) Schläfli Principal Minors:** Encodes `8 cos^2(π/m)` in `Zsqrtd 5`
    for `m ∈ {3, 4, 5, 6}` (with monotone lower bound `6` for all `m ≥ 6`) and evaluates all leading

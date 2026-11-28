@@ -1,7 +1,7 @@
 // IS THE REDUCED REGISTER-PAIR ENGINE'S NORM DRIFT THE OPEN EDGE OF THE HUSK BALL (E-SPN-0215)? The symmetry-reduced
 // engine (code/measure/register-reduced) behind E-RLT-0115 to E-RLT-0118 runs the register pair on the husk ball of
 // radius R, a neighbour outside the ball read as absent. In every body-diagonal sector at R 16 the Gram norm of the
-// a_B 3.5 level, run at K 0.32 n, drifts 1.174e-5 over 4,096 cycles (vibe-roadmap-moving-matter-0009), identically in
+// a_B 3.5 level, run at K 0.32 n, drifts 1.174e-5 over 4,096 cycles, identically in
 // the stable (1, 1, 1) sector, so the cycle is not unitary to 1e-12 on the ball. This file asks where that goes.
 //
 // THE CANDIDATE, stated before the run. Amplitude that steps past the ball's edge is lost. A bound level's density at
@@ -61,7 +61,7 @@
 //    to 24, always a loss, 22.5, 23.6 and 25.0 times less per 4 docks: exp(-0.791 R), about exp(-2.77 R / a_B), a
 //    tail steeper than the hydrogenic exp(-2R / a_B) the gate assumed. D(4096) / D(2048) is 1.94, 1.88 at R 12 and 16
 //    (a nearly constant rate), 0.85 and 1.23 at R 20 and 24 (where the sign has turned).
-//  So the norm drift of vibe-roadmap-moving-matter-0009 is the open ball: closed, the cycle conserves the norm to
+//  So the norm drift read earlier is the open ball: closed, the cycle conserves the norm to
 //  7e-13 over 4,096 cycles in the same sector. It is not the orbit weights (I_WEIGHT) and not U^dag U - I off the
 //  edge (I_LOCAL). Its size is set by the part of the state that reaches the edge, which for a bound level falls as
 //  exp(-0.79 R).

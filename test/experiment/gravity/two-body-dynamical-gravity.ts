@@ -1,5 +1,5 @@
 // LIVE TWO-BODY 1/r DYNAMICAL GRAVITATIONAL ATTRACTION, ORBITAL MOTION, AND DEFLECTION
-// FROM THE EXACT {3,4,3,4} PAIR-DENSITY WARPED CUSP GRAVITY OPERATOR (E-GRV-0158, gap B-52).
+// FROM THE EXACT {3,4,3,4} PAIR-DENSITY WARPED CUSP GRAVITY OPERATOR (E-GRV-0158).
 //
 // Depth L2: exact {3,4,3,4} warped cusp Schur-complement Green's function (E-GRV-0157, zero free gravity
 // parameters), Hockney zero-padded open-boundary 3D FFT on 64^3, strictly unitary time-reversible Strang

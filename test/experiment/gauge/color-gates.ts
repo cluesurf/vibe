@@ -1,5 +1,5 @@
-// THE TWO COLOUR GATES ON A STATIC Sigma(648) FIELD, AND THEIR CONTROLS (E-FRC-0296, note/project/vibe/roadmap/moving-matter
-// item 0055, decision 012 point 4: the MVP of route 2, colour with an action). One harness (code/measure/color-gates
+// THE TWO COLOUR GATES ON A STATIC Sigma(648) FIELD, AND THEIR CONTROLS (E-FRC-0296, the moving-matter
+// roadmap, point 4 of a recorded decision: the MVP of route 2, colour with an action). One harness (code/measure/color-gates
 // colorGates) reads, for any field of one Sigma(648) element per directed D4 link (reverse = inverse):
 //   W  the coloured chiral slab 8^3 x L at L 8 and 12 (E-FRC-0294's instrument): levels within 0.1 of pi with wall weight
 //      at least 0.9 (W-PASS: 24, the colour-free count, at both L), levels within 0.2, and the side-8 bulk box's levels
@@ -201,7 +201,7 @@ export default experiment({
   id: 'gauge/color-gates',
   code: 'E-FRC-0296',
   title:
-    'explores whether one harness reads the two colour gates of decision 012 (walls W, caging C) and the plaquette P on any static Sigma(648) field, checked on identity links, on the rule\'s own lifted hash and on its gauge transform',
+    'explores whether one harness reads the two colour gates of a recorded decision (walls W, caging C) and the plaquette P on any static Sigma(648) field, checked on identity links, on the rule\'s own lifted hash and on its gauge transform',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

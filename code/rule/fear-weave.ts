@@ -37,7 +37,7 @@
 // a love's role to a fear's while commuting with the links (the reflection is antisymplectic, so it is
 // antiunitary), and leaving the stored point in place applied a partial conjugation to entangled wholes.
 //
-// Since 2026-09-26 the fear beat is the COMOVING one, by the user's decision (see advanceWhole): every meeting's
+// Since 2026-09-26 the fear beat is the COMOVING one, by the author's decision (see advanceWhole): every meeting's
 // kernel is read about the two coordinates' own role points, which the whole carries as `own`. The fixed-frame
 // beat before it is `comoving: false`.
 //
@@ -778,7 +778,7 @@ export function meetWhole(input: {
 // apply one beat's record to the whole: meetings then crossings going forward, crossings then meetings
 // going back (the record of fearBeatBack already lists them in that beat's backward order)
 //
-// THE COMOVING FEAR BEAT, adopted by the user 2026-09-26 (E-SPN-0062, E-SPN-0063, E-SPN-0066), the default.
+// THE COMOVING FEAR BEAT, adopted by the author 2026-09-26 (E-SPN-0062, E-SPN-0063, E-SPN-0066), the default.
 // Each meeting's kernel is read in the two coordinates' OWN frames: with the coordinates in kernel order (love
 // first at a love-fear meeting) and their own points pa and pb, K is replaced by translatedKernel(K, pa, pb).
 // The own point is each coordinate's role point, carried beside the weights as `own` (phase index): it moves

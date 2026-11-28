@@ -2,7 +2,7 @@
 // Collapse rho({3,4,3,4}) from Both Ends to Width < 0.005 with 100% Exact BigInt Rigor
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), exact BigInt + Float64,
-// laptop-safe (< 15 s, < 500 MB RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
+// fast (< 15 s, < 500 MB RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Mathematical methods certified here:
 //   1. Exact O(1) W(F_4)-coset Cartier-Foata suffix automata S_1..S_5 (4, 19, 169, 2,197, 34,523 states),
@@ -4312,7 +4312,7 @@ function main(): void {
 
   recordCheck(
     'P5',
-    'Wave-3 bracket collapse (< 0.005 width) & laptop resource budget (< 15 s, < 500 MB RAM)',
+    'Wave-3 bracket collapse (< 0.005 width) & resource budget (< 15 s, < 500 MB RAM)',
     finWidth < 0.005 && asympWidth < 0.005 && elapsedSec < 15 && rssMb < 500,
     `concrete width=${finWidth.toFixed(6)}, asymp width=${asympWidth.toFixed(6)}, time=${elapsedSec.toFixed(2)}s, rss=${rssMb.toFixed(1)} MB`,
   )

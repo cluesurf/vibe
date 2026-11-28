@@ -1,6 +1,6 @@
-// VACUUM STATIONARITY UNDER F-G AND CUSP LATERAL EXPORT COUNT (item vibe-roadmap-board-0047, gaps B-38, B-43, B-59).
+// VACUUM STATIONARITY UNDER F-G AND CUSP LATERAL EXPORT COUNT.
 // (1) Proves and verifies on exact {3,4,3,4} balls (R = 2, R = 3) that V1 (the empty mesh) is an exact fixed point of
-//     the working rule with F-G (board-0045 surviving mixer) and ODD on both coin placements, and that slots entering a
+//     the working rule with F-G (the surviving mixer) and ODD on both coin placements, and that slots entering a
 //     finite lump's light cone from outside are deterministically calm (s_in = 0 exact, Delta_slot = ln 37,
 //     Delta_tone = ln 3, Cheeger export floor h * Delta_slot >= 12.33 * ln 37 = 44.5226 nats/dock/beat).
 // (2) Computes export-bound.md E2 on the exact cusp neighborhood (buildExactCusp, period 2, floors 1 to 3): exact

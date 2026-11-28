@@ -1,5 +1,5 @@
 // The working rule's beat rebuilt from its pieces, with the coin moved, split or switched off, for the motion reversal
-// check of item vibe-roadmap-grounding-0014 (E-FND-0179). Nothing here changes the rule: the coin-before order with
+// check (E-FND-0179). Nothing here changes the rule: the coin-before order with
 // every piece on is the working rule (code/rule/value-phase valueBeat on code/rule/coined-locked-knit coinedVetoBeat,
 // veto 'none'), and E-FND-0179's G0 checks it bit for bit.
 //

@@ -1,5 +1,5 @@
-// THE SELF'S SPECTRUM WITH A SIZE-SCALED EIGEN GATE (E-SLF-0193, item vibe-roadmap-grounding-0033). E-SLF-0188
-// (grounding-0023) is FAIL by its registered rule on instrument E4 alone: its largest eigen residual 2.0e-9 sat over
+// THE SELF'S SPECTRUM WITH A SIZE-SCALED EIGEN GATE (E-SLF-0193). E-SLF-0188
+// is FAIL by its registered rule on instrument E4 alone: its largest eigen residual 2.0e-9 sat over
 // the ABSOLUTE 1e-9 bar at the 3,906-row K 0 block, the float floor (E6 rebuilt 64 beats to 2.1e-13). This file reruns
 // E-SLF-0188's computation unchanged, with E4 gating each block's residual against c eps n_b N_b and its orthonormality
 // against c eps n_b (eps = 2^-52, n_b the block's rows, N_b = sqrt(1 + n_b u_b) from its own E2 reading, c = 1e4), the
@@ -25,7 +25,7 @@ export default experiment({
   id: 'selves/self-spectrum-scaled',
   code: 'E-SLF-0193',
   title:
-    "the self's spectrum, E-SLF-0188 rerun with its eigen gate E4 scaled to block size (grounding-0033): the localized eigenvectors of B1's line sector on the (sqrt 2)^6, ^8 and ^10 quotient lines, B1's cluster's weight on them and the dark set, every residual held against c eps n of its block",
+    "the self's spectrum, E-SLF-0188 rerun with its eigen gate E4 scaled to block size: the localized eigenvectors of B1's line sector on the (sqrt 2)^6, ^8 and ^10 quotient lines, B1's cluster's weight on them and the dark set, every residual held against c eps n of its block",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

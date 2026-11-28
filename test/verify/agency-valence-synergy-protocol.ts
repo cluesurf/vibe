@@ -1,7 +1,7 @@
 // Agency, Valence Geometry, Discrete Synergy & Empirical Protocol Verification Suite
 //
 // Standalone, strictly deterministic (ZERO external imports, ZERO system RNG — pure Mulberry32 PRNG),
-// strict TypeScript (--strict --noUncheckedIndexedAccess), laptop-safe (< 6 s), fail-closed
+// strict TypeScript (--strict --noUncheckedIndexedAccess), fast (< 6 s), fail-closed
 // (throws on any failed check -> exit code 1), ending with `export {}`.
 //
 // Four Verification Gates:

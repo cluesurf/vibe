@@ -1,4 +1,4 @@
-// ONE MEMBER DRESSED BY AT MOST ONE HUSK PHOTON (item 0068 of roadmap/moving-matter, decision 015; the experiment
+// ONE MEMBER DRESSED BY AT MOST ONE HUSK PHOTON (the experiment
 // spin/member-dressing). Measurement only, doubles, no draw.
 //
 // THE MEMBER. The pair engine's member (code/measure/husk-meson singletEpsClosed, E-SPN-0173 and E-SPN-0200): on the

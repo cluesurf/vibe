@@ -1,19 +1,19 @@
-// m1 OF F35 AT MATCHED DEMON TEMPERATURE ON THE TWO PERIOD-4 FLOORS (item vibe-roadmap-board-0042). Every gate was
-// written into the item's `what` before this file existed (gate f7ed3bbfb661, 2026-11-17T05:25:46Z), and every run
+// m1 OF F35 AT MATCHED DEMON TEMPERATURE ON THE TWO PERIOD-4 FLOORS. Every gate was
+// registered before this file existed (gate f7ed3bbfb661, 2026-11-17T05:25:46Z), and every run
 // goes through task/pre-register.
 //
-// THE QUESTION. E-FRC-0318 (board-0041) compared m1's string on period 4 floor 1 (I-A) and floor 2 (I-C) at the
+// THE QUESTION. E-FRC-0318 compared m1's string on period 4 floor 1 (I-A) and floor 2 (I-C) at the
 // same fill, and chi22 moved 29 percent at f 0.12; but at the same fill the floor-2 layer was hotter, so fill is not
-// the same temperature on the two floors. Decision 011 kept the string tension floor-dependent and asked for the
+// the same temperature on the two floors. A recorded decision kept the string tension floor-dependent and asked for the
 // comparison at the same demon temperature. This file reruns 0041's two period-4 grids (fills 0.08 to 0.20), takes
 // each confining point's measured demon beta as a target, finds by bisection on fill the point of the OTHER floor at
 // that beta (the hot branch, within 1 percent), and gates chi22 between the two floors at each matched beta.
 //
 // READ-ACROSS, fixed before the run: PASS means the string tension is a property of m1 at fixed temperature (0041's
 // floor dependence was fill not tracking temperature); FAIL means it depends on the floor even at matched
-// temperature and decision 011 stands; PARTIAL leaves 011 unchanged.
+// temperature and a recorded decision stands; PARTIAL leaves 011 unchanged.
 //
-// GRADE mirrored (the floor is felt; honeycomb decision 002). Depth L2.
+// GRADE mirrored (the floor is felt). Depth L2.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -316,11 +316,11 @@ export function betaVerdict(input: { part: BetaPart; reference: FinePart | null 
     claim: `m1 at matched demon temperature on the period-4 cusp, floor 1 (I-A) against floor 2 (I-C): ${part.matches.length} targets, ${pairs.length} matched within ${BETA_TOLERANCE * 100} percent, ${both.length} with both points confining, ${beyond.length} beyond the ${FLOOR_TOLERANCE * 100} percent gate. Matched pairs: ${pairs.map(pairText).join('; ')}. Unmatched: ${unmatched.map(m => `beta ${fmt(m.target)} from ${m.source} f ${m.sourceFill}`).join(', ') || 'none'}. At matched fill (0041, not gated): ${fillRows.map(x => `f ${x.fill} beta ${fmt(x.a.beta)} / ${fmt(x.c.beta)} confine ${x.confine ? 1 : 0} shift ${fmt(x.shift)}`).join('; ')}. Instruments ${instrumentsHold ? 'hold' : 'FAIL'}`,
     metrics,
     control: { reproduces: r ? 1 : 0 },
-    notes: `L2, mirrored grade. Gates: board-0042 what, gate f7ed3bbfb661. Instruments: ${JSON.stringify(part.instruments)}.`,
+    notes: `L2, mirrored grade. Gates registered before the run, gate f7ed3bbfb661. Instruments: ${JSON.stringify(part.instruments)}.`,
   })
 }
 
-// 0041's period-4 runs, left by its M3 job in the deck's tmp/ (m3 get may have put the file one folder down)
+// 0041's period-4 runs, left by its long run in the deck's tmp/ (the fetch may have put the file one folder down)
 export function readReference(): FinePart | null {
   const file = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'tmp', 'demon-link-m1-fine', 'floor.json')
   const inner = join(file, 'floor.json')

@@ -1,5 +1,5 @@
-// THE COLD BULK (research 21, B3; item vibe-roadmap-grounding-0007; grounding decisions 002, 003, 004; honeycomb
-// decision 002). Is a self grounded by passing what it cannot keep into the calm bulk around it? B1 (E-SLF-0182) put
+// THE COLD BULK (research brief B3;
+// a recorded decision). Is a self grounded by passing what it cannot keep into the calm bulk around it? B1 (E-SLF-0182) put
 // E-SPN-0093's bound cluster among k lone loves on a CLOSED ring: it lost more than half its excess within 8 to 32 beats
 // at every density, since whatever left came round again. Here the same cluster and the same bath sit on an OPEN line
 // whose ends run into the honeycomb's own vacuum, the empty mesh (E-RLT-0121), so what leaves never returns.
@@ -8,12 +8,12 @@
 // a state on one line stays on it, and on the {3,4,3,4} honeycomb a line is an open geodesic, its docks all distinct.
 // So B1's cluster and bath on the honeycomb are exactly B1's line engine on an infinite line of empty docks. Gate L1
 // checks the line law on the exact ball itself (every branch on the line, exact return, charge and count), and O1 that
-// ODD (decision 003) is silent there: a line holds at most 2 vibes a dock, under ODD's k* = 4. The open line runs as a
+// ODD is silent there: a line holds at most 2 vibes a dock, under ODD's k* = 4. The open line runs as a
 // ring of Lo docks that no love crosses at its far link (I3: that weight is exactly 0 every beat), which is the infinite
 // line exactly for T = floor((Lo - width) / 2) beats, past the ball's 4.
 //
 // THE RULE (B1's): the working knit's line sector with E-SPN-0103's drift cost and fermion sign, pass contact, flat
-// links, in floats, with the split coin D P D (decision 004; I1 checks it equals the coin-before beat here).
+// links, in floats, with the split coin D P D (I1 checks it equals the coin-before beat here).
 //
 // GATES, fixed in the item's what before this file existed (gate 9ca51cc54bf9, 2026-11-15): I1, I2, I3, I4, L1, O1,
 // C2; measures (a) the loss rate open against closed, (b) the keeping time against 10 times B1's tau, (c) a periodic
@@ -23,8 +23,8 @@
 //
 // PREDICTION (before the first run): the bath strips the cluster in its first passage, so tau_open <= 8 at W 12.
 //
-// SETTINGS. Default SMOKE (box-8 level, W 10, k 3, one start, Lo 20, ball R 2 with 3 loves; seconds on the laptop).
-// COLD_SWEEP=full for the M3: box-12 level, W 12 (starts 0 to 2) and W 15 (0 to 1), Lo 32 (75 million configurations
+// SETTINGS. Default SMOKE (box-8 level, W 10, k 3, one start, Lo 20, ball R 2 with 3 loves; seconds on a small machine).
+// COLD_SWEEP=full for a large machine: box-12 level, W 12 (starts 0 to 2) and W 15 (0 to 1), Lo 32 (75 million configurations
 // of 6 loves), the balls R 3 (3 loves) and R 2 (6 loves), and the (sqrt 2)^6 quotient's line period.
 //
 // Depth L2: B1's rule in floats on one sector, the line law and ODD checked exactly on the ball.
@@ -608,7 +608,7 @@ export default experiment({
   id: 'selves/cold-bulk',
   code: 'E-SLF-0183',
   title:
-    "the cold bulk (research 21, B3): B1's bound cluster and bath on an open honeycomb line running into the empty-mesh vacuum, against B1's closed ring: the loss rate, the keeping time against ten times B1's, the line law and ODD on the exact ball, and a periodic run on the (sqrt 2)^6 quotient's line where one fits",
+    "the cold bulk (research brief B3): B1's bound cluster and bath on an open honeycomb line running into the empty-mesh vacuum, against B1's closed ring: the loss rate, the keeping time against ten times B1's, the line law and ODD on the exact ball, and a periodic run on the (sqrt 2)^6 quotient's line where one fits",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

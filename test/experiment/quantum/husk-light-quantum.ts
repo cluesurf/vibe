@@ -1,6 +1,6 @@
 // THE LIGHT'S OWN QUANTUM SECTOR ON THE WHOLE HUSK, WITH MATTER COUPLED, AND AN ENERGY LEDGER FOR THE CASIMIR ROW
-// (E-FRC-0292, moving-matter item 0013, OPEN-LGT-12, OPEN-LGT-22, pieces "Order of work" step 6). Adopted rule R* with
-// the spinor lift (moving-matter decision 0006). Gates fixed by the 0010 lead on 2026-10-08, never moved.
+// (E-FRC-0292, OPEN-LGT-12, OPEN-LGT-22, pieces "Order of work" step 6). Adopted rule R* with
+// the spinor lift. Gates fixed by the lead on 2026-10-08, never moved.
 //
 // WHAT CANNOT BE RUN, SAID FIRST. The exact compact light is out of reach. The side-8 husk has V = 512 docks, 4,608
 // link registers and 10,240 triangle registers of N = 2D + 1 states each; with Gauss's law about N^(8V) states remain,

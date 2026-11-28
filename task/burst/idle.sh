@@ -4,7 +4,7 @@
 #
 # A powered-off droplet STILL BILLS. This guard only stops the work and the CPU, so a forgotten machine is obvious in
 # `burst status` (status "off") and cannot keep a runaway job going. Only a destroy stops the bill, and that is the
-# laptop's `burst run` (auto-down), `burst down`, or the detached watchdog at the hard cap.
+# local `burst run` (auto-down), `burst down`, or the detached watchdog at the hard cap.
 
 BASE=/root/vibe-runs/burst
 STAMP="$BASE/active"

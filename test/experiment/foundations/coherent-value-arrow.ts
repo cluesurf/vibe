@@ -1,4 +1,4 @@
-// COHERENT KEY 5 VALUE ARROW ACROSS DISTINCT chi_odd BRANCHES (E-FND-0184, follow-up to board-0013, gaps B-01, B-54, m-24).
+// COHERENT KEY 5 VALUE ARROW ACROSS DISTINCT chi_odd BRANCHES (E-FND-0184, follow-up to E-FND-0183).
 // E-FND-0183 discovered that a superposition of branches sharing equal chi_odd keeps exact C-pairing under ODD (global phase).
 // Here we construct two 4-vibe configurations on dock 0 of the cached exact R = 2 {3,4,3,4} ball that mix directly
 // under 1 beat of the split coin while carrying DISTINCT chi_odd values (chi_odd(X1) != chi_odd(X0) = 0), and verify:

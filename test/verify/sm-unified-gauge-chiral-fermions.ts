@@ -4,7 +4,7 @@
 // GENUINE 3+1D {4,3,4} & 4D D_4 FERMIONIC EXCHANGE STATISTICS.
 //
 // Strictly standalone (zero external imports), strictly deterministic (zero Math.random),
-// strict TypeScript (noUncheckedIndexedAccess: true safe), laptop-safe (< 10 s, < 250 MB RAM).
+// strict TypeScript (noUncheckedIndexedAccess: true safe), fast (< 10 s, < 250 MB RAM).
 //
 // HONEST SCOPE BOUNDARIES:
 //   - Tier A (bare U on {3,4,3,4}) has no dynamical link registers and acts on commuting bosonic

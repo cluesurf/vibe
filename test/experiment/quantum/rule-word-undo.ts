@@ -1,6 +1,6 @@
-// THE RULE-WORD UNDO (E-QTM-0201, item vibe-roadmap-grounding-0049, decision 012, research 21 brief B2). E-QTM-0200
+// THE RULE-WORD UNDO (E-QTM-0201, research brief B2). E-QTM-0200
 // copied a friend's record to k = 0 to 5 further loves and read the best undo by ANY unitary on system and friend, which
-// stayed 39/64 for every k >= 1 because the best act uses the branch where the record LEFT the friend (T-0003a). A being
+// stayed 39/64 for every k >= 1 because the best act uses the branch where the record LEFT the friend. A being
 // in the husk acts only through the rule, so this file reads the best undo the rule's own gates on A and F can perform:
 // every word of length 0 to 6 over 8 letters, and asks whether that undo falls strictly as copies are added.
 //

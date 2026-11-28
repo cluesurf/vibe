@@ -1,4 +1,4 @@
-// THE PAIR-LINE MIXER M_pair (candidate resolution for gaps B-09 and B-19).
+// THE PAIR-LINE MIXER M_pair (candidate resolution for the board's gaps).
 // Exact, reversible, unitary, W(F4)-covariant, C/P/CP/T/CPT-even dock-local interaction mixer acting ONLY on docks
 // holding a single FULL OPEN LINE (two open vibes of identical tone and point on opposite slots of one line l, with
 // all other 11 lines of that dock empty). On such a dock it applies the 12-line reflection/phase rotation:

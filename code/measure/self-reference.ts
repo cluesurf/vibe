@@ -1,5 +1,5 @@
-// THE REFERENCE CLOSURE (item vibe-roadmap-grounding-0035, E-SLF-0197, note/self-reader.md section 7), the self reader
-// amended for trap T-0027a. The definition's closure is the operator form
+// THE REFERENCE CLOSURE (E-SLF-0197, note/self-reader.md section 7), the self reader
+// amended for a known trap. The definition's closure is the operator form
 //
 //   c_A(t) = <psi_0| U^-t [Tr_E(psi_t psi_t^dag) (x) |eps_t><eps_t|] U^t |psi_0>
 //

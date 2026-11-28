@@ -30,7 +30,7 @@
 //             literature inputs C_DG_Z4 & DELTA_F0_D4_Z4).
 //
 // Standalone, zero external imports, zero Math.random, strict TypeScript (--noUncheckedIndexedAccess clean),
-// laptop-safe (< 8 s, < 200 MB RSS). Every gate and negative control is enforced via hard assert().
+// fast (< 8 s, < 200 MB RSS). Every gate and negative control is enforced via hard assert().
 
 const T0_MS = performance.now()
 const PI = Math.PI

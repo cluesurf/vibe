@@ -1,7 +1,7 @@
-// EXACT C, P, CP, T AND CPT VERTEX TABLE ON THE {3,4,3,4} BALL (item vibe-roadmap-board-0020, gaps B-23, B-44).
+// EXACT C, P, CP, T AND CPT VERTEX TABLE ON THE {3,4,3,4} BALL.
 // Compares four pieces on the exact R = 2 ball (split coin, exact Z[w][1/2], zero floats, zero random numbers):
 //   (1) bare working rule
-//   (2) adopted ODD value phase (grounding decision 003, k* = 4 W(F4) pseudoscalar read with dock orientation)
+//   (2) adopted ODD value phase (k* = 4 W(F4) pseudoscalar read with dock orientation)
 //   (3) smallest charge-neutral C-odd P-odd linear dipole phase (sum over docks of orientation(x) * (vibe[D0] - vibe[D0_BACK]))
 //   (4) EVEN value phase (control: C-odd, P-even)
 // Tested on a neutral 2-vibe pair P2 (love + fear on opposite slots) and a 4-vibe chiral cluster X1.

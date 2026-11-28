@@ -1,4 +1,4 @@
-// vibe-roadmap-moving-matter-0008: E-RLT-0115 stage 1 redo after the reduced engine's fix. Reads the recorded stage
+// E-RLT-0115 stage 1 redo after the reduced engine's fix. Reads the recorded stage
 // (test/record/E-RLT-0115/rlt115-one.json, untouched), reads directions 10 and 11 again, witnesses the axis and face reads to the bit, and
 // writes the spliced stage to test/record/E-RLT-0115/rlt115-one-fixed.json (refuses to overwrite it). 3 native threads.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'

@@ -116,7 +116,7 @@ export default experiment({
         patchLogicalQubits: patch.logicalQubits,
       },
       notes:
-        'Known construction (Kitaev 1997, Dennis et al. 2002) on the committed substrate complex, measured by GF(2) rank of the check matrices built from the D4 roots on the periodic box. L2. The distance is not computed. The even-side split of d4Mesh (two disconnected lattices) is a fact about the mesh that this experiment found; it affects every experiment that uses d4Mesh with an even side and is tracked as roadmap item 0017. The rule itself does not enter here.',
+        'Known construction (Kitaev 1997, Dennis et al. 2002) on the committed substrate complex, measured by GF(2) rank of the check matrices built from the D4 roots on the periodic box. L2. The distance is not computed. The even-side split of d4Mesh (two disconnected lattices) is a fact about the mesh that this experiment found; it affects every experiment that uses d4Mesh with an even side and is tracked as an open roadmap item. The rule itself does not enter here.',
     })
   },
 })

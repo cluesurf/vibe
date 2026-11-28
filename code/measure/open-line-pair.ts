@@ -1,9 +1,9 @@
-// FAST TWO-LOVE OPEN-LINE ENGINE & RING-MADE OBSERVABLE CONSTRUCTIVE BOUND (item vibe-roadmap-board-0046, gap B-08).
+// FAST TWO-LOVE OPEN-LINE ENGINE & RING-MADE OBSERVABLE CONSTRUCTIVE BOUND.
 //
 // (1) Exact Float64 open-line dynamics of two unequal-point open loves (points 0 and 1, identity links, working rule
 //     with coin before meetings, pass contact, no veto) on an open line of docks. Each state is keyed by the ordered
 //     pair of modes (k1 < k2, where mode k = 2*x + s, s = 0 for D0_BACK and s = 1 for D0) plus the point assignment
-//     (p1, p2) in {(0, 1), (1, 0)}. Runs up to 512 beats in ~2 seconds on the laptop, verified against E-QTM-0199's
+//     (p1, p2) in {(0, 1), (1, 0)}. Runs up to 512 beats in ~2 seconds on one CPU core, verified against E-QTM-0199's
 //     exact Z[w][1/2] SparseBranch engine.
 // (2) Constructive Z[w][1/6] unit-vector search on S^2 (z in Z[1/6], x + i y in Z[w][1/6], exact BigInt unit norm
 //     x^2 + y^2 + z^2 = 1) at heights D = 6, 36, 216, 1296, evaluating CHSH on both the one-meeting point knot

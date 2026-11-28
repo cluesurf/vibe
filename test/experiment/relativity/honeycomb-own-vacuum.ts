@@ -1,10 +1,10 @@
-// The honeycomb's own vacuum, found from the working rule (items vibe-roadmap-honeycomb-0002 and
-// vibe-roadmap-board-0029, decision honeycomb/001). The box's working vacuum (E-RLT-0105) does not carry over: its store
+// The honeycomb's own vacuum, found from the working rule (
+// a recorded decision). The box's working vacuum (E-RLT-0105) does not carry over: its store
 // signs encode flat-box positions (tmp/union-store-class-probe.ts). So the candidates are read on the {3,4,3,4} ball
 // itself (code/substrate/coxeter/exact-ball-mesh, the reflecting frontier) under the working rule: coinedVetoBeat 'none'
 // on paths (code/measure/occupation-veto-readings vetoPathRunner, coin on, collision 'pass').
 //
-// THE GATES were fixed in board-0029's `what` (gate 9e09b0d036e8, 2026-11-13T21:32:01Z) before this file existed, and
+// THE GATES were registered (gate 9e09b0d036e8, 2026-11-13T21:32:01Z) before this file existed, and
 // every probe runs through task/pre-register. They are restated here; the item's text is the one in force.
 //
 // CANDIDATES. V1 the empty mesh. V2 E-RLT-0105's store, not constructible here (counted as failing). V3 the love sea
@@ -802,7 +802,7 @@ export function honeycombOwnVacuum(
       ? `on the {3,4,3,4} ball at radius ${radius} under the working rule, ${ranked.length} of ${CANDIDATES.length + 1} vacuum candidates pass A1 to A6 and the winner by the registered order is ${winner.cand.name} (charge ${winner.chargePerDock} and count ${winner.countPerDock} a dock, wake score ${winner.wakeScore}, occupation period ${winner.paths.keep.quotient.period}); V2, E-RLT-0105's store, is not constructible here`
       : `on the {3,4,3,4} ball at radius ${radius} under the working rule no vacuum candidate passes A1 to A6`,
     metrics,
-    notes: `L2. Gates: board-0029 what, gate 9e09b0d036e8. Qualifying in order: ${ranked.map(r => `${r.cand.name} (charge ${r.chargePerDock}, count ${r.countPerDock}, wake ${r.wakeScore}, entanglement ${entanglement(r)})`).join('; ')}. Failing: V2 (not constructible); ${failing.join('; ')}. Love sea entanglement: ${entanglement(readings[1]!)}. The ball is the honeycomb only on E_t; whole-ball wakes and coin crosses are reported in the log. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L2. Gates registered before the run, gate 9e09b0d036e8. Qualifying in order: ${ranked.map(r => `${r.cand.name} (charge ${r.chargePerDock}, count ${r.countPerDock}, wake ${r.wakeScore}, entanglement ${entanglement(r)})`).join('; ')}. Failing: V2 (not constructible); ${failing.join('; ')}. Love sea entanglement: ${entanglement(readings[1]!)}. The ball is the honeycomb only on E_t; whole-ball wakes and coin crosses are reported in the log. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }
 

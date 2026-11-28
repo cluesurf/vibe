@@ -1,4 +1,4 @@
-// IS THE BEAT-2 REVERSAL OF THE PAIR ANGLE FORCED? (E-FRC-0308, item 0096 of roadmap/moving-matter). R* applies a pair
+// IS THE BEAT-2 REVERSAL OF THE PAIR ANGLE FORCED? (E-FRC-0308). R* applies a pair
 // angle as e^(+i angle) on Q_S Q_S in beat 1 and e^(-i angle) on Q_D Q_D in beat 2 (code/measure/register-holes
 // holeCycle, code/measure/register-sea seaBeat's sign). E-FRC-0307 read that this reversal turns a string linear in
 // separation into a velocity coupling (ballistic), while the unreversed string localizes on both 1d coins. So the
@@ -37,7 +37,7 @@
 //
 // PREDICTED: FORCED, by C / CPT (point 2), not by J (point 1).
 //
-// GATES (fixed in item 0096, 2026-10-10, not moved): FORCED when some property that R* is established to have (named
+// GATES (fixed 2026-10-10, not moved): FORCED when some property that R* is established to have (named
 // with the experiment that read it) holds reversed to 1e-10 and fails unreversed above 1e-6, and that property is itself
 // not a choice; CHOICE when unreversed keeps every listed property to 1e-10; OPEN otherwise.
 // THE PROPERTIES READ (each reversed and unreversed, the E-SPN-0175 rule: the member mixers at ringUnit(-1, 4), the

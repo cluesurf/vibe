@@ -1,4 +1,4 @@
-// THE COLD LINE (item vibe-roadmap-grounding-0007, B3; grounding decision 002). B1's dense line engine (E-SLF-0182,
+// THE COLD LINE (B3). B1's dense line engine (E-SLF-0182,
 // test/experiment/selves/attraction-in-a-bath) made reusable and carried to lines of up to 32 docks, closed or open.
 //
 // THE SECTOR. n loves on the 2L modes of one husk line (mode 2x + 1 the forward label 0, 2x the back label 1, the line
@@ -12,7 +12,7 @@
 //
 // THE BEAT (B1's): the cost zeta_14^(-links) and the full docks' phase w^2 (a = 28 of 42), the coin on every dock with
 // one love (keep (1 + w)/2 ... as floats, B1's KEEP and CROSS), the line block's sign, the stream. With `split` the
-// coin is D P D (D = C^(1/2), decision 004: keep (2 + w)/2, cross -w/2); P is diagonal and constant on each coin pair,
+// coin is D P D (D = C^(1/2): keep (2 + w)/2, cross -w/2); P is diagonal and constant on each coin pair,
 // so the two agree, which the experiment checks.
 //
 // THE READING (B1's): F = sum_X <B_X^dag B_X>, B_X annihilating a trio in the level's relative state anchored at X,

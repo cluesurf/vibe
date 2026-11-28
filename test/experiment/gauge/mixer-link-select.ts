@@ -1,12 +1,12 @@
-// THE MIXER AND THE LINK, SELECTED IN TWO HALVES (item vibe-roadmap-board-0034; board decisions 010, 011, 013). Every
-// gate, the family and its count were written into the item's `what` before this file existed (gate 3abdc27af879,
+// THE MIXER AND THE LINK, SELECTED IN TWO HALVES. Every
+// gate, the family and its count were registered before this file existed (gate 3abdc27af879,
 // 2026-11-17T05:51:35Z), and every run goes through task/pre-register.
 //
-// THE QUESTION. Proposal 004 asks for one exact reversible piece that mixes the lines of a dock, selected from a named
-// family on motion and binding only. No rule couples a mixer to a link member (decision 013): the mixers act on the
+// THE QUESTION. A board proposal asks for one exact reversible piece that mixes the lines of a dock, selected from a named
+// family on motion and binding only. No rule couples a mixer to a link member: the mixers act on the
 // working rule's quantum amplitudes, whose vibes carry no colour, and the link members are classical Sigma(648) fields
 // with demons. So the selection is made in two halves and the selected pair is a PRODUCT: a bound moving pair is not
-// tested here (decision 012's S1 is where it would be).
+// tested here (a recorded decision's S1 is where it would be).
 //
 // MOTION HALF. Six mixers (F-G, F-L, R-w, R-w2, R-1, R-star; the board log of 2026-11-15) and the bare working rule as
 // the control, each on one lone love started on every slot of the base dock of the exact R = 4 ball, beats 1 to 4
@@ -633,7 +633,7 @@ export function motionPart(log: (line: string) => void): MotionPart {
 
 export type MotionGates = { k0: boolean; k1: boolean; k2: boolean; k3: boolean; h1: boolean; c0: boolean; all: boolean }
 
-// normTol: E-FRC-0320's 1e-12 by default; E-FRC-0321 (board-0045) passes 1e-10
+// normTol: E-FRC-0320's 1e-12 by default; E-FRC-0321 passes 1e-10
 export function motionGates(part: MotionPart, normTol = NORM_TOL): MotionGates {
   const k0 = part.readings.every(r => r.kernelExceptions === 0)
   const k1 = part.readings.every(r => r.check.diff <= AMP_TOL && r.check.mismatches === 0)
@@ -872,7 +872,7 @@ export function gradeLink(part: LinkPart): LinkGrade {
   }
 }
 
-// m1, from E-FRC-0319 (board-0042): 3 both-confining pairs, largest shift 18.0 percent
+// m1, from E-FRC-0319: 3 both-confining pairs, largest shift 18.0 percent
 export const M1_GRADE = { member: 'm1', status: 'pass' as const, both: 3, maxShift: 0.18 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -950,20 +950,20 @@ export function selectVerdict(input: {
     status === 'pass'
       ? `SELECTED (a product of two halves): mixer ${mixer!.name}, link ${link!.member}. Motion order ${moving.map(r => r.name).join(', ')}; binding order ${binding.map(b => b.member).join(', ')}`
       : status === 'fail'
-        ? `NO PAIR: ${moving.length === 0 ? 'no mixer passes motion' : 'no link member passes binding'}, so proposal 004 is withdrawn for this family`
+        ? `NO PAIR: ${moving.length === 0 ? 'no mixer passes motion' : 'no link member passes binding'}, so a board proposal is withdrawn for this family`
         : 'NOT SELECTED: an instrument gate fails'
 
   return verdict({
     status,
-    claim: `${selection}. A bound moving pair is NOT tested: no rule couples a mixer to a link (decision 013). MOTION on the exact R = ${BEATS} ball (${motion.cells} docks), one lone love on each of the 24 base-dock slots, beats 1 to ${BEATS}, husk displacement in cusp lattice units: ${motion.readings.map(row).join(' || ')}. BINDING at matched demon beta on the period-4 cusp, floors 1 and 2: m1 PASS (E-FRC-0319, not rerun); ${grades.map(linkRow).join(' || ')}. Instruments ${instrumentsHold ? 'hold' : 'FAIL'} (K0 ${mg.k0}, K1 ${mg.k1}, K2 ${mg.k2}, K3 ${mg.k3}, H1 ${mg.h1}, C0 ${mg.c0} with the bare rule's largest shadow ${fmt(Math.max(...bare.beats.map(b => b.maxShadow)), 4)}, R' ${rPrime}, link gates ${linkInstruments}). Bell, interference, the C, P, CP table and size were not run`,
+    claim: `${selection}. A bound moving pair is NOT tested: no rule couples a mixer to a link. MOTION on the exact R = ${BEATS} ball (${motion.cells} docks), one lone love on each of the 24 base-dock slots, beats 1 to ${BEATS}, husk displacement in cusp lattice units: ${motion.readings.map(row).join(' || ')}. BINDING at matched demon beta on the period-4 cusp, floors 1 and 2: m1 PASS (E-FRC-0319, not rerun); ${grades.map(linkRow).join(' || ')}. Instruments ${instrumentsHold ? 'hold' : 'FAIL'} (K0 ${mg.k0}, K1 ${mg.k1}, K2 ${mg.k2}, K3 ${mg.k3}, H1 ${mg.h1}, C0 ${mg.c0} with the bare rule's largest shadow ${fmt(Math.max(...bare.beats.map(b => b.maxShadow)), 4)}, R' ${rPrime}, link gates ${linkInstruments}). Bell, interference, the C, P, CP table and size were not run`,
     metrics,
     control: { c0: mg.c0 ? 1 : 0, rPrime: rPrime ? 1 : 0 },
-    notes: `L2. Gates: board-0034 what, gate 3abdc27af879. Motion grade honeycomb (exact within the ball's horizon), binding grade mirrored. Kernel reads ${motion.readings.map(r => `${r.name} ${r.kernelReads}`).join(', ')}; K1 runs ${motion.readings[0]?.check.runs ?? 0} per member from the base dock and docks ${motion.starts.join(', ')}. Link instruments: ${JSON.stringify(links.map(l => ({ member: l.member, capacity: l.capacity, instruments: l.instruments })))}.`,
+    notes: `L2. Gates registered before the run, gate 3abdc27af879. Motion grade honeycomb (exact within the ball's horizon), binding grade mirrored. Kernel reads ${motion.readings.map(r => `${r.name} ${r.kernelReads}`).join(', ')}; K1 runs ${motion.readings[0]?.check.runs ?? 0} per member from the base dock and docks ${motion.starts.join(', ')}. Link instruments: ${JSON.stringify(links.map(l => ({ member: l.member, capacity: l.capacity, instruments: l.instruments })))}.`,
   })
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// the stored parts (the M3 job writes them to the deck's tmp/mixer-link-select/)
+// the stored parts (the long run writes them to the deck's tmp/mixer-link-select/)
 
 const tmpRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'tmp')
 const folder = join(tmpRoot, 'mixer-link-select')
@@ -992,7 +992,7 @@ export default experiment({
   id: 'gauge/mixer-link-select',
   code: 'E-FRC-0320',
   title:
-    "proposal 004's mixer and link selected in two halves (decision 013), open by the registered rule (gates fixed before the run): the norm gate K2 (1e-12) failed on the four ring mixers at 1.6e-12 to 3.3e-12, float summing over about 3e5 amplitudes, while the kernel matched the branch code to 1.6e-16; MOTION on the exact R = 4 ball, one lone love on each base-dock slot, beats 1 to 4, husk displacement in cusp lattice units: the line-law control never passes sqrt 2 (largest shadow 1.207), F-G and F-L (identical on a lone vibe) put 0.0126 of the weight past sqrt 2 at beat 4 with msd 0.408 against the control's 0.333 and pass, the four ring mixers put 0.002 there and fail; BINDING at matched demon beta on the period-4 cusp's two floors: m1 passes (E-FRC-0319), m2 partial (2 both-confining pairs, shifts 0.147, 0.035), m3 fails (10 pairs, 3 past 25 percent, largest 0.281), m4 fails (11 pairs, 2 past, largest 0.301); the pair (F-G or F-L, m1) is a product of two halves, and a bound moving pair is not tested",
+    "a board proposal's mixer and link selected in two halves, open by the registered rule (gates fixed before the run): the norm gate K2 (1e-12) failed on the four ring mixers at 1.6e-12 to 3.3e-12, float summing over about 3e5 amplitudes, while the kernel matched the branch code to 1.6e-16; MOTION on the exact R = 4 ball, one lone love on each base-dock slot, beats 1 to 4, husk displacement in cusp lattice units: the line-law control never passes sqrt 2 (largest shadow 1.207), F-G and F-L (identical on a lone vibe) put 0.0126 of the weight past sqrt 2 at beat 4 with msd 0.408 against the control's 0.333 and pass, the four ring mixers put 0.002 there and fail; BINDING at matched demon beta on the period-4 cusp's two floors: m1 passes (E-FRC-0319), m2 partial (2 both-confining pairs, shifts 0.147, 0.035), m3 fails (10 pairs, 3 past 25 percent, largest 0.281), m4 fails (11 pairs, 2 past, largest 0.301); the pair (F-G or F-L, m1) is a product of two halves, and a bound moving pair is not tested",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

@@ -1,5 +1,5 @@
-// R AND g AS ONE MATCHING TABLE (E-SPN-0195, OPEN-MOT-01, OPEN-MAT-03; moving-matter item 0017, Key 1 of idea/keys.md).
-// The working rule is R* (decision 0006) with the spinor lift L(s) as the member's rotation. E-SPN-0183 measured the
+// R AND g AS ONE MATCHING TABLE (E-SPN-0195, OPEN-MOT-01, OPEN-MAT-03; an earlier step, Key 1 of idea/keys.md).
+// The working rule is R* with the spinor lift L(s) as the member's rotation. E-SPN-0183 measured the
 // bound register pair's R above the free member's tan m / m (a_B 8: 1.534, a_B 12 with the Darwin exchange: 1.2495
 // against 1.0656). This file asks whether that excess is a coefficient mismatch of the ONE-body expansion: it reads the
 // register member's NRQED coefficients M1, M2, M4, c_F, c_D at five masses, and predicts the pair's excess from them with
@@ -20,7 +20,7 @@
 //    levels of all five masses come from one Hermitian matrix per B. Pauli: E(n, sigma) = M1 + (n + 1/2 - c_F sigma / 2)
 //    q B / M2, so c_F = (E(0, -) - E(0, +)) / (E(1, +) - E(0, +)), read at q B = 0.02, 0.01, 0.005 and extrapolated to
 //    B = 0 by the parabola. sigma is the SPINOR LIFT's: sigma_z = i L(b), L(s(phi)) = cos(phi/2) + sin(phi/2) L(b) for the
-//    turn e1 -> e2 (decision 0006; the minors action would give integer spin and is not read). The doubler valley at
+//    turn e1 -> e2 (the minors action would give integer spin and is not read). The doubler valley at
 //    K_x = pi is removed by the slice-shift operator. EXPECTED: C C^dag ~ (gamma . Pi)^T (gamma . Pi) / 4, whose
 //    commutator term is the Pauli term with the orbital's own weight, so c_F = 1 at every m up to O(B), and g1 = 2 c_F = 2.
 // 3. c_D is read where the brief puts it, code/measure/darwin-exchange: the long-wave ratio X(k -> 0) of the light's
@@ -415,6 +415,6 @@ export function matchingTableRun(): Verdict {
       seconds: (Date.now() - started) / 1000,
     },
     control: { C1: flag(C1), continuumExcess8: ctrl8, instrument: flag(instrument) },
-    notes: `L2. Working rule R* (decision 0006), spinor lift for the spin. Coefficients per beat with c^2 = 1/8. c_F is m-independent before the B -> 0 limit except through the law's acos. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L2. Working rule R*, spinor lift for the spin. Coefficients per beat with c^2 = 1/8. c_F is m-independent before the B -> 0 limit except through the law's acos. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

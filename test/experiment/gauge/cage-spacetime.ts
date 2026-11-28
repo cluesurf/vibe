@@ -1,7 +1,7 @@
-// A SPACETIME Z3 CAGE (note/project/vibe/roadmap/moving-matter item 0081, research/outside-the-box.md 3.1). Explores
+// A SPACETIME Z3 CAGE (the moving-matter roadmap, research/outside-the-box.md 3.1). Explores
 // whether centre phases that differ between the two hops of the cycle (family 1), or that also cycle with the beat mod 3
 // (family 2, c(t) = c + t a: the discrete form of coherent destruction of tunnelling, 1 + omega + omega^2 = 0), could
-// stop a lone third exactly, where cf0 (one pattern on both hops) only slows it (item 0074, C_inf 0.883).
+// stop a lone third exactly, where cf0 (one pattern on both hops) only slows it (C_inf 0.883).
 //
 // STEP 0 INSTRUMENT: c_f = c_b = cf0 on 0074's cage engine reproduces 0074's C_inf on nk 20 to 1e-8 (its stage files),
 //  identity reads 1, the pi-flux rhombic chain through the same velocity function reads C_inf under 1e-12 with flat
@@ -10,7 +10,7 @@
 //  of 8 fixed generic momenta (a pre-reject: a flat band has none), then every weighted eigenphase within 1e-9 across all 8.
 // STEP 2: survivors get C_inf and the flat weight on nk 20 and 40, both sets.
 //
-// GATES, fixed 2026-10-09 before any read (item 0081): CONFINED when some class reads C_inf under 1e-6 with flat weight
+// GATES, fixed 2026-10-09 before any read: CONFINED when some class reads C_inf under 1e-6 with flat weight
 // within 1e-6 of 1 on BOTH sets. NONE when no class does. OPEN when STEP 0 fails or the screen cannot cover a family (the
 // covered fraction reported). Uniqueness is reported, never gated. CONTROL that must fail: c_f = c_b (cf0 itself).
 //

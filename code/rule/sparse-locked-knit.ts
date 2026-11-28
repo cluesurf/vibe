@@ -1,4 +1,4 @@
-// THE WORKING RULE ON SPARSE BRANCHES (item vibe-roadmap-grounding-0015): coinedVetoBeat (code/rule/coined-locked-knit,
+// THE WORKING RULE ON SPARSE BRANCHES: coinedVetoBeat (code/rule/coined-locked-knit,
 // the coin or the split coin, then the no-veto beat of code/rule/occupation-veto-knit) on a mesh too large to hold one
 // dense branch (the (sqrt 2)^6 congruence quotient: 1,048,576 docks, 108 MB a dense branch).
 //

@@ -1,5 +1,5 @@
-// PAIR-LINE MIXER M_pair(zeta_18) ON THE EXACT {3,4,3,4} BALL AND 4D SELF CLOSURE (E-SLF-0199, gaps B-09, B-19).
-// Verifies the author-approved pivot for Proposal 004 (2026-11-24): an interaction-only W(F4)-isotropic 12-line mixer
+// PAIR-LINE MIXER M_pair(zeta_18) ON THE EXACT {3,4,3,4} BALL AND 4D SELF CLOSURE (E-SLF-0199).
+// Verifies the author-approved pivot for a board proposal (2026-11-24): an interaction-only W(F4)-isotropic 12-line mixer
 // acting strictly on full-line 2-vibe docks, exact in Z[zeta_9][1/6] at u = zeta_18 (theta = pi/9) and in Z[w][1/6] at u = -1:
 //   (1) V1 (empty vacuum) and every lone love are 100% invariant (0 diff vs bare rule on exact R = 3 ball).
 //   (2) Full-line pair scatters isotropically across all 12 lines (W(F4) invariant: equal weight on all 11 transverse

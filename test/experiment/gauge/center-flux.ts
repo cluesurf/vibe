@@ -1,19 +1,19 @@
-// COHERENT CENTRE FLUX (note/project/vibe/roadmap/moving-matter item 0058, candidate e of decision 012, read in decision
-// 013's order). Explores whether colour as a Z3 centre field, omega^n times 1 on every link with the pattern chosen with
+// COHERENT CENTRE FLUX (the moving-matter roadmap, candidate e of a recorded decision, read in
+// a recorded decision's order). Explores whether colour as a Z3 centre field, omega^n times 1 on every link with the pattern chosen with
 // no knob (the most frustrated periodic one), can cage lone thirds by interference (Aharonov-Bohm) while keeping the
-// chiral walls, which roughness cannot do (decision 011 point 4).
+// chiral walls, which roughness cannot do (point 4 of a recorded decision).
 //
 // STEP 1 (code/measure/center-flux enumerateCenterPatterns): the smallest translation cell is the dock (a uniform pattern
 // c_d per root, odd), which already admits non-flat triangles. Every odd c (3^12) modulo the 81 additive ones (gauge on
 // the infinite mesh) and the 192 box rotations; kept: the classes with the largest fraction of non-flat oriented
 // triangles, at most 6 (more escalates).
 // STEP 2, per kept pattern, colorGates' reads (code/measure/color-gates) on the spec's boxes (side 8 is a multiple of the
-// one-dock cell), in decision 013's order: P on the side-8 bulk box; slab L 8; slab L 12 only after an L 8 count of 24;
+// one-dock cell), in a recorded decision's order: P on the side-8 bulk box; slab L 8; slab L 12 only after an L 8 count of 24;
 // FAIL or UNSURE always resolved (one field a pattern): L 8 holding a wall-weight level within 0.2 is W-UNSURE, else L 12
 // and the bulk box are read and neither holding one is W-FAIL; the cage only on a pattern that is not W-FAIL, from
-// decision 013's gauge-invariant start (item 0065's dockCageRead; the old packet's ratio is printed only).
+// a recorded decision's gauge-invariant start (an earlier step's dockCageRead; the old packet's ratio is printed only).
 //
-// GATES, fixed 2026-10-08 before any read (decision 012 point 4, item 0057), one deterministic field so no ensemble:
+// GATES, fixed 2026-10-08 before any read (point 4 of a recorded decision), one deterministic field so no ensemble:
 //  W-PASS  the slab's count within 0.1 of pi with wall weight >= 0.9 equals the colour-free count on the same box (CF,
 //          24 on the 8^3 x L slab) at L 8 and 12
 //  W-FAIL  no wall-weight level within 0.2 on either slab and no bulk level within 0.2
@@ -21,7 +21,7 @@
 //  CAGED   the cage ratio under 0.9
 // VERDICT: PASS some kept pattern W-PASS and CAGED; KILL every kept pattern W-FAIL or FREE; PARTIAL W-UNSURE decides;
 //  OPEN the CF control fails on the box, or a cage the verdict needs is still pending.
-// CONTROL: CF identity on the same slab box (decision 013: CF is deterministic and the wall code is unchanged since 0055,
+// CONTROL: CF identity on the same slab box (a recorded decision: CF is deterministic and the wall code is unchanged since 0055,
 //  so its stage files are read, not re-run).
 //
 // DETERMINISM: no random numbers. Depth L2: a lattice-fermion spectral read of a static colour field.
@@ -86,7 +86,7 @@ export function fluxSpecs(plan: GatesPlan, kept: readonly PatternClass[]): FluxS
 
 export type WallState = 'W-PASS' | 'W-FAIL' | 'W-UNSURE' | 'incomplete' | 'pending'
 
-// the wall state of one pattern from the stages present, in decision 013's order; `next` names the stage still needed
+// the wall state of one pattern from the stages present, in a recorded decision's order; `next` names the stage still needed
 export function wallState(
   plan: GatesPlan,
   colorFree: number,
@@ -169,7 +169,7 @@ export function centerFluxVerdict(
     const bulk = stages.find((s): s is Extract<FluxStage, { kind: 'bulk' }> => s.kind === 'bulk' && s.pattern === p)?.read
     const P = stages.find((s): s is Extract<FluxStage, { kind: 'plaquette' }> => s.kind === 'plaquette' && s.pattern === p)
     const w = wallState(plan, colorFree, slab, bulk)
-    // the cage from decision 013's one-dock colour-mixed start (item 0065); a W-FAIL pattern is never caged (step 5)
+    // the cage from a recorded decision's one-dock colour-mixed start; a W-FAIL pattern is never caged (step 5)
     const cage = stages.find((s): s is Extract<FluxStage, { kind: 'cage' }> => s.kind === 'cage' && s.pattern === p)?.read
     const C: 'not read (W)' | 'pending' | 'CAGED' | 'FREE' =
       w.W === 'W-FAIL' ? 'not read (W)' : !cage ? 'pending' : cage.ratio < plan.cagedBelow ? 'CAGED' : 'FREE'
@@ -241,7 +241,7 @@ export function centerFluxVerdict(
     metrics,
     control: { CF: CF ? 1 : 0 },
     notes:
-      'Static uniform Z3 centre fields on the 4D bulk and a hand-placed slab, never the husk. On a side-8 box the 81 members of a gauge class are flat twists of each other (3 does not divide 8): one representative is read, chosen by a fixed rule (center-flux boxRepresentative). The cage is read from the one-dock colour-mixed start of item 0065 (color-gates-cage dockCageRead).',
+      'Static uniform Z3 centre fields on the 4D bulk and a hand-placed slab, never the husk. On a side-8 box the 81 members of a gauge class are flat twists of each other (3 does not divide 8): one representative is read, chosen by a fixed rule (center-flux boxRepresentative). The cage is read from the one-dock colour-mixed start of an earlier step (color-gates-cage dockCageRead).',
   })
 }
 
@@ -259,7 +259,7 @@ export default experiment({
   },
 })
 
-// the whole read in decision 013's order, serially (hours: the stage runner deck/vibe/tmp/cflux.sh splits it)
+// the whole read in a recorded decision's order, serially (hours: the stage runner deck/vibe/tmp/cflux.sh splits it)
 export function centerFluxRun(plan: GatesPlan): Verdict {
   const patterns = enumerateCenterPatterns()
   const specs = fluxSpecs(plan, patterns.kept)

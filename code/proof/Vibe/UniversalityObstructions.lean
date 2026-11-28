@@ -101,7 +101,7 @@ on the infinite `{3,4,3,4}` hyperbolic honeycomb:
 This file machine-checks the exact finite, algebraic, combinatorial, and Fock-space statements above
 in zero-dependency Lean 4.35.0. The following analytic, multi-role, and 4D-crystal reduction bridges
 lie **outside** this Lean module and remain external results of the companion derivations
-(`note/project/vibe/research/wave5/` and `test/verify/bare-u-periodic-mirrors-and-bounds.ts`):
+(`test/verify/bare-u-periodic-mirrors-and-bounds.ts`):
 
 - **2-role (`ℤ_2^{48}`) vs 9-role (`ℤ_2^{216}`) Fock formalization**: `Vibe/Fock/State.lean`
   encodes `SlotState.occ (s : Sign) (r : Bool)` with 2 roles, so Theorem 1 proves all-time

@@ -1,5 +1,5 @@
 // 3D CUSP-HUSK DISPERSION, GROUP SPEED, AND ISOTROPY UNDER M_pair VS BARE LINE LAW
-// (E-RLT-0123, gaps B-10, B-41).
+// (E-RLT-0123).
 //
 // Tests exact 3D horospherical cusp-husk motion on the cached exact R = 3 {3,4,3,4} ball (8,857 docks)
 // and exact 24-state 3D cusp-husk Bloch dispersion E(k) along (1,0,0), (1,1,0), and (1,1,1) for:

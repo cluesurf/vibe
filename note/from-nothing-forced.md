@@ -245,7 +245,7 @@ growth is the wake. It is how the one present grows, not where the present lives
 present is the whole state of the model at this beat, every dock at once, the bulk and the
 husk alike, and the older docks are not a stored past. The wake is not time's arrow
 either. It is an injective map, so it runs back exactly (each newest shell returns to calm
-and leaves, which item 0010 of note/project/vibe/roadmap/one-present runs to check), and
+and leaves, which a follow-up runs to check), and
 time's arrow is the second law, read from the present.
 
 *So far, from nothing: the ternary tone (its count is time), the octonions at 8, the
@@ -281,7 +281,7 @@ alike ([`E-FND-0146`](../test/experiment/foundations/husk-second-law.ts),
 [`E-FND-0147`](../test/experiment/foundations/husk-arrow-records.ts)). So time's arrow is the
 second law, not the growth. The past is not kept anywhere: it is what the present implies
 when the rule runs back. (An earlier version of this step said the wake cannot be run
-backward. That is wrong, see note/project/vibe/roadmap/one-present/review.md.)
+backward. That is wrong, see the one-present review.)
 
 **bulk -> cusp (where we live).** Why a boundary: the growing 4D interior (the bulk, curved)
 has a 3D outer surface (the cusp, flat), because the boundary of a 4D region is one dimension

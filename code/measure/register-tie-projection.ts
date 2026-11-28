@@ -1,4 +1,4 @@
-// THE TIE PROJECTION OF THE SORTED STORE (OPEN-ENG-01, item 0021 of moving-matter). E-FND-0163's store keeps a row per
+// THE TIE PROJECTION OF THE SORTED STORE (OPEN-ENG-01). E-FND-0163's store keeps a row per
 // nondecreasing momentum tuple s, and at a tie s_k = s_(k+1) it keeps BOTH orders of the tied members' fibers. Those
 // entries are redundant: antisymmetry fixes psi(s; b o tau) = sgn(tau) psi(s; b) for every tau in the stabilizer G_s
 // of s (the member permutations that only move members among equal momenta). Exact arithmetic keeps that relation, but

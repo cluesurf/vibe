@@ -1,5 +1,5 @@
-// THE SELF'S SPECTRUM (item vibe-roadmap-grounding-0023; report "Self persistence in reversible dynamics", experiments
-// 1 and 2; honeycomb decision 002). B1's cluster (E-SLF-0182) and B3's open line (E-SLF-0183, E-SLF-0184) lose the
+// THE SELF'S SPECTRUM (report "Self persistence in reversible dynamics", experiments
+// 1 and 2). B1's cluster (E-SLF-0182) and B3's open line (E-SLF-0183, E-SLF-0184) lose the
 // cluster's excess in 8 to 32 beats. Is any of the cluster's weight on an eigenvector of the beat that stays bound
 // for ever, and if only a part, is the cluster or the rule at fault? And which states next to the vacuum does the
 // rule leave alone?
@@ -26,10 +26,10 @@
 // honeycomb-exact by the line law), the windows of 7 and 9 docks about the anchored cluster (its span 4 or 6 plus one
 // shell): the largest U-invariant subspace inside the window, and the restricted step's top singular value.
 //
-// SETTINGS. Default SMOKE (L 8 only, dark window 7 on an open ring of 16, tau to 3; a minute on the laptop; no
-// evidence). SPECTRUM_SWEEP=full for the M3.
+// SETTINGS. Default SMOKE (L 8 only, dark window 7 on an open ring of 16, tau to 3; a minute on a small machine; no
+// evidence). SPECTRUM_SWEEP=full for a large machine.
 //
-// SMOKE (laptop, 2026-11-17): run 1 failed E1 and D-exact only because the smoke's open ring of 16 let the level's
+// SMOKE (small machine, 2026-11-17): run 1 failed E1 and D-exact only because the smoke's open ring of 16 let the level's
 // tail reach an end (fixed: open starts keep a margin off the ends, the smoke ring 24); run 2 open, every gate held.
 //
 // FULL RUN (M3, 2026-11-17, clone self-spectrum, 2,985 s, light slot). FAIL by the registered rule on E4 alone: the
@@ -101,7 +101,7 @@ const RECORDED = { energy: 0.33001851839229945, share: 0.9823600683345252 }
 
 const EXACT = 1e-12
 const EIGEN = 1e-9
-// E4 scaled (grounding-0033): the double eps 2^-52 and the frozen constant c of the bar c eps n_b N_b
+// E4 scaled: the double eps 2^-52 and the frozen constant c of the bar c eps n_b N_b
 const F64_EPS = 2 ** -52
 const EIGEN_SCALE = 1e4
 const EXPAND = 1e-8
@@ -568,7 +568,7 @@ function analyze(
 
     residual = Math.max(residual, eg.residual)
     orthonormal = Math.max(orthonormal, blockOrthonormal)
-    // E4 scaled (grounding-0033, gate d99189b03149): the block's residual over eps n_b N_b, N_b = sqrt(1 + n_b u_b)
+    // E4 scaled (gate d99189b03149): the block's residual over eps n_b N_b, N_b = sqrt(1 + n_b u_b)
     // bounding |M_b|_2 from its own E2 reading, and its orthonormality over eps n_b
     residualRatio = Math.max(residualRatio, eg.residual / (F64_EPS * b.dim * Math.sqrt(1 + b.dim * blockUnitarity)))
     orthonormalRatio = Math.max(orthonormalRatio, blockOrthonormal / (F64_EPS * b.dim))
@@ -1003,7 +1003,7 @@ function darkSet(
 // ---- the run ----
 
 // E4 'absolute' is E-SLF-0188's registered gate (gate 870c2c32aab3): every residual and orthonormality at most 1e-9.
-// E4 'scaled' is E-SLF-0193's (grounding-0033, gate d99189b03149): every block's residual at most c eps n_b N_b and
+// E4 'scaled' is E-SLF-0193's (gate d99189b03149): every block's residual at most c eps n_b N_b and
 // its orthonormality at most c eps n_b, c = 1e4; the absolute reading is printed beside it, not gated. Nothing else
 // differs between the two.
 export type E4Mode = 'absolute' | 'scaled'

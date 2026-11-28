@@ -1,4 +1,4 @@
-// THE LINE LAW ON THE HONEYCOMB (item vibe-roadmap-grounding-0007, gates L1 and O1). On the exact {3,4,3,4} ball
+// THE LINE LAW ON THE HONEYCOMB (gates L1 and O1). On the exact {3,4,3,4} ball
 // (code/substrate/coxeter/exact-ball-mesh), the empty mesh (the honeycomb's own vacuum, E-RLT-0121), flat links (the
 // identity link on every slot, as code/measure/value-phase's trivial tables and B1's flat ring form), the working rule
 // with the value phase (code/rule/value-phase valueBeat) and the coin at the place the caller sets:

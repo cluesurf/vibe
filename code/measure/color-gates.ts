@@ -1,4 +1,4 @@
-// THE TWO COLOUR GATES ON A STATIC Sigma(648) FIELD (moving-matter item 0055, decision 012 point 4, the MVP of route 2:
+// THE TWO COLOUR GATES ON A STATIC Sigma(648) FIELD (the MVP of route 2:
 // colour with an action). A field is one Sigma(648) element per directed link of R*'s 24 D4 links, a link's reverse its
 // inverse. Three reads, each on the box its reference experiment used:
 //
@@ -386,7 +386,7 @@ export type SlabWallRead = {
   plaquette: PlaquetteRead
   reverseBad: number
   seconds: number
-  // the block read on U (color-slab colorClusterU, item 0072): its passes, guard (least |offset| outside the window),
+  // the block read on U (color-slab colorClusterU): its passes, guard (least |offset| outside the window),
   // window residual and per-pass history
   passes: number
   guard: number
@@ -408,7 +408,7 @@ export function slabWallRead(field: ColorField, plan: GatesPlan, L: number): Sla
   const op = colorOp(box, fieldLinks(box, link), pieces, profile(L))
   const cl = colorClusterU(op, { ...plan.cluster, window: plan.far })
 
-  // the block is resolved on U (item 0072): a non-empty complete block is complete whatever its count. Lanczos (on A,
+  // the block is resolved on U: a non-empty complete block is complete whatever its count. Lanczos (on A,
   // blind inside a cluster near pi: traps.md 2026-10-09) runs only to confirm an EMPTY block window, which passes the
   // block's residual test vacuously (color-slab traps)
   const blockOk = cl.complete
@@ -649,8 +649,8 @@ export type ColorGates = {
   slabs: SlabWallRead[]
   bulk: BulkWallRead
   cage: CageRead
-  // decision 012 point 4: W-PASS the near count equals the colour-free 24 at every L; W-FAIL no slab level within `far`
-  // at any L and no bulk level there; between: 0053's pump decides
+  // the decision: W-PASS the near count equals the colour-free 24 at every L; W-FAIL no slab level within `far`
+  // at any L and no bulk level there; between: the colour pump decides
   W: WallVerdict
   // the cage ratio under cagedBelow
   caged: boolean

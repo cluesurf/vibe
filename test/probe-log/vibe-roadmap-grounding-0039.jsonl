@@ -1,2 +1,2 @@
-{"at":"2026-11-19T02:19:17.130Z","item":"vibe-roadmap-grounding-0039","command":["sh","tmp/m3-eb39-launch.sh"],"gate":{"hash":"7934f4e93d0a","at":"2026-11-18T11:56:56.670Z"},"exit":3,"verdict":null,"recorded":true,"refused":[]}
-{"at":"2026-11-19T02:53:09.644Z","item":"vibe-roadmap-grounding-0039","command":["sh","tmp/m3-eb39-launch.sh"],"gate":{"hash":"7934f4e93d0a","at":"2026-11-18T11:56:56.670Z"},"exit":0,"verdict":null,"recorded":true,"refused":[]}
+{"at":"2026-11-19T02:19:17.130Z","item":"vibe-roadmap-grounding-0039","command":["sh","tmp/remote-eb39-launch.sh"],"gate":{"hash":"7934f4e93d0a","at":"2026-11-18T11:56:56.670Z"},"exit":3,"verdict":null,"recorded":true,"refused":[]}
+{"at":"2026-11-19T02:53:09.644Z","item":"vibe-roadmap-grounding-0039","command":["sh","tmp/remote-eb39-launch.sh"],"gate":{"hash":"7934f4e93d0a","at":"2026-11-18T11:56:56.670Z"},"exit":0,"verdict":null,"recorded":true,"refused":[]}

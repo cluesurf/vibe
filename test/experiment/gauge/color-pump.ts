@@ -1,5 +1,5 @@
 // DOES R*'S OWN COLOUR LEAVE A CHIRAL WALL MEMBER THAT FINITE SIZE PUSHED OUT OF THE WINDOW, OR NONE? (E-FRC-0295,
-// note/project/vibe/roadmap/moving-matter item 0053, decision 011 point 3.) RULE: R*, half +, the chiral slab of E-FRC-0294
+// the moving-matter roadmap, point 3 of a recorded decision.) RULE: R*, half +, the chiral slab of E-FRC-0294
 // with the rule's frozen colour (E-SPN-0132's Weyl-hash links lifted to Sigma(648) by a Z3 centre section). E-FRC-0294
 // found no level within 0.1 of pi on that slab. That leaves one reading: the wall members survive and the side-8 box only
 // moved them. An index decides it, and no box size or disorder can fake an index.
@@ -21,7 +21,7 @@
 //     counts unchanged.
 // VERDICT, fixed 2026-10-08 before any read:
 //  KILL (fail)    A 0 and B 0 under both sections at L 8 and 12, no bulk level in the window at any theta, every search
-//                 complete: R*'s colour leaves no chiral wall member (decision 011 confirmed).
+//                 complete: R*'s colour leaves no chiral wall member (a recorded decision confirmed).
 //  PASS           A = F0 and B = -F0 under both sections at both L: E-FRC-0294's empty window was finite size.
 //  PARTIAL        a nonzero count other than F0, or sections or L disagree.
 //  OPEN           a bulk level in the window at some theta, an incomplete search, or a control fails.

@@ -2,7 +2,7 @@
 // Tighten the Exact Spectral Radius rho({3,4,3,4}) from Both Ends
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), exact BigInt + Float64,
-// laptop-safe (< 5 s, light RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
+// fast (< 5 s, light RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Mathematical methods certified here:
 //   1. Geometric Busemann Schur analysis on S^3 / W(F_4): exact Mobius cocycle, L_alpha^* = L_{3-alpha}

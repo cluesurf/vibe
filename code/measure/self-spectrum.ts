@@ -1,4 +1,4 @@
-// THE SELF'S SPECTRUM (item vibe-roadmap-grounding-0023; report "Self persistence in reversible dynamics",
+// THE SELF'S SPECTRUM (report "Self persistence in reversible dynamics",
 // experiments 1 and 2). B1's line sector (E-SLF-0182) as a sparse matrix on n loves of one ring of L docks, its
 // momentum blocks, and the readings the spectral diagnosis takes: span, participation, the flat phases, the
 // invariant subspace of a window.

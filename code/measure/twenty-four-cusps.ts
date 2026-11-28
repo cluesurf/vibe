@@ -1,4 +1,4 @@
-// READING ONE BULK STATE TOWARD ALL 24 CUSPS OF THE BASE DOCK (item vibe-roadmap-board-0011, gaps B-11, B-36).
+// READING ONE BULK STATE TOWARD ALL 24 CUSPS OF THE BASE DOCK.
 // Constructs the exact 24 distinct ideal cusp vertices of the base 24-cell in Z[sqrt 2] as the W(F4) orbit of
 // CUSP_VERTEX, then reads four states (present minus empty vacuum V1) evolved on the exact R = 2 ball toward all
 // 24 cusps: total charge Q_i, layer-0 weight Q_layer(i), and mean Busemann depth <d>_i.

@@ -5,7 +5,7 @@
 //
 // Strictly deterministic (ZERO Math.random()), zero external imports, exact BigInt Z[zeta_9][1/6] +
 // Z[omega] + O^+(4,1; Z[sqrt(2)]) + bit-sliced GF(3) symplectic algebra + exact Hermitian SLD QFI &
-// Holevo mutual information solvers. Laptop-safe (< 10 s), noUncheckedIndexedAccess-safe.
+// Holevo mutual information solvers. Fast (< 10 s), noUncheckedIndexedAccess-safe.
 //
 // Three Concrete Falsifiable Experiments Implemented (Note 16 Part 3):
 //   EXP 1 (E1): Exact Dynamical Lumpability Audit epsilon_lump(C; U) = ||(I - P_C) U P_C|| across:

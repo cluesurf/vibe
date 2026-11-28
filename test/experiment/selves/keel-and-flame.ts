@@ -1,4 +1,4 @@
-// A SELF WITH A KEEL AND A FLAME (item vibe-roadmap-grounding-0027; future-models.md, Living Lattice ideas 1 and 3;
+// A SELF WITH A KEEL AND A FLAME (future-models.md, Living Lattice ideas 1 and 3;
 // code/measure/keel-flame.ts). The flame is B1's lone 3-love cluster on the line engine (B1's line rule, clock 14,
 // split). The keel is its bound level (kept for ever under B1's rule, E-SLF-0188) plus a history register in Z3 beside
 // the line. Before each line beat the register may steer (the phase w^(h o), o the flame's orientation: which end of
@@ -13,7 +13,7 @@
 //
 // READINGS, each arm to beat T: identity (the self reader's closure c = r^2 of the start's support against the free
 // null c0, E-SLF-0191's S1, and L = F / F0); the inside (the return weight P(t) = <psi0| rho_flame |psi0>); the
-// register's memory (I = 2 S(rho_register) bits, the mutual information of register and flame in the pure whole); B-50,
+// register's memory (I = 2 S(rho_register) bits, the mutual information of register and flame in the pure whole),
 // building (C and R run again from beat T/2 with the register shifted by d = 1, 2, and the flame's trace distance from
 // the unshifted run).
 //
@@ -326,7 +326,7 @@ export default experiment({
   id: 'selves/keel-and-flame',
   code: 'E-SLF-0194',
   title:
-    "a self with a keel and a flame: B1's lone cluster (the keel's bound level) with an opt-in history register in Z3 that the flame writes by a controlled shift of its orientation and that steers a phase on the flame, against the frozen keel, the recording keel, the flame alone and B1's bath, read by the self reader, the return weight, the register's memory and a mid-run change of the register (B-50)",
+    "a self with a keel and a flame: B1's lone cluster (the keel's bound level) with an opt-in history register in Z3 that the flame writes by a controlled shift of its orientation and that steers a phase on the flame, against the frozen keel, the recording keel, the flame alone and B1's bath, read by the self reader, the return weight, the register's memory and a mid-run change of the register",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

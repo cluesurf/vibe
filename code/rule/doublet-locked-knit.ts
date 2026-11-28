@@ -1,5 +1,5 @@
 // THE DOUBLET-LOCKED KNIT (E-RLT-0097 to E-RLT-0099): the adopted knit (the lone-bounce collision L, the pair move with
-// its neutral veto, the stream) with every vibe's copy direction set by its role's doublet, the user's decision of
+// its neutral veto, the stream) with every vibe's copy direction set by its role's doublet, the author's decision of
 // 2026-09-26 (E-SPN-0081's theorem: a role-reading copy covariant under a husk line's stabilizer has a one-dimensional
 // generator, zero on the role's scalar line, so the only covariant way a vibe moves with amplitudes is this lock).
 // Exact integers in Z[omega], reversible, deterministic. No float, no rounding, no random number anywhere.
@@ -34,7 +34,7 @@
 //
 // THE ONE NEW PIECE: the meeting. Two vibes on one line of one dock (the line full, before the collision) hold
 // opposite labels, e0 and e1. The locked meeting (code/rule/locked-token-line, E-SPN-0072):
-//   a love and a fear   the user's convention C (the fear runs the love's rule in its conjugate coordinates): opposite
+//   a love and a fear   the author's convention C (the fear runs the love's rule in its conjugate coordinates): opposite
 //                        labels are orthogonal to Phi = sum_k |k k> / sqrt 3, so the knit's meeting V = 1 + (omega - 1)
 //                        |Phi><Phi| is the IDENTITY there. Every love-fear meeting does nothing (helicity suppression,
 //                        E-SPN-0073, now in the knit)

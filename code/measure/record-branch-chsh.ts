@@ -1,7 +1,7 @@
 // RULE-WORD POINTER RECORDS, PARTIAL-TRACE DECOHERENCE, REDUNDANCY, AND RECORD-BRANCH CHSH (E-QTM-0206).
 // L1 abstract multi-qubit circuit using the working rule's exact two-mode Sigma(648) lift generators
 // {C, D, P_w, P_w2, P_zeta9, P_zeta9^-1} (not a spatial {3,4,3,4} honeycomb walk).
-// Under Decision 007 C / Key 8, branch weights are squared amplitudes over every counted record branch.
+// Under Key 8, branch weights are squared amplitudes over every counted record branch.
 //
 //   (1) Measurement settings (a, a', b, b') are synthesized deterministically from {C, D, P_w, P_w2, P_zeta9, P_zeta9^-1}
 //       up to word length L = 14.

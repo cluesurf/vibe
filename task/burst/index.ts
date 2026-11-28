@@ -1,5 +1,5 @@
 // THE BURST: run a batch of this package's jobs on ONE temporary DigitalOcean CPU droplet, started when there is work and
-// destroyed as soon as it is done, so the laptop stays free and nothing bills while idle. task/burst/
+// destroyed as soon as it is done, so the local machine stays free and nothing bills while idle. task/burst/
 //
 //   burst plan   --jobs <jobs.json> [--size c-32]          the size, the threads per job, the hours and the dollars
 //   burst up     --size <slug> --region <slug> --ssh-key <id> --identity <key file> [--cap-hours 12] [--cap-dollars 15]
@@ -7,7 +7,7 @@
 //   burst run    --jobs <jobs.json> [--keep-up] [--oversubscribe] --commit
 //                                                           start every job, fetch each as it finishes, then destroy
 //   burst run    --jobs <more.json> --detach --commit       add jobs to a live batch; its running `run` watches them
-//   burst watch  [--keep-up]                                re-attach the waiting half of `run` (a lost laptop session)
+//   burst watch  [--keep-up]                                re-attach the waiting half of `run` (a lost local session)
 //   burst stop   --job <name> [--final] --commit            stop one job now, mark it done; its outputs go to
 //                                                           partial/ (or, --final, to their paths)
 //   burst stop   --job <name> --when <pattern> --commit     the watcher stops it once a line of its log matches,
@@ -28,7 +28,7 @@
 //     create call. At the cap less 10 minutes `run` stops every job, fetches what there is, and destroys the droplet.
 //     Each job is also bounded on the machine itself by `timeout`, at the cap less 20 minutes
 //   - a detached watchdog (task/kernel/gpu-watchdog.ts) is started at the create, armed with the cap. It outlives this
-//     process, so a crash, a closed laptop session or a hung ssh still ends in a destroyed droplet
+//     process, so a crash, a closed local session or a hung ssh still ends in a destroyed droplet
 //   - auto-down: `run` destroys the droplet once every job has finished and been fetched (--keep-up leaves it)
 //   - the idle guard (task/burst/idle.sh) runs by cron ON the droplet and powers it off after 20 minutes with no job.
 //     A powered-off droplet STILL BILLS, so the guard only stops the work. The destroy is always this command's
@@ -40,17 +40,17 @@
 // also reachable at its LOCAL absolute path (a link), so a tmp/ script that cds to this worktree works there unchanged.
 // A finished job's outputs come back to the same paths here. An `append` file's NEW lines (those past its size when the
 // job started) are appended to the local file instead of replacing it. A job still running at a `down` or at the cap
-// has its outputs fetched to tmp/burst/jobs/<name>/partial/, never over the local files. See
-// note/project/vibe/compute.md.
+// has its outputs fetched to tmp/burst/jobs/<name>/partial/, never over the local files.
 //
 // The DigitalOcean token is read from the environment only (DIGITALOCEAN_ACCESS_TOKEN, which doctl reads itself),
-// supplied by `term zone load cluesurf -- ...`. Nothing here reads a file for it or prints it.
+// exported by the caller. Nothing here reads a file for it or prints it.
 
 import { spawn, spawnSync } from 'node:child_process'
 import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
+import { scrubPrivate } from '../../code/tool/private-path'
 import { makeShell, PACKAGE_PATHS, pause, sizes, type Size } from '../kernel/droplet-shell'
 import { destroy, doctl, tagged } from '../kernel/gpu-watchdog'
 
@@ -119,7 +119,7 @@ mkdirSync(LOCAL, { recursive: true })
 
 const shell = makeShell(join(LOCAL, 'known_hosts'), IDENTITY, log)
 
-// ---- the state on this laptop ----
+// ---- the state on this machine ----
 
 type JobSpec = {
   name: string
@@ -227,7 +227,7 @@ function sizeOf(slug: string): Size {
   const s = sizes().find(x => x.slug === slug)
 
   if (!s) {
-    throw new Error(`no size ${slug} in DigitalOcean's list (is DIGITALOCEAN_ACCESS_TOKEN set? run under term zone load)`)
+    throw new Error(`no size ${slug} in DigitalOcean's list (is DIGITALOCEAN_ACCESS_TOKEN set?)`)
   }
 
   return s
@@ -986,7 +986,9 @@ function fetchJob(d: Droplet, job: JobState, final: boolean): boolean {
 
     if (whole.length > 0) {
       mkdirSync(dirname(join(ROOT, path)), { recursive: true })
-      appendFileSync(join(ROOT, path), whole)
+      // the appended file is committed: the droplet's package folder is this repo's root there, so it reads "."
+      // (the offset below still counts the remote bytes)
+      appendFileSync(join(ROOT, path), scrubPrivate(whole.split(PKG).join('.')))
 
       const now = load()
 
@@ -1398,7 +1400,7 @@ function plan(): number {
   const wall = SETUP_HOURS + longest
   const cpuHours = jobs.reduce((n, j) => n + j.threads * j.hours, 0)
 
-  console.log(`burst plan: ${jobs.length} jobs on one ${size}${s ? ` (${s.vcpus} vCPU, ${s.memory / 1024} GB, ${money(s.price_hourly)}/h, regions ${s.regions.join(' ')})` : ' (price unknown: run under term zone load)'}`)
+  console.log(`burst plan: ${jobs.length} jobs on one ${size}${s ? ` (${s.vcpus} vCPU, ${s.memory / 1024} GB, ${money(s.price_hourly)}/h, regions ${s.regions.join(' ')})` : ' (price unknown: is DIGITALOCEAN_ACCESS_TOKEN set?)'}`)
   console.log(`  ${'job'.padEnd(24)} threads  hours  outputs`)
 
   for (const j of jobs) {

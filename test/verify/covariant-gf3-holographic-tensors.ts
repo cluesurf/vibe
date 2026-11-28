@@ -2,7 +2,7 @@
 // Exact W(F_4), W(F_4)^+, 2T o 2T, W(D_4), 2T_L, and Monomial / Local-Clifford 2.W(F_4)
 // Classification of 24-Leg Ternary GF(3) Holographic Stabilizer Tensors on the 24-Cell {3,4,3}.
 //
-// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), laptop-safe (< 10 s),
+// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), fast (< 10 s),
 // noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Machine-verified theorems proved in this script:

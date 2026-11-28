@@ -1,7 +1,7 @@
 // EMERGENT COSMOLOGICAL EXPANSION a(t), H(t), q(t), w_eff(t) FROM A FINITE DISTURBANCE SPREADING
-// IN THE FIXED INFINITE {3,4,3,4} MESH WITHOUT MESH GROWTH (E-CSM-0064, gaps B-18, B-42).
+// IN THE FIXED INFINITE {3,4,3,4} MESH WITHOUT MESH GROWTH (E-CSM-0064).
 //
-// Proves that under adopted Proposal 003 (fixed infinite {3,4,3,4} honeycomb, zero irreversible mesh growth),
+// Proves that under adopted a board proposal (fixed infinite {3,4,3,4} honeycomb, zero irreversible mesh growth),
 // a finite localized disturbance starting at the cusp (D = 0) and evolving under the exact reversible unitary
 // walk (split coin + F-G / M_pair) drifts ballistically into exponentially expanding horospheres, producing
 // emergent de Sitter expansion a(t) ~ exp(H t), H > 0, q -> -1, w_eff -> -1 while remaining 100% reversible
@@ -29,7 +29,7 @@ export default experiment({
   id: 'cosmology/horosphere-cosmology',
   code: 'E-CSM-0064',
   title:
-    'Emergent de Sitter expansion a(t), H(t), q -> -1, w_eff -> -1 from a reversible unitary disturbance spreading into fixed infinite {3,4,3,4} horospheres without mesh growth (B-18, B-42)',
+    'Emergent de Sitter expansion a(t), H(t), q -> -1, w_eff -> -1 from a reversible unitary disturbance spreading into fixed infinite {3,4,3,4} horospheres without mesh growth',
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L2',
@@ -238,7 +238,7 @@ export default experiment({
       },
       notes:
         `L2. Proves emergent de Sitter expansion (a(t) ~ exp(H t), H > 0, q -> -1, w_eff -> -1) inside the fixed infinite ` +
-        `{3,4,3,4} honeycomb without irreversible mesh growth (Proposal 003). Part A verifies exact unitarity and exact 3-beat ` +
+        `{3,4,3,4} honeycomb without irreversible mesh growth (a board proposal). Part A verifies exact unitarity and exact 3-beat ` +
         `U^dag reversibility on the cached 51,064-dock exact cusp and 8,857-dock R=3 ball (0 forward frontier hits). Part B ` +
         `matches Part A at t = 0..3 to < 1e-12 via the exact infinite 7-ary frame-tree solver (every active bulk frame at D >= 1 ` +
         `is identically 1-up/0-lat/7-dn) and confirms the same de Sitter law on the explicit b = 18/1/5 unitary branching tree ` +

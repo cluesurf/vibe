@@ -2,7 +2,7 @@
 // Tier-B Effective Bulk-Depolarizing + Exact Tier-A Bayes Leakage Threshold Sweep, and
 // Deterministic Finite-Shot Power Verification for the [[12, 1, 4]]_3 Qutrit Holographic Slice.
 //
-// Strictly deterministic (Mulberry32 PRNG only, zero system RNG), laptop-safe (< 5 s, < 200 MB RSS),
+// Strictly deterministic (Mulberry32 PRNG only, zero system RNG), fast (< 5 s, < 200 MB RSS),
 // strict TypeScript (--strict --noUncheckedIndexedAccess), fail-closed (exit 1 on any gate failure).
 //
 // Five Hardware-Readiness Gates:

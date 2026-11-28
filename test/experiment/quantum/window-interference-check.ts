@@ -1,4 +1,4 @@
-// INTERFERENCE INSIDE PROVEN HONEYCOMB WINDOW & B-PIECE CALM-SLOT CHECK (E-QTM-0203, item vibe-roadmap-board-0038).
+// INTERFERENCE INSIDE PROVEN HONEYCOMB WINDOW & B-PIECE CALM-SLOT CHECK (E-QTM-0203).
 // Verifies lone-love position interference strictly inside the proven honeycomb window m + 2t <= L (t = 1..3 on
 // side-8 box and exact R = 3 {3,4,3,4} ball, exact equality diff = 0), and checks whether calm-slot leftover values
 // moved by B across lines affect occupied-vibe amplitudes or interference.

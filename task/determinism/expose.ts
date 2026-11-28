@@ -26,6 +26,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { register } from 'node:module'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { scrubPrivate } from '@/code/tool/private-path'
 import { RESTATED } from './fdlibm'
 import { MARGIN, powOracle } from './pow'
 
@@ -143,7 +144,7 @@ function differs(name: string, a: number[], here: number, plain: number): void {
     // a table built when a module loads reaches every experiment that imports it: name the module
     const frames = (new Error().stack ?? '').split('\n').filter(l => /\/(code|test)\//.test(l))
 
-    importSites.add(`${name}: ${frames.map(f => f.trim().replace(/^at /, '')).join(' < ') || 'unknown'}`)
+    importSites.add(scrubPrivate(`${name}: ${frames.map(f => f.trim().replace(/^at /, '')).join(' < ') || 'unknown'}`))
   }
 }
 
@@ -271,7 +272,7 @@ if (mode !== 'native') {
       if (importing) {
         const frames = (new Error().stack ?? '').split('\n').filter(l => /\/(code|test)\//.test(l))
 
-        importSites.add(`pow: ${frames.map(f => f.trim().replace(/^at /, '')).join(' < ') || 'unknown'}`)
+        importSites.add(scrubPrivate(`pow: ${frames.map(f => f.trim().replace(/^at /, '')).join(' < ') || 'unknown'}`))
       }
 
       if (!p.firstMiss) {
@@ -427,7 +428,7 @@ for (const e of list) {
   try {
     verdict = e.run({})
   } catch (error) {
-    crash = (error as Error).message
+    crash = scrubPrivate((error as Error).message)
   }
 
   const ms = Date.now() - started

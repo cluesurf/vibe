@@ -1,4 +1,4 @@
-// PARITY-CLASS SWAP SYMMETRY ON THE EXACT {3,4,3,4} BALL (item vibe-roadmap-board-0051, gap B-55).
+// PARITY-CLASS SWAP SYMMETRY ON THE EXACT {3,4,3,4} BALL.
 // Builds a partial label translation L mapping dock 0 to a facet neighbor y0 (which swaps bipartite parity classes
 // and reverses geometric orientation) across the interior sub-ball B(0, r) -> B(y0, r) inside an exact ball of radius
 // r + 1. Composes L with cell mirrors P (det -1 W(F4) slot maps), charge conjugation C, CP, motion reversal T, and

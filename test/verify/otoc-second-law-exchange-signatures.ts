@@ -2,7 +2,7 @@
 // Landauer-Exact Reversible Memory (GC #13), Bare 3D Adiabatic Exchange & Spin-Statistics
 // in Exact Z[zeta_9][1/6] (GC #14), and Zero-Parameter Astrophysical Fingerprints (GC #6).
 //
-// Strictly deterministic (ZERO Math.random), laptop-safe (< 20s), strict TypeScript
+// Strictly deterministic (ZERO Math.random), fast (< 20s), strict TypeScript
 // (noUncheckedIndexedAccess: true safe), ending with `export {}`.
 
 // ============================================================================
@@ -1165,7 +1165,7 @@ function recordCheck(id: string, ok: boolean, detail: string): void {
 }
 
 // ============================================================================
-// PART A — GAME-CHANGER #10 (board-0063): BARE-RULE OTOC FAST SCRAMBLING
+// PART A — GAME-CHANGER #10: BARE-RULE OTOC FAST SCRAMBLING
 // ============================================================================
 
 function computeLambdaBall(): { readonly lambda: number; readonly residual: number } {
@@ -1298,7 +1298,7 @@ function buildDirectedRadialWalk(
 
 function runPartA_OTOC() {
   console.log('\n========================================================================')
-  console.log('PART A (GC #10, board-0063): BARE-RULE OTOC FAST SCRAMBLING ON {3,4,3,4}')
+  console.log('PART A (GC #10): BARE-RULE OTOC FAST SCRAMBLING ON {3,4,3,4}')
   console.log('========================================================================')
 
   const hypGraph = createHyperbolic3434Graph()
@@ -1881,7 +1881,7 @@ function runPartA_OTOC() {
 }
 
 // ============================================================================
-// PART B — GAME-CHANGER #13 (board-0068): SECOND LAW & LANDAUER MEMORY
+// PART B — GAME-CHANGER #13: SECOND LAW & LANDAUER MEMORY
 // ============================================================================
 
 function binaryEntropy(p: number): number {
@@ -1906,7 +1906,7 @@ function vonNeumann2x2(rho00: number, rho11: number, absOffDiag: number): number
 
 function runPartB_SecondLawAndLandauer() {
   console.log('\n========================================================================')
-  console.log('PART B (GC #13, board-0068): SECOND LAW & LANDAUER-EXACT REVERSIBLE MEMORY')
+  console.log('PART B (GC #13): SECOND LAW & LANDAUER-EXACT REVERSIBLE MEMORY')
   console.log('========================================================================')
 
   // Exact {3,4,3,4} cusp shell multiplicities N_D = 1, 18, 330, 6034, ... (b = 6034/330)
@@ -2459,7 +2459,7 @@ function runPartB_SecondLawAndLandauer() {
 }
 
 // ============================================================================
-// PART C — GAME-CHANGER #14 (board-0069): 3D ADIABATIC EXCHANGE & SPIN-STATISTICS
+// PART C — GAME-CHANGER #14: 3D ADIABATIC EXCHANGE & SPIN-STATISTICS
 // ============================================================================
 
 type DoubledQuat = readonly [number, number, number, number]
@@ -2499,7 +2499,7 @@ function buildHurwitz2T(): readonly DoubledQuat[] {
 
 function runPartC_ExchangeAndSpinStatistics() {
   console.log('\n========================================================================')
-  console.log('PART C (GC #14, board-0069): BARE 3D ADIABATIC EXCHANGE & SPIN-STATISTICS')
+  console.log('PART C (GC #14): BARE 3D ADIABATIC EXCHANGE & SPIN-STATISTICS')
   console.log('========================================================================')
 
   // 1. Find an explicit all-+1 chiral k=4 cluster X_1 on 4 slots of D_4 with chi_odd != 0
@@ -2755,12 +2755,12 @@ function runPartC_ExchangeAndSpinStatistics() {
 }
 
 // ============================================================================
-// PART D — GAME-CHANGER #6 (board-0065): ASTROPHYSICAL FINGERPRINTS
+// PART D — GAME-CHANGER #6: ASTROPHYSICAL FINGERPRINTS
 // ============================================================================
 
 function runPartD_AstrophysicalFingerprints() {
   console.log('\n========================================================================')
-  console.log('PART D (GC #6, board-0065): ZERO-PARAMETER ASTROPHYSICAL FINGERPRINTS')
+  console.log('PART D (GC #6): ZERO-PARAMETER ASTROPHYSICAL FINGERPRINTS')
   console.log('========================================================================')
 
   // 1. Exact BigInt 2nd, 4th, and 6th moments of the 24 D_4 roots
