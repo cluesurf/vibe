@@ -99,6 +99,16 @@ structure FinDist (S : Type u) [Fintype S] where
   nonneg : ∀ x : S, 0 ≤ prob x
   sum_one : ∑ x : S, prob x = 1
 
+private theorem finset_sum_fiberwise {α : Type u} {β : Type v} [DecidableEq β]
+    (s : Finset α) (t : Finset β) (g : α → β) (f : α → ℚ)
+    (h : ∀ x ∈ s, g x ∈ t) :
+    ∑ m ∈ t, ∑ x ∈ s.filter (fun x => g x = m), f x = ∑ x ∈ s, f x := by
+  simp_rw [Finset.sum_filter]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro x hx
+  simp [h x hx]
+
 /-- Pushforward of a rational finite distribution along a map `f : S → M`. -/
 def pushforwardDist {S : Type u} {M : Type v}
     [Fintype S] [Fintype M] [DecidableEq M]
@@ -106,9 +116,9 @@ def pushforwardDist {S : Type u} {M : Type v}
   prob m := ∑ x ∈ Finset.univ.filter (fun x => f x = m), p.prob x
   nonneg m := Finset.sum_nonneg fun x _ => p.nonneg x
   sum_one := by
-    have hFib := Finset.sum_fiberwise_of_maps_to
-      (s := (Finset.univ : Finset S)) (t := (Finset.univ : Finset M))
-      (g := f) (f := p.prob) (fun x _ => Finset.mem_univ (f x))
+    have hFib := finset_sum_fiberwise
+      (Finset.univ : Finset S) (Finset.univ : Finset M) f p.prob
+      (fun x _ => Finset.mem_univ (f x))
     exact hFib.trans p.sum_one
 
 /-- All-time probabilistic emergence of `(ν, q)` from `(μ, p)` along `Φ`. -/
@@ -143,10 +153,10 @@ private theorem pushforwardDist_comp {S : Type u} {M : Type v} {N : Type w}
     pushforwardDist (g ∘ f) p = pushforwardDist g (pushforwardDist f p) := by
   ext n
   simp only [pushforwardDist, Function.comp_apply]
-  have hFib := Finset.sum_fiberwise_of_maps_to
-    (s := Finset.univ.filter (fun x : S => g (f x) = n))
-    (t := Finset.univ.filter (fun m : M => g m = n))
-    (g := f) (f := p.prob)
+  have hFib := finset_sum_fiberwise
+    (Finset.univ.filter (fun x : S => g (f x) = n))
+    (Finset.univ.filter (fun m : M => g m = n))
+    f p.prob
     (fun x hx => by
       simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hx ⊢
       exact hx)

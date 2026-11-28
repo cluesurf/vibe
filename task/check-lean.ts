@@ -575,9 +575,9 @@ function scanLeanFile(
       continue
     }
 
-    const thmMatch = /^(private\s+)?theorem\s+([A-Za-z0-9_'.]+)/.exec(line)
+    const thmMatch = /^(?:(private|public|protected)\s+)?theorem\s+([A-Za-z0-9_'.]+)/.exec(line)
     if (thmMatch) {
-      const isPrivate = Boolean(thmMatch[1])
+      const isPrivate = thmMatch[1] === 'private'
       const shortName = thmMatch[2]!
       const nsPrefix = scopeStack
         .filter(s => s.kind === 'namespace')
@@ -761,10 +761,24 @@ function auditPrintAxioms(
     return { passed: false, summary: 'lean #print axioms failed', errors }
   }
 
-  const outputLines = res.stdout
+  const rawOutputLines = res.stdout
     .split('\n')
     .map(l => l.trim())
     .filter(l => l.length > 0)
+
+  const outputLines: string[] = []
+  for (const rawLine of rawOutputLines) {
+    if (
+      outputLines.length > 0 &&
+      !rawLine.startsWith("'") &&
+      outputLines[outputLines.length - 1]!.includes('depends on axioms: [') &&
+      !outputLines[outputLines.length - 1]!.endsWith(']')
+    ) {
+      outputLines[outputLines.length - 1] = `${outputLines[outputLines.length - 1]!} ${rawLine}`
+    } else {
+      outputLines.push(rawLine)
+    }
+  }
 
   const seenNames = new Set<string>()
   const axiomUsage = new Map<string, number>()
