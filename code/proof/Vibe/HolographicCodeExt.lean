@@ -1,6 +1,13 @@
-import Vibe.HolographicCode
-import Vibe.BallisticDoublon
-import Vibe.CuspGrowth
+module
+
+public import Vibe.HolographicCode
+public import Vibe.BallisticDoublon
+public import Vibe.CuspGrowth
+import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Unconditional Quantum Distance `d = 8` / `d_pure = 6`, All-536,155 Erasure Recovery & Infinite-Radius `{3,4,3,4}` HaPPY Isometry
@@ -68,25 +75,23 @@ and connecting them unconditionally to the infinite `{3,4,3,4}` hyperbolic honey
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
 /-! ## Section 1: Pure `Nat` Mod-3, `hcSymp48`, `hcActWord` & Base-1000 SWAR Infrastructure -/
 
-private theorem hce_ite_pos {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : c) :
-    (if c then a else b) = a := by
-  cases d with | isTrue _ => rfl | isFalse hn => exact absurd h hn
+private theorem hce_ite_pos {c : Prop} [Decidable c] {α : Type} {a b : α} (h : c) :
+    (if c then a else b) = a := by simp [h]
 
-private theorem hce_ite_neg {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : ¬ c) :
-    (if c then a else b) = b := by
-  cases d with | isTrue hp => exact absurd hp h | isFalse _ => rfl
+private theorem hce_ite_neg {c : Prop} [Decidable c] {α : Type} {a b : α} (h : ¬ c) :
+    (if c then a else b) = b := by simp [h]
 
-private theorem hce_dite_pos {c : Prop} [d : Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : c) :
-    dite c t e = t h := by
-  cases d with | isTrue _ => rfl | isFalse hn => exact absurd h hn
+private theorem hce_dite_pos {c : Prop} [Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : c) :
+    dite c t e = t h := by simp [h]
 
-private theorem hce_dite_neg {c : Prop} [d : Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : ¬ c) :
-    dite c t e = e h := by
-  cases d with | isTrue hp => exact absurd hp h | isFalse _ => rfl
+private theorem hce_dite_neg {c : Prop} [Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : ¬ c) :
+    dite c t e = e h := by simp [h]
 
 private theorem hce_mod3_add_mod3 (a b : Nat) : (a % 3 + b % 3) % 3 = (a + b) % 3 := by omega
 
@@ -94,39 +99,27 @@ private theorem hce_add_mod3_congr {a b c d : Nat} (h1 : a % 3 = c % 3) (h2 : b 
     (a + b) % 3 = (c + d) % 3 := by omega
 
 private theorem hce_mul_mod3_left (a b : Nat) : ((a % 3) * b) % 3 = (a * b) % 3 := by
-  have h : a = 3 * (a / 3) + a % 3 := by omega
-  have hmul : a * b = 3 * ((a / 3) * b) + (a % 3) * b := by
-    calc a * b = (3 * (a / 3) + a % 3) * b := congrArg (fun x => x * b) h
-      _ = (3 * (a / 3)) * b + (a % 3) * b := Nat.add_mul (3 * (a / 3)) (a % 3) b
-      _ = 3 * ((a / 3) * b) + (a % 3) * b := by rw [Nat.mul_assoc]
-  rw [hmul]; omega
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem hce_mul_mod3_right (a b : Nat) : (a * (b % 3)) % 3 = (a * b) % 3 := by
-  rw [Nat.mul_comm a (b % 3), hce_mul_mod3_left b a, Nat.mul_comm b a]
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem hce_mul_mod3_congr {a b c d : Nat} (h1 : a % 3 = c % 3) (h2 : b % 3 = d % 3) :
     (a * b) % 3 = (c * d) % 3 := by
-  rw [← hce_mul_mod3_left a b, h1, hce_mul_mod3_left c b, ← hce_mul_mod3_right c b, h2, hce_mul_mod3_right c d]
+  rw [Nat.mul_mod, h1, h2, ← Nat.mul_mod]
 
-private theorem hce_sumFinAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    hcSumFinAux k hk (fun _ : Fin n => 0) = 0 := by
-  induction k with | zero => rfl | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]
-
-private theorem hce_sumFinAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat) :
-    hcSumFinAux k hk (fun i => f i + g i) = hcSumFinAux k hk f + hcSumFinAux k hk g := by
-  induction k with | zero => rfl | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]; omega
-
-private theorem hce_sumFinAux_mul_left {n : Nat} (k : Nat) (hk : k ≤ n) (c : Nat) (f : Fin n → Nat) :
-    hcSumFinAux k hk (fun i => c * f i) = c * hcSumFinAux k hk f := by
+private theorem hce_sumFinAux_eq_sum_range {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) :
+    hcSumFinAux k hk f = ∑ i ∈ Finset.range k, if h : i < n then f ⟨i, h⟩ else 0 := by
   induction k with
-  | zero => simp only [hcSumFinAux, Nat.mul_zero]
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.mul_add]
+  | zero => simp [hcSumFinAux]
+  | succ m ih =>
+    have hm : m < n := hk
+    simp only [hcSumFinAux, Finset.sum_range_succ, ih (Nat.le_of_succ_le hk), dite_eq_left hm]
 
-private theorem hce_sumFinAux_mul_right {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) (c : Nat) :
-    hcSumFinAux k hk (fun i => f i * c) = hcSumFinAux k hk f * c := by
-  induction k with
-  | zero => simp only [hcSumFinAux, Nat.zero_mul]
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.add_mul]
+private theorem hce_sumFin_eq_sum {n : Nat} (f : Fin n → Nat) :
+    hcSumFin f = ∑ i : Fin n, f i := by
+  unfold hcSumFin
+  rw [hce_sumFinAux_eq_sum_range n (Nat.le_refl n) f, Finset.sum_fin_eq_sum_range]
 
 private theorem hce_sumFinAux_mod3_congr {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat)
     (h : ∀ i : Fin n, f i % 3 = g i % 3) : hcSumFinAux k hk f % 3 = hcSumFinAux k hk g % 3 := by
@@ -134,61 +127,42 @@ private theorem hce_sumFinAux_mod3_congr {n : Nat} (k : Nat) (hk : k ≤ n) (f g
   | zero => rfl
   | succ m ih => simp only [hcSumFinAux]; exact hce_add_mod3_congr (ih (Nat.le_of_succ_le hk)) (h ⟨m, hk⟩)
 
-private theorem hce_sumFinAux_swap {n m : Nat} (kn : Nat) (hkn : kn ≤ n) (km : Nat) (hkm : km ≤ m)
-    (F : Fin n → Fin m → Nat) :
-    hcSumFinAux kn hkn (fun i => hcSumFinAux km hkm (fun j => F i j)) =
-      hcSumFinAux km hkm (fun j => hcSumFinAux kn hkn (fun i => F i j)) := by
-  induction kn with
-  | zero => simp only [hcSumFinAux]; exact (hce_sumFinAux_zero km hkm).symm
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hkn), ← hce_sumFinAux_add km hkm]
+private theorem hce_sumFin_zero {n : Nat} : hcSumFin (fun _ : Fin n => 0) = 0 := by
+  simp [hce_sumFin_eq_sum]
 
-private theorem hce_sumFinAux_zero_except {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat)
-    (j : Fin n) (h : ∀ i : Fin n, i ≠ j → f i = 0) :
-    hcSumFinAux k hk f = if j.val < k then f j else 0 := by
-  induction k with
-  | zero => simp only [hcSumFinAux]; exact (hce_ite_neg (by omega)).symm
-  | succ m ih =>
-    simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]
-    if hlt : j.val < m then
-      have hne : (⟨m, hk⟩ : Fin n) ≠ j := by intro hEq; have hVal : m = j.val := congrArg Fin.val hEq; omega
-      rw [hce_ite_pos hlt, hce_ite_pos (by omega : j.val < m + 1), h ⟨m, hk⟩ hne, Nat.add_zero]
-    else if heq : j.val = m then
-      have hfeq : (⟨m, hk⟩ : Fin n) = j := Fin.ext heq.symm
-      rw [hce_ite_neg hlt, hce_ite_pos (by omega : j.val < m + 1), hfeq, Nat.zero_add]
-    else
-      have hne : (⟨m, hk⟩ : Fin n) ≠ j := by intro hEq; have hVal : m = j.val := congrArg Fin.val hEq; omega
-      rw [hce_ite_neg hlt, hce_ite_neg (by omega : ¬ (j.val < m + 1)), h ⟨m, hk⟩ hne, Nat.add_zero]
-
-private theorem hce_sumFinAux_le {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) (B : Nat)
-    (h : ∀ i : Fin n, f i ≤ B) : hcSumFinAux k hk f ≤ k * B := by
-  induction k with
-  | zero => simp only [hcSumFinAux, Nat.zero_mul]; exact Nat.le_refl 0
-  | succ m ih =>
-    simp only [hcSumFinAux]
-    have h1 := ih (Nat.le_of_succ_le hk)
-    have h2 := h ⟨m, hk⟩
-    rw [Nat.succ_mul]
-    omega
-
-private theorem hce_sumFin_zero {n : Nat} : hcSumFin (fun _ : Fin n => 0) = 0 := hce_sumFinAux_zero n (Nat.le_refl n)
 private theorem hce_sumFin_add {n : Nat} (f g : Fin n → Nat) :
-    hcSumFin (fun i => f i + g i) = hcSumFin f + hcSumFin g := hce_sumFinAux_add n (Nat.le_refl n) f g
+    hcSumFin (fun i => f i + g i) = hcSumFin f + hcSumFin g := by
+  simp only [hce_sumFin_eq_sum, Finset.sum_add_distrib]
+
 private theorem hce_sumFin_mul_left {n : Nat} (c : Nat) (f : Fin n → Nat) :
-    hcSumFin (fun i => c * f i) = c * hcSumFin f := hce_sumFinAux_mul_left n (Nat.le_refl n) c f
+    hcSumFin (fun i => c * f i) = c * hcSumFin f := by
+  simp only [hce_sumFin_eq_sum, Finset.mul_sum]
+
 private theorem hce_sumFin_mul_right {n : Nat} (f : Fin n → Nat) (c : Nat) :
-    hcSumFin (fun i => f i * c) = hcSumFin f * c := hce_sumFinAux_mul_right n (Nat.le_refl n) f c
+    hcSumFin (fun i => f i * c) = hcSumFin f * c := by
+  simp only [hce_sumFin_eq_sum, Finset.sum_mul]
+
 private theorem hce_sumFin_mod3_congr {n : Nat} (f g : Fin n → Nat) (h : ∀ i : Fin n, f i % 3 = g i % 3) :
     hcSumFin f % 3 = hcSumFin g % 3 := hce_sumFinAux_mod3_congr n (Nat.le_refl n) f g h
+
 private theorem hce_sumFin_zero_mod3 {n : Nat} (f : Fin n → Nat) (h : ∀ i : Fin n, f i % 3 = 0) :
     hcSumFin f % 3 = 0 := by rw [hce_sumFin_mod3_congr f (fun _ => 0) h, hce_sumFin_zero]
+
 private theorem hce_sumFin_swap {n m : Nat} (F : Fin n → Fin m → Nat) :
-    hcSumFin (fun i => hcSumFin (fun j => F i j)) = hcSumFin (fun j => hcSumFin (fun i => F i j)) :=
-  hce_sumFinAux_swap n (Nat.le_refl n) m (Nat.le_refl m) F
+    hcSumFin (fun i => hcSumFin (fun j => F i j)) = hcSumFin (fun j => hcSumFin (fun i => F i j)) := by
+  simp only [hce_sumFin_eq_sum]; exact Finset.sum_comm
+
 private theorem hce_sumFin_zero_except {n : Nat} (f : Fin n → Nat) (j : Fin n)
     (h : ∀ i : Fin n, i ≠ j → f i = 0) : hcSumFin f = f j := by
-  unfold hcSumFin; rw [hce_sumFinAux_zero_except n (Nat.le_refl n) f j h, hce_ite_pos j.isLt]
+  rw [hce_sumFin_eq_sum, Finset.sum_eq_single j]
+  · intro i _ hne; exact h i hne
+  · intro hj; exact absurd (Finset.mem_univ j) hj
+
 private theorem hce_sumFin_le {n : Nat} (f : Fin n → Nat) (B : Nat) (h : ∀ i : Fin n, f i ≤ B) :
-    hcSumFin f ≤ n * B := hce_sumFinAux_le n (Nat.le_refl n) f B h
+    hcSumFin f ≤ n * B := by
+  rw [hce_sumFin_eq_sum]
+  calc ∑ i : Fin n, f i ≤ ∑ _i : Fin n, B := Finset.sum_le_sum (fun i _ => h i)
+    _ = n * B := by simp
 
 private theorem hce_symp48_skew (u v : HcVec48) : hcSymp48 v u = (2 * hcSymp48 u v) % 3 := by
   unfold hcSymp48; rw [hce_mul_mod3_right, ← hce_sumFin_mul_left]
@@ -506,14 +480,14 @@ private theorem hce_actWord_preserves_bulk23_perp (w : List (Fin 4)) (v : HcVec4
 /-! ### Balanced MSB-First 8-Way Lookup Tree, Logarithmic Range Checker & Base-1000 SWAR Packing -/
 
 /-- Balanced MSB-first 8-way `Nat` lookup tree for `O(log_8 N)` kernel access. -/
-private inductive HceOct where
+inductive HceOct where
   | leaf (v : Nat) : HceOct
   | node (c0 c1 c2 c3 c4 c5 c6 c7 : HceOct) : HceOct
 
-private def hcePow8 : Nat → Nat
+def hcePow8 : Nat → Nat
   | 0 => 1 | 1 => 8 | 2 => 64 | 3 => 512 | _ => 4096
 
-private def hceOctGet : Nat → HceOct → Nat → Nat
+def hceOctGet : Nat → HceOct → Nat → Nat
   | _, .leaf v, _ => v
   | 0, .node c0 _ _ _ _ _ _ _, _ => hceOctGet 0 c0 0
   | d + 1, .node c0 c1 c2 c3 c4 c5 c6 c7, i =>
@@ -613,13 +587,13 @@ private theorem hce_checkRangeNat_chunks8 (n d : Nat) (P : Nat → Bool) (hd : d
 
 private def hcePow2Nat (r : Nat) : Nat := 2 ^ r
 
-private def hcePow2 (r : Fin 24) : Nat := 2 ^ r.val
+def hcePow2 (r : Fin 24) : Nat := 2 ^ r.val
 
 private def hcePow32Nat (r : Nat) : Nat := 32 ^ r
 
 private def hcePow32 (r : Fin 24) : Nat := 32 ^ r.val
 
-private def hcePow1000 (k : Nat) : Nat := 1000 ^ k
+def hcePow1000 (k : Nat) : Nat := 1000 ^ k
 
 private theorem hce_pow1000_eq : ∀ k : Fin 48, hcePow1000 k.val = 1000 ^ k.val := fun _ => rfl
 
@@ -688,7 +662,7 @@ private def hcePurePackOct : HceOct :=
     (HceOct.leaf 0)
     (HceOct.leaf 0)
 
-private def hceDualPackOct : HceOct :=
+def hceDualPackOct : HceOct :=
   HceOct.node
     (HceOct.node (HceOct.leaf 2002000001001001001000000000000000000000000001001001001002000000002000000000002002000001002001001000000001002002000002001000002000000002000) (HceOct.leaf 2002000000002002000000000000000000001000000002) (HceOct.leaf 2001001001001001001001001001001001000002001001001001001000000002002) (HceOct.leaf 2001000000000000000000000002001000000000000000002002001001) (HceOct.leaf 2001000000000000000000000002001000002002001001) (HceOct.leaf 2000001000000000000000002002001001) (HceOct.leaf 1001002002002002001001002002001001000001000002002002001001) (HceOct.leaf 1001002002002002001001000000001001000000002001000002001000002002))
     (HceOct.node (HceOct.leaf 1001001001000000002002000000002002001001001001000000000002) (HceOct.leaf 2002002002002002001001002002001001001000001002001002001002) (HceOct.leaf 1001000000000002002000000000000000001002001002) (HceOct.leaf 2000000000002000000000002000000000002000000000002000001001000000000002001002001000000002002002000002001000000000002002002001000001001) (HceOct.leaf 2000000001000000000001000000000000002000000000002000002002000000000000001000000000001001001002000001001002000001001002000000002001001) (HceOct.leaf 1001001000000000000000000000000002000001000002002001001002002001001002002001001002002001001) (HceOct.leaf 1001000000000000000000002001000000000000000001001001000002002000000000000001000000000001001001001001001001002000000001001002001002000001) (HceOct.leaf 1000002002000000002002000000000000001002000000002000000001000000001001002000000002002002000002000))
@@ -700,7 +674,7 @@ private def hceDualPackOct : HceOct :=
     (HceOct.leaf 0)
 
 private def hcePurePack (i : Fin 24) : Nat := hceOctGet 2 hcePurePackOct i.val
-private def hceDualPack (i : Fin 24) : Nat := hceOctGet 2 hceDualPackOct i.val
+def hceDualPack (i : Fin 24) : Nat := hceOctGet 2 hceDualPackOct i.val
 
 /-- Explicit 24-vector isotropic Darboux dual basis to `hcPure24` over `GF(3)^48`,
     with `hceDual24 23 = hcZLFrame`, `⟨hcPure24 i, hceDual24 j⟩_ω = δ_{ij}`, and
@@ -1302,7 +1276,7 @@ private def hceOrb4SlotsOct : HceOct :=
     (HceOct.leaf 0)
     (HceOct.leaf 0)
     (HceOct.leaf 0)
-private def hceOrb5MaskOct : HceOct :=
+def hceOrb5MaskOct : HceOct :=
   HceOct.node
     (HceOct.node (HceOct.node (HceOct.leaf 31) (HceOct.leaf 1048591) (HceOct.leaf 55) (HceOct.leaf 87) (HceOct.leaf 151) (HceOct.leaf 279) (HceOct.leaf 1047) (HceOct.leaf 4119)) (HceOct.node (HceOct.leaf 8215) (HceOct.leaf 16407) (HceOct.leaf 32791) (HceOct.leaf 65559) (HceOct.leaf 262167) (HceOct.leaf 1048599) (HceOct.leaf 4194327) (HceOct.leaf 199)) (HceOct.node (HceOct.leaf 1095) (HceOct.leaf 16455) (HceOct.leaf 32839) (HceOct.leaf 262215) (HceOct.leaf 4194375) (HceOct.leaf 3145735) (HceOct.leaf 307) (HceOct.leaf 1075)) (HceOct.node (HceOct.leaf 4147) (HceOct.leaf 65587) (HceOct.leaf 339) (HceOct.leaf 1107) (HceOct.leaf 4179) (HceOct.leaf 8275) (HceOct.leaf 65619) (HceOct.leaf 1048659)) (HceOct.node (HceOct.leaf 4194387) (HceOct.leaf 403) (HceOct.leaf 1171) (HceOct.leaf 4243) (HceOct.leaf 8339) (HceOct.leaf 1048723) (HceOct.leaf 4194451) (HceOct.leaf 4371)) (HceOct.node (HceOct.leaf 8467) (HceOct.leaf 1048851) (HceOct.leaf 2097427) (HceOct.leaf 8388883) (HceOct.leaf 3091) (HceOct.leaf 5139) (HceOct.leaf 9235) (HceOct.leaf 66579)) (HceOct.node (HceOct.leaf 132115) (HceOct.leaf 1049619) (HceOct.leaf 2098195) (HceOct.leaf 4195347) (HceOct.leaf 8389651) (HceOct.leaf 20499) (HceOct.leaf 36883) (HceOct.leaf 266259)) (HceOct.node (HceOct.leaf 4198419) (HceOct.leaf 40979) (HceOct.leaf 4202515) (HceOct.leaf 327699) (HceOct.leaf 3145747) (HceOct.leaf 5242899) (HceOct.leaf 12582931) (HceOct.leaf 4291)))
     (HceOct.node (HceOct.node (HceOct.leaf 65731) (HceOct.leaf 9283) (HceOct.leaf 1049667) (HceOct.leaf 2098243) (HceOct.leaf 8389699) (HceOct.leaf 36931) (HceOct.leaf 266307) (HceOct.leaf 41027)) (HceOct.node (HceOct.leaf 73795) (HceOct.leaf 1056835) (HceOct.leaf 327747) (HceOct.leaf 5242947) (HceOct.leaf 12582979) (HceOct.leaf 86019) (HceOct.leaf 102403) (HceOct.leaf 409)) (HceOct.node (HceOct.leaf 8345) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0)) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0))
@@ -1342,7 +1316,7 @@ private def hceOrb6SlotsOct : HceOct :=
     (HceOct.leaf 0)
     (HceOct.leaf 0)
     (HceOct.leaf 0)
-private def hceOrb7MaskOct : HceOct :=
+def hceOrb7MaskOct : HceOct :=
   HceOct.node
     (HceOct.node (HceOct.node (HceOct.leaf 127) (HceOct.leaf 319) (HceOct.leaf 1087) (HceOct.leaf 4159) (HceOct.leaf 65599) (HceOct.leaf 1048639) (HceOct.leaf 351) (HceOct.leaf 4191)) (HceOct.node (HceOct.leaf 8287) (HceOct.leaf 65631) (HceOct.leaf 1048671) (HceOct.leaf 4194399) (HceOct.leaf 415) (HceOct.leaf 4255) (HceOct.leaf 65695) (HceOct.leaf 1048735)) (HceOct.node (HceOct.leaf 4383) (HceOct.leaf 8479) (HceOct.leaf 1048863) (HceOct.leaf 2097439) (HceOct.leaf 8388895) (HceOct.leaf 5151) (HceOct.leaf 9247) (HceOct.leaf 1049631)) (HceOct.node (HceOct.leaf 2098207) (HceOct.leaf 8389663) (HceOct.leaf 1052703) (HceOct.leaf 4198431) (HceOct.leaf 1056799) (HceOct.leaf 1114143) (HceOct.leaf 2162719) (HceOct.leaf 8454175)) (HceOct.node (HceOct.leaf 3145759) (HceOct.leaf 5242911) (HceOct.leaf 9437215) (HceOct.leaf 12582943) (HceOct.leaf 7340047) (HceOct.leaf 375) (HceOct.leaf 1143) (HceOct.leaf 4215)) (HceOct.node (HceOct.leaf 8311) (HceOct.leaf 32887) (HceOct.leaf 65655) (HceOct.leaf 262263) (HceOct.leaf 823) (HceOct.leaf 1335) (HceOct.leaf 2359) (HceOct.leaf 4407)) (HceOct.node (HceOct.leaf 16695) (HceOct.leaf 65847) (HceOct.leaf 131383) (HceOct.leaf 262455) (HceOct.leaf 524599) (HceOct.leaf 1048887) (HceOct.leaf 2097463) (HceOct.leaf 3127)) (HceOct.node (HceOct.leaf 5175) (HceOct.leaf 17463) (HceOct.leaf 66615) (HceOct.leaf 132151) (HceOct.leaf 263223) (HceOct.leaf 525367) (HceOct.leaf 1049655) (HceOct.leaf 2098231)))
     (HceOct.node (HceOct.node (HceOct.leaf 12343) (HceOct.leaf 20535) (HceOct.leaf 36919) (HceOct.leaf 69687) (HceOct.leaf 266295) (HceOct.leaf 1052727) (HceOct.leaf 4198455) (HceOct.leaf 49207)) (HceOct.node (HceOct.leaf 81975) (HceOct.leaf 278583) (HceOct.leaf 1065015) (HceOct.leaf 4210743) (HceOct.leaf 196663) (HceOct.leaf 327735) (HceOct.leaf 589879) (HceOct.leaf 1114167)) (HceOct.node (HceOct.leaf 2162743) (HceOct.leaf 786487) (HceOct.leaf 1310775) (HceOct.leaf 2359351) (HceOct.leaf 3145783) (HceOct.leaf 5242935) (HceOct.leaf 471) (HceOct.leaf 4311)) (HceOct.node (HceOct.leaf 8407) (HceOct.leaf 32983) (HceOct.leaf 65751) (HceOct.leaf 262359) (HceOct.leaf 1367) (HceOct.leaf 2391) (HceOct.leaf 4439) (HceOct.leaf 8535)) (HceOct.node (HceOct.leaf 16727) (HceOct.leaf 33111) (HceOct.leaf 65879) (HceOct.leaf 131415) (HceOct.leaf 262487) (HceOct.leaf 524631) (HceOct.leaf 1048919) (HceOct.leaf 2097495)) (HceOct.node (HceOct.leaf 4194647) (HceOct.leaf 8388951) (HceOct.leaf 3159) (HceOct.leaf 5207) (HceOct.leaf 9303) (HceOct.leaf 17495) (HceOct.leaf 33879) (HceOct.leaf 66647)) (HceOct.node (HceOct.leaf 132183) (HceOct.leaf 263255) (HceOct.leaf 525399) (HceOct.leaf 1049687) (HceOct.leaf 2098263) (HceOct.leaf 4195415) (HceOct.leaf 8389719) (HceOct.leaf 20567)) (HceOct.node (HceOct.leaf 36951) (HceOct.leaf 69719) (HceOct.leaf 266327) (HceOct.leaf 1052759) (HceOct.leaf 4198487) (HceOct.leaf 24663) (HceOct.leaf 41047) (HceOct.leaf 73815)))
@@ -2361,7 +2335,7 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
   rcases hce_actWord_symp48 w.reverse with ⟨d, hd, hSymW⟩
   have hDetUV : hcSymp48 u v = d := by
     dsimp only [u, v]; rw [hSymW u0 v0, hClean.2.1, Nat.mul_one]
-    rcases hd with hD | hD <;> rw [hD] <;> decide
+    rcases hd with hD | hD <;> rw [hD]
   rcases thm_hce_darboux_dual_basis_and_completeness.2.2.2.2.2 u huPerp with ⟨cu, hcu⟩
   rcases thm_hce_darboux_dual_basis_and_completeness.2.2.2.2.2 v hvPerp with ⟨cv, hcv⟩
   let a1 := hcSymp48 u hcZLFrame
@@ -2383,7 +2357,7 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
   have hSymFormula : hcSymp48 u v = (a1 * b2 + 2 * (b1 * a2)) % 3 :=
     hce_symp_logical_comb cu cv a1 b1 a2 b2 u v hvPerp huEq hvEq
   have hdEq : (a1 * b2 + 2 * (b1 * a2)) % 3 = d := by rw [← hSymFormula, hDetUV]
-  have hdSq : (d * d) % 3 = 1 := by rcases hd with hD | hD <;> rw [hD] <;> decide
+  have hdSq : (d * d) % 3 = 1 := by rcases hd with hD | hD <;> rw [hD]
   let xRec : HcVec48 := fun p r => (d * (b2 * u p r + 2 * (b1 * v p r))) % 3
   let zRec : HcVec48 := fun p r => (d * (2 * (a2 * u p r) + a1 * v p r)) % 3
   have hXSpan : hcInSpan hcBulk23 (fun p r => (xRec p r + 2 * hcXLFrame p r) % 3) := by
@@ -2423,13 +2397,7 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
             2 * (b1 * (hcLinComb cv hcBulk23 p r + a2 * hcXLFrame p r + b2 * hcZLFrame p r))) + 2 * hcXLFrame p r =
         d * (b2 * hcLinComb cu hcBulk23 p r + 2 * (b1 * hcLinComb cv hcBulk23 p r)) +
         (d * (a1 * b2 + 2 * (b1 * a2)) + 2) * hcXLFrame p r +
-        3 * (d * (b1 * b2) * hcZLFrame p r) := by
-      simp only [Nat.mul_add, Nat.add_mul]
-      have m1 : d * (b2 * (a1 * hcXLFrame p r)) = d * (a1 * b2) * hcXLFrame p r := by ac_rfl
-      have m2 : d * (2 * (b1 * (a2 * hcXLFrame p r))) = d * (2 * (b1 * a2)) * hcXLFrame p r := by ac_rfl
-      have m3 : d * (b2 * (b1 * hcZLFrame p r)) = d * (b1 * b2) * hcZLFrame p r := by ac_rfl
-      have m4 : d * (2 * (b1 * (b2 * hcZLFrame p r))) = 2 * (d * (b1 * b2) * hcZLFrame p r) := by ac_rfl
-      rw [m1, m2, m3, m4]; omega
+        3 * (d * (b1 * b2) * hcZLFrame p r) := by ring
     rw [hExp]
     have hX0 : (d * (a1 * b2 + 2 * (b1 * a2)) + 2) % 3 = 0 := by
       have hd1 : (d * (a1 * b2 + 2 * (b1 * a2))) % 3 = 1 := by rw [← hce_mul_mod3_right, hdEq, hdSq]
@@ -2474,13 +2442,7 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
             a1 * (hcLinComb cv hcBulk23 p r + a2 * hcXLFrame p r + b2 * hcZLFrame p r)) + 2 * hcZLFrame p r =
         d * (2 * (a2 * hcLinComb cu hcBulk23 p r) + a1 * hcLinComb cv hcBulk23 p r) +
         3 * (d * (a1 * a2) * hcXLFrame p r) +
-        (d * (a1 * b2 + 2 * (b1 * a2)) + 2) * hcZLFrame p r := by
-      simp only [Nat.mul_add, Nat.add_mul]
-      have m1 : d * (2 * (a2 * (a1 * hcXLFrame p r))) = 2 * (d * (a1 * a2) * hcXLFrame p r) := by ac_rfl
-      have m2 : d * (a1 * (a2 * hcXLFrame p r)) = d * (a1 * a2) * hcXLFrame p r := by ac_rfl
-      have m3 : d * (2 * (a2 * (b1 * hcZLFrame p r))) = d * (2 * (b1 * a2)) * hcZLFrame p r := by ac_rfl
-      have m4 : d * (a1 * (b2 * hcZLFrame p r)) = d * (a1 * b2) * hcZLFrame p r := by ac_rfl
-      rw [m1, m2, m3, m4]; omega
+        (d * (a1 * b2 + 2 * (b1 * a2)) + 2) * hcZLFrame p r := by ring
     rw [hExp]
     have hZ0 : (d * (a1 * b2 + 2 * (b1 * a2)) + 2) % 3 = 0 := by
       have hd1 : (d * (a1 * b2 + 2 * (b1 * a2))) % 3 = 1 := by rw [← hce_mul_mod3_right, hdEq, hdSq]
@@ -2606,116 +2568,41 @@ theorem thm_hce_bulk23_exact_distance_8 :
 
 private theorem hce_vec5_ext (u v : Vec5) (h : ∀ i : Fin 5, u i = v i) : u = v := funext h
 
-private theorem hce_z2_add_comm (x y : ZSqrt2) : ZSqrt2.add x y = ZSqrt2.add y x := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_add_assoc (x y z : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.add x y) z = ZSqrt2.add x (ZSqrt2.add y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_add_zero (x : ZSqrt2) : ZSqrt2.add x ZSqrt2.zero = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_zero_add (x : ZSqrt2) : ZSqrt2.add ZSqrt2.zero x = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.zero_mul, Int.mul_zero]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_one_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.one x = x := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.one, ZSqrt2.mk.injEq, Int.one_mul, Int.zero_mul, Int.mul_zero]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_mul_comm (x y : ZSqrt2) : ZSqrt2.mul x y = ZSqrt2.mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xa yb, Int.mul_comm xb ya,
-      Int.mul_assoc 2 xb yb, Int.mul_comm xb yb, ← Int.mul_assoc 2 yb xb]
-  exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_mul_add (x y z : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.add y z) = ZSqrt2.add (ZSqrt2.mul x y) (ZSqrt2.mul x z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.mul_add]; exact ⟨by omega, by omega⟩
-
-private theorem hce_z2_add_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.add x y) z = ZSqrt2.add (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add]; exact ⟨by omega, by omega⟩
-
+private theorem hce_z2_zero_add (x : ZSqrt2) : ZSqrt2.add ZSqrt2.zero x = x := zero_add x
+private theorem hce_z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero := zero_mul x
+private theorem hce_z2_mul_comm (x y : ZSqrt2) : ZSqrt2.mul x y = ZSqrt2.mul y x := mul_comm x y
 private theorem hce_z2_sub_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.sub x y) z = ZSqrt2.sub (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.sub, ZSqrt2.mk.injEq, Int.sub_mul, Int.mul_sub]; exact ⟨by omega, by omega⟩
-
+    ZSqrt2.mul (ZSqrt2.sub x y) z = ZSqrt2.sub (ZSqrt2.mul x z) (ZSqrt2.mul y z) := sub_mul x y z
 private theorem hce_z2_mul_assoc (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.mul x y) z = ZSqrt2.mul x (ZSqrt2.mul y z) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  cases z with | mk za zb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
-  have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
-    rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
-    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
-  rw [h1, h2]; exact ⟨by omega, by omega⟩
-
+    ZSqrt2.mul (ZSqrt2.mul x y) z = ZSqrt2.mul x (ZSqrt2.mul y z) := mul_assoc x y z
 private theorem hce_z2_scale_add (c : Int) (x y : ZSqrt2) :
     ZSqrt2.add (ZSqrt2.scale c x) (ZSqrt2.scale c y) = ZSqrt2.scale c (ZSqrt2.add x y) := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.scale, Int.mul_add]
-
+  ext <;> dsimp [ZSqrt2.add, ZSqrt2.scale] <;> ring
 private theorem hce_z2_scale_scale (c d : Int) (x : ZSqrt2) :
     ZSqrt2.scale c (ZSqrt2.scale d x) = ZSqrt2.scale (c * d) x := by
-  cases x; simp only [ZSqrt2.scale, Int.mul_assoc]
-
+  ext <;> dsimp [ZSqrt2.scale] <;> ring
 private theorem hce_z2_mul_scale (c : Int) (x y : ZSqrt2) :
     ZSqrt2.mul x (ZSqrt2.scale c y) = ZSqrt2.scale c (ZSqrt2.mul x y) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_add]
-  have h1 : xa * (c * ya) = c * (xa * ya) := by rw [← Int.mul_assoc xa c ya, Int.mul_comm xa c, Int.mul_assoc c xa ya]
-  have h2 : 2 * xb * (c * yb) = c * (2 * xb * yb) := by rw [← Int.mul_assoc (2 * xb) c yb, Int.mul_comm (2 * xb) c, Int.mul_assoc c (2 * xb) yb]
-  have h3 : xa * (c * yb) = c * (xa * yb) := by rw [← Int.mul_assoc xa c yb, Int.mul_comm xa c, Int.mul_assoc c xa yb]
-  have h4 : xb * (c * ya) = c * (xb * ya) := by rw [← Int.mul_assoc xb c ya, Int.mul_comm xb c, Int.mul_assoc c xb ya]
-  rw [h1, h2, h3, h4]; exact ⟨rfl, rfl⟩
-
+  ext <;> dsimp [ZSqrt2.mul, ZSqrt2.scale] <;> ring
 private theorem hce_z2_scale_mul_left (c : Int) (x y : ZSqrt2) :
     ZSqrt2.mul (ZSqrt2.scale c x) y = ZSqrt2.scale c (ZSqrt2.mul x y) := by
-  rw [hce_z2_mul_comm, hce_z2_mul_scale, hce_z2_mul_comm]
+  ext <;> dsimp [ZSqrt2.mul, ZSqrt2.scale] <;> ring
 
 private theorem hce_sum5_add (f g : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) := by
-  have swap4 : ∀ a b c d : ZSqrt2,
-      ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) = ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-    intro a b c d
-    rw [hce_z2_add_assoc a b (ZSqrt2.add c d), ← hce_z2_add_assoc b c d, hce_z2_add_comm b c,
-        hce_z2_add_assoc c b d, ← hce_z2_add_assoc a c (ZSqrt2.add b d)]
-  let f0 := f ⟨0, by decide⟩; let f1 := f ⟨1, by decide⟩; let f2 := f ⟨2, by decide⟩
-  let f3 := f ⟨3, by decide⟩; let f4 := f ⟨4, by decide⟩
-  let g0 := g ⟨0, by decide⟩; let g1 := g ⟨1, by decide⟩; let g2 := g ⟨2, by decide⟩
-  let g3 := g ⟨3, by decide⟩; let g4 := g ⟨4, by decide⟩
-  change ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
-      (ZSqrt2.add f2 g2)) (ZSqrt2.add f3 g3)) (ZSqrt2.add f4 g4) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
-      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4)
-  rw [swap4 f0 g0 f1 g1,
-      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
-      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
-      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
-            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
+  simp only [sum5_eq_sum]; exact Finset.sum_add_distrib
 
 private theorem hce_sum5_sub (f g : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.sub (f k) (g k)) = ZSqrt2.sub (sum5 f) (sum5 g) := by
-  have hSub : ∀ a b c d : ZSqrt2,
-      ZSqrt2.add (ZSqrt2.sub a b) (ZSqrt2.sub c d) = ZSqrt2.sub (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-    intro a b c d; cases a; cases b; cases c; cases d
-    simp only [ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-  unfold sum5; rw [hSub, hSub, hSub, hSub]
+  simp only [sum5_eq_sum]; exact Finset.sum_sub_distrib f g
 
 private theorem hce_sum5_mul_left (c : ZSqrt2) (f : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.mul c (f k)) = ZSqrt2.mul c (sum5 f) := by
-  unfold sum5; rw [hce_z2_mul_add, hce_z2_mul_add, hce_z2_mul_add, hce_z2_mul_add]
+  simp only [sum5_eq_sum]; exact (Finset.mul_sum Finset.univ f c).symm
 
 private theorem hce_sum5_mul_right (f : Fin 5 → ZSqrt2) (c : ZSqrt2) :
     sum5 (fun k => ZSqrt2.mul (f k) c) = ZSqrt2.mul (sum5 f) c := by
-  unfold sum5; rw [hce_z2_add_mul, hce_z2_add_mul, hce_z2_add_mul, hce_z2_add_mul]
+  simp only [sum5_eq_sum]; exact (Finset.sum_mul Finset.univ f c).symm
 
 private theorem hce_sum5_scale (c : Int) (f : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.scale c (f k)) = ZSqrt2.scale c (sum5 f) := by
@@ -2723,38 +2610,24 @@ private theorem hce_sum5_scale (c : Int) (f : Fin 5 → ZSqrt2) :
 
 private theorem hce_sum5_comm (f : Fin 5 → Fin 5 → ZSqrt2) :
     sum5 (fun i => sum5 (fun j => f i j)) = sum5 (fun j => sum5 (fun i => f i j)) := by
-  change sum5 (fun i => sum5 (fun j => f i j)) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add
-      (sum5 (fun i => f i ⟨0, by decide⟩)) (sum5 (fun i => f i ⟨1, by decide⟩)))
-      (sum5 (fun i => f i ⟨2, by decide⟩))) (sum5 (fun i => f i ⟨3, by decide⟩)))
-      (sum5 (fun i => f i ⟨4, by decide⟩))
-  rw [← hce_sum5_add, ← hce_sum5_add, ← hce_sum5_add, ← hce_sum5_add]; rfl
+  simp only [sum5_eq_sum]; exact Finset.sum_comm
 
 private theorem hce_sum5_kron_left (i : Fin 5) (f : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.mul (mat5Id i k) (f k)) = f i := by
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [sum5, mat5Id, hce_z2_one_mul, hce_z2_zero_mul, hce_z2_add_zero, hce_z2_zero_add]
+  have h := congrFun (by rw [mat5Vec_eq_mulVec, toMat5_id, Matrix.one_mulVec] : mat5Vec mat5Id f = f) i
+  exact h
 
-private theorem hce_mat5Vec_id (v : Vec5) : mat5Vec mat5Id v = v :=
-  hce_vec5_ext _ _ (fun i => hce_sum5_kron_left i v)
+private theorem hce_mat5Vec_id (v : Vec5) : mat5Vec mat5Id v = v := by
+  rw [mat5Vec_eq_mulVec, toMat5_id, Matrix.one_mulVec]
 
 private theorem hce_mat5Vec_mul (A B : Mat5) (v : Vec5) :
     mat5Vec (mat5Mul A B) v = mat5Vec A (mat5Vec B v) := by
-  apply hce_vec5_ext; intro i; unfold mat5Vec mat5Mul
-  have hL : sum5 (fun k => ZSqrt2.mul (sum5 (fun m => ZSqrt2.mul (A i m) (B m k))) (v k)) =
-      sum5 (fun k => sum5 (fun m => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (v k)))) := by
-    apply congrArg sum5; funext k; rw [← hce_sum5_mul_right]
-    apply congrArg sum5; funext m; exact hce_z2_mul_assoc (A i m) (B m k) (v k)
-  have hR : sum5 (fun m => ZSqrt2.mul (A i m) (sum5 (fun k => ZSqrt2.mul (B m k) (v k)))) =
-      sum5 (fun m => sum5 (fun k => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (v k)))) := by
-    apply congrArg sum5; funext m; rw [← hce_sum5_mul_left]
-  rw [hL, hce_sum5_comm, hR]
+  rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec, ← mat5Vec_eq_mulVec, ← mat5Vec_eq_mulVec]
 
 private theorem hce_mat5Vec_add (A : Mat5) (u v : Vec5) :
     mat5Vec A (fun k => ZSqrt2.add (u k) (v k)) = fun i => ZSqrt2.add (mat5Vec A u i) (mat5Vec A v i) := by
   apply hce_vec5_ext; intro i; unfold mat5Vec; rw [← hce_sum5_add]
-  apply congrArg sum5; funext k; exact hce_z2_mul_add (A i k) (u k) (v k)
+  apply congrArg sum5; funext k; exact mul_add (A i k) (u k) (v k)
 
 private theorem hce_mat5Vec_scale (A : Mat5) (c : Int) (v : Vec5) :
     mat5Vec A (fun k => ZSqrt2.scale c (v k)) = fun i => ZSqrt2.scale c (mat5Vec A v i) := by
@@ -2765,7 +2638,7 @@ private theorem hce_mat5Vec_scale (A : Mat5) (c : Int) (v : Vec5) :
 
 private theorem hce_dot5_add_left (u v w : Vec5) :
     dot5 (fun i => ZSqrt2.add (u i) (v i)) w = ZSqrt2.add (dot5 u w) (dot5 v w) := by
-  unfold dot5; rw [← hce_sum5_add]; apply congrArg sum5; funext k; exact hce_z2_add_mul _ _ _
+  unfold dot5; rw [← hce_sum5_add]; apply congrArg sum5; funext k; exact add_mul _ _ _
 
 private theorem hce_dot5_scale_left (c : Int) (u v : Vec5) :
     dot5 (fun i => ZSqrt2.scale c (u i)) v = ZSqrt2.scale c (dot5 u v) := by
@@ -2782,8 +2655,7 @@ private theorem hce_twiceForm_symm (u v : Vec5) : twiceForm u v = twiceForm v u 
     apply congrArg sum5; funext j; rw [← hce_sum5_mul_left]
     apply congrArg sum5; funext i
     have hT : twiceGram j i = twiceGram i j := congrFun (congrFun hSym i) j
-    rw [hT, hce_z2_mul_comm (twiceGram i j) (u i), ← hce_z2_mul_assoc,
-        hce_z2_mul_comm (v j) (u i), hce_z2_mul_assoc, hce_z2_mul_comm (v j) (twiceGram i j)]
+    rw [hT]; change v j * (twiceGram i j * u i) = u i * (twiceGram i j * v j); ring
   rw [hL, hce_sum5_comm, hR]
 
 private theorem hce_twiceForm_add_left (u v w : Vec5) :
@@ -2810,7 +2682,7 @@ private theorem hce_twiceForm_orth (A : Mat5)
     have hL : sum5 (fun i => ZSqrt2.mul (sum5 (fun k => ZSqrt2.mul (A i k) (x k))) (w i)) =
         sum5 (fun i => sum5 (fun k => ZSqrt2.mul (x k) (ZSqrt2.mul (A i k) (w i)))) := by
       apply congrArg sum5; funext i; rw [← hce_sum5_mul_right]
-      apply congrArg sum5; funext k; rw [hce_z2_mul_comm (A i k) (x k), hce_z2_mul_assoc]
+      apply congrArg sum5; funext k; change A i k * x k * w i = x k * (A i k * w i); ring
     have hR : sum5 (fun k => ZSqrt2.mul (x k) (sum5 (fun i => ZSqrt2.mul (A i k) (w i)))) =
         sum5 (fun k => sum5 (fun i => ZSqrt2.mul (x k) (ZSqrt2.mul (A i k) (w i)))) := by
       apply congrArg sum5; funext k; rw [← hce_sum5_mul_left]
@@ -3022,17 +2894,6 @@ private theorem hce_facet_pair_mod4 (w : List (Fin 24)) :
 /-- Exact Cholesky positivity of `2 B(w, w) ≥ 0` on the spacelike slice `w_4 = 0` for graded `Vec5`. -/
 private theorem hce_cholesky_zero4_nonneg (w : Vec5) (hw : vec5Graded w) (hw4 : (w ⟨4, by decide⟩).a = 0) :
     0 ≤ (twiceForm w w).a := by
-  have hSqLin : ∀ p q x y : Int,
-      (p * x - q * y) * (p * x - q * y) = (p * p) * (x * x) - 2 * ((p * q) * (x * y)) + (q * q) * (y * y) := by
-    intro p q x y; rw [Int.sub_mul, Int.mul_sub, Int.mul_sub]
-    have h1 : (p * x) * (p * x) = (p * p) * (x * x) := by
-      rw [Int.mul_assoc p x (p * x), ← Int.mul_assoc x p x, Int.mul_comm x p, Int.mul_assoc p x x, ← Int.mul_assoc p p (x * x)]
-    have h2 : (q * y) * (q * y) = (q * q) * (y * y) := by
-      rw [Int.mul_assoc q y (q * y), ← Int.mul_assoc y q y, Int.mul_comm y q, Int.mul_assoc q y y, ← Int.mul_assoc q q (y * y)]
-    have h3 : (p * x) * (q * y) = (p * q) * (x * y) := by
-      rw [Int.mul_assoc p x (q * y), ← Int.mul_assoc x q y, Int.mul_comm x q, Int.mul_assoc q x y, ← Int.mul_assoc p q (x * y)]
-    have h4 : (q * y) * (p * x) = (p * q) * (x * y) := by rw [Int.mul_comm (q * y) (p * x), h3]
-    rw [h1, h2, h3, h4]; omega
   cases h0 : w ⟨0, by decide⟩ with | mk a0 b0 =>
   cases h1 : w ⟨1, by decide⟩ with | mk a1 b1 =>
   cases h2 : w ⟨2, by decide⟩ with | mk a2 b2 =>
@@ -3055,25 +2916,8 @@ private theorem hce_cholesky_zero4_nonneg (w : Vec5) (hw : vec5Graded w) (hw4 : 
         ZSqrt2.add, ZSqrt2.mul, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
   unfold twiceForm dot5; rw [hGw]
   simp only [sum5, mkVec5, h0, h1, h2, h3, h4, ZSqrt2.add, ZSqrt2.mul, Int.zero_mul]
-  have ht0 : a0 * (2 * a0 - a1) = 2 * (a0 * a0) - a0 * a1 := by
-    rw [Int.mul_sub, ← Int.mul_assoc a0 2 a0, Int.mul_comm a0 2, Int.mul_assoc 2 a0 a0]
-  have ht1 : a1 * (-a0 + 2 * a1 - 2 * b2) = -(a0 * a1) + 2 * (a1 * a1) - 2 * (a1 * b2) := by
-    rw [Int.mul_sub, Int.mul_add, Int.mul_neg, Int.mul_comm a1 a0,
-        ← Int.mul_assoc a1 2 a1, Int.mul_comm a1 2, Int.mul_assoc 2 a1 a1,
-        ← Int.mul_assoc a1 2 b2, Int.mul_comm a1 2, Int.mul_assoc 2 a1 b2]
-  have ht2 : 2 * b2 * (-a1 + 2 * b2 - b3) = -2 * (a1 * b2) + 4 * (b2 * b2) - 2 * (b2 * b3) := by
-    rw [Int.mul_sub, Int.mul_add, Int.mul_neg, Int.mul_assoc 2 b2 a1, Int.mul_comm b2 a1,
-        Int.mul_assoc 2 b2 (2 * b2), ← Int.mul_assoc b2 2 b2, Int.mul_comm b2 2,
-        Int.mul_assoc 2 b2 b2, ← Int.mul_assoc 2 2 (b2 * b2), Int.mul_assoc 2 b2 b3]; omega
-  have ht3 : 2 * b3 * (-b2 + 2 * b3) = -2 * (b2 * b3) + 4 * (b3 * b3) := by
-    rw [Int.mul_add, Int.mul_neg, Int.mul_assoc 2 b3 b2, Int.mul_comm b3 b2,
-        Int.mul_assoc 2 b3 (2 * b3), ← Int.mul_assoc b3 2 b3, Int.mul_comm b3 2,
-        Int.mul_assoc 2 b3 b3, ← Int.mul_assoc 2 2 (b3 * b3)]; omega
-  have hs0 : 0 ≤ (2 * a0 - 1 * a1) * (2 * a0 - 1 * a1) := int_sq_nonneg _
-  have hs1 : 0 ≤ (3 * a1 - 4 * b2) * (3 * a1 - 4 * b2) := int_sq_nonneg _
-  have hs2 : 0 ≤ (2 * b2 - 3 * b3) * (2 * b2 - 3 * b3) := int_sq_nonneg _
-  have hs3 : 0 ≤ b3 * b3 := int_sq_nonneg _
-  rw [hSqLin] at hs0 hs1 hs2; rw [ht0, ht1, ht2, ht3]; omega
+  nlinarith [mul_self_nonneg (2 * a0 - a1), mul_self_nonneg (3 * a1 - 4 * b2),
+    mul_self_nonneg (2 * b2 - 3 * b3), mul_self_nonneg b3]
 
 /-- Inward-facet boolean predicate for dock `g : Mat5` on `{3,4,3,4}`:
     `H_2(g k_a) < H_2(g)`. -/
@@ -3278,7 +3122,7 @@ theorem thm_hce_3434_height_parity_and_inward_le_3 :
       of_decide_eq_false ha
     have hNe := (hPar w a).2
     omega
-  exact ⟨hClq, hLe3, by change _ ≥ 21; unfold hceInwardList at hLe3; omega, hOutGt⟩
+  exact ⟨hClq, hLe3, by unfold hceInwardList at hLe3; omega, hOutGt⟩
 
 /-! ### Exact 25-Qutrit Choi Stabilizer Isometry Criterion & Symplectic Operator Pushing on `hcBulk23` -/
 

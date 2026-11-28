@@ -26,6 +26,8 @@ check, and negative control stays in git under a strict three-tier
 boundary separating bare QCA runs from background-field bridges and
 continuum EFT benchmarks.
 
+- [**Quantum Dynamics on the Fixed 4D `{3,4,3,4}` Hyperbolic Honeycomb**](https://zenodo.org/records/24568984)
+  (Nov 26, 2026)
 - [**A Reversible Ternary Quantum Cellular Automaton on the 4D `{3,4,3,4}` Honeycomb**](https://zenodo.org/records/24503628)
   (Nov 24, 2026)
 

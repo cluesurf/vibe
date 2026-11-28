@@ -1,7 +1,9 @@
-import Vibe.Fock.Ring
-import Vibe.Fock.State
-import Vibe.Fock.Gates
-import Vibe.Fock.Beat
+module
+
+public import Vibe.Fock.Ring
+public import Vibe.Fock.State
+public import Vibe.Fock.Gates
+public import Vibe.Fock.Beat
 
 /-!
 # Vibe Theory: Quantum Fock-Space Composite Beat `U` on Infinite `{3,4,3,4}` (Milestone P1)
@@ -24,5 +26,9 @@ Thin re-export facade (0 theorems) assembling the four `Vibe.Fock.*` submodules 
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 end Vibe
+
+end
