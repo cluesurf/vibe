@@ -125,7 +125,7 @@ def trWSWsq4 (rSq a b c : Int) : Int :=
 
 private theorem finRange3_sum (f : Fin 3 → Int) :
     ((List.finRange 3).map f).sum = ∑ i : Fin 3, f i := by
-  rw [Fin.sum_univ_def]; rfl
+  rw [Fin.sum_univ_def]
 
 /-- Pairwise variance `V(a, b, c) = (a - b)^2 + (b - c)^2 + (c - a)^2`. -/
 def warpVariance (a b c : Int) : Int :=

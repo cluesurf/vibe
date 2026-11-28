@@ -994,7 +994,7 @@ function buildMutantCases(tsxBin: ToolCommand, timeoutMs: number): MutantCase[] 
         if (res.status !== 0) {
           const hitPhysicsGate =
             combinedOutput.includes('Gate U3.1 failed') ||
-            combinedOutput.includes('ASSERTION FAILED')
+            combinedOutput.includes('[FAIL] U3.1')
           if (!hitPhysicsGate) {
             throw new Error(
               `M7 exited ${String(res.status)} without hitting Gate U3.1:\n${tailLines(combinedOutput, 10)}`,

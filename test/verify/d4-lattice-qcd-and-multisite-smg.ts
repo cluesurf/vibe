@@ -2356,8 +2356,8 @@ function blockLanczosLowest(
   H: SparseSym,
   nEigs: number,
   seed: number,
-  blockSize = Math.max(2, nEigs),
-  maxSteps = 75,
+  blockSize = Math.max(1, nEigs),
+  maxSteps = 90,
 ): { readonly values: number[]; readonly vectors: Float64Array[]; readonly maxResidual: number } {
   const n = H.n
   if (n <= 48) {
@@ -2425,7 +2425,7 @@ function blockLanczosLowest(
     const saturated = Q.length === nextStart
     curStart = nextStart; curEnd = Q.length
 
-    if (saturated || (step >= 9 && (step + 1) % 8 === 0) || Q.length >= maxBasis || step === maxSteps - 1) {
+    if (saturated || (step >= 15 && (step + 1) % 12 === 0) || Q.length >= maxBasis || step === maxSteps - 1) {
       const m = Q.length
       const T = new Float64Array(m * m)
       for (let i = 0; i < m; i++) {
@@ -2927,7 +2927,8 @@ function runPart2MultiSiteSmg(): Part2Summary {
 
     for (let vi = 0; vi < vLadder.length; vi++) {
       const V = vLadder[vi]!
-      const eGs = blockLanczosLowest(buildSmgBlockHamiltonian(gsBlk, bonds, cayleyFull, 1.0, V), 4, 910000 + nSites * 1000 + vi)
+      const nGsEigs = V === 0 ? 4 : 2
+      const eGs = blockLanczosLowest(buildSmgBlockHamiltonian(gsBlk, bonds, cayleyFull, 1.0, V), nGsEigs, 910000 + nSites * 1000 + vi)
       const eOdd = blockLanczosLowest(buildSmgBlockHamiltonian(oddBlk, bonds, cayleyFull, 1.0, V), 2, 920000 + nSites * 1000 + vi)
       const eFlav = blockLanczosLowest(buildSmgBlockHamiltonian(flavBlk, bonds, cayleyFull, 1.0, V), 2, 930000 + nSites * 1000 + vi)
       const maxRes = Math.max(eGs.maxResidual, eOdd.maxResidual, eFlav.maxResidual)

@@ -1142,68 +1142,167 @@ function runGate1(): void {
   const pMinusErr = frobErr(pMinus, -4)
   const pPMErr = frobErr(pPM, 0)
 
-  // 4. Causal-diamond gluing across shared octahedral facet c_* = 0 with g_12 = (l, r) in 2T_L o 2T_R
+  // 4. Non-tautological geometric 2-cell causal-diamond gluing across shared facet x_0 = 1:
+  //    Construct Cell 2 explicitly in global R^4 by reflecting Cell 1 across facet 0 (n_0 = (2,0,0,0), x_0 = 1),
+  //    giving C_2 = (2,0,0,0) and 24 reflected vertices v_2 = (2 - v_0, v_1, v_2, v_3), then equip Cell 2 with an
+  //    independent local SO(4) tetrad rotated by non-trivial g_12 = (l, r) in 2T_L o 2T_R!
+  const vKey4 = (v: Vec4): string => `${v[0]},${v[1]},${v[2]},${v[3]}`
+  const sub4 = (a: Vec4, b: Vec4): Vec4 => [a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]
+  const facetKeyGlobal = (vs: readonly Vec4[]): string => vs.map(vKey4).sort().join('|')
+  const triKeyGlobal = (a: Vec4, b: Vec4, c: Vec4): string => [vKey4(a), vKey4(b), vKey4(c)].sort().join('|')
+
   const g12 = group288[37]! // non-trivial (l, r) in 2T_L o 2T_R
   const gBad = group288[73]!
+  const rInv12 = qConj(g12.r)
   const rl12 = quatToSO3(g12.l)
   const rr12 = quatToSO3(g12.r)
   const rlBad = quatToSO3(gBad.l)
   const rrBad = quatToSO3(gBad.r)
-  const sharedFacet = facetBivs[0]!
-  let maxCornerCancel = 0
-  let maxMismatchErr = 0
-  for (const tb of sharedFacet) {
-    const t1P = mat3Vec(rl12, tb.bp)
-    const t1M = mat3Vec(rr12, tb.bm)
-    const b2P: Vec3 = [-t1P[0], -t1P[1], -t1P[2]]
-    const b2M: Vec3 = [-t1M[0], -t1M[1], -t1M[2]]
-    maxCornerCancel = Math.max(
-      maxCornerCancel,
-      Math.hypot(t1P[0] + b2P[0], t1P[1] + b2P[1], t1P[2] + b2P[2]),
-      Math.hypot(t1M[0] + b2M[0], t1M[1] + b2M[1], t1M[2] + b2M[2]),
-    )
-    const bad1P = mat3Vec(rlBad, tb.bp)
-    const bad1M = mat3Vec(rrBad, tb.bm)
-    maxMismatchErr = Math.max(
-      maxMismatchErr,
-      Math.hypot(bad1P[0] + b2P[0], bad1P[1] + b2P[1], bad1P[2] + b2P[2]),
-      Math.hypot(bad1M[0] + b2M[0], bad1M[1] + b2M[1], bad1M[2] + b2M[2]),
-    )
-  }
-  // Global closure across all 46 outer facets (23 from cell 1 transported by g_12 + 23 from cell 2) / 184 outer triangles
-  const outerFacetsCount = 23 + 23
-  const outerTriDistinct = 96 + 96 - 8 // 184 distinct triangles on partial(Cell_1 U Cell_2)
-  const globP: [number, number, number] = [0, 0, 0]
-  const globM: [number, number, number] = [0, 0, 0]
-  for (let ci = 1; ci < 24; ci++) {
-    for (const tb of facetBivs[ci]!) {
-      const p1 = mat3Vec(rl12, tb.bp)
-      const m1 = mat3Vec(rr12, tb.bm)
-      for (let a = 0; a < 3; a++) {
-        // Cell 1 transported + Cell 2 opposite-oriented outer facet (both sum to 0 independently and jointly)
-        globP[a] = globP[a]! + p1[a]! - p1[a]!
-        globM[a] = globM[a]! + m1[a]! - m1[a]!
+
+  const C2: Vec4 = [2, 0, 0, 0]
+  const verts2: Vec4[] = ROOTS.map(v => [2 - v[0], v[1], v[2], v[3]])
+  const verts2Rel: Vec4[] = verts2.map(v => sub4(v, C2))
+  const verts2Loc: Vec4[] = verts2Rel.map(v => applyLR(g12.l, rInv12, v))
+
+  // Build Cell 2's 24 octahedral facets and outward local-frame bivectors purely from Cell 2's geometry
+  type GluedTri = { readonly tKey: string; readonly bp: Vec3; readonly bm: Vec3 }
+  type GluedFacet = { readonly fKey: string; readonly tris: readonly GluedTri[] }
+
+  const cell1Facets: GluedFacet[] = facets.map((fc, ci) => {
+    const fKey = facetKeyGlobal(fc.verts.map(vi => ROOTS[vi]!))
+    const tris: GluedTri[] = facetBivs[ci]!.map(tb => {
+      const [i0, i1, i2] = triangles[tb.triIdx]!
+      return {
+        tKey: triKeyGlobal(ROOTS[i0]!, ROOTS[i1]!, ROOTS[i2]!),
+        bp: tb.bp,
+        bm: tb.bm,
+      }
+    })
+    return { fKey, tris }
+  })
+
+  const cell2Facets: GluedFacet[] = Q2T.map(n => {
+    const fVerts: number[] = []
+    for (let v = 0; v < 24; v++) if (dot4(n, verts2Rel[v]!) === 2) fVerts.push(v)
+    assertExact(fVerts.length === 6, 'Cell 2 octahedral facet vertex count')
+    const fKey = facetKeyGlobal(fVerts.map(vi => verts2[vi]!))
+    const nLoc = applyLR(g12.l, rInv12, n)
+    const tris: GluedTri[] = []
+    for (let i = 0; i < 6; i++) {
+      for (let j = i + 1; j < 6; j++) {
+        const a = fVerts[i]!
+        const b = fVerts[j]!
+        if (dot4(verts2Rel[a]!, verts2Rel[b]!) !== 1) continue
+        for (let k = j + 1; k < 6; k++) {
+          const c = fVerts[k]!
+          if (dot4(verts2Rel[a]!, verts2Rel[c]!) === 1 && dot4(verts2Rel[b]!, verts2Rel[c]!) === 1) {
+            let u0 = verts2Loc[a]!
+            let u1 = verts2Loc[b]!
+            let u2 = verts2Loc[c]!
+            const centLoc: Vec4 = [
+              (u0[0] + u1[0] + u2[0]) / 3,
+              (u0[1] + u1[1] + u2[1]) / 3,
+              (u0[2] + u1[2] + u2[2]) / 3,
+              (u0[3] + u1[3] + u2[3]) / 3,
+            ]
+            let e1Loc = sub4(u1, u0)
+            let e2Loc = sub4(u2, u0)
+            if (det4(nLoc, centLoc, e1Loc, e2Loc) < 0) {
+              const tmp = u1
+              u1 = u2
+              u2 = tmp
+              e1Loc = sub4(u1, u0)
+              e2Loc = sub4(u2, u0)
+            }
+            const { bp, bm } = bivectorSplit(e1Loc, e2Loc, 0.5)
+            tris.push({ tKey: triKeyGlobal(verts2[a]!, verts2[b]!, verts2[c]!), bp, bm })
+          }
+        }
       }
     }
+    assertExact(tris.length === 8, 'Cell 2 octahedral facet triangle count')
+    return { fKey, tris }
+  })
+
+  // Geometrically identify shared vs outer facets and distinct outer triangles from global R^4 vertex keys
+  const facetMult = new Map<string, number>()
+  for (const f of cell1Facets) facetMult.set(f.fKey, (facetMult.get(f.fKey) ?? 0) + 1)
+  for (const f of cell2Facets) facetMult.set(f.fKey, (facetMult.get(f.fKey) ?? 0) + 1)
+  const sharedKeys = new Set<string>()
+  let outerFacetsCount = 0
+  for (const [fk, mult] of facetMult) {
+    if (mult === 2) sharedKeys.add(fk)
+    else if (mult === 1) outerFacetsCount++
   }
-  // Also sum cell 1's 23 outer facets alone (equals -sharedFacet = 0!)
+  assertExact(sharedKeys.size === 1, 'Glued 2-cell complex must share exactly 1 octahedral facet')
+  const sharedKey = [...sharedKeys][0]!
+
+  // Match all 8 shared triangles by global 3-vertex key and verify gauge-transported cancellation
+  const sharedC1 = cell1Facets.find(f => f.fKey === sharedKey)!
+  const sharedC2 = cell2Facets.find(f => f.fKey === sharedKey)!
+  const c2TriMap = new Map<string, GluedTri>(sharedC2.tris.map(t => [t.tKey, t]))
+  let maxCornerCancel = 0
+  let maxMismatchErr = 0
+  let matchedSharedTris = 0
+  for (const t1 of sharedC1.tris) {
+    const t2 = c2TriMap.get(t1.tKey)
+    assertExact(t2 !== undefined, `Shared triangle ${t1.tKey} missing in Cell 2`)
+    matchedSharedTris++
+    const tr1P = mat3Vec(rl12, t1.bp)
+    const tr1M = mat3Vec(rr12, t1.bm)
+    maxCornerCancel = Math.max(
+      maxCornerCancel,
+      Math.hypot(tr1P[0] + t2.bp[0], tr1P[1] + t2.bp[1], tr1P[2] + t2.bp[2]),
+      Math.hypot(tr1M[0] + t2.bm[0], tr1M[1] + t2.bm[1], tr1M[2] + t2.bm[2]),
+    )
+    const bad1P = mat3Vec(rlBad, t1.bp)
+    const bad1M = mat3Vec(rrBad, t1.bm)
+    maxMismatchErr = Math.max(
+      maxMismatchErr,
+      Math.hypot(bad1P[0] + t2.bp[0], bad1P[1] + t2.bp[1], bad1P[2] + t2.bp[2]),
+      Math.hypot(bad1M[0] + t2.bm[0], bad1M[1] + t2.bm[1], bad1M[2] + t2.bm[2]),
+    )
+  }
+
+  // Sum actual outer-boundary bivectors across all 46 multiplicity-1 outer facets (184 distinct outer triangles)
+  const outerTriSet = new Set<string>()
   const outer1P: [number, number, number] = [0, 0, 0]
   const outer1M: [number, number, number] = [0, 0, 0]
-  for (let ci = 1; ci < 24; ci++) {
-    for (const tb of facetBivs[ci]!) {
-      const p1 = mat3Vec(rl12, tb.bp)
-      const m1 = mat3Vec(rr12, tb.bm)
+  const outer2P: [number, number, number] = [0, 0, 0]
+  const outer2M: [number, number, number] = [0, 0, 0]
+  let outerSqNorm = 0
+  for (const f of cell1Facets) {
+    if (sharedKeys.has(f.fKey)) continue
+    for (const t of f.tris) {
+      outerTriSet.add(t.tKey)
+      const p1 = mat3Vec(rl12, t.bp)
+      const m1 = mat3Vec(rr12, t.bm)
+      outerSqNorm += dot3(p1, p1)
       for (let a = 0; a < 3; a++) {
         outer1P[a] = outer1P[a]! + p1[a]!
         outer1M[a] = outer1M[a]! + m1[a]!
       }
     }
   }
+  for (const f of cell2Facets) {
+    if (sharedKeys.has(f.fKey)) continue
+    for (const t of f.tris) {
+      outerTriSet.add(t.tKey)
+      outerSqNorm += dot3(t.bp, t.bp)
+      for (let a = 0; a < 3; a++) {
+        outer2P[a] = outer2P[a]! + t.bp[a]!
+        outer2M[a] = outer2M[a]! + t.bm[a]!
+      }
+    }
+  }
+  const outerTriDistinct = outerTriSet.size
   const globalOuterClosure = Math.max(
-    Math.hypot(globP[0], globP[1], globP[2]),
-    Math.hypot(globM[0], globM[1], globM[2]),
+    Math.hypot(outer1P[0] + outer2P[0], outer1P[1] + outer2P[1], outer1P[2] + outer2P[2]),
+    Math.hypot(outer1M[0] + outer2M[0], outer1M[1] + outer2M[1], outer1M[2] + outer2M[2]),
     Math.hypot(outer1P[0], outer1P[1], outer1P[2]),
     Math.hypot(outer1M[0], outer1M[1], outer1M[2]),
+    Math.hypot(outer2P[0], outer2P[1], outer2P[2]),
+    Math.hypot(outer2M[0], outer2M[1], outer2M[2]),
   )
 
   // 5. Unconstrained topological BF negative control: B^{+,1} -> 1.25 B^{+,1}, B^{+,2} -> 0.875 B^{+,2}
@@ -1285,6 +1384,8 @@ function runGate1(): void {
     pPMErr < 1e-12 &&
     outerFacetsCount === 46 &&
     outerTriDistinct === 184 &&
+    matchedSharedTris === 8 &&
+    outerSqNorm > 100 &&
     maxCornerCancel < 1e-13 &&
     globalOuterClosure < 1e-13 &&
     maxMismatchErr > 1.0 &&
@@ -1563,7 +1664,7 @@ function runGate2(): void {
     `  [G2a Tier-C honest] Flat B_0..B_4: q=${qFlat5.toFixed(3)}, c_log=${cLogFlat5.toFixed(3)} (L=1000 -> ${cLogFlat1000.toFixed(4)}); uncomp Boltzmann: c_log=${cLogBoltz.toFixed(3)}`,
   )
   console.log(
-    `  [G2a Tier-C honest] 16^3 M_EH: c_iso=1/12 beats c_iso=0 by ${isoGain.toFixed(1)}x at |q|=0.2; K_disc(t=0.5)=${kDiscUV.toFixed(4)} vs cont a_2=1/3=0.3333 (UV shift=${uvShiftFromThird.toFixed(4)}, IR t=4.0 -> ${kDiscIR.toFixed(4)})`,
+    `  [G2a Tier-C honest] 16^3 M_EH: c_iso=1/12 beats c_iso=0 by ${isoGain.toFixed(1)}x at |q|=0.2; K_disc(t=0.5)=${kDiscUV.toFixed(4)} vs cont Weyl a_0*(2/6)=1/3=0.3333 (UV shift=${uvShiftFromThird.toFixed(4)}, IR t=4.0 -> ${kDiscIR.toFixed(4)})`,
   )
 
   // --- G2b: 2T-Torsor Relational Clocks & 27D Bare-U Mallavarapu-Percy Swap Test ---
@@ -3499,13 +3600,135 @@ function runGate5(): void {
     const k2 = evalKappa(pairA.metric, ZA(z))
     pairAKappaDiff = Math.max(pairAKappaDiff, Math.abs(k1 - k2))
   }
+  // Genuine coordinate-invariant 3rd holographic probe: Complexity = Volume (CV) codimension-1 maximal slice!
+  // On 3D metric ds^2 = -f(z)e^{-chi(z)}/z^2 dt^2 + dz^2/(z^2 f(z)) + C(z) dx^2 (standard ansatz C(z) = 1/z^2;
+  // true 3D diffeomorphism C_true(Z) = 1/z(Z)^2):
+  //   V_CV = int sqrt(C(z)) * sqrt(1/(z^2 f(z)) - (f(z)e^{-chi(z)}/z^2) (dt/dz)^2) dz
+  // Under any TRUE 3D diffeomorphism z -> Z(z) transforming C(z) as a scalar, (t_CV(P), Delta V_CV(P)) are
+  // identically invariant; Pair A & Pair B hold C(Z) = 1/Z^2, making them physically distinct 3D geometries
+  // sharing the same 2D (t, z) HM sector, which CV maximal slices strictly distinguish!
+  type Metric3D = MetricSpec & { readonly C: (z: number) => number; readonly Cp: (z: number) => number }
+  const cvSolve = (
+    M: Metric3D,
+    P: number,
+    nSub = 400,
+  ): { readonly zt: number; readonly t: number; readonly V: number } => {
+    const Q = (z: number) => (z < 1e-12 ? 0 : ((z * z) / M.C(z)) * Math.exp(M.chi(z)))
+    const Qp = (z: number) => Q(z) * (2 / z - M.Cp(z) / M.C(z) + M.chip(z))
+    const H = (z: number) => M.f(z) + P * P * Q(z)
+    let lo = 1.0
+    let hi = 1.05
+    while (H(hi) > 0 && hi < 1e4) hi *= 1.4
+    for (let it = 0; it < 90; it++) {
+      const mid = 0.5 * (lo + hi)
+      if (H(mid) > 0) lo = mid
+      else hi = mid
+    }
+    const zt = 0.5 * (lo + hi)
+    const q1 = Q(1)
+    const qp1 = Qp(1)
+    const fp1 = M.fp(1)
+    const fpp1 = M.fpp(1)
+    const c1 = M.C(1)
+    const h1 = P * P * q1
+    const hp1 = fp1 + P * P * qp1
+    const num = (z: number) => (z < 1e-12 ? 0 : -P * (z / Math.sqrt(M.C(z))) * Math.exp(M.chi(z)))
+    const g1 = num(1) / Math.sqrt(h1)
+    const nump1 = num(1) * (1 - (0.5 * M.Cp(1)) / c1 + M.chip(1))
+    const gp1 = nump1 / Math.sqrt(h1) - (0.5 * num(1) * hp1) / (h1 * Math.sqrt(h1))
+    const regAt1 = (gp1 - (g1 * fpp1) / (2 * fp1)) / fp1
+    const regInt = (z: number): number => {
+      if (z < 1e-12) return g1 / fp1
+      if (Math.abs(z - 1) < 1e-7) return regAt1
+      return num(z) / Math.sqrt(Math.max(1e-30, H(z))) / M.f(z) - g1 / (fp1 * (z - 1))
+    }
+    const simp = (fn: (x: number) => number): number => {
+      const step = 1 / nSub
+      let s = fn(0) + fn(1)
+      for (let i = 1; i < nSub; i++) s += (i & 1 ? 4 : 2) * fn(i * step)
+      return (s * step) / 3
+    }
+    const hpZt = M.fp(zt) + P * P * Qp(zt)
+    const t1 = simp(u => regInt(1 - u * u) * 2 * u)
+    const t2 = simp(s => {
+      if (s < 1e-12) {
+        return (
+          (num(zt) / (M.f(zt) * Math.sqrt(Math.max(1e-30, -hpZt * (zt - 1))))) * 2 * (zt - 1)
+        )
+      }
+      const z = zt - (zt - 1) * s * s
+      return regInt(z) * 2 * (zt - 1) * s
+    })
+    const t = (g1 / fp1) * Math.log(zt - 1) + t1 + t2
+    const v1 = simp(u => {
+      const z = 1 - u * u
+      if (z < 1e-12) return 0
+      if (u < 1e-12) return (-2 * Math.sqrt(c1)) / Math.sqrt(Math.max(1e-30, -fp1))
+      return (Math.sqrt(M.C(z)) / z) * (1 / Math.sqrt(H(z)) - 1 / Math.sqrt(M.f(z))) * 2 * u
+    })
+    const v2 = simp(s => {
+      if (s < 1e-12) return ((2 * Math.sqrt(M.C(zt))) / zt) * Math.sqrt((zt - 1) / Math.max(1e-30, -hpZt))
+      const z = zt - (zt - 1) * s * s
+      return (Math.sqrt(M.C(z)) / (z * Math.sqrt(Math.max(1e-30, H(z))))) * 2 * (zt - 1) * s
+    })
+    return { zt, t, V: v1 + v2 }
+  }
+  const cvMaxP = (M: Metric3D): number => {
+    // Exact interior peak P_max = max_{z > 1} sqrt(-f(z) * C(z) / (z^2 e^{chi(z)})) = asymptotic dV_CV / dt_b
+    let bestZ = 1.1
+    let bestP2 = 0
+    for (let z = 1.005; z < 4.5; z += 0.005) {
+      const fz = M.f(z)
+      if (fz >= 0) break
+      const p2 = (-fz * M.C(z)) / (z * z * Math.exp(M.chi(z)))
+      if (p2 > bestP2) {
+        bestP2 = p2
+        bestZ = z
+      }
+    }
+    // Golden-section polish around bestZ for 12-digit accuracy
+    let a = Math.max(1.0001, bestZ - 0.01)
+    let b = bestZ + 0.01
+    const valAt = (z: number) => (-M.f(z) * M.C(z)) / (z * z * Math.exp(M.chi(z)))
+    const gr = (Math.sqrt(5) - 1) / 2
+    for (let it = 0; it < 50; it++) {
+      const c = b - gr * (b - a)
+      const d = a + gr * (b - a)
+      if (valAt(c) > valAt(d)) b = d
+      else a = c
+    }
+    return Math.sqrt(valAt(0.5 * (a + b)))
+  }
+  const cvAtMatchedTime = (M: Metric3D, tTarget: number) => {
+    let lo = 1e-4
+    let hi = cvMaxP(M) * 0.999
+    for (let it = 0; it < 50; it++) {
+      const mid = 0.5 * (lo + hi)
+      if (cvSolve(M, mid, 200).t < tTarget) lo = mid
+      else hi = mid
+    }
+    return cvSolve(M, 0.5 * (lo + hi), 400)
+  }
+
+  const btz3D: Metric3D = { ...btzMetric, C: z => 1 / (z * z), Cp: z => -2 / (z * z * z) }
+  const pairA3DTrue: Metric3D = {
+    ...pairA.metric,
+    C: Z => {
+      const z = pairA.invZ(Z)
+      return 1 / (z * z)
+    },
+    Cp: Z => {
+      const z = pairA.invZ(Z)
+      return -2 / (z * z * z * ZpA(z))
+    },
+  }
+  const pairA3DAnsatz: Metric3D = { ...pairA.metric, C: Z => 1 / (Z * Z), Cp: Z => -2 / (Z * Z * Z) }
+
   let pairAHMDiff = 0
-  let pairAKrylovDiff = 0
   for (const E of [0.3, 0.5, 0.7, 0.85]) {
     const r1 = hmSolve(btzMetric, E, 800)
     const r2 = hmSolve(pairA.metric, E, 800)
     pairAHMDiff = Math.max(pairAHMDiff, Math.abs(r1.t - r2.t), Math.abs(r1.S - r2.S))
-    pairAKrylovDiff = Math.max(pairAKrylovDiff, Math.abs(r1.zt - r2.zt))
   }
   // Compare static RT S(l) at matched boundary interval l = l_1(z_* = 0.85)
   const rt1A = staticRT(btzMetric.f, 0.85)
@@ -3525,16 +3748,47 @@ function runGate5(): void {
   const ZppB = (z: number) => (z <= 1 ? 0 : 9 * (z - 1))
   const ZpppB = (z: number) => (z <= 1 ? 0 : 9)
   const pairB = buildDiffeoMetric(btzMetric, ZB, ZpB, ZppB, ZpppB)
+  const pairB3DTrue: Metric3D = {
+    ...pairB.metric,
+    C: Z => {
+      const z = pairB.invZ(Z)
+      return 1 / (z * z)
+    },
+    Cp: Z => {
+      const z = pairB.invZ(Z)
+      return -2 / (z * z * z * ZpB(z))
+    },
+  }
+  const pairB3DAnsatz: Metric3D = { ...pairB.metric, C: Z => 1 / (Z * Z), Cp: Z => -2 / (Z * Z * Z) }
   let pairBHMDiff = 0
-  let pairBKrylovDiff = 0
   for (const E of [0.3, 0.5, 0.7, 0.85]) {
     const r1 = hmSolve(btzMetric, E, 800)
     const r2 = hmSolve(pairB.metric, E, 800)
     pairBHMDiff = Math.max(pairBHMDiff, Math.abs(r1.S - r2.S))
-    pairBKrylovDiff = Math.max(pairBKrylovDiff, Math.abs(r1.zt - r2.zt))
   }
   const rt2B = staticRT(pairB.metric.f, 0.85)
   const pairBRTDiff = Math.abs(rt1A.S - rt2B.S) + Math.abs(rt1A.l - rt2B.l)
+
+  // Evaluate coordinate-invariant CV extremal slice probe:
+  // (1) Self-test TRUE 3D diffeomorphism invariance (g_xx transformed properly): must be < 1e-9!
+  const cvBtz = cvSolve(btz3D, 0.49, 400)
+  const cvA3D = cvSolve(pairA3DTrue, 0.49, 400)
+  const cvB3D = cvSolve(pairB3DTrue, 0.49, 400)
+  const cvTrue3DInvErr = Math.max(
+    Math.abs(cvBtz.t - cvA3D.t),
+    Math.abs(cvBtz.V - cvA3D.V),
+    Math.abs(cvBtz.t - cvB3D.t),
+    Math.abs(cvBtz.V - cvB3D.V),
+  )
+  // (2) Physical breaking on Pair A and Pair B at matched boundary time t_b = cvBtz.t (plus asymptotic CV rate P_max)
+  const cvAAns = cvAtMatchedTime(pairA3DAnsatz, cvBtz.t)
+  const cvBAns = cvAtMatchedTime(pairB3DAnsatz, cvBtz.t)
+  const cvTimeMatchErr = Math.max(Math.abs(cvBtz.t - cvAAns.t), Math.abs(cvBtz.t - cvBAns.t))
+  const pairACVDiff = Math.abs(cvBtz.V - cvAAns.V)
+  const pairBCVDiff = Math.abs(cvBtz.V - cvBAns.V)
+  const pMaxBtz = cvMaxP(btz3D)
+  const pMaxPairA = cvMaxP(pairA3DAnsatz)
+  const pMaxPairB = cvMaxP(pairB3DAnsatz)
 
   // 4. NEC-enforced inverse reconstruction: f(z) = 1 - z^2 + a_0 z^2 log(z) + a_1 (z^3 - z^2), a_0, a_1 >= 0
   const makeNecMetric = (a0: number, a1: number): MetricSpec => ({

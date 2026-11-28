@@ -243,7 +243,7 @@ private theorem thm3_trace_M_pow_pair :
     refine ⟨ih.2, ?_⟩
     rw [thm3_M_pow_recurrence n, Mat2Eis.trace_sub, Mat2Eis.trace_scale, ih.2, ih.1]
     simp only [traceSeq, Eis.ofInt, Eis.sub, Eis.scale, Eis.mk.injEq]
-    exact ⟨rfl, by omega⟩
+    exact ⟨trivial, by omega⟩
 
 theorem thm3_trace_M_pow (n : Nat) :
     Mat2Eis.trace (Mat2Eis.pow gateM n) = Eis.ofInt (traceSeq n) :=

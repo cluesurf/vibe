@@ -1,48 +1,50 @@
 module
 
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
-public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
-public import Mathlib.Data.Matrix.Basic
-public import Mathlib.Data.ZMod.Basic
-public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Linarith
-public import Mathlib.Tactic.NormNum
+public import Vibe.StandardModelMathlib
+
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.NormNum
 
 /-!
 # Vibe Theory: Plebanski 24-Cell Geometry, Dark-Sector Stability, Flux Uniqueness & NEC Bounds
 
-Self-contained Mathlib `v4.35.0` formalization of four exact theorems covering orbifold flux
-selection, `Z_3^{DM} × 2T_R` dark-sector stability, exact 24-cell Plebanski BF geometry
-(simplicity, Gauss closure, integrated 4-cell Plebanski constraint, 4-volume `V_24 = 8`, and
-unconstrained BF negative control), and continuous real-calculus NEC monotonicity & causal
-entanglement velocity bounds.
+Mathlib `v4.35.0` formalization building directly on `Vibe.StandardModelMathlib` (`mlD4Fprim`,
+`mlD4Triality`, `mlD4Root`, `mlDot4`, `mlOmegaC`, `mlChar2T`, `mlCharInner2T`, `mlChiV1`,
+`mlChiV2`) for four Tier-A theorems:
 
 Headline theorems (`0 sorry`, `0 axiom`, `0 native_decide`, `#print axioms` clean):
-1. `thm_untwisted_anomaly_uniqueness`: Exact orbifold index splitting
-   `orbIndUntwisted n = 2 n^2 - 2`, `orbIndTwisted n = 2 n^2 + 1`, total Pfaffian
-   `Ind_0 + 2 Ind_1 = 6 n^2`, exact uniqueness `Ind_0 = 0 ↔ n = ±1`, forced generation count
-   `N_gen = 3`, total chirality `6`, and explicit small-`n` table (`n = 0, 1, 2, 3`).
+1. `thm_untwisted_anomaly_uniqueness`: Derives `orbPfaffian n = 6 n^2` from
+   `(n • mlD4Fprim).det = (6 n^2)^2` and `orbLefschetz = -((mlD4Triality - 1).det / 3) = -3`
+   from the 9 fixed points `det(M_{D_4} - I) = 9`, constructs the `Z_3` Lefschetz character
+   projections `orbIndUntwisted n = (orbPfaffian n + 2 * orbLefschetz) / 3 = 2 n^2 - 2` and
+   `orbIndTwisted n = (orbPfaffian n - orbLefschetz) / 3 = 2 n^2 + 1`, and proves exact
+   uniqueness `orbIndUntwisted n = 0 ↔ n = ±1`, forcing `N_gen = 3` and total chirality `6`.
 2. `thm_vq2_dark_sector_stability`: Exact `Z_3^{DM}` charge conservation `q - F (mod 3)`
-   forbidding `ΔF = 0` decay `V_2 → V_1 + V_1 + V_1_bar`, combined with the exact 7-irrep
-   `2T_R = SL(2, 3)` character table over `ℂ` proving zero Dirac mixing, zero Majorana mixing,
-   exact 3-body `ΔF = -2` stability of the `1'` dark singlet, allowed `2 → 2` thermal-relic
-   annihilation portal (multiplicity `7`), and allowed Dirac dark self-mass (multiplicity `2`).
-3. `thm_plebanski_24cell_simplicity_and_closure`: Exact 24-cell (`D_4` root polytope)
-   Plebanski BF geometry over `ℤ`: exact `f`-vector (`96` equilateral triangles, `24` octahedral
-   facets with `6` vertices and `8` triangles each, `672` intra-facet triangle pairs), exact
-   diagonal simplicity (`96/96` triangles & `192/192` oriented facet-triangles), exact
+   forbidding `ΔF = 0` decay `V_2 → V_1 + V_1 + V_1_bar`, combined with `mlChar2T` / `mlChiV1` /
+   `mlChiV2` (`2T_R = SL(2, 3)`) proving zero Dirac mixing, zero Majorana mixing, exact 3-body
+   `ΔF = -2` stability of the `1'` dark singlet, allowed `2 → 2` thermal-relic annihilation
+   portal (multiplicity `7`), and allowed Dirac dark self-mass (multiplicity `2`).
+3. `thm_plebanski_24cell_simplicity_and_closure`: Exact 24-cell (`D_4` root polytope via
+   `mlD4Root`) Plebanski BF geometry over `ℤ`: exact `f`-vector (`96` equilateral triangles,
+   `24` octahedral facets with `6` vertices and `8` triangles each, `672` intra-facet pairs),
+   exact diagonal simplicity (`96/96` triangles & `192/192` oriented facet-triangles), exact
    cross-simplicity (`672` intra-facet pairs), exact octahedral Gauss closure (`24/24` facets),
-   exact integrated 4-cell Plebanski tensors (`P^{+,IJ} = +4·48 δ^{IJ}`,
-   `P^{-,IJ} = -4·48 δ^{IJ}`, `P^{+-,IJ} = 0`, 4-volume `V_24 = 8`), and an unconstrained BF
-   negative control (`5:4` deformation) that preserves exact Gauss closure on all `24` facets
-   while strictly breaking diagonal simplicity.
+   the universal 4-simplex 6-face exterior opposite-face wedge-pairing identity over `ℤ^4`
+   (anisotropically invariant), exact per-simplex & integrated 192-simplex Plebanski tensors
+   (`plebTensorPP = +4·192 I_3`, `plebTensorMM = -4·192 I_3`, `plebTensorPM = 0`, 4-volume
+   `V_24 = 8`), and an unconstrained BF negative control (`5:4` deformation) that preserves
+   exact Gauss closure on all `24` facets while strictly breaking both diagonal simplicity and
+   traceless Plebanski symmetry.
 4. `thm_nec_monotone_velocity_bound`: Exact continuous real-calculus `HasDerivAt`
    differentiation of the near-horizon metric function
    `f(z) = 1 - z^2 + a₀ z^2 log z + a₁ (z^3 - z^2)`, exact NEC identity
    `z f''(z) - f'(z) = 2 a₀ z + 3 a₁ z^2 ≥ 0`, exact quotient derivative
    `(f'(z) / z)' = (z f''(z) - f'(z)) / z^2`, monotonicity of `q(z) = f'(z) / z` on `(0, ∞)`,
-   horizon values `f(1) = 0`, `f'(1) = -2 + a₀ + a₁`, and causal entanglement velocity bound
-   `f(z) ≤ 1 - z^2` for all `z ∈ (0, 1]` under `a₀ ≥ 0, a₁ ≥ 0`.
+   horizon values `f(1) = 0`, `f'(1) = -2 + a₀ + a₁`, exterior sub-BTZ blackening bound
+   `f(z) ≤ 1 - z^2` on `(0, 1]`, and interior `z ≥ 1` Hartman-Maldacena causal entanglement
+   velocity bound `1 - z^2 ≤ f(z)` and `v_E^2(z) = -f(z) / z^2 ≤ 1 - 1 / z^2 < 1`.
 -/
 
 set_option autoImplicit false
@@ -55,80 +57,87 @@ open Matrix
 
 /-! ### 1. Exact Untwisted Orbifold Anomaly Uniqueness -/
 
-/-- Chiral index in the untwisted orbifold sector `V_{q=0}` at integer flux quantum `n : ℤ`. -/
-def orbIndUntwisted (n : ℤ) : ℤ := 2 * n ^ 2 - 2
+/-- Total chiral Pfaffian index `Pf(n F_prim) = 6 n^2` on `T^4_{D_4}` for integer flux quantum `n`,
+    linked to `(n • mlD4Fprim).det = (orbPfaffian n)^2`. -/
+def orbPfaffian (n : ℤ) : ℤ := 6 * n ^ 2
 
-/-- Chiral index in each twisted orbifold sector `V_{q=1}`, `V_{q=2}` at flux quantum `n : ℤ`. -/
-def orbIndTwisted (n : ℤ) : ℤ := 2 * n ^ 2 + 1
+/-- Fixed-point Lefschetz trace `L(q_3) = -((M_{D_4} - I).det / 3) = -3` from the 9 isolated
+    `q_3`-fixed points of `mlD4Triality` on `T^4_{D_4}`. -/
+def orbLefschetz : ℤ := -((mlD4Triality - 1).det / 3)
+
+/-- Chiral index in the untwisted orbifold sector `V_{q=0}` via `Z_3` Lefschetz character
+    projection `(Pf(n F_prim) + 2 L(q_3)) / 3`. -/
+def orbIndUntwisted (n : ℤ) : ℤ := (orbPfaffian n + 2 * orbLefschetz) / 3
+
+/-- Chiral index in each twisted orbifold sector `V_{q=1}`, `V_{q=2}` via `Z_3` Lefschetz
+    character projection `(Pf(n F_prim) - L(q_3)) / 3`. -/
+def orbIndTwisted (n : ℤ) : ℤ := (orbPfaffian n - orbLefschetz) / 3
 
 /-- Headline 1: Exact Untwisted Orbifold Anomaly Uniqueness Theorem.
-    Anomaly cancellation (vector-like untwisted sector `orbIndUntwisted n = 0`) uniquely selects
-    primitive flux `n = ±1`, automatically forcing `N_gen = orbIndTwisted n = 3` chiral generations
+    Derives the Pfaffian scaling `(n • mlD4Fprim).det = (orbPfaffian n)^2` and Lefschetz fixed-point
+    trace `orbLefschetz = -3` directly from `mlD4Fprim` and `mlD4Triality`, proves the `Z_3`
+    character-projected indices equal `2 n^2 - 2` and `2 n^2 + 1`, and proves that untwisted
+    anomaly cancellation (`orbIndUntwisted n = 0`) uniquely selects `n = ±1`, forcing `N_gen = 3`
     and total Pfaffian chirality `6`. -/
 theorem thm_untwisted_anomaly_uniqueness :
-    (∀ n : ℤ, orbIndUntwisted n + 2 * orbIndTwisted n = 6 * n ^ 2) ∧
+    (∀ n : ℤ, (n • mlD4Fprim).det = (orbPfaffian n) ^ 2) ∧
+    ((mlD4Triality - 1).det = 9 ∧ orbLefschetz = -3 ∧ -(mlD4Triality - 1).det / 3 = -3) ∧
+    (∀ n : ℤ, orbIndUntwisted n = 2 * n ^ 2 - 2 ∧ orbIndTwisted n = 2 * n ^ 2 + 1) ∧
+    (∀ n : ℤ, orbIndUntwisted n + 2 * orbIndTwisted n = orbPfaffian n) ∧
     (∀ n : ℤ, orbIndUntwisted n = 0 ↔ n = 1 ∨ n = -1) ∧
-    (∀ n : ℤ, orbIndUntwisted n = 0 → orbIndTwisted n = 3) ∧
-    (∀ n : ℤ, orbIndUntwisted n = 0 → orbIndUntwisted n + 2 * orbIndTwisted n = 6) ∧
+    (∀ n : ℤ, orbIndUntwisted n = 0 →
+      orbIndTwisted n = 3 ∧ orbIndUntwisted n + 2 * orbIndTwisted n = 6) ∧
     ((orbIndUntwisted 0, orbIndTwisted 0) = (-2, 1) ∧
       (orbIndUntwisted 1, orbIndTwisted 1) = (0, 3) ∧
       (orbIndUntwisted 2, orbIndTwisted 2) = (6, 9) ∧
       (orbIndUntwisted 3, orbIndTwisted 3) = (16, 19)) := by
-  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  have hTri9 : (mlD4Triality - 1).det = 9 := thm_ml_d4_outer_triality_fprim_det.2.2.1
+  have hFprim36 : mlD4Fprim.det = 36 := thm_ml_d4_outer_triality_fprim_det.2.2.2.2.2.2
+  have hDetScale : ∀ n : ℤ, (n • mlD4Fprim).det = (orbPfaffian n) ^ 2 := by
+    intro n
+    rw [Matrix.det_smul, Fintype.card_fin, hFprim36, orbPfaffian]
+    ring
+  have hLefVal : orbLefschetz = -3 := by
+    rw [orbLefschetz, hTri9]
+    norm_num
+  have hLefDiv : -(mlD4Triality - 1).det / 3 = -3 := by
+    rw [hTri9]
+    norm_num
+  have hFormulas : ∀ n : ℤ, orbIndUntwisted n = 2 * n ^ 2 - 2 ∧ orbIndTwisted n = 2 * n ^ 2 + 1 := by
+    intro n
+    constructor
+    · rw [orbIndUntwisted, orbPfaffian, hLefVal]
+      have hNum : 6 * n ^ 2 + 2 * -3 = 3 * (2 * n ^ 2 - 2) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ (by decide : (3 : ℤ) ≠ 0)]
+    · rw [orbIndTwisted, orbPfaffian, hLefVal]
+      have hNum : 6 * n ^ 2 - -3 = 3 * (2 * n ^ 2 + 1) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ (by decide : (3 : ℤ) ≠ 0)]
+  refine ⟨hDetScale, ⟨hTri9, hLefVal, hLefDiv⟩, hFormulas, ?_, ?_, ?_, ?_⟩
   · intro n
-    simp only [orbIndUntwisted, orbIndTwisted]
+    rcases hFormulas n with ⟨hU, hT⟩
+    rw [hU, hT, orbPfaffian]
     ring
   · intro n
+    rw [(hFormulas n).1]
     constructor
     · intro h
-      have hFac : (n - 1) * (n + 1) = 0 := by
-        simp only [orbIndUntwisted] at h
-        nlinarith
+      have hFac : (n - 1) * (n + 1) = 0 := by nlinarith
       rcases mul_eq_zero.mp hFac with h1 | h2
       · left; linarith
       · right; linarith
-    · rintro (rfl | rfl) <;> norm_num [orbIndUntwisted]
+    · rintro (rfl | rfl) <;> norm_num
   · intro n h
-    simp only [orbIndUntwisted, orbIndTwisted] at h ⊢
-    linarith
-  · intro n h
-    simp only [orbIndUntwisted, orbIndTwisted] at h ⊢
-    linarith
-  · norm_num [orbIndUntwisted, orbIndTwisted]
+    rcases hFormulas n with ⟨hU, hT⟩
+    rw [hU] at h
+    rw [hU, hT]
+    constructor <;> linarith
+  · simp only [hFormulas]
+    norm_num
 
 /-! ### 2. Exact `Z_3^{DM} × 2T_R` Dark-Sector Stability -/
 
 /-- Exact `Z_3^{DM}` dark-matter charge `Q_{DM}(q, F) = q - F (mod 3)`. -/
 def darkChargeZ3 (q F : ZMod 3) : ZMod 3 := q - F
-
-/-- Primitive cube root of unity `ω = -1/2 + i √3 / 2 ∈ ℂ`. -/
-noncomputable def darkOmega : ℂ := ⟨-(1 / 2 : ℝ), Real.sqrt 3 / 2⟩
-
-/-- Conjugate primitive cube root of unity `ω^2 = -1/2 - i √3 / 2 ∈ ℂ`. -/
-noncomputable def darkOmega2 : ℂ := ⟨-(1 / 2 : ℝ), -(Real.sqrt 3 / 2)⟩
-
-/-- Conjugacy-class sizes `(1, 1, 6, 4, 4, 4, 4)` of `2T_R = SL(2, 3)`. -/
-def darkClassSize2T : Fin 7 → ℕ := ![1, 1, 6, 4, 4, 4, 4]
-
-/-- Exact 7-irrep character table of `2T_R = SL(2, 3)` (`1, 1', 1'', 3, 2, 2', 2''`). -/
-noncomputable def darkChar2T : Fin 7 → Fin 7 → ℂ
-  | ⟨0, _⟩ => ![1,  1,  1,  1,          1,           1,          1]
-  | ⟨1, _⟩ => ![1,  1,  1,  darkOmega,  darkOmega2,  darkOmega2, darkOmega]
-  | ⟨2, _⟩ => ![1,  1,  1,  darkOmega2, darkOmega,   darkOmega,  darkOmega2]
-  | ⟨3, _⟩ => ![3,  3, -1,  0,          0,           0,          0]
-  | ⟨4, _⟩ => ![2, -2,  0, -1,         -1,           1,          1]
-  | ⟨5, _⟩ => ![2, -2,  0, -darkOmega, -darkOmega2,  darkOmega2, darkOmega]
-  | ⟨6, _⟩ => ![2, -2,  0, -darkOmega2,-darkOmega,   darkOmega,  darkOmega2]
-
-/-- Standard `2T_R` class-function Hermitian inner product `⟨χ, ψ⟩ = (1/24) ∑_c |C_c| conj(χ_c) ψ_c`. -/
-noncomputable def darkCharInner2T (χ ψ : Fin 7 → ℂ) : ℂ :=
-  (1 / 24 : ℂ) * ∑ c : Fin 7, (darkClassSize2T c : ℂ) * star (χ c) * ψ c
-
-/-- Chiral zero-mode `2T_R` character in the visible sector `V_{q=1} = 1 ⊕ 2''`. -/
-noncomputable def darkChiV1 : Fin 7 → ℂ := fun c => darkChar2T 0 c + darkChar2T 6 c
-
-/-- Chiral zero-mode `2T_R` character in the dark sector `V_{q=2} = 1' ⊕ 2`. -/
-noncomputable def darkChiV2 : Fin 7 → ℂ := fun c => darkChar2T 1 c + darkChar2T 4 c
 
 private def darkChar2TCoeff (i : Fin 7) : Fin 7 → ℤ × ℤ :=
   match i.val with
@@ -152,6 +161,8 @@ private def darkChiV1Coeff (c : Fin 7) : ℤ × ℤ := darkEisAdd (darkChar2TCoe
 private def darkChiV2Coeff (c : Fin 7) : ℤ × ℤ := darkEisAdd (darkChar2TCoeff 1 c) (darkChar2TCoeff 4 c)
 
 /-- Headline 2: Exact `Z_3^{DM} × 2T_R` Dark-Sector Stability Theorem.
+    Reuses `mlChar2T`, `mlCharInner2T`, `mlChiV1`, and `mlChiV2` directly from
+    `Vibe.StandardModelMathlib`:
     (a) Exact `Z_3^{DM}` conservation assigns zero dark charge to SM fermions `(1, 1)`,
         antifermions `(2, -1)`, bosons `(0, 0)`, and baryons `(0, 3)`, while assigning nonzero
         charge `1 ∈ ZMod 3` to `V_{q=2}` fermions `(2, 1)`, strictly forbidding any `ΔF = 0`
@@ -172,29 +183,27 @@ theorem thm_vq2_dark_sector_stability :
       darkChargeZ3 2 1 = 1 ∧ (1 : ZMod 3) ≠ 0 ∧
       darkChargeZ3 2 1 ≠
         darkChargeZ3 1 1 + darkChargeZ3 1 1 + darkChargeZ3 2 (-1)) ∧
-    (darkCharInner2T (fun c => star (darkChiV1 c) * darkChiV2 c) (darkChar2T 0) = 0 ∧
-      darkCharInner2T (fun c => darkChiV1 c * darkChiV2 c) (darkChar2T 0) = 0 ∧
-      darkCharInner2T
-        (fun c => star (darkChar2T 1 c) * star (darkChiV1 c) * star (darkChiV1 c) * darkChiV1 c)
-        (darkChar2T 0) = 0 ∧
-      darkCharInner2T
-        (fun c => star (darkChiV2 c) * darkChiV2 c * star (darkChiV1 c) * darkChiV1 c)
-        (darkChar2T 0) = 7 ∧
-      darkCharInner2T (fun c => star (darkChiV2 c) * darkChiV2 c) (darkChar2T 0) = 2) := by
-  have hSq3 : Real.sqrt 3 * Real.sqrt 3 = 3 := Real.mul_self_sqrt (by norm_num)
-  have hW2 : darkOmega ^ 2 = darkOmega2 := by
-    apply Complex.ext <;> simp [darkOmega, darkOmega2, pow_two] <;> nlinarith [hSq3]
-  have hWSum : darkOmega + darkOmega2 + 1 = 0 := by
+    (mlCharInner2T (fun c => star (mlChiV1 c) * mlChiV2 c) (mlChar2T 0) = 0 ∧
+      mlCharInner2T (fun c => mlChiV1 c * mlChiV2 c) (mlChar2T 0) = 0 ∧
+      mlCharInner2T
+        (fun c => star (mlChar2T 1 c) * star (mlChiV1 c) * star (mlChiV1 c) * mlChiV1 c)
+        (mlChar2T 0) = 0 ∧
+      mlCharInner2T
+        (fun c => star (mlChiV2 c) * mlChiV2 c * star (mlChiV1 c) * mlChiV1 c)
+        (mlChar2T 0) = 7 ∧
+      mlCharInner2T (fun c => star (mlChiV2 c) * mlChiV2 c) (mlChar2T 0) = 2) := by
+  have h2T := thm_ml_2tr_character_table_and_rank1_origin
+  have hW2 : mlOmegaC ^ 2 = mlOmegaC2 := h2T.2.1.2.1
+  have hWSum : mlOmegaC + mlOmegaC2 + 1 = 0 := h2T.2.1.2.2
+  have hV1Decomp : ∀ c : Fin 7, mlChiV1 c = mlChar2T 0 c + mlChar2T 6 c := h2T.2.2.2.2.1.2.1
+  have hV2Decomp : ∀ c : Fin 7, mlChiV2 c = mlChar2T 1 c + mlChar2T 4 c := h2T.2.2.2.2.1.2.2.1
+  have hW2Eq : mlOmegaC2 = -1 - mlOmegaC := by linear_combination hWSum
+  have hWSqLin : mlOmegaC ^ 2 = -1 - mlOmegaC := by rw [hW2, hW2Eq]
+  have hConjW : starRingEnd ℂ mlOmegaC = -1 - mlOmegaC := by
     apply Complex.ext
-    · simp [darkOmega, darkOmega2]; norm_num
-    · simp [darkOmega, darkOmega2]
-  have hW2Eq : darkOmega2 = -1 - darkOmega := by linear_combination hWSum
-  have hWSqLin : darkOmega ^ 2 = -1 - darkOmega := by rw [hW2, hW2Eq]
-  have hConjW : starRingEnd ℂ darkOmega = -1 - darkOmega := by
-    apply Complex.ext
-    · simp [darkOmega]; norm_num
-    · simp [darkOmega]
-  let eisC : ℤ × ℤ → ℂ := fun z => (z.1 : ℂ) + (z.2 : ℂ) * darkOmega
+    · simp [mlOmegaC]; norm_num
+    · simp [mlOmegaC]
+  let eisC : ℤ × ℤ → ℂ := fun z => (z.1 : ℂ) + (z.2 : ℂ) * mlOmegaC
   have hEisAdd : ∀ x y : ℤ × ℤ, eisC x + eisC y = eisC (darkEisAdd x y) := by
     intro ⟨a, b⟩ ⟨c, d⟩
     simp only [eisC, darkEisAdd, Int.cast_add]
@@ -215,31 +224,33 @@ theorem thm_vq2_dark_sector_stability :
   have hEisSum : ∀ f : Fin 7 → ℤ × ℤ, (∑ k : Fin 7, eisC (f k)) = eisC (darkEisSum7 f) := by
     intro f
     simp only [eisC, darkEisSum7, Finset.sum_add_distrib, ← Finset.sum_mul, Int.cast_sum]
-  have hCharCoeff : ∀ i c : Fin 7, darkChar2T i c = eisC (darkChar2TCoeff i c) := by
+  have hCharCoeff : ∀ i c : Fin 7, mlChar2T i c = eisC (darkChar2TCoeff i c) := by
     intro i c
     fin_cases i <;> fin_cases c <;>
-      simp [darkChar2T, darkChar2TCoeff, eisC, hW2Eq] <;> ring
-  have hV1Coeff : ∀ c : Fin 7, darkChiV1 c = eisC (darkChiV1Coeff c) := by
+      simp [mlChar2T, darkChar2TCoeff, eisC, hW2Eq] <;> ring
+  have hV1Coeff : ∀ c : Fin 7, mlChiV1 c = eisC (darkChiV1Coeff c) := by
     intro c
-    simp only [darkChiV1, darkChiV1Coeff, hCharCoeff, hEisAdd]
-  have hV2Coeff : ∀ c : Fin 7, darkChiV2 c = eisC (darkChiV2Coeff c) := by
+    rw [hV1Decomp c]
+    simp only [darkChiV1Coeff, hCharCoeff, hEisAdd]
+  have hV2Coeff : ∀ c : Fin 7, mlChiV2 c = eisC (darkChiV2Coeff c) := by
     intro c
-    simp only [darkChiV2, darkChiV2Coeff, hCharCoeff, hEisAdd]
+    rw [hV2Decomp c]
+    simp only [darkChiV2Coeff, hCharCoeff, hEisAdd]
   have hDiracInt :
       darkEisSum7 (fun c =>
-        darkEisMul (darkEisScale (darkClassSize2T c)
+        darkEisMul (darkEisScale (mlClassSize2T c)
           (darkEisConj (darkEisMul (darkEisConj (darkChiV1Coeff c)) (darkChiV2Coeff c))))
           (darkChar2TCoeff 0 c)) = (0, 0) := by
     decide
   have hMajInt :
       darkEisSum7 (fun c =>
-        darkEisMul (darkEisScale (darkClassSize2T c)
+        darkEisMul (darkEisScale (mlClassSize2T c)
           (darkEisConj (darkEisMul (darkChiV1Coeff c) (darkChiV2Coeff c))))
           (darkChar2TCoeff 0 c)) = (0, 0) := by
     decide
   have hDecay3Int :
       darkEisSum7 (fun c =>
-        darkEisMul (darkEisScale (darkClassSize2T c)
+        darkEisMul (darkEisScale (mlClassSize2T c)
           (darkEisConj (darkEisMul
             (darkEisMul (darkEisMul (darkEisConj (darkChar2TCoeff 1 c)) (darkEisConj (darkChiV1Coeff c)))
               (darkEisConj (darkChiV1Coeff c)))
@@ -248,7 +259,7 @@ theorem thm_vq2_dark_sector_stability :
     decide
   have hPortalInt :
       darkEisSum7 (fun c =>
-        darkEisMul (darkEisScale (darkClassSize2T c)
+        darkEisMul (darkEisScale (mlClassSize2T c)
           (darkEisConj (darkEisMul
             (darkEisMul (darkEisMul (darkEisConj (darkChiV2Coeff c)) (darkChiV2Coeff c))
               (darkEisConj (darkChiV1Coeff c)))
@@ -257,58 +268,30 @@ theorem thm_vq2_dark_sector_stability :
     decide
   have hSelfInt :
       darkEisSum7 (fun c =>
-        darkEisMul (darkEisScale (darkClassSize2T c)
+        darkEisMul (darkEisScale (mlClassSize2T c)
           (darkEisConj (darkEisMul (darkEisConj (darkChiV2Coeff c)) (darkChiV2Coeff c))))
           (darkChar2TCoeff 0 c)) = (48, 0) := by
     decide
   refine ⟨by decide, ?_, ?_, ?_, ?_, ?_⟩
-  · simp only [darkCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
+  · simp only [mlCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
       hEisSum, hDiracInt]
     simp [eisC]
-  · simp only [darkCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
+  · simp only [mlCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
       hEisSum, hMajInt]
     simp [eisC]
-  · simp only [darkCharInner2T, hV1Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
+  · simp only [mlCharInner2T, hV1Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
       hEisSum, hDecay3Int]
     simp [eisC]
-  · simp only [darkCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
+  · simp only [mlCharInner2T, hV1Coeff, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
       hEisSum, hPortalInt]
     simp [eisC]
     norm_num
-  · simp only [darkCharInner2T, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
+  · simp only [mlCharInner2T, hV2Coeff, hCharCoeff, hEisConj, hEisMul, hEisScale,
       hEisSum, hSelfInt]
     simp [eisC]
     norm_num
 
-/-! ### 3. Exact 24-Cell Plebanski BF Simplicity, Closure & 4-Volume -/
-
-/-- Exact 24 `D_4` root vectors `(±1, ±1, 0, 0)` (all permutations), vertices of the regular 24-cell. -/
-def plebD4Root (i : Fin 24) : Fin 4 → ℤ :=
-  match i.val with
-  | 0  => ![ 1,  1,  0,  0]
-  | 1  => ![ 1, -1,  0,  0]
-  | 2  => ![-1,  1,  0,  0]
-  | 3  => ![-1, -1,  0,  0]
-  | 4  => ![ 1,  0,  1,  0]
-  | 5  => ![ 1,  0, -1,  0]
-  | 6  => ![-1,  0,  1,  0]
-  | 7  => ![-1,  0, -1,  0]
-  | 8  => ![ 1,  0,  0,  1]
-  | 9  => ![ 1,  0,  0, -1]
-  | 10 => ![-1,  0,  0,  1]
-  | 11 => ![-1,  0,  0, -1]
-  | 12 => ![ 0,  1,  1,  0]
-  | 13 => ![ 0,  1, -1,  0]
-  | 14 => ![ 0, -1,  1,  0]
-  | 15 => ![ 0, -1, -1,  0]
-  | 16 => ![ 0,  1,  0,  1]
-  | 17 => ![ 0,  1,  0, -1]
-  | 18 => ![ 0, -1,  0,  1]
-  | 19 => ![ 0, -1,  0, -1]
-  | 20 => ![ 0,  0,  1,  1]
-  | 21 => ![ 0,  0,  1, -1]
-  | 22 => ![ 0,  0, -1,  1]
-  | _  => ![ 0,  0, -1, -1]
+/-! ### 3. Exact 24-Cell Plebanski BF Simplicity, Closure & True 192-Simplex Wedge Pairing -/
 
 /-- Exact 24 octahedral facet outward normals `n_c` (`‖n_c‖^2 = 4`): `±2 e_k` and `(±1, ±1, ±1, ±1)`. -/
 def plebFacetNormal (c : Fin 24) : Fin 4 → ℤ :=
@@ -338,10 +321,6 @@ def plebFacetNormal (c : Fin 24) : Fin 4 → ℤ :=
   | 22 => ![-1, -1, -1,  1]
   | _  => ![-1, -1, -1, -1]
 
-/-- Euclidean inner product on `ℤ^4`. -/
-def plebDot4 (u v : Fin 4 → ℤ) : ℤ :=
-  u 0 * v 0 + u 1 * v 1 + u 2 * v 2 + u 3 * v 3
-
 /-- Euclidean inner product on `ℤ^3`. -/
 def plebDot3 (u v : Fin 3 → ℤ) : ℤ :=
   u 0 * v 0 + u 1 * v 1 + u 2 * v 2
@@ -357,14 +336,30 @@ def plebDet4 (r0 r1 r2 r3 : Fin 4 → ℤ) : ℤ :=
   r0 2 * det3 r1 r2 r3 0 1 3 -
   r0 3 * det3 r1 r2 r3 0 1 2
 
-/-- Generator of all ordered equilateral root triples `(i, j, k)` (`i < j < k`, pairwise dot `1`)
-    within a vertex list `vs`. -/
+/-- Self-dual 't Hooft bivector split `2 (b_{0a} + b_{bc}) = (u_0 v_a - u_a v_0) + (u_b v_c - u_c v_b)`
+    of any two vectors `u, v ∈ ℤ^4` (exact integer normalization matching `bivectorSplit(u, v, 1/2)`). -/
+def plebPairBivP (u v : Fin 4 → ℤ) (I : Fin 3) : ℤ :=
+  match I.val with
+  | 0 => (u 0 * v 1 - u 1 * v 0) + (u 2 * v 3 - u 3 * v 2)
+  | 1 => (u 0 * v 2 - u 2 * v 0) - (u 1 * v 3 - u 3 * v 1)
+  | _ => (u 0 * v 3 - u 3 * v 0) + (u 1 * v 2 - u 2 * v 1)
+
+/-- Anti-self-dual 't Hooft bivector split `2 (b_{0a} - b_{bc}) = (u_0 v_a - u_a v_0) - (u_b v_c - u_c v_b)`
+    of any two vectors `u, v ∈ ℤ^4`. -/
+def plebPairBivM (u v : Fin 4 → ℤ) (I : Fin 3) : ℤ :=
+  match I.val with
+  | 0 => (u 0 * v 1 - u 1 * v 0) - (u 2 * v 3 - u 3 * v 2)
+  | 1 => (u 0 * v 2 - u 2 * v 0) + (u 1 * v 3 - u 3 * v 1)
+  | _ => (u 0 * v 3 - u 3 * v 0) - (u 1 * v 2 - u 2 * v 1)
+
+/-- Generator of all ordered equilateral `D_4` root triples `(i, j, k)` (`i < j < k`, pairwise
+    `mlDot4 = 1`) within a vertex list `vs`. -/
 def plebTriListFrom (vs : List (Fin 24)) : List (Fin 24 × Fin 24 × Fin 24) :=
   vs.flatMap fun i =>
-    (vs.filter fun j => i < j ∧ plebDot4 (plebD4Root i) (plebD4Root j) = 1).flatMap fun j =>
+    (vs.filter fun j => i < j ∧ mlDot4 (mlD4Root i) (mlD4Root j) = 1).flatMap fun j =>
       (vs.filter fun k =>
-        j < k ∧ plebDot4 (plebD4Root i) (plebD4Root k) = 1 ∧
-          plebDot4 (plebD4Root j) (plebD4Root k) = 1).map fun k => (i, j, k)
+        j < k ∧ mlDot4 (mlD4Root i) (mlD4Root k) = 1 ∧
+          mlDot4 (mlD4Root j) (mlD4Root k) = 1).map fun k => (i, j, k)
 
 /-- Ordered list of all `96` equilateral triangular 2-faces of the regular 24-cell. -/
 def plebTriList : List (Fin 24 × Fin 24 × Fin 24) :=
@@ -376,7 +371,7 @@ def plebD4Tris : Finset (Fin 24 × Fin 24 × Fin 24) :=
 
 /-- Ordered list of the `6` vertices of octahedral facet `c` (`v · n_c = 2`). -/
 def plebFacetVertList (c : Fin 24) : List (Fin 24) :=
-  (List.finRange 24).filter fun v => plebDot4 (plebD4Root v) (plebFacetNormal c) = 2
+  (List.finRange 24).filter fun v => mlDot4 (mlD4Root v) (plebFacetNormal c) = 2
 
 /-- `Finset` of the `6` vertices of octahedral facet `c`. -/
 def plebFacetVerts (c : Fin 24) : Finset (Fin 24) :=
@@ -390,77 +385,159 @@ def plebFacetTriList (c : Fin 24) : List (Fin 24 × Fin 24 × Fin 24) :=
 def plebFacetTris (c : Fin 24) : Finset (Fin 24 × Fin 24 × Fin 24) :=
   (plebFacetTriList c).toFinset
 
-/-- Unoriented integer-scaled (`4×`) self-dual area bivector `4 Σ_t^+ ∈ ℤ^3` of triangle `t`. -/
+/-- Positively oriented second vertex `vv` of triangle `t = (i, j, k)` in facet `c`, chosen so
+    that the radial 4-simplex `(0, n_c, u, vv, ww)` satisfies `det(n_c, u, vv, ww) > 0`. -/
+def plebSimplexV1 (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 4 → ℤ :=
+  if 0 < plebDet4 (plebFacetNormal c) (mlD4Root t.1) (mlD4Root t.2.1) (mlD4Root t.2.2)
+  then mlD4Root t.2.1
+  else mlD4Root t.2.2
+
+/-- Positively oriented third vertex `ww` of triangle `t = (i, j, k)` in facet `c`. -/
+def plebSimplexV2 (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 4 → ℤ :=
+  if 0 < plebDet4 (plebFacetNormal c) (mlD4Root t.1) (mlD4Root t.2.1) (mlD4Root t.2.2)
+  then mlD4Root t.2.2
+  else mlD4Root t.2.1
+
+/-- Unoriented self-dual area bivector of triangle `t = (i, j, k)`. -/
 def plebTriBivP (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  let u := plebD4Root t.1
-  let v := plebD4Root t.2.1
-  let w := plebD4Root t.2.2
-  let w2 (μ ν : Fin 4) : ℤ := (v μ - u μ) * (w ν - u ν) - (v ν - u ν) * (w μ - u μ)
-  ![w2 0 1 + w2 2 3, w2 0 2 - w2 1 3, w2 0 3 + w2 1 2]
+  plebPairBivP (fun μ => mlD4Root t.2.1 μ - mlD4Root t.1 μ)
+    (fun μ => mlD4Root t.2.2 μ - mlD4Root t.1 μ)
 
-/-- Unoriented integer-scaled (`4×`) anti-self-dual area bivector `4 Σ_t^- ∈ ℤ^3` of triangle `t`. -/
+/-- Unoriented anti-self-dual area bivector of triangle `t = (i, j, k)`. -/
 def plebTriBivM (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  let u := plebD4Root t.1
-  let v := plebD4Root t.2.1
-  let w := plebD4Root t.2.2
-  let w2 (μ ν : Fin 4) : ℤ := (v μ - u μ) * (w ν - u ν) - (v ν - u ν) * (w μ - u μ)
-  ![w2 0 1 - w2 2 3, w2 0 2 + w2 1 3, w2 0 3 - w2 1 2]
+  plebPairBivM (fun μ => mlD4Root t.2.1 μ - mlD4Root t.1 μ)
+    (fun μ => mlD4Root t.2.2 μ - mlD4Root t.1 μ)
 
-/-- Outward orientation sign `σ(c; u, v, w) = sign(det(n_c, u, v, w)) ∈ {+1, -1}` of triangle `t`
-    as a boundary 2-face of octahedral facet `c`. -/
-def plebFacetOrient (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : ℤ :=
-  if 0 < plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2) then 1 else -1
-
-/-- Outward integer-scaled (`4×`) self-dual Plebanski bivector `4 B_{c,t}^+ = 4 (*Σ_{c,t})^+ ∈ ℤ^3`. -/
+/-- Outward-oriented self-dual area bivector `B_{c,t}^+` of triangle `t` on octahedral facet `c`. -/
 def plebBivP (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  fun I => plebFacetOrient c t * plebTriBivP t I
+  plebPairBivP (fun μ => plebSimplexV1 c t μ - mlD4Root t.1 μ)
+    (fun μ => plebSimplexV2 c t μ - mlD4Root t.1 μ)
 
-/-- Outward integer-scaled (`4×`) anti-self-dual Plebanski bivector `4 B_{c,t}^- = 4 (*Σ_{c,t})^- ∈ ℤ^3`. -/
+/-- Outward-oriented anti-self-dual area bivector `B_{c,t}^-` of triangle `t` on octahedral facet `c`. -/
 def plebBivM (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  fun I => -(plebFacetOrient c t * plebTriBivM t I)
+  plebPairBivM (fun μ => plebSimplexV1 c t μ - mlD4Root t.1 μ)
+    (fun μ => plebSimplexV2 c t μ - mlD4Root t.1 μ)
 
-/-- Outward integer-scaled (`4×`) self-dual area 2-form integral `4 ∫_t b^+ = 4 B_{c,t}^+`. -/
-def plebSigP (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  plebBivP c t
+/-- The 6 origin-incident self-dual triangle bivectors of any 4-simplex `(0, e0, e1, e2, e3)`:
+    `[e0∧e1, e0∧e2, e0∧e3, e1∧e2, e1∧e3, e2∧e3]`. -/
+def plebSimplex6P (e0 e1 e2 e3 : Fin 4 → ℤ) (k : Fin 6) : Fin 3 → ℤ :=
+  match k.val with
+  | 0 => plebPairBivP e0 e1
+  | 1 => plebPairBivP e0 e2
+  | 2 => plebPairBivP e0 e3
+  | 3 => plebPairBivP e1 e2
+  | 4 => plebPairBivP e1 e3
+  | _ => plebPairBivP e2 e3
 
-/-- Outward integer-scaled (`4×`) anti-self-dual area 2-form integral `4 ∫_t b^- = -4 B_{c,t}^-`. -/
-def plebSigM (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  fun I => -(plebBivM c t I)
+/-- The 6 origin-incident anti-self-dual triangle bivectors of any 4-simplex `(0, e0, e1, e2, e3)`. -/
+def plebSimplex6M (e0 e1 e2 e3 : Fin 4 → ℤ) (k : Fin 6) : Fin 3 → ℤ :=
+  match k.val with
+  | 0 => plebPairBivM e0 e1
+  | 1 => plebPairBivM e0 e2
+  | 2 => plebPairBivM e0 e3
+  | 3 => plebPairBivM e1 e2
+  | 4 => plebPairBivM e1 e3
+  | _ => plebPairBivM e2 e3
 
-/-- Exact integer-scaled (`scale = 48 = 3 · 16`) integrated 4-cell self-dual Plebanski tensor
-    `P^{+,IJ} = 48 ∫_{24-cell} b^{+,I} ∧ b^{+,J} = ∑_c ∑_{t ∈ c} (4 B_{c,t}^{+,I}) (4 ∫_t b^{+,J})`. -/
+/-- True exterior opposite-face wedge pairing `(f_0 ⊙ g_5 - f_1 ⊙ g_4 + f_2 ⊙ g_3)_{IJ}` of two
+    6-face bivector tuples on a 4-simplex. -/
+def plebWedgePair (f g : Fin 6 → Fin 3 → ℤ) (I J : Fin 3) : ℤ :=
+  (f 0 I * g 5 J + f 5 I * g 0 J) -
+  (f 1 I * g 4 J + f 4 I * g 1 J) +
+  (f 2 I * g 3 J + f 3 I * g 2 J)
+
+/-- Per-simplex self-dual Plebanski 6-face wedge pairing on the positively oriented 4-simplex
+    `(0, n_c, u, vv, ww)` (scaled by `192 = 2 · 96` relative to unit-center `c_4 = n_c / 2`). -/
+def plebSimplexPP (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) (I J : Fin 3) : ℤ :=
+  let sP := plebSimplex6P (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
+  plebWedgePair sP sP I J
+
+/-- Per-simplex anti-self-dual Plebanski 6-face wedge pairing on `(0, n_c, u, vv, ww)`. -/
+def plebSimplexMM (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) (I J : Fin 3) : ℤ :=
+  let sM := plebSimplex6M (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
+  plebWedgePair sM sM I J
+
+/-- Per-simplex mixed self-dual / anti-self-dual Plebanski 6-face wedge pairing on
+    `(0, n_c, u, vv, ww)` (vanishes identically on every simplex, even under anisotropic stretch). -/
+def plebSimplexPM (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) (I J : Fin 3) : ℤ :=
+  let sP := plebSimplex6P (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
+  let sM := plebSimplex6M (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
+  plebWedgePair sP sM I J
+
+/-- True 192-simplex integrated 4-cell self-dual Plebanski tensor (`scale = 192`):
+    `plebTensorPP = +4 · 192 · I_3 = +768 I_3`. -/
 def plebTensorPP : Matrix (Fin 3) (Fin 3) ℤ :=
-  Matrix.of fun I J =>
-    ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebBivP c t I * plebSigP c t J
+  Matrix.of fun I J => ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebSimplexPP c t I J
 
-/-- Exact integer-scaled (`scale = 48`) integrated 4-cell anti-self-dual Plebanski tensor
-    `P^{-,IJ} = 48 ∫_{24-cell} b^{-,I} ∧ b^{-,J} = ∑_c ∑_{t ∈ c} (4 B_{c,t}^{-,I}) (4 ∫_t b^{-,J})`. -/
+/-- True 192-simplex integrated 4-cell anti-self-dual Plebanski tensor (`scale = 192`):
+    `plebTensorMM = -4 · 192 · I_3 = -768 I_3`. -/
 def plebTensorMM : Matrix (Fin 3) (Fin 3) ℤ :=
-  Matrix.of fun I J =>
-    ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebBivM c t I * plebSigM c t J
+  Matrix.of fun I J => ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebSimplexMM c t I J
 
-/-- Exact integer-scaled (`scale = 48`) integrated 4-cell mixed Plebanski tensor
-    `P^{+-,IJ} = 48 ∫_{24-cell} b^{+,I} ∧ b^{-,J} = ∑_c ∑_{t ∈ c} (4 B_{c,t}^{+,I}) (4 ∫_t b^{-,J})`. -/
+/-- True 192-simplex integrated 4-cell mixed Plebanski tensor (`scale = 192`):
+    `plebTensorPM = 0`. -/
 def plebTensorPM : Matrix (Fin 3) (Fin 3) ℤ :=
-  Matrix.of fun I J =>
-    ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebBivP c t I * plebSigM c t J
+  Matrix.of fun I J => ∑ c : Fin 24, ∑ t ∈ plebFacetTris c, plebSimplexPM c t I J
 
-/-- Unconstrained BF negative control: scales `B^{+,0}` by `5/4` (exact integer `5` vs `4`),
-    preserving Gauss closure across all `24` facets while breaking diagonal simplicity. -/
+/-- Unconstrained BF `5:4` deformation scaling `B^{+,0}` by `5` and `B^{+,1}, B^{+,2}` by `4`
+    (equivalent to scaling `B^{+,0}` by `5/4`). -/
+def plebDeformP (v : Fin 3 → ℤ) : Fin 3 → ℤ :=
+  fun I => if I = 0 then 5 * v 0 else 4 * v I
+
+/-- Deformed self-dual triangle bivector for the unconstrained BF negative control. -/
 def plebBivPDef (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
-  fun I => if I = 0 then 5 * plebBivP c t 0 else 4 * plebBivP c t I
+  plebDeformP (plebBivP c t)
 
-/-- Matching `4×`-scaled anti-self-dual bivector for the unconstrained BF negative control. -/
+/-- Matching `4×`-scaled anti-self-dual triangle bivector for the unconstrained BF negative control. -/
 def plebBivMDef (c : Fin 24) (t : Fin 24 × Fin 24 × Fin 24) : Fin 3 → ℤ :=
   fun I => 4 * plebBivM c t I
+
+/-- Deformed 192-simplex integrated self-dual Plebanski tensor under the `5:4` unconstrained BF
+    deformation, demonstrating strict breakdown of traceless Plebanski symmetry (`P^+ ∦ I_3`). -/
+def plebTensorPPDef : Matrix (Fin 3) (Fin 3) ℤ :=
+  Matrix.of fun I J =>
+    ∑ c : Fin 24, ∑ t ∈ plebFacetTris c,
+      let sP := plebSimplex6P (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
+      plebWedgePair (fun k => plebDeformP (sP k)) (fun k => plebDeformP (sP k)) I J
+
+/-- Universal algebraic Plebanski 6-face exterior wedge identity for ANY 4-simplex
+    `(0, e0, e1, e2, e3)` in `ℤ^4` (including arbitrary anisotropic flat stretches
+    `x ↦ (λ_0 x^0, λ_1 x^1, λ_2 x^2, λ_3 x^3)`):
+    - `P^{+,IJ} = +2 det(e0, e1, e2, e3) δ^{IJ}`,
+    - `P^{-,IJ} = -2 det(e0, e1, e2, e3) δ^{IJ}`,
+    - `P^{+-,IJ} = 0` identically. -/
+theorem pleb_simplex_wedge_identities (e0 e1 e2 e3 : Fin 4 → ℤ) (I J : Fin 3) :
+    plebWedgePair (plebSimplex6P e0 e1 e2 e3) (plebSimplex6P e0 e1 e2 e3) I J =
+      (if I = J then 2 * plebDet4 e0 e1 e2 e3 else 0) ∧
+    plebWedgePair (plebSimplex6M e0 e1 e2 e3) (plebSimplex6M e0 e1 e2 e3) I J =
+      (if I = J then -(2 * plebDet4 e0 e1 e2 e3) else 0) ∧
+    plebWedgePair (plebSimplex6P e0 e1 e2 e3) (plebSimplex6M e0 e1 e2 e3) I J = 0 := by
+  have hP0 : plebSimplex6P e0 e1 e2 e3 0 = plebPairBivP e0 e1 := rfl
+  have hP1 : plebSimplex6P e0 e1 e2 e3 1 = plebPairBivP e0 e2 := rfl
+  have hP2 : plebSimplex6P e0 e1 e2 e3 2 = plebPairBivP e0 e3 := rfl
+  have hP3 : plebSimplex6P e0 e1 e2 e3 3 = plebPairBivP e1 e2 := rfl
+  have hP4 : plebSimplex6P e0 e1 e2 e3 4 = plebPairBivP e1 e3 := rfl
+  have hP5 : plebSimplex6P e0 e1 e2 e3 5 = plebPairBivP e2 e3 := rfl
+  have hM0 : plebSimplex6M e0 e1 e2 e3 0 = plebPairBivM e0 e1 := rfl
+  have hM1 : plebSimplex6M e0 e1 e2 e3 1 = plebPairBivM e0 e2 := rfl
+  have hM2 : plebSimplex6M e0 e1 e2 e3 2 = plebPairBivM e0 e3 := rfl
+  have hM3 : plebSimplex6M e0 e1 e2 e3 3 = plebPairBivM e1 e2 := rfl
+  have hM4 : plebSimplex6M e0 e1 e2 e3 4 = plebPairBivM e1 e3 := rfl
+  have hM5 : plebSimplex6M e0 e1 e2 e3 5 = plebPairBivM e2 e3 := rfl
+  simp only [plebWedgePair, hP0, hP1, hP2, hP3, hP4, hP5, hM0, hM1, hM2, hM3, hM4, hM5]
+  fin_cases I <;> fin_cases J <;>
+    dsimp only [plebPairBivP, plebPairBivM, plebDet4] <;>
+    refine ⟨?_, ?_, by ring⟩ <;>
+    (first | rw [if_pos rfl] | rw [if_neg (by decide)]) <;>
+    ring
 
 private theorem pleb_mem_triListFrom {vs : List (Fin 24)} {p : Fin 24 × Fin 24 × Fin 24} :
     p ∈ plebTriListFrom vs ↔
       p.1 ∈ vs ∧ p.2.1 ∈ vs ∧ p.2.2 ∈ vs ∧
       p.1 < p.2.1 ∧ p.2.1 < p.2.2 ∧
-      plebDot4 (plebD4Root p.1) (plebD4Root p.2.1) = 1 ∧
-      plebDot4 (plebD4Root p.1) (plebD4Root p.2.2) = 1 ∧
-      plebDot4 (plebD4Root p.2.1) (plebD4Root p.2.2) = 1 := by
+      mlDot4 (mlD4Root p.1) (mlD4Root p.2.1) = 1 ∧
+      mlDot4 (mlD4Root p.1) (mlD4Root p.2.2) = 1 ∧
+      mlDot4 (mlD4Root p.2.1) (mlD4Root p.2.2) = 1 := by
   rcases p with ⟨i, j, k⟩
   simp only [plebTriListFrom, List.mem_flatMap, List.mem_filter, List.mem_map, decide_eq_true_eq]
   constructor
@@ -494,27 +571,33 @@ private theorem pleb_nodup_triListFrom {vs : List (Fin 24)} (hvs : vs.Nodup) :
     injection hEq with hI _
     exact hne hI.symm
 
-/-- Headline 3: Exact 24-Cell Plebanski BF Geometry Theorem.
-    Proves all six exact discrete-gravity invariants over `ℤ` with zero floating-point error:
+/-- Headline 3: Exact 24-Cell Plebanski BF Geometry & True 192-Simplex Wedge-Pairing Theorem.
+    Proves all six exact discrete-gravity invariants over `ℤ` using `mlD4Root` / `mlDot4`:
     (1) Exact `f`-vector (`96` equilateral triangles matching the full `D_4` root predicate,
         `24` octahedral facets with `6` vertices and `8` triangles each, `672` intra-facet pairs),
-    (2) Exact diagonal simplicity (`96/96` triangles and `192/192` oriented facet-triangles:
+    (2) Exact diagonal simplicity (`96/96` triangles & `192/192` oriented facet-triangles:
         `‖B^+‖^2 = ‖B^-‖^2 > 0`),
     (3) Exact cross-simplicity (`24 × C(8, 2) = 672` unordered / `1536` ordered intra-facet pairs:
         `B_f^+ · B_{f'}^+ = B_f^- · B_{f'}^-`),
     (4) Exact octahedral Gauss closure (`24/24` facets: `∑ B^+ = 0` and `∑ B^- = 0`),
-    (5) Exact integrated 4-cell Plebanski constraint (`P^{+,IJ} = +4·48 δ^{IJ}`,
-        `P^{-,IJ} = -4·48 δ^{IJ}`, `P^{+-,IJ} = 0`) and exact 4-volume `V_24 = 8` (both from
-        `Tr(P^+) - Tr(P^-)` and from the 192 radial 4-simplices `(0, C_c, u, v, w)`),
-    (6) Unconstrained BF negative control (`5:4` scaling of `B^{+,0}`): preserves exact Gauss
-        closure on all `24` facets while strictly breaking diagonal simplicity. -/
+    (5) True oriented 192-simplex 6-face exterior opposite-face Plebanski wedge pairing:
+        - Per-simplex exactness on ALL 192 simplices (`plebSimplexPP = +4 δ^{IJ}`,
+          `plebSimplexMM = -4 δ^{IJ}`, `plebSimplexPM = 0` identically on every simplex),
+        - Integrated 24-cell Plebanski tensors (`plebTensorPP = +4·192 δ^{IJ} = +768 δ^{IJ}`,
+          `plebTensorMM = -4·192 δ^{IJ} = -768 δ^{IJ}`, `plebTensorPM = 0`),
+        - Exact 4-volume `V_24 = 8` from `Tr(P^+) - Tr(P^-) = 8 · (3 · 192)` and from the 192
+          oriented radial 4-simplex determinants `∑ det = 8 · 48`,
+    (6) Unconstrained BF negative control (`5:4` deformation): preserves exact Gauss closure on
+        all `24` facets while strictly breaking BOTH diagonal simplicity AND traceless Plebanski
+        symmetry (`3 * plebTensorPPDef 0 0 ≠ ∑ I, plebTensorPPDef I I` and
+        `plebTensorPPDef 0 0 ≠ plebTensorPPDef 1 1`). -/
 theorem thm_plebanski_24cell_simplicity_and_closure :
     (plebD4Tris.card = 96 ∧
       (∀ p : Fin 24 × Fin 24 × Fin 24, p ∈ plebD4Tris ↔
         p.1 < p.2.1 ∧ p.2.1 < p.2.2 ∧
-        plebDot4 (plebD4Root p.1) (plebD4Root p.2.1) = 1 ∧
-        plebDot4 (plebD4Root p.1) (plebD4Root p.2.2) = 1 ∧
-        plebDot4 (plebD4Root p.2.1) (plebD4Root p.2.2) = 1) ∧
+        mlDot4 (mlD4Root p.1) (mlD4Root p.2.1) = 1 ∧
+        mlDot4 (mlD4Root p.1) (mlD4Root p.2.2) = 1 ∧
+        mlDot4 (mlD4Root p.2.1) (mlD4Root p.2.2) = 1) ∧
       (∀ c : Fin 24, (plebFacetVerts c).card = 6 ∧ (plebFacetTris c).card = 8) ∧
       (∀ c : Fin 24, ∀ t : Fin 24 × Fin 24 × Fin 24, t ∈ plebFacetTris c ↔
         t ∈ plebD4Tris ∧ t.1 ∈ plebFacetVerts c ∧ t.2.1 ∈ plebFacetVerts c ∧ t.2.2 ∈ plebFacetVerts c) ∧
@@ -530,18 +613,24 @@ theorem thm_plebanski_24cell_simplicity_and_closure :
     (∀ c : Fin 24, ∀ I : Fin 3,
       (∑ t ∈ plebFacetTris c, plebBivP c t I) = 0 ∧
       (∑ t ∈ plebFacetTris c, plebBivM c t I) = 0) ∧
-    ((∀ I J : Fin 3, plebTensorPP I J = if I = J then 4 * 48 else 0) ∧
-      (∀ I J : Fin 3, plebTensorMM I J = if I = J then -(4 * 48) else 0) ∧
+    ((∀ c : Fin 24, ∀ t ∈ plebFacetTris c, ∀ I J : Fin 3,
+        plebSimplexPP c t I J = (if I = J then 4 else 0) ∧
+        plebSimplexMM c t I J = (if I = J then -4 else 0) ∧
+        plebSimplexPM c t I J = 0) ∧
+      (∀ I J : Fin 3, plebTensorPP I J = if I = J then 4 * 192 else 0) ∧
+      (∀ I J : Fin 3, plebTensorMM I J = if I = J then -(4 * 192) else 0) ∧
       (∀ I J : Fin 3, plebTensorPM I J = 0) ∧
-      ((∑ I : Fin 3, plebTensorPP I I) - (∑ I : Fin 3, plebTensorMM I I) = 8 * (3 * 48)) ∧
+      ((∑ I : Fin 3, plebTensorPP I I) - (∑ I : Fin 3, plebTensorMM I I) = 8 * (3 * 192)) ∧
       ((∑ c : Fin 24, ∑ t ∈ plebFacetTris c,
-        |plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2)|) =
+        plebDet4 (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)) =
         8 * 48)) ∧
     ((∀ c : Fin 24, ∀ I : Fin 3,
         (∑ t ∈ plebFacetTris c, plebBivPDef c t I) = 0 ∧
         (∑ t ∈ plebFacetTris c, plebBivMDef c t I) = 0) ∧
       (∃ c : Fin 24, ∃ t ∈ plebFacetTris c,
-        plebDot3 (plebBivPDef c t) (plebBivPDef c t) ≠ plebDot3 (plebBivMDef c t) (plebBivMDef c t))) := by
+        plebDot3 (plebBivPDef c t) (plebBivPDef c t) ≠ plebDot3 (plebBivMDef c t) (plebBivMDef c t)) ∧
+      (plebTensorPPDef 0 0 ≠ plebTensorPPDef 1 1 ∧
+        3 * plebTensorPPDef 0 0 ≠ ∑ I : Fin 3, plebTensorPPDef I I)) := by
   have hNodupTris : plebTriList.Nodup := pleb_nodup_triListFrom (List.nodup_finRange 24)
   have hNodupVerts : ∀ c : Fin 24, (plebFacetVertList c).Nodup :=
     fun c => (List.nodup_finRange 24).filter _
@@ -552,9 +641,9 @@ theorem thm_plebanski_24cell_simplicity_and_closure :
     decide
   have hTriMem : ∀ p : Fin 24 × Fin 24 × Fin 24, p ∈ plebD4Tris ↔
       p.1 < p.2.1 ∧ p.2.1 < p.2.2 ∧
-      plebDot4 (plebD4Root p.1) (plebD4Root p.2.1) = 1 ∧
-      plebDot4 (plebD4Root p.1) (plebD4Root p.2.2) = 1 ∧
-      plebDot4 (plebD4Root p.2.1) (plebD4Root p.2.2) = 1 := by
+      mlDot4 (mlD4Root p.1) (mlD4Root p.2.1) = 1 ∧
+      mlDot4 (mlD4Root p.1) (mlD4Root p.2.2) = 1 ∧
+      mlDot4 (mlD4Root p.2.1) (mlD4Root p.2.2) = 1 := by
     intro p
     rw [plebD4Tris, List.mem_toFinset, plebTriList, pleb_mem_triListFrom]
     simp [List.mem_finRange]
@@ -624,64 +713,77 @@ theorem thm_plebanski_24cell_simplicity_and_closure :
     intro c I
     rw [plebFacetTris, List.sum_toFinset _ (hNodupFTris c), List.sum_toFinset _ (hNodupFTris c)]
     exact ⟨hCheckP c I, hCheckM c I⟩
-  have hPlebPP : ∀ I J : Fin 3, plebTensorPP I J = if I = J then 4 * 48 else 0 := by
-    have hCheck : ∀ I J : Fin 3,
-        (∑ c : Fin 24, ((plebFacetTriList c).map fun t => plebBivP c t I * plebSigP c t J).sum) =
-          if I = J then 4 * 48 else 0 := by
+  have hSimpDet2 : ∀ c : Fin 24, ∀ t ∈ plebFacetTris c,
+      plebDet4 (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t) = 2 := by
+    have hCheck : (List.finRange 24).all (fun c =>
+        (plebFacetTriList c).all (fun t =>
+          decide (plebDet4 (plebFacetNormal c) (mlD4Root t.1)
+            (plebSimplexV1 c t) (plebSimplexV2 c t) = 2))) = true := by
       decide
+    intro c t ht
+    rw [plebFacetTris, List.mem_toFinset] at ht
+    have hc := List.all_eq_true.mp hCheck c (List.mem_finRange c)
+    exact of_decide_eq_true (List.all_eq_true.mp hc t ht)
+  have hPerSimplex : ∀ c : Fin 24, ∀ t ∈ plebFacetTris c, ∀ I J : Fin 3,
+      plebSimplexPP c t I J = (if I = J then 4 else 0) ∧
+      plebSimplexMM c t I J = (if I = J then -4 else 0) ∧
+      plebSimplexPM c t I J = 0 := by
+    intro c t ht I J
+    have hDet := hSimpDet2 c t ht
+    have hId := pleb_simplex_wedge_identities (plebFacetNormal c) (mlD4Root t.1)
+      (plebSimplexV1 c t) (plebSimplexV2 c t) I J
+    rcases hId with ⟨hPP, hMM, hPM⟩
+    simp only [plebSimplexPP, plebSimplexMM, plebSimplexPM, hPP, hMM, hPM, hDet]
+    exact ⟨by split_ifs <;> norm_num, by split_ifs <;> norm_num, trivial⟩
+  have hPlebPP : ∀ I J : Fin 3, plebTensorPP I J = if I = J then 4 * 192 else 0 := by
     intro I J
-    simp only [plebTensorPP, Matrix.of_apply, plebFacetTris]
-    have hRw : ∀ c : Fin 24,
-        (∑ t ∈ (plebFacetTriList c).toFinset, plebBivP c t I * plebSigP c t J) =
-          ((plebFacetTriList c).map fun t => plebBivP c t I * plebSigP c t J).sum :=
-      fun c => List.sum_toFinset _ (hNodupFTris c)
-    simp only [hRw]
-    exact hCheck I J
-  have hPlebMM : ∀ I J : Fin 3, plebTensorMM I J = if I = J then -(4 * 48) else 0 := by
-    have hCheck : ∀ I J : Fin 3,
-        (∑ c : Fin 24, ((plebFacetTriList c).map fun t => plebBivM c t I * plebSigM c t J).sum) =
-          if I = J then -(4 * 48) else 0 := by
-      decide
+    simp only [plebTensorPP, Matrix.of_apply]
+    have hFacet : ∀ c : Fin 24,
+        (∑ t ∈ plebFacetTris c, plebSimplexPP c t I J) = if I = J then 32 else 0 := by
+      intro c
+      have hSum : (∑ t ∈ plebFacetTris c, plebSimplexPP c t I J) =
+          ∑ _t ∈ plebFacetTris c, (if I = J then (4 : ℤ) else 0) :=
+        Finset.sum_congr rfl fun t ht => (hPerSimplex c t ht I J).1
+      rw [hSum, Finset.sum_const, (hFacetCards c).2]
+      split_ifs <;> decide
+    simp only [hFacet, Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+    split_ifs <;> decide
+  have hPlebMM : ∀ I J : Fin 3, plebTensorMM I J = if I = J then -(4 * 192) else 0 := by
     intro I J
-    simp only [plebTensorMM, Matrix.of_apply, plebFacetTris]
-    have hRw : ∀ c : Fin 24,
-        (∑ t ∈ (plebFacetTriList c).toFinset, plebBivM c t I * plebSigM c t J) =
-          ((plebFacetTriList c).map fun t => plebBivM c t I * plebSigM c t J).sum :=
-      fun c => List.sum_toFinset _ (hNodupFTris c)
-    simp only [hRw]
-    exact hCheck I J
+    simp only [plebTensorMM, Matrix.of_apply]
+    have hFacet : ∀ c : Fin 24,
+        (∑ t ∈ plebFacetTris c, plebSimplexMM c t I J) = if I = J then -32 else 0 := by
+      intro c
+      have hSum : (∑ t ∈ plebFacetTris c, plebSimplexMM c t I J) =
+          ∑ _t ∈ plebFacetTris c, (if I = J then (-4 : ℤ) else 0) :=
+        Finset.sum_congr rfl fun t ht => (hPerSimplex c t ht I J).2.1
+      rw [hSum, Finset.sum_const, (hFacetCards c).2]
+      split_ifs <;> decide
+    simp only [hFacet, Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+    split_ifs <;> decide
   have hPlebPM : ∀ I J : Fin 3, plebTensorPM I J = 0 := by
-    have hCheck : ∀ I J : Fin 3,
-        (∑ c : Fin 24, ((plebFacetTriList c).map fun t => plebBivP c t I * plebSigM c t J).sum) = 0 := by
-      decide
     intro I J
-    simp only [plebTensorPM, Matrix.of_apply, plebFacetTris]
-    have hRw : ∀ c : Fin 24,
-        (∑ t ∈ (plebFacetTriList c).toFinset, plebBivP c t I * plebSigM c t J) =
-          ((plebFacetTriList c).map fun t => plebBivP c t I * plebSigM c t J).sum :=
-      fun c => List.sum_toFinset _ (hNodupFTris c)
-    simp only [hRw]
-    exact hCheck I J
-  have hVolTr : (∑ I : Fin 3, plebTensorPP I I) - (∑ I : Fin 3, plebTensorMM I I) = 8 * (3 * 48) := by
+    simp only [plebTensorPM, Matrix.of_apply]
+    have hFacet : ∀ c : Fin 24, (∑ t ∈ plebFacetTris c, plebSimplexPM c t I J) = 0 := by
+      intro c
+      exact Finset.sum_eq_zero fun t ht => (hPerSimplex c t ht I J).2.2
+    simp only [hFacet, Finset.sum_const_zero]
+  have hVolTr : (∑ I : Fin 3, plebTensorPP I I) - (∑ I : Fin 3, plebTensorMM I I) = 8 * (3 * 192) := by
     simp only [Fin.sum_univ_three, hPlebPP, hPlebMM, ↓reduceIte]
     norm_num
   have hVolDet :
       (∑ c : Fin 24, ∑ t ∈ plebFacetTris c,
-        |plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2)|) =
+        plebDet4 (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)) =
       8 * 48 := by
-    have hCheck :
-        (∑ c : Fin 24, ((plebFacetTriList c).map fun t =>
-          |plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2)|).sum) =
-        8 * 48 := by
-      decide
-    have hRw : ∀ c : Fin 24,
+    have hFacet : ∀ c : Fin 24,
         (∑ t ∈ plebFacetTris c,
-          |plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2)|) =
-        ((plebFacetTriList c).map fun t =>
-          |plebDet4 (plebFacetNormal c) (plebD4Root t.1) (plebD4Root t.2.1) (plebD4Root t.2.2)|).sum :=
-      fun c => List.sum_toFinset _ (hNodupFTris c)
-    simp only [hRw]
-    exact hCheck
+          plebDet4 (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)) = 16 := by
+      intro c
+      have hSum := Finset.sum_congr rfl fun t ht => hSimpDet2 c t ht
+      rw [hSum, Finset.sum_const, (hFacetCards c).2]
+      decide
+    simp only [hFacet, Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+    decide
   have hDefClosure : ∀ c : Fin 24, ∀ I : Fin 3,
       (∑ t ∈ plebFacetTris c, plebBivPDef c t I) = 0 ∧
       (∑ t ∈ plebFacetTris c, plebBivMDef c t I) = 0 := by
@@ -690,8 +792,8 @@ theorem thm_plebanski_24cell_simplicity_and_closure :
     constructor
     · by_cases hI : I = 0
       · subst hI
-        simp only [plebBivPDef, ↓reduceIte, ← Finset.mul_sum, hP, mul_zero]
-      · simp only [plebBivPDef, hI, ↓reduceIte, ← Finset.mul_sum, hP, mul_zero]
+        simp only [plebBivPDef, plebDeformP, ↓reduceIte, ← Finset.mul_sum, hP, mul_zero]
+      · simp only [plebBivPDef, plebDeformP, hI, ↓reduceIte, ← Finset.mul_sum, hP, mul_zero]
     · simp only [plebBivMDef, ← Finset.mul_sum, hM, mul_zero]
   have hDefBreak : ∃ c : Fin 24, ∃ t ∈ plebFacetTris c,
       plebDot3 (plebBivPDef c t) (plebBivPDef c t) ≠ plebDot3 (plebBivMDef c t) (plebBivMDef c t) := by
@@ -699,12 +801,29 @@ theorem thm_plebanski_24cell_simplicity_and_closure :
     · rw [plebFacetTris, List.mem_toFinset]
       decide
     · decide
+  have hDefScaleDiag : ∀ I : Fin 3,
+      plebTensorPPDef I I = (if I = 0 then 25 else 16) * plebTensorPP I I := by
+    intro I
+    simp only [plebTensorPPDef, plebTensorPP, Matrix.of_apply, plebSimplexPP, plebWedgePair,
+      plebDeformP]
+    by_cases hI : I = 0
+    · subst hI
+      simp only [↓reduceIte, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun c _ => Finset.sum_congr rfl fun t _ => ?_
+      ring
+    · simp only [hI, ↓reduceIte, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun c _ => Finset.sum_congr rfl fun t _ => ?_
+      ring
+  have hDefTraceless : plebTensorPPDef 0 0 ≠ plebTensorPPDef 1 1 ∧
+      3 * plebTensorPPDef 0 0 ≠ ∑ I : Fin 3, plebTensorPPDef I I := by
+    simp only [Fin.sum_univ_three, hDefScaleDiag, hPlebPP, ↓reduceIte, Fin.reduceEq]
+    norm_num
   exact ⟨⟨hTriCard, hTriMem, hFacetCards, hFacetMem, hPairs672⟩,
     ⟨hDiagAll, hDiagFacet⟩, hCross, hClosure,
-    ⟨hPlebPP, hPlebMM, hPlebPM, hVolTr, hVolDet⟩,
-    ⟨hDefClosure, hDefBreak⟩⟩
+    ⟨hPerSimplex, hPlebPP, hPlebMM, hPlebPM, hVolTr, hVolDet⟩,
+    ⟨hDefClosure, hDefBreak, hDefTraceless⟩⟩
 
-/-! ### 4. Exact Real-Calculus NEC Monotonicity & Causal Velocity Bound -/
+/-! ### 4. Exact Real-Calculus NEC Monotonicity & Causal Entanglement Velocity Bound -/
 
 /-- Near-horizon blackening function `f(z) = 1 - z^2 + a₀ z^2 log z + a₁ (z^3 - z^2)`. -/
 noncomputable def necMetricF (a₀ a₁ z : ℝ) : ℝ :=
@@ -727,8 +846,10 @@ noncomputable def necMetricFpp (a₀ a₁ z : ℝ) : ℝ :=
     (4) Exact NEC identity `z f''(z) - f'(z) = 2 a₀ z + 3 a₁ z^2` and NEC nonnegativity under
         `a₀ ≥ 0, a₁ ≥ 0`,
     (5) Monotonicity of `q(z) = f'(z) / z` on `(0, ∞)` under `a₀ ≥ 0, a₁ ≥ 0`,
-    (6) Horizon values `f(1) = 0`, `f'(1) = -2 + a₀ + a₁`, and exact causal entanglement
-        velocity bound `f(z) ≤ 1 - z^2` for all `z ∈ (0, 1]` under `a₀ ≥ 0, a₁ ≥ 0`. -/
+    (6) Horizon values `f(1) = 0`, `f'(1) = -2 + a₀ + a₁`, and exterior sub-BTZ blackening bound
+        `f(z) ≤ 1 - z^2` for all `z ∈ (0, 1]` under `a₀ ≥ 0, a₁ ≥ 0`,
+    (7) Interior `z ≥ 1` Hartman-Maldacena causal entanglement velocity bound:
+        `1 - z^2 ≤ f(z)` and `v_E^2(z) = -f(z) / z^2 ≤ 1 - 1 / z^2 < 1`. -/
 theorem thm_nec_monotone_velocity_bound (a₀ a₁ : ℝ) :
     (∀ z : ℝ, 0 < z → HasDerivAt (necMetricF a₀ a₁) (necMetricFp a₀ a₁ z) z) ∧
     (∀ z : ℝ, 0 < z → HasDerivAt (necMetricFp a₀ a₁) (necMetricFpp a₀ a₁ z) z) ∧
@@ -744,7 +865,11 @@ theorem thm_nec_monotone_velocity_bound (a₀ a₁ : ℝ) :
     (necMetricF a₀ a₁ 1 = 0 ∧
       necMetricFp a₀ a₁ 1 = -2 + a₀ + a₁ ∧
       (0 ≤ a₀ → 0 ≤ a₁ → ∀ z : ℝ, 0 < z → z ≤ 1 →
-        necMetricF a₀ a₁ z ≤ 1 - z ^ 2)) := by
+        necMetricF a₀ a₁ z ≤ 1 - z ^ 2)) ∧
+    (0 ≤ a₀ → 0 ≤ a₁ → ∀ z : ℝ, 1 ≤ z →
+      1 - z ^ 2 ≤ necMetricF a₀ a₁ z ∧
+      -necMetricF a₀ a₁ z / z ^ 2 ≤ 1 - 1 / z ^ 2 ∧
+      -necMetricF a₀ a₁ z / z ^ 2 < 1) := by
   have hDerivF : ∀ z : ℝ, 0 < z → HasDerivAt (necMetricF a₀ a₁) (necMetricFp a₀ a₁ z) z := by
     intro z hz
     have hzNe : z ≠ 0 := ne_of_gt hz
@@ -814,7 +939,7 @@ theorem thm_nec_monotone_velocity_bound (a₀ a₁ : ℝ) :
     have hLogLe : Real.log z₁ ≤ Real.log z₂ := Real.log_le_log hz₁ hle
     rw [hq₁, hq₂]
     nlinarith
-  refine ⟨hDerivF, hDerivFp, hDerivQ, hNecEq, hNecNonneg, hMonoQ, ?_, ?_, ?_⟩
+  refine ⟨hDerivF, hDerivFp, hDerivQ, hNecEq, hNecNonneg, hMonoQ, ⟨?_, ?_, ?_⟩, ?_⟩
   · simp [necMetricF, Real.log_one]
   · simp [necMetricFp, Real.log_one]
     ring
@@ -829,6 +954,27 @@ theorem thm_nec_monotone_velocity_bound (a₀ a₁ : ℝ) :
     have hTerm1 : a₁ * (z ^ 3 - z ^ 2) ≤ 0 := mul_nonpos_of_nonneg_of_nonpos ha₁ hCubeLe
     simp only [necMetricF]
     linarith
+  · intro ha₀ ha₁ z hz1
+    have hz0 : 0 < z := by linarith
+    have hzNe : z ≠ 0 := ne_of_gt hz0
+    have hLogNonneg : 0 ≤ Real.log z := Real.log_nonneg hz1
+    have hTerm0 : 0 ≤ a₀ * z ^ 2 * Real.log z := mul_nonneg (by positivity) hLogNonneg
+    have hCubeGe : 0 ≤ z ^ 3 - z ^ 2 := by
+      have hFact : z ^ 3 - z ^ 2 = z ^ 2 * (z - 1) := by ring
+      rw [hFact]
+      exact mul_nonneg (sq_nonneg z) (by linarith)
+    have hTerm1 : 0 ≤ a₁ * (z ^ 3 - z ^ 2) := mul_nonneg ha₁ hCubeGe
+    have hFge : 1 - z ^ 2 ≤ necMetricF a₀ a₁ z := by
+      simp only [necMetricF]
+      linarith
+    have hDivLe : -necMetricF a₀ a₁ z / z ^ 2 ≤ 1 - 1 / z ^ 2 := by
+      have h1 : -necMetricF a₀ a₁ z / z ^ 2 ≤ (z ^ 2 - 1) / z ^ 2 :=
+        div_le_div_of_nonneg_right (by linarith) (sq_nonneg z)
+      have h2 : (z ^ 2 - 1) / z ^ 2 = 1 - 1 / z ^ 2 := by
+        field_simp [hzNe]
+      linarith
+    have hInvPos : 0 < 1 / z ^ 2 := by positivity
+    exact ⟨hFge, hDivLe, by linarith⟩
 
 end Vibe
 
