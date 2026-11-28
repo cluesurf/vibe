@@ -686,8 +686,8 @@ export function flatQuotient(input: {
 
   const neighbors: number[][] = []
 
-  for (let head = 0; head < cells.length; head++) {
-    const [type, v] = cells[head]!
+  // for-of over an array visits the cells pushed during the loop, so this is a breadth-first walk
+  for (const [type, v] of cells) {
     const row: number[] = []
 
     for (const [t, w] of tiling.step(type, v)) {

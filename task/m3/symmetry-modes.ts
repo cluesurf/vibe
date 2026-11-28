@@ -815,9 +815,9 @@ function readingJson(g: GraphReading): unknown {
   })
 }
 
-// the orbit counter on known graphs: the 7-cycle (Stab(0) is one reflection: 4 orbits), Petersen (vertex stabilizer
-// S3 x 2, orbits by distance 1, 1, 3, 6... read as 3 classes at distance 0, 1, 2), and the rigid spider with legs 1, 2,
-// 3 (7 orbits); negative: the cycle does not read the rigid count
+// the orbit counter on known graphs: the 7-cycle (Stab(0) is one reflection: 4 orbits), Petersen (distance-transitive,
+// so the orbits of Stab(0) are its distance classes 0, 1, 2: 3 orbits), and the rigid spider with legs 1, 2, 3 (7
+// orbits); negative: the cycle does not read the rigid count
 {
   const cycle = Array.from({ length: 7 }, (_, i) => [(i + 1) % 7, (i + 6) % 7])
   const petersen = Array.from({ length: 10 }, (_, i) =>
