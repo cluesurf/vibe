@@ -27,6 +27,7 @@ import Vibe.DynamicalHolography
 import Vibe.UniversalityObstructions
 import Vibe.StandardModelCore
 import Vibe.StandardModelMathlib
+import Vibe.LogicEmergence
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
