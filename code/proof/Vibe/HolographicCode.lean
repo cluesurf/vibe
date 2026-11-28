@@ -1,9 +1,14 @@
-import Vibe.Chirality
+module
+
+public import Vibe.Chirality
+import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Tactic.Ring
 
 /-!
 # Vibe Theory: Full-`W(F_4)`-Covariant `GF(3)` Holographic Stabilizer Codes (`[[24, 1, 8]]_3` & `[[24, 0, 6]]_3`)
 
-Zero-dependency Lean 4.35.0 formalization of Wave-2 Track W2's Open Challenge 4 breakthrough
+Lean `4.35.0` + Mathlib `v4.35.0` formalization of Wave-2 Track W2's Open Challenge 4 breakthrough
 (`test/verify/covariant-gf3-holographic-tensors.ts`, `note/project/vibe/research/wave2/02-covariant-gf3-holographic-tensors.md`):
 
 1. **Exact `W(F_4)` Alignment & `S_3`-Triality Local-Clifford Homomorphism:**
@@ -41,39 +46,20 @@ Zero-dependency Lean 4.35.0 formalization of Wave-2 Track W2's Open Challenge 4 
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
-/-! ## Section 1: Pure `Nat` Mod-3 & `Fin n` Summation Infrastructure -/
-
-private theorem hc_ite_pos {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : c) :
-    (if c then a else b) = a := by
-  cases d with | isTrue _ => rfl | isFalse hn => exact absurd h hn
-
-private theorem hc_ite_neg {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : ¬ c) :
-    (if c then a else b) = b := by
-  cases d with | isTrue hp => exact absurd hp h | isFalse _ => rfl
-
-private theorem hc_dite_pos {c : Prop} [d : Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : c) :
-    dite c t e = t h := by
-  cases d with | isTrue _ => rfl | isFalse hn => exact absurd h hn
-
-private theorem hc_dite_neg {c : Prop} [d : Decidable c] {α : Type} {t : c → α} {e : ¬ c → α} (h : ¬ c) :
-    dite c t e = e h := by
-  cases d with | isTrue hp => exact absurd hp h | isFalse _ => rfl
+/-! ## Section 1: Pure `Nat` Mod-3 & `Fin n` Summation Infrastructure (Bridged to `Finset.sum`) -/
 
 private theorem hc_add_mod3_congr {a b c d : Nat} (h1 : a % 3 = c % 3) (h2 : b % 3 = d % 3) :
     (a + b) % 3 = (c + d) % 3 := by omega
 
 private theorem hc_mul_mod3_left (a b : Nat) : ((a % 3) * b) % 3 = (a * b) % 3 := by
-  have h : a = 3 * (a / 3) + a % 3 := by omega
-  have hmul : a * b = 3 * ((a / 3) * b) + (a % 3) * b := by
-    calc a * b = (3 * (a / 3) + a % 3) * b := congrArg (fun x => x * b) h
-      _ = (3 * (a / 3)) * b + (a % 3) * b := Nat.add_mul (3 * (a / 3)) (a % 3) b
-      _ = 3 * ((a / 3) * b) + (a % 3) * b := by rw [Nat.mul_assoc]
-  rw [hmul]; omega
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem hc_mul_mod3_right (a b : Nat) : (a * (b % 3)) % 3 = (a * b) % 3 := by
-  rw [Nat.mul_comm a (b % 3), hc_mul_mod3_left b a, Nat.mul_comm b a]
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem hc_mul_mod3_congr {a b c d : Nat} (h1 : a % 3 = c % 3) (h2 : b % 3 = d % 3) :
     (a * b) % 3 = (c * d) % 3 := by
@@ -89,56 +75,24 @@ def hcSumFinAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) : Nat :=
 
 def hcSumFin {n : Nat} (f : Fin n → Nat) : Nat := hcSumFinAux n (Nat.le_refl n) f
 
-private theorem hc_sumFinAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    hcSumFinAux k hk (fun _ : Fin n => 0) = 0 := by
-  induction k with | zero => rfl | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]
-
-private theorem hc_sumFinAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat) :
-    hcSumFinAux k hk (fun i => f i + g i) = hcSumFinAux k hk f + hcSumFinAux k hk g := by
-  induction k with | zero => rfl | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]; omega
-
-private theorem hc_sumFinAux_mul_left {n : Nat} (k : Nat) (hk : k ≤ n) (c : Nat) (f : Fin n → Nat) :
-    hcSumFinAux k hk (fun i => c * f i) = c * hcSumFinAux k hk f := by
+private theorem hcSumFinAux_eq_sum_range {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) :
+    hcSumFinAux k hk f = ∑ i ∈ Finset.range k, if h : i < n then f ⟨i, h⟩ else 0 := by
   induction k with
-  | zero => simp only [hcSumFinAux, Nat.mul_zero]
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.mul_add]
+  | zero => simp [hcSumFinAux]
+  | succ m ih =>
+    have hm : m < n := hk
+    simp only [hcSumFinAux, Finset.sum_range_succ, ih (Nat.le_of_succ_le hk), dite_eq_left hm]
 
-private theorem hc_sumFinAux_mul_right {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) (c : Nat) :
-    hcSumFinAux k hk (fun i => f i * c) = hcSumFinAux k hk f * c := by
-  induction k with
-  | zero => simp only [hcSumFinAux, Nat.zero_mul]
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.add_mul]
+private theorem hcSumFin_eq_sum {n : Nat} (f : Fin n → Nat) :
+    hcSumFin f = ∑ i : Fin n, f i := by
+  unfold hcSumFin
+  rw [hcSumFinAux_eq_sum_range n (Nat.le_refl n) f, Finset.sum_fin_eq_sum_range]
 
 private theorem hc_sumFinAux_mod3_congr {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat)
     (h : ∀ i : Fin n, f i % 3 = g i % 3) : hcSumFinAux k hk f % 3 = hcSumFinAux k hk g % 3 := by
   induction k with
   | zero => rfl
   | succ m ih => simp only [hcSumFinAux]; exact hc_add_mod3_congr (ih (Nat.le_of_succ_le hk)) (h ⟨m, hk⟩)
-
-private theorem hc_sumFinAux_swap {n m : Nat} (kn : Nat) (hkn : kn ≤ n) (km : Nat) (hkm : km ≤ m)
-    (F : Fin n → Fin m → Nat) :
-    hcSumFinAux kn hkn (fun i => hcSumFinAux km hkm (fun j => F i j)) =
-      hcSumFinAux km hkm (fun j => hcSumFinAux kn hkn (fun i => F i j)) := by
-  induction kn with
-  | zero => simp only [hcSumFinAux]; exact (hc_sumFinAux_zero km hkm).symm
-  | succ _ ih => simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hkn), ← hc_sumFinAux_add km hkm]
-
-private theorem hc_sumFinAux_zero_except {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat)
-    (j : Fin n) (h : ∀ i : Fin n, i ≠ j → f i = 0) :
-    hcSumFinAux k hk f = if j.val < k then f j else 0 := by
-  induction k with
-  | zero => simp only [hcSumFinAux]; exact (hc_ite_neg (by omega)).symm
-  | succ m ih =>
-    simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]
-    if hlt : j.val < m then
-      have hne : (⟨m, hk⟩ : Fin n) ≠ j := by intro hEq; have hVal : m = j.val := congrArg Fin.val hEq; omega
-      rw [hc_ite_pos hlt, hc_ite_pos (by omega : j.val < m + 1), h ⟨m, hk⟩ hne, Nat.add_zero]
-    else if heq : j.val = m then
-      have hfeq : (⟨m, hk⟩ : Fin n) = j := Fin.ext heq.symm
-      rw [hc_ite_neg hlt, hc_ite_pos (by omega : j.val < m + 1), hfeq, Nat.zero_add]
-    else
-      have hne : (⟨m, hk⟩ : Fin n) ≠ j := by intro hEq; have hVal : m = j.val := congrArg Fin.val hEq; omega
-      rw [hc_ite_neg hlt, hc_ite_neg (by omega : ¬ (j.val < m + 1)), h ⟨m, hk⟩ hne, Nat.add_zero]
 
 private theorem hc_sumFinAux_shift {n m : Nat} (off k : Nat) (hk : k ≤ m) (hnm : off + m ≤ n)
     (f : Fin n → Nat) :
@@ -154,23 +108,27 @@ private theorem hc_sumFinAux_shift {n m : Nat} (off k : Nat) (hk : k ≤ m) (hnm
         (fun j : Fin m => f ⟨j.val + off, by have := j.isLt; omega⟩) + f ⟨r + off, by omega⟩)
     rw [ih (Nat.le_of_succ_le hk), hFin, Nat.add_assoc]
 
-private theorem hc_sumFin_zero {n : Nat} : hcSumFin (fun _ : Fin n => 0) = 0 := hc_sumFinAux_zero n (Nat.le_refl n)
+private theorem hc_sumFin_zero {n : Nat} : hcSumFin (fun _ : Fin n => 0) = 0 := by
+  rw [hcSumFin_eq_sum, Finset.sum_const_zero]
 private theorem hc_sumFin_add {n : Nat} (f g : Fin n → Nat) :
-    hcSumFin (fun i => f i + g i) = hcSumFin f + hcSumFin g := hc_sumFinAux_add n (Nat.le_refl n) f g
+    hcSumFin (fun i => f i + g i) = hcSumFin f + hcSumFin g := by
+  simp only [hcSumFin_eq_sum, Finset.sum_add_distrib]
 private theorem hc_sumFin_mul_left {n : Nat} (c : Nat) (f : Fin n → Nat) :
-    hcSumFin (fun i => c * f i) = c * hcSumFin f := hc_sumFinAux_mul_left n (Nat.le_refl n) c f
+    hcSumFin (fun i => c * f i) = c * hcSumFin f := by
+  simp only [hcSumFin_eq_sum, Finset.mul_sum]
 private theorem hc_sumFin_mul_right {n : Nat} (f : Fin n → Nat) (c : Nat) :
-    hcSumFin (fun i => f i * c) = hcSumFin f * c := hc_sumFinAux_mul_right n (Nat.le_refl n) f c
+    hcSumFin (fun i => f i * c) = hcSumFin f * c := by
+  simp only [hcSumFin_eq_sum, Finset.sum_mul]
 private theorem hc_sumFin_mod3_congr {n : Nat} (f g : Fin n → Nat) (h : ∀ i : Fin n, f i % 3 = g i % 3) :
     hcSumFin f % 3 = hcSumFin g % 3 := hc_sumFinAux_mod3_congr n (Nat.le_refl n) f g h
 private theorem hc_sumFin_zero_mod3 {n : Nat} (f : Fin n → Nat) (h : ∀ i : Fin n, f i % 3 = 0) :
     hcSumFin f % 3 = 0 := by rw [hc_sumFin_mod3_congr f (fun _ => 0) h, hc_sumFin_zero]
 private theorem hc_sumFin_swap {n m : Nat} (F : Fin n → Fin m → Nat) :
-    hcSumFin (fun i => hcSumFin (fun j => F i j)) = hcSumFin (fun j => hcSumFin (fun i => F i j)) :=
-  hc_sumFinAux_swap n (Nat.le_refl n) m (Nat.le_refl m) F
+    hcSumFin (fun i => hcSumFin (fun j => F i j)) = hcSumFin (fun j => hcSumFin (fun i => F i j)) := by
+  simp only [hcSumFin_eq_sum]; exact Finset.sum_comm
 private theorem hc_sumFin_zero_except {n : Nat} (f : Fin n → Nat) (j : Fin n)
     (h : ∀ i : Fin n, i ≠ j → f i = 0) : hcSumFin f = f j := by
-  unfold hcSumFin; rw [hc_sumFinAux_zero_except n (Nat.le_refl n) f j h, hc_ite_pos j.isLt]
+  rw [hcSumFin_eq_sum, Finset.sum_eq_single j (fun i _ hi => h i hi) (fun hj => absurd (Finset.mem_univ j) hj)]
 
 
 /-! ## Section 2: `W(F_4)` Root/Line/Frame Geometry & `S_3`-Triality Local-Clifford Homomorphism -/
@@ -333,21 +291,13 @@ private theorem hc_site_symp_cliff (k : Fin 4) (ux uz vx vz : Nat) :
     simp only [Nat.one_mul, Nat.zero_mul, Nat.add_zero, Nat.zero_add]; omega
   | 2, _ =>
     simp only [hcCliffGen, hcMat2Det]; rw [hc_symp_strip_mod3]
-    simp only [Nat.one_mul, Nat.zero_mul, Nat.add_zero, Nat.zero_add]
-    have h1 : ux * (2 * vz) = 2 * (ux * vz) := by rw [← Nat.mul_assoc, Nat.mul_comm ux 2, Nat.mul_assoc]
-    have h2 : (2 * uz) * vx = 2 * (uz * vx) := Nat.mul_assoc 2 uz vx
-    rw [h1, h2]; omega
+    have hEq : (1 * ux + 0 * uz) * (0 * vx + 2 * vz) + 2 * ((0 * ux + 2 * uz) * (1 * vx + 0 * vz)) =
+        2 * (ux * vz + 2 * (uz * vx)) := by ring
+    rw [hEq]
   | 3, _ =>
     simp only [hcCliffGen, hcMat2Det]; rw [hc_symp_strip_mod3]
-    simp only [Nat.one_mul, Nat.zero_mul, Nat.zero_add]
-    have hEq : (ux + uz) * (2 * vz) + 2 * ((2 * uz) * (vx + vz)) =
-        2 * (ux * vz + 2 * (uz * vx)) + 3 * (2 * (uz * vz)) := by
-      rw [Nat.add_mul, Nat.mul_add (2 * uz) vx vz]
-      have ha : ux * (2 * vz) = 2 * (ux * vz) := by rw [← Nat.mul_assoc, Nat.mul_comm ux 2, Nat.mul_assoc]
-      have hb : uz * (2 * vz) = 2 * (uz * vz) := by rw [← Nat.mul_assoc, Nat.mul_comm uz 2, Nat.mul_assoc]
-      have hc : (2 * uz) * vx = 2 * (uz * vx) := Nat.mul_assoc 2 uz vx
-      have hd : (2 * uz) * vz = 2 * (uz * vz) := Nat.mul_assoc 2 uz vz
-      rw [ha, hb, hc, hd]; omega
+    have hEq : (1 * ux + 1 * uz) * (0 * vx + 2 * vz) + 2 * ((0 * ux + 2 * uz) * (1 * vx + 1 * vz)) =
+        2 * (ux * vz + 2 * (uz * vx)) + 3 * (2 * (uz * vz)) := by ring
     rw [hEq]; omega
   | _ + 4, h => exact absurd h (by omega)
 
@@ -510,11 +460,10 @@ private theorem hc_symp48_even_odd (u v : HcLineVec) : hcSymp48 (hcLiftEven u) (
   have h1 := hc_symp_strip_mod3 (u ⟨0, by decide⟩ l) (1 * v ⟨1, by decide⟩ l) (u ⟨1, by decide⟩ l) (1 * v ⟨0, by decide⟩ l)
   have h2 := hc_symp_strip_mod3 (u ⟨0, by decide⟩ l) (2 * v ⟨1, by decide⟩ l) (u ⟨1, by decide⟩ l) (2 * v ⟨0, by decide⟩ l)
   rw [hc_add_mod3_congr h1 h2]
-  have ha : u ⟨0, by decide⟩ l * (2 * v ⟨1, by decide⟩ l) = 2 * (u ⟨0, by decide⟩ l * v ⟨1, by decide⟩ l) := by
-    rw [← Nat.mul_assoc, Nat.mul_comm _ 2, Nat.mul_assoc]
-  have hb : u ⟨1, by decide⟩ l * (2 * v ⟨0, by decide⟩ l) = 2 * (u ⟨1, by decide⟩ l * v ⟨0, by decide⟩ l) := by
-    rw [← Nat.mul_assoc, Nat.mul_comm _ 2, Nat.mul_assoc]
-  rw [Nat.one_mul, Nat.one_mul, ha, hb]; omega
+  have hEq : (u ⟨0, by decide⟩ l * (1 * v ⟨1, by decide⟩ l) + 2 * (u ⟨1, by decide⟩ l * (1 * v ⟨0, by decide⟩ l))) +
+      (u ⟨0, by decide⟩ l * (2 * v ⟨1, by decide⟩ l) + 2 * (u ⟨1, by decide⟩ l * (2 * v ⟨0, by decide⟩ l))) =
+      3 * (u ⟨0, by decide⟩ l * v ⟨1, by decide⟩ l + 2 * (u ⟨1, by decide⟩ l * v ⟨0, by decide⟩ l)) := by ring
+  rw [hEq]; omega
 
 private theorem hc_symp48_even_even (u v : HcLineVec) :
     hcSymp48 (hcLiftEven u) (hcLiftEven v) = (2 * hcSympLine u v) % 3 := by
@@ -530,11 +479,11 @@ private theorem hc_symp48_odd_odd (u v : HcLineVec) :
   have h1 := hc_symp_strip_mod3 (1 * u ⟨0, by decide⟩ l) (1 * v ⟨1, by decide⟩ l) (1 * u ⟨1, by decide⟩ l) (1 * v ⟨0, by decide⟩ l)
   have h2 := hc_symp_strip_mod3 (2 * u ⟨0, by decide⟩ l) (2 * v ⟨1, by decide⟩ l) (2 * u ⟨1, by decide⟩ l) (2 * v ⟨0, by decide⟩ l)
   rw [hc_add_mod3_congr h1 h2]
-  have ha : (2 * u ⟨0, by decide⟩ l) * (2 * v ⟨1, by decide⟩ l) = 4 * (u ⟨0, by decide⟩ l * v ⟨1, by decide⟩ l) := by
-    rw [Nat.mul_assoc 2, ← Nat.mul_assoc (u _ l) 2, Nat.mul_comm (u _ l) 2, Nat.mul_assoc 2, ← Nat.mul_assoc 2 2]
-  have hb : (2 * u ⟨1, by decide⟩ l) * (2 * v ⟨0, by decide⟩ l) = 4 * (u ⟨1, by decide⟩ l * v ⟨0, by decide⟩ l) := by
-    rw [Nat.mul_assoc 2, ← Nat.mul_assoc (u _ l) 2, Nat.mul_comm (u _ l) 2, Nat.mul_assoc 2, ← Nat.mul_assoc 2 2]
-  rw [Nat.one_mul, Nat.one_mul, Nat.one_mul, Nat.one_mul, ha, hb]; omega
+  have hEq : (1 * u ⟨0, by decide⟩ l * (1 * v ⟨1, by decide⟩ l) + 2 * (1 * u ⟨1, by decide⟩ l * (1 * v ⟨0, by decide⟩ l))) +
+      (2 * u ⟨0, by decide⟩ l * (2 * v ⟨1, by decide⟩ l) + 2 * (2 * u ⟨1, by decide⟩ l * (2 * v ⟨0, by decide⟩ l))) =
+      2 * (u ⟨0, by decide⟩ l * v ⟨1, by decide⟩ l + 2 * (u ⟨1, by decide⟩ l * v ⟨0, by decide⟩ l)) +
+      3 * (u ⟨0, by decide⟩ l * v ⟨1, by decide⟩ l + 2 * (u ⟨1, by decide⟩ l * v ⟨0, by decide⟩ l)) := by ring
+  rw [hEq]; omega
 
 private theorem hc_frame4_orth_mod3 {ux uz a0 a1 a2 a3 b0 b1 b2 b3 u1x u2x u3x u1z u2z u3z : Nat}
     (hx1 : u1x % 3 = ux % 3) (hx2 : u2x % 3 = ux % 3) (hx3 : u3x % 3 = ux % 3)
@@ -556,8 +505,7 @@ private theorem hc_frame4_orth_mod3 {ux uz a0 a1 a2 a3 b0 b1 b2 b3 u1x u2x u3x u
   rw [hEq]
   have hFac : (ux * b0 + 2 * (uz * a0)) + (ux * b1 + 2 * (uz * a1)) +
       (ux * b2 + 2 * (uz * a2)) + (ux * b3 + 2 * (uz * a3)) =
-      ux * (b0 + b1 + b2 + b3) + 2 * (uz * (a0 + a1 + a2 + a3)) := by
-    simp only [Nat.mul_add]; omega
+      ux * (b0 + b1 + b2 + b3) + 2 * (uz * (a0 + a1 + a2 + a3)) := by ring
   rw [hFac]
   have hB : (ux * (b0 + b1 + b2 + b3)) % 3 = 0 := by rw [← hc_mul_mod3_right, hb, Nat.mul_zero]
   have hAz : (uz * (a0 + a1 + a2 + a3)) % 3 = 0 := by rw [← hc_mul_mod3_right, ha, Nat.mul_zero]
@@ -840,15 +788,15 @@ def hcBulk23 (i : Fin 23) : HcVec48 :=
 private theorem hc_bulk23_w9 (j : Fin 9) :
     hcBulk23 ⟨j.val + 2, by have := j.isLt; omega⟩ = hcLiftEven (hcW9Line j) := by
   unfold hcBulk23; dsimp only
-  rw [hc_ite_neg (by omega : ¬ j.val + 2 = 0), hc_ite_neg (by omega : ¬ j.val + 2 = 1),
-      hc_dite_pos (by have := j.isLt; omega : j.val + 2 < 11)]
+  rw [ite_eq_right (by omega : ¬ j.val + 2 = 0), ite_eq_right (by omega : ¬ j.val + 2 = 1),
+      dite_eq_left (by have := j.isLt; omega : j.val + 2 < 11)]
   have hj : (⟨j.val + 2 - 2, by omega⟩ : Fin 9) = j := Fin.ext (Nat.add_sub_cancel j.val 2); rw [hj]
 
 private theorem hc_bulk23_lvm (m : Fin 12) :
     hcBulk23 ⟨m.val + 11, by have := m.isLt; omega⟩ = hcLiftOdd (hcLVMLine m) := by
   unfold hcBulk23; dsimp only
-  rw [hc_ite_neg (by omega : ¬ m.val + 11 = 0), hc_ite_neg (by omega : ¬ m.val + 11 = 1),
-      hc_dite_neg (by omega : ¬ m.val + 11 < 11)]
+  rw [ite_eq_right (by omega : ¬ m.val + 11 = 0), ite_eq_right (by omega : ¬ m.val + 11 = 1),
+      dite_eq_right (by omega : ¬ m.val + 11 < 11)]
   have hm : (⟨m.val + 11 - 11, by omega⟩ : Fin 12) = m := Fin.ext (Nat.add_sub_cancel m.val 11); rw [hm]
 
 private theorem hc_sumFin23_split (f : Fin 23 → Nat) :
@@ -961,8 +909,8 @@ private theorem hc_bulk23_rank23 (c : Fin 23 → Fin 3)
     have hp := (hBoth (hcW9Piv j).1 (hcW9Piv j).2).2; rw [hu3z] at hp
     have hEx : hcSumFin (fun k : Fin 9 => (cW9 k).val * hcW9Line k (hcW9Piv j).1 (hcW9Piv j).2) = (cW9 j).val := by
       rw [hc_sumFin_zero_except _ j]
-      · rw [hc_blocks_certs.2.1 j j, hc_ite_pos rfl, Nat.mul_one]
-      · intro k hk; rw [hc_blocks_certs.2.1 k j, hc_ite_neg hk, Nat.mul_zero]
+      · rw [hc_blocks_certs.2.1 j j, ite_eq_left rfl, Nat.mul_one]
+      · intro k hk; rw [hc_blocks_certs.2.1 k j, ite_eq_right hk, Nat.mul_zero]
     have hlt := (cW9 j).isLt; change (0 + hcSumFin _ % 3) % 3 = 0 at hp; rw [hEx] at hp
     exact Fin.ext (by change (cW9 j).val = 0; omega)
   have hM0 : ∀ m : Fin 12, cVM m = ⟨0, by decide⟩ := by
@@ -970,8 +918,8 @@ private theorem hc_bulk23_rank23 (c : Fin 23 → Fin 3)
     have hp := (hBoth (hcLVMPiv m).1 (hcLVMPiv m).2).1
     have hEx : hcSumFin (fun k : Fin 12 => (cVM k).val * hcLVMLine k (hcLVMPiv m).1 (hcLVMPiv m).2) = (cVM m).val := by
       rw [hc_sumFin_zero_except _ m]
-      · rw [hc_blocks_certs.2.2.2.1 m m, hc_ite_pos rfl, Nat.mul_one]
-      · intro k hk; rw [hc_blocks_certs.2.2.2.1 k m, hc_ite_neg hk, Nat.mul_zero]
+      · rw [hc_blocks_certs.2.2.2.1 m m, ite_eq_left rfl, Nat.mul_one]
+      · intro k hk; rw [hc_blocks_certs.2.2.2.1 k m, ite_eq_right hk, Nat.mul_zero]
     have hlt := (cVM m).isLt; change hcSumFin _ % 3 = 0 at hp; rw [hEx] at hp
     exact Fin.ext (by change (cVM m).val = 0; omega)
   intro i
@@ -1110,8 +1058,7 @@ private theorem hc_actWF4_linComb {m : Nat} (k : Fin 4) (c : Fin m → Fin 3) (H
     (p : Fin 2) (r : Fin 24) :
     hcActWF4 k (hcLinComb c H) p r = hcSumFin (fun i : Fin m => (c i).val * hcActWF4 k (H i) p r) % 3 := by
   have hD : ∀ a b x y z : Nat, a * (z * x) + b * (z * y) = z * (a * x + b * y) := by
-    intro a b x y z; rw [Nat.mul_add, ← Nat.mul_assoc, Nat.mul_comm a z, Nat.mul_assoc,
-      ← Nat.mul_assoc b z y, Nat.mul_comm b z, Nat.mul_assoc]
+    intro a b x y z; ring
   cases p with | mk pv hpv => match pv, hpv with
   | 0, _ =>
     rw [hc_actWF4_0]; unfold hcLinComb
@@ -1214,12 +1161,12 @@ def hcPureTrans (k : Fin 4) (i j : Fin 24) : Fin 3 :=
 private theorem hc_pure24_iso (i j : Fin 24) : hcSymp48 (hcPure24 i) (hcPure24 j) = 0 := by
   unfold hcPure24
   by_cases hi : i.val < 23
-  · rw [hc_dite_pos hi]; by_cases hj : j.val < 23
-    · rw [hc_dite_pos hj]; exact hc_bulk23_iso _ _
-    · rw [hc_dite_neg hj]; exact (hc_bulk_logical_certs.1 _).1
-  · rw [hc_dite_neg hi]; by_cases hj : j.val < 23
-    · rw [hc_dite_pos hj, hc_symp48_skew, (hc_bulk_logical_certs.1 _).1]
-    · rw [hc_dite_neg hj]; exact hc_symp48_self _
+  · rw [dite_eq_left hi]; by_cases hj : j.val < 23
+    · rw [dite_eq_left hj]; exact hc_bulk23_iso _ _
+    · rw [dite_eq_right hj]; exact (hc_bulk_logical_certs.1 _).1
+  · rw [dite_eq_right hi]; by_cases hj : j.val < 23
+    · rw [dite_eq_left hj, hc_symp48_skew, (hc_bulk_logical_certs.1 _).1]
+    · rw [dite_eq_right hj]; exact hc_symp48_self _
 
 private theorem hc_pure24_rank24 (c : Fin 24 → Fin 3)
     (hZero : ∀ p r, hcLinComb c hcPure24 p r = 0) : ∀ i : Fin 24, c i = ⟨0, by decide⟩ := by
@@ -1229,11 +1176,11 @@ private theorem hc_pure24_rank24 (c : Fin 24 → Fin 3)
       rw [← h0]; exact hc_symp48_congr_left hcZLFrame (fun p r => by rw [hZero p r])
     rw [hc_symp48_linComb_eval, hc_sumFin_zero_except _ ⟨23, by decide⟩] at hZ0
     · have h1 : hcSymp48 (hcPure24 ⟨23, by decide⟩) hcZLFrame = 1 := by
-        unfold hcPure24; rw [hc_dite_neg (by decide)]; exact hc_bulk_logical_certs.2.1
+        unfold hcPure24; rw [dite_eq_right (by decide)]; exact hc_bulk_logical_certs.2.1
       rw [h1, Nat.mul_one] at hZ0; have := (c ⟨23, by decide⟩).isLt
       exact Fin.ext (by change (c ⟨23, by decide⟩).val = 0; omega)
     · intro i hi; have hlt : i.val < 23 := by have := i.isLt; have hne : i.val ≠ 23 := fun h => hi (Fin.ext h); omega
-      unfold hcPure24; rw [hc_dite_pos hlt, (hc_bulk_logical_certs.1 ⟨i.val, hlt⟩).2.1, Nat.mul_zero]
+      unfold hcPure24; rw [dite_eq_left hlt, (hc_bulk_logical_certs.1 ⟨i.val, hlt⟩).2.1, Nat.mul_zero]
   have hSub : ∀ p r, hcLinComb (fun i : Fin 23 => c ⟨i.val, by have := i.isLt; omega⟩) hcBulk23 p r = 0 := by
     intro p r; have hz := hZero p r; unfold hcLinComb at hz ⊢
     change (hcSumFinAux 23 (by decide) (fun i : Fin 24 => (c i).val * hcPure24 i p r) +
@@ -1247,7 +1194,7 @@ private theorem hc_pure24_rank24 (c : Fin 24 → Fin 3)
       | zero => rfl
       | succ m ih =>
         simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk)]
-        unfold hcPure24; have hm : m < 23 := hk; rw [hc_dite_pos hm]
+        unfold hcPure24; have hm : m < 23 := hk; rw [dite_eq_left hm]
     unfold hcSumFin; rw [← hAux 23 (Nat.le_refl 23)]; exact hz
   have h23 := hc_bulk23_rank23 _ hSub
   intro i
@@ -1257,11 +1204,11 @@ private theorem hc_pure24_rank24 (c : Fin 24 → Fin 3)
 private theorem hc_actWF4_pure24_row (k : Fin 4) (i : Fin 24) (p : Fin 2) (r : Fin 24) :
     hcActWF4 k (hcPure24 i) p r = hcLinComb (hcPureTrans k i) hcPure24 p r := by
   if hi : i.val < 23 then
-    unfold hcPure24; rw [hc_dite_pos hi, hc_actWF4_bulk23_row k ⟨i.val, hi⟩ p r]; unfold hcLinComb
+    unfold hcPure24; rw [dite_eq_left hi, hc_actWF4_bulk23_row k ⟨i.val, hi⟩ p r]; unfold hcLinComb
     change _ = (hcSumFinAux 23 (by decide) (fun j : Fin 24 => (hcPureTrans k i j).val * hcPure24 j p r) +
       (hcPureTrans k i ⟨23, by decide⟩).val * hcPure24 ⟨23, by decide⟩ p r) % 3
     have ht23 : (hcPureTrans k i ⟨23, by decide⟩).val = 0 := by
-      unfold hcPureTrans; rw [hc_dite_pos hi, hc_dite_neg (by decide)]
+      unfold hcPureTrans; rw [dite_eq_left hi, dite_eq_right (by decide)]
     rw [ht23, Nat.zero_mul, Nat.add_zero]
     have hAux : ∀ (m : Nat) (hm : m ≤ 23),
         hcSumFinAux m hm (fun j : Fin 23 => (hcBulkTrans k ⟨i.val, hi⟩ j).val * hcBulk23 j p r) =
@@ -1270,7 +1217,7 @@ private theorem hc_actWF4_pure24_row (k : Fin 4) (i : Fin 24) (p : Fin 2) (r : F
       | zero => rfl
       | succ s ih =>
         simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hm)]
-        unfold hcPureTrans hcPure24; have hs : s < 23 := hm; rw [hc_dite_pos hi, hc_dite_pos hs, hc_dite_pos hs]
+        unfold hcPureTrans hcPure24; have hs : s < 23 := hm; rw [dite_eq_left hi, dite_eq_left hs, dite_eq_left hs]
     unfold hcSumFin; exact congrArg (fun x => x % 3) (hAux 23 (Nat.le_refl 23))
   else
     have hEq : i = ⟨23, by decide⟩ := Fin.ext (by change i.val = 23; have := i.isLt; omega); rw [hEq]

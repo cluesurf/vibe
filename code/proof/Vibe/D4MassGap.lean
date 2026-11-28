@@ -1,10 +1,17 @@
-import Vibe.Algebra
-import Vibe.Geometry
+module
+
+public import Vibe.Algebra
+public import Vibe.Geometry
+import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Discrete 4D `D_4` Lattice Strong-Coupling / Dobrushin Mass-Gap Algebra (`beta > beta_BE^{24c}`)
 
-Zero-dependency Lean `4.35.0` formalization of the exact **algebraic, spectral, and combinatorial
+Lean `4.35.0` + Mathlib `v4.35.0` formalization of the exact **algebraic, spectral, and combinatorial
 pillars** of Wave-2 Track W6 (`test/verify/d4-mass-gap-beyond-be.ts`) for the **discrete
 lattice 4D `D_4` strong-coupling / Dobrushin mass-gap window** strictly beyond the 24-cell
 Bakry-Emery threshold `beta_BE^{24c} = N^2 / (16 √7)`.
@@ -71,11 +78,13 @@ Modules & 13 Headline Theorems (`thm_mg_*`):
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
-/-! ## Section 0: Local `Fin n` Natural/Integer Summation & Vector Helpers -/
+/-! ## Section 0: Local `Fin n` Natural/Integer Summation (Bridged to `Finset.sum`) & Vector Helpers -/
 
-private def sumFinNatAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) : Nat :=
+def sumFinNatAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) : Nat :=
   match k with
   | 0 => 0
   | m + 1 => sumFinNatAux m (by omega) f + f ⟨m, by omega⟩
@@ -84,133 +93,48 @@ private def sumFinNatAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) 
 def sumFinNat {n : Nat} (f : Fin n → Nat) : Nat :=
   sumFinNatAux n (Nat.le_refl n) f
 
-private theorem sumFinNatAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    sumFinNatAux k hk (fun _ : Fin n => 0) = 0 := by
+private theorem sumFinNatAux_eq_sum_range {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) :
+    sumFinNatAux k hk f = ∑ i ∈ Finset.range k, if h : i < n then f ⟨i, h⟩ else 0 := by
   induction k with
-  | zero => rfl
+  | zero => simp [sumFinNatAux]
   | succ m ih =>
-    simp only [sumFinNatAux, Nat.add_zero]
-    exact ih (by omega)
+    have hm : m < n := hk
+    simp only [sumFinNatAux, Finset.sum_range_succ, ih (Nat.le_of_succ_le hk), dite_eq_left hm]
 
-private theorem sumFinNatAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat) :
-    sumFinNatAux k hk (fun i => f i + g i) = sumFinNatAux k hk f + sumFinNatAux k hk g := by
-  induction k with
-  | zero => rfl
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    rw [ih (by omega)]
-    omega
-
-private theorem sumFinNat_add {n : Nat} (f g : Fin n → Nat) :
-    sumFinNat (fun i => f i + g i) = sumFinNat f + sumFinNat g :=
-  sumFinNatAux_add n (Nat.le_refl n) f g
-
-private theorem sumFinNatAux_mul_left {n : Nat} (k : Nat) (hk : k ≤ n) (c : Nat) (f : Fin n → Nat) :
-    sumFinNatAux k hk (fun i => c * f i) = c * sumFinNatAux k hk f := by
-  induction k with
-  | zero => simp only [sumFinNatAux, Nat.mul_zero]
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    rw [ih (by omega), Nat.mul_add]
+private theorem sumFinNat_eq_sum {n : Nat} (f : Fin n → Nat) :
+    sumFinNat f = ∑ i : Fin n, f i := by
+  unfold sumFinNat
+  rw [sumFinNatAux_eq_sum_range n (Nat.le_refl n) f, Finset.sum_fin_eq_sum_range]
 
 private theorem sumFinNat_mul_left {n : Nat} (c : Nat) (f : Fin n → Nat) :
-    sumFinNat (fun i => c * f i) = c * sumFinNat f :=
-  sumFinNatAux_mul_left n (Nat.le_refl n) c f
-
-private theorem sumFinNatAux_mul_right {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) (c : Nat) :
-    sumFinNatAux k hk (fun i => f i * c) = sumFinNatAux k hk f * c := by
-  induction k with
-  | zero => simp only [sumFinNatAux, Nat.zero_mul]
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    rw [ih (by omega), Nat.add_mul]
+    sumFinNat (fun i => c * f i) = c * sumFinNat f := by
+  simp only [sumFinNat_eq_sum, Finset.mul_sum]
 
 private theorem sumFinNat_mul_right {n : Nat} (f : Fin n → Nat) (c : Nat) :
-    sumFinNat (fun i => f i * c) = sumFinNat f * c :=
-  sumFinNatAux_mul_right n (Nat.le_refl n) f c
-
-private theorem sumFinNatAux_le {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat)
-    (hle : ∀ i : Fin n, f i ≤ g i) :
-    sumFinNatAux k hk f ≤ sumFinNatAux k hk g := by
-  induction k with
-  | zero => exact Nat.le_refl 0
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    exact Nat.add_le_add (ih (by omega)) (hle ⟨m, by omega⟩)
+    sumFinNat (fun i => f i * c) = sumFinNat f * c := by
+  simp only [sumFinNat_eq_sum, Finset.sum_mul]
 
 private theorem sumFinNat_le {n : Nat} (f g : Fin n → Nat) (hle : ∀ i : Fin n, f i ≤ g i) :
-    sumFinNat f ≤ sumFinNat g :=
-  sumFinNatAux_le n (Nat.le_refl n) f g hle
-
-private theorem sumFinNatAux_swap {n : Nat} (k : Nat) (hk : k ≤ n) (F : Fin n → Fin n → Nat) :
-    sumFinNatAux k hk (fun i => sumFinNat (fun j => F i j)) =
-      sumFinNat (fun j => sumFinNatAux k hk (fun i => F i j)) := by
-  induction k with
-  | zero =>
-    simp only [sumFinNatAux, sumFinNat]
-    rw [sumFinNatAux_zero]
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    rw [ih (by omega), ← sumFinNat_add]
+    sumFinNat f ≤ sumFinNat g := by
+  simp only [sumFinNat_eq_sum]
+  exact Finset.sum_le_sum (fun i _ => hle i)
 
 private theorem sumFinNat_swap {n : Nat} (F : Fin n → Fin n → Nat) :
     sumFinNat (fun i => sumFinNat (fun j => F i j)) =
-      sumFinNat (fun j => sumFinNat (fun i => F i j)) :=
-  sumFinNatAux_swap n (Nat.le_refl n) F
-
-private theorem sumFinNatAux_delta {n : Nat} (k : Nat) (hk : k ≤ n) (a : Fin n) (f : Fin n → Nat) :
-    sumFinNatAux k hk (fun i => (if a = i then 1 else 0) * f i) =
-      if a.val < k then f a else 0 := by
-  induction k with
-  | zero =>
-    simp only [sumFinNatAux]
-    have h0 : ¬(a.val < 0) := by omega
-    rw [ite_eq_right h0]
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    rw [ih (by omega)]
-    if hlt : a.val < m then
-      have hlt2 : a.val < m + 1 := by omega
-      have hne : a ≠ (⟨m, by omega⟩ : Fin n) := by
-        intro hEq
-        have hv : a.val = m := congrArg Fin.val hEq
-        omega
-      rw [ite_eq_left hlt, ite_eq_right hne, ite_eq_left hlt2, Nat.zero_mul, Nat.add_zero]
-    else if heq : a.val = m then
-      have hlt2 : a.val < m + 1 := by omega
-      have hfeq : a = (⟨m, by omega⟩ : Fin n) := Fin.ext heq
-      rw [ite_eq_right hlt, ite_eq_left hfeq, ite_eq_left hlt2, Nat.one_mul, Nat.zero_add, hfeq]
-    else
-      have hlt2 : ¬(a.val < m + 1) := by omega
-      have hne : a ≠ (⟨m, by omega⟩ : Fin n) := by
-        intro hEq
-        have hv : a.val = m := congrArg Fin.val hEq
-        omega
-      rw [ite_eq_right hlt, ite_eq_right hne, ite_eq_right hlt2, Nat.zero_mul, Nat.add_zero]
+      sumFinNat (fun j => sumFinNat (fun i => F i j)) := by
+  simp only [sumFinNat_eq_sum]; exact Finset.sum_comm
 
 private theorem sumFinNat_delta {n : Nat} (a : Fin n) (f : Fin n → Nat) :
     sumFinNat (fun i => (if a = i then 1 else 0) * f i) = f a := by
-  unfold sumFinNat
-  rw [sumFinNatAux_delta, ite_eq_left a.isLt]
-
-private theorem sumFinNatAux_single_le {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat)
-    (a : Fin n) (ha : a.val < k) :
-    f a ≤ sumFinNatAux k hk f := by
-  induction k with
-  | zero => omega
-  | succ m ih =>
-    simp only [sumFinNatAux]
-    if hlt : a.val < m then
-      have hPrev := ih (by omega) hlt
-      omega
-    else
-      have hEq : a = ⟨m, by omega⟩ := Fin.ext (show a.val = m by omega)
-      rw [hEq]
-      omega
+  rw [sumFinNat_eq_sum, Finset.sum_eq_single a]
+  · simp
+  · intro i _ hne; simp [hne.symm]
+  · intro ha; exact absurd (Finset.mem_univ a) ha
 
 private theorem sumFinNat_single_le {n : Nat} (f : Fin n → Nat) (a : Fin n) :
-    f a ≤ sumFinNat f :=
-  sumFinNatAux_single_le n (Nat.le_refl n) f a a.isLt
+    f a ≤ sumFinNat f := by
+  rw [sumFinNat_eq_sum]
+  exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ a)
 
 /-- Exact 4D vector addition `u + v`. -/
 def add4 (u v : Vec4) : Vec4 :=
@@ -612,155 +536,17 @@ instance (x y : ZSqrt7) : Decidable (lt x y) := by
 
 private theorem sqrt7_sq : mul sqrt7 sqrt7 = ofInt 7 := by decide
 
-private theorem add_comm (x y : ZSqrt7) : add x y = add y x := by
-  cases x; cases y; simp only [add, ZSqrt7.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem add_assoc (x y z : ZSqrt7) : add (add x y) z = add x (add y z) := by
-  cases x; cases y; cases z; simp only [add, ZSqrt7.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem mul_comm (x y : ZSqrt7) : mul x y = mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [mul, ZSqrt7.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xb yb, Int.mul_comm xa yb, Int.mul_comm xb ya]
-  exact ⟨rfl, by omega⟩
-
-private theorem mul_add (x y z : ZSqrt7) : mul x (add y z) = add (mul x y) (mul x z) := by
-  cases x; cases y; cases z
-  simp only [mul, add, ZSqrt7.mk.injEq, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_assoc (x y z : ZSqrt7) : mul (mul x y) z = mul x (mul y z) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  cases z with | mk za zb =>
-  simp only [mul, ZSqrt7.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
-  have h1 : 7 * (xa * (yb * zb)) = xa * (7 * (yb * zb)) := by
-    rw [← Int.mul_assoc 7 xa (yb * zb), Int.mul_comm 7 xa, Int.mul_assoc]
-  have h2 : 7 * (xb * (yb * zb)) = xb * (7 * (yb * zb)) := by
-    rw [← Int.mul_assoc 7 xb (yb * zb), Int.mul_comm 7 xb, Int.mul_assoc]
-  rw [h1, h2]
-  exact ⟨by omega, by omega⟩
-
 private theorem norm_mul (x y : ZSqrt7) : norm (mul x y) = norm x * norm y := by
-  cases x with | mk a b =>
-  cases y with | mk c d =>
-  simp only [norm, mul, Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub]
-  have hsq : ∀ u v : Int, (u * v) * (u * v) = (u * u) * (v * v) := by
-    intro u v
-    calc (u * v) * (u * v) = u * (v * (u * v)) := Int.mul_assoc u v (u * v)
-      _ = u * ((v * u) * v) := by rw [← Int.mul_assoc v u v]
-      _ = u * ((u * v) * v) := by rw [Int.mul_comm v u]
-      _ = u * (u * (v * v)) := by rw [Int.mul_assoc u v v]
-      _ = (u * u) * (v * v) := (Int.mul_assoc u u (v * v)).symm
-  have h1 : (a * c) * (a * c) = (a * a) * (c * c) := hsq a c
-  have h2 : (a * d) * (a * d) = (a * a) * (d * d) := hsq a d
-  have h3 : (b * c) * (b * c) = (b * b) * (c * c) := hsq b c
-  have h4 : (b * d) * (b * d) = (b * b) * (d * d) := hsq b d
-  have h5 : (7 * (b * d)) * (7 * (b * d)) = 49 * ((b * b) * (d * d)) := by
-    calc (7 * (b * d)) * (7 * (b * d))
-        = 7 * ((b * d) * (7 * (b * d))) := Int.mul_assoc 7 (b * d) (7 * (b * d))
-      _ = 7 * (7 * ((b * d) * (b * d))) := by
-            rw [← Int.mul_assoc (b * d) 7 (b * d), Int.mul_comm (b * d) 7, Int.mul_assoc]
-      _ = (7 * 7) * ((b * d) * (b * d)) := (Int.mul_assoc 7 7 _).symm
-      _ = 49 * ((b * b) * (d * d)) := by rw [h4]; rfl
-  have h6 : (7 * (b * b)) * (7 * (d * d)) = 49 * ((b * b) * (d * d)) := by
-    calc (7 * (b * b)) * (7 * (d * d))
-        = 7 * ((b * b) * (7 * (d * d))) := Int.mul_assoc 7 (b * b) (7 * (d * d))
-      _ = 7 * (7 * ((b * b) * (d * d))) := by
-            rw [← Int.mul_assoc (b * b) 7 (d * d), Int.mul_comm (b * b) 7, Int.mul_assoc]
-      _ = (7 * 7) * ((b * b) * (d * d)) := (Int.mul_assoc 7 7 _).symm
-      _ = 49 * ((b * b) * (d * d)) := rfl
-  have hc1 : (a * c) * (7 * (b * d)) = 7 * ((a * b) * (c * d)) := by
-    calc (a * c) * (7 * (b * d)) = 7 * ((a * c) * (b * d)) := by
-            rw [Int.mul_comm (a * c) (7 * (b * d)), Int.mul_assoc, Int.mul_comm (b * d) (a * c)]
-      _ = 7 * ((a * b) * (c * d)) := by
-            congr 1
-            calc (a * c) * (b * d) = a * (c * (b * d)) := Int.mul_assoc a c (b * d)
-              _ = a * ((c * b) * d) := by rw [← Int.mul_assoc c b d]
-              _ = a * ((b * c) * d) := by rw [Int.mul_comm c b]
-              _ = a * (b * (c * d)) := by rw [Int.mul_assoc b c d]
-              _ = (a * b) * (c * d) := (Int.mul_assoc a b (c * d)).symm
-  have hc2 : (7 * (b * d)) * (a * c) = 7 * ((a * b) * (c * d)) := by
-    rw [Int.mul_comm, hc1]
-  have hc3 : (a * d) * (b * c) = (a * b) * (c * d) := by
-    calc (a * d) * (b * c) = a * (d * (b * c)) := Int.mul_assoc a d (b * c)
-      _ = a * ((d * b) * c) := by rw [← Int.mul_assoc d b c]
-      _ = a * ((b * d) * c) := by rw [Int.mul_comm d b]
-      _ = a * (b * (d * c)) := by rw [Int.mul_assoc b d c]
-      _ = a * (b * (c * d)) := by rw [Int.mul_comm d c]
-      _ = (a * b) * (c * d) := (Int.mul_assoc a b (c * d)).symm
-  have hc4 : (b * c) * (a * d) = (a * b) * (c * d) := by rw [Int.mul_comm, hc3]
-  have hm1 : (a * a) * (7 * (d * d)) = 7 * ((a * a) * (d * d)) := by
-    rw [Int.mul_comm (a * a) (7 * (d * d)), Int.mul_assoc, Int.mul_comm (d * d) (a * a)]
-  have hm2 : (7 * (b * b)) * (c * c) = 7 * ((b * b) * (c * c)) := Int.mul_assoc 7 (b * b) (c * c)
-  rw [h1, h2, h3, h5, h6, hc1, hc2, hc3, hc4, hm1, hm2]
-  omega
+  rcases x with ⟨a, b⟩; rcases y with ⟨c, d⟩
+  simp only [norm, mul]; ring
 
 private theorem isPos_asym (x : ZSqrt7) : ¬(isPos x ∧ isPos (neg x)) := by
   rcases x with ⟨a, b⟩
   simp only [isPos, neg]
   rintro ⟨h1, h2⟩
-  have ha : (-a) * (-a) = a * a := by rw [Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  have hb : (-b) * (-b) = b * b := by rw [Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  rw [ha, hb] at h2
-  rcases h1 with ⟨_, _, _⟩ | ⟨_, _, _⟩ | ⟨_, _, _⟩ <;>
-  rcases h2 with ⟨_, _, _⟩ | ⟨_, _, _⟩ | ⟨_, _, _⟩ <;>
-  omega
-
-private theorem int_mul_pos_of_pos {u v : Int} (hu : 0 < u) (hv : 0 < v) : 0 < u * v := by
-  have h := Int.mul_nonneg (show 0 ≤ u - 1 by omega) (show 0 ≤ v - 1 by omega)
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.one_mul, Int.mul_one] at h
-  omega
-
-private theorem int_sq_lt_of_pos_lt {u v : Int} (hu : 0 ≤ u) (huv : u < v) : u * u < v * v := by
-  have h : 0 < (v - u) * (v + u) := int_mul_pos_of_pos (by omega) (by omega)
-  rw [Int.sub_mul, Int.mul_add, Int.mul_add, Int.mul_comm u v] at h
-  omega
-
-private theorem isPos_scale_pos (k : Int) (hk : 0 < k) (x : ZSqrt7) (hx : isPos x) :
-    isPos (scale k x) := by
-  rcases x with ⟨a, b⟩
-  simp only [isPos, scale] at hx ⊢
-  have hka : (k * a) * (k * a) = (k * k) * (a * a) := by
-    calc (k * a) * (k * a) = k * (a * (k * a)) := Int.mul_assoc k a (k * a)
-      _ = k * ((a * k) * a) := by rw [← Int.mul_assoc a k a]
-      _ = k * ((k * a) * a) := by rw [Int.mul_comm a k]
-      _ = k * (k * (a * a)) := by rw [Int.mul_assoc k a a]
-      _ = (k * k) * (a * a) := (Int.mul_assoc k k (a * a)).symm
-  have hkb : (k * b) * (k * b) = (k * k) * (b * b) := by
-    calc (k * b) * (k * b) = k * (b * (k * b)) := Int.mul_assoc k b (k * b)
-      _ = k * ((b * k) * b) := by rw [← Int.mul_assoc b k b]
-      _ = k * ((k * b) * b) := by rw [Int.mul_comm b k]
-      _ = k * (k * (b * b)) := by rw [Int.mul_assoc k b b]
-      _ = (k * k) * (b * b) := (Int.mul_assoc k k (b * b)).symm
-  have hk2 : 0 < k * k := int_mul_pos_of_pos hk hk
-  rcases hx with ⟨ha, hb, hab⟩ | ⟨ha, hb, hsq⟩ | ⟨ha, hb, hsq⟩
-  · left
-    refine ⟨Int.mul_nonneg (by omega) ha, Int.mul_nonneg (by omega) hb, ?_⟩
-    rcases hab with ha0 | hb0
-    · exact Or.inl (int_mul_pos_of_pos hk ha0)
-    · exact Or.inr (int_mul_pos_of_pos hk hb0)
-  · right; left
-    have hnb : k * b < 0 := by
-      have hp := int_mul_pos_of_pos hk (show 0 < -b by omega)
-      rw [Int.mul_neg] at hp; omega
-    refine ⟨int_mul_pos_of_pos hk ha, hnb, ?_⟩
-    rw [hka, hkb]
-    have hd : 0 < (k * k) * (a * a - 7 * (b * b)) := int_mul_pos_of_pos hk2 (by omega)
-    rw [Int.mul_sub, ← Int.mul_assoc (k * k) 7 (b * b), Int.mul_comm (k * k) 7,
-        Int.mul_assoc 7 (k * k) (b * b)] at hd
-    omega
-  · right; right
-    have hna : k * a < 0 := by
-      have hp := int_mul_pos_of_pos hk (show 0 < -a by omega)
-      rw [Int.mul_neg] at hp; omega
-    refine ⟨hna, int_mul_pos_of_pos hk hb, ?_⟩
-    rw [hka, hkb]
-    have hd : 0 < (k * k) * (7 * (b * b) - a * a) := int_mul_pos_of_pos hk2 (by omega)
-    rw [Int.mul_sub, ← Int.mul_assoc (k * k) 7 (b * b), Int.mul_comm (k * k) 7,
-        Int.mul_assoc 7 (k * k) (b * b)] at hd
-    omega
+  rcases h1 with ⟨_, _, _ | _⟩ | ⟨_, _, _⟩ | ⟨_, _, _⟩ <;>
+  rcases h2 with ⟨_, _, _ | _⟩ | ⟨_, _, _⟩ | ⟨_, _, _⟩ <;>
+  nlinarith
 
 /-- Exact finite sum of `ZSqrt7` elements over `Fin n`. -/
 def sumFinAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → ZSqrt7) : ZSqrt7 :=
@@ -882,56 +668,12 @@ def su2TestQuotL1Hom (κ γ c s D : Int) : Int :=
 def su2TestQuotL0DiffHom (κ γ c s D : Int) : Int :=
   su2TestQuotL1Hom κ γ c s D + κ * c * D * (s * s)
 
-private theorem mg_mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
-  rw [← Int.mul_assoc, Int.mul_comm a b, Int.mul_assoc]
-
 /-- Unconstrained 4-variable polynomial identity over `ℤ` (zero domain restriction on `c, s`!):
     `su2TestQuotL1 κ γ c s = s^2 (3 + (κ - 5γ) c + γ(κ - γ) s^2) + 2(1 - c^2 - s^2)`. -/
 private theorem su2TestQuotL1_poly_id (κ γ c s : Int) :
     su2TestQuotL1 κ γ c s =
       (s * s) * (3 + (κ - 5 * γ) * c + γ * (κ - γ) * (s * s)) + 2 * (1 - c * c - s * s) := by
-  unfold su2TestQuotL1
-  have h1 : (2 * c - κ * (s * s)) * (c + γ * (s * s)) =
-      2 * (c * c) + 2 * (γ * c * (s * s)) - κ * c * (s * s) - κ * γ * ((s * s) * (s * s)) := by
-    simp only [Int.sub_mul, Int.mul_add]
-    have ha : (2 * c) * c = 2 * (c * c) := Int.mul_assoc 2 c c
-    have hb : (2 * c) * (γ * (s * s)) = 2 * (γ * c * (s * s)) := by
-      calc (2 * c) * (γ * (s * s)) = 2 * (c * (γ * (s * s))) := Int.mul_assoc 2 c _
-        _ = 2 * ((c * γ) * (s * s)) := by rw [← Int.mul_assoc c γ (s * s)]
-        _ = 2 * ((γ * c) * (s * s)) := by rw [Int.mul_comm c γ]
-    have hc : (κ * (s * s)) * c = κ * c * (s * s) := by
-      rw [Int.mul_assoc, Int.mul_comm (s * s) c, ← Int.mul_assoc]
-    have hd : (κ * (s * s)) * (γ * (s * s)) = κ * γ * ((s * s) * (s * s)) := by
-      calc (κ * (s * s)) * (γ * (s * s))
-          = κ * ((s * s) * (γ * (s * s))) := Int.mul_assoc κ _ _
-        _ = κ * (γ * ((s * s) * (s * s))) := by rw [mg_mul_left_comm (s * s) γ (s * s)]
-        _ = (κ * γ) * ((s * s) * (s * s)) := (Int.mul_assoc κ γ _).symm
-    rw [ha, hb, hc, hd]
-    omega
-  have h2 : (s * s) * (1 - 3 * γ * c - (γ * γ) * (s * s)) =
-      s * s - 3 * (γ * c * (s * s)) - (γ * γ) * ((s * s) * (s * s)) := by
-    simp only [Int.mul_sub, Int.mul_one]
-    have ha : (s * s) * (3 * γ * c) = 3 * (γ * c * (s * s)) := by
-      rw [Int.mul_comm (s * s) (3 * γ * c), Int.mul_assoc 3 γ c, Int.mul_assoc 3 (γ * c) (s * s)]
-    have hb : (s * s) * ((γ * γ) * (s * s)) = (γ * γ) * ((s * s) * (s * s)) :=
-      mg_mul_left_comm (s * s) (γ * γ) (s * s)
-    rw [ha, hb]
-  have h3 : (s * s) * (3 + (κ - 5 * γ) * c + γ * (κ - γ) * (s * s)) =
-      3 * (s * s) + κ * c * (s * s) - 5 * (γ * c * (s * s)) +
-      κ * γ * ((s * s) * (s * s)) - (γ * γ) * ((s * s) * (s * s)) := by
-    simp only [Int.mul_add, Int.sub_mul, Int.mul_sub]
-    have ha : (s * s) * 3 = 3 * (s * s) := Int.mul_comm (s * s) 3
-    have hb : (s * s) * (κ * c) = κ * c * (s * s) := Int.mul_comm (s * s) (κ * c)
-    have hc : (s * s) * (5 * γ * c) = 5 * (γ * c * (s * s)) := by
-      rw [Int.mul_comm (s * s) (5 * γ * c), Int.mul_assoc 5 γ c, Int.mul_assoc 5 (γ * c) (s * s)]
-    have hd : (s * s) * (γ * κ * (s * s)) = κ * γ * ((s * s) * (s * s)) := by
-      rw [mg_mul_left_comm (s * s) (γ * κ) (s * s), Int.mul_comm γ κ]
-    have he : (s * s) * (γ * γ * (s * s)) = (γ * γ) * ((s * s) * (s * s)) :=
-      mg_mul_left_comm (s * s) (γ * γ) (s * s)
-    rw [ha, hb, hc, hd, he]
-    omega
-  rw [h1, h2, h3]
-  omega
+  unfold su2TestQuotL1; ring
 
 /-- Unconstrained 5-variable homogenized polynomial identity over `ℤ`:
     `su2TestQuotL1Hom κ γ c s D = s^2 (3 D^2 + (κ - 5γ) c D + γ(κ - γ) s^2) + 2 D^2 (D^2 - c^2 - s^2)`. -/
@@ -939,66 +681,7 @@ private theorem su2TestQuotL1Hom_poly_id (κ γ c s D : Int) :
     su2TestQuotL1Hom κ γ c s D =
       (s * s) * (3 * (D * D) + (κ - 5 * γ) * c * D + γ * (κ - γ) * (s * s)) +
       2 * (D * D) * (D * D - c * c - s * s) := by
-  unfold su2TestQuotL1Hom
-  have h1 : (2 * c * D - κ * (s * s)) * (c * D + γ * (s * s)) =
-      2 * ((D * D) * (c * c)) + 2 * (γ * c * D * (s * s)) - κ * c * D * (s * s) -
-      κ * γ * ((s * s) * (s * s)) := by
-    simp only [Int.sub_mul, Int.mul_add]
-    have ha : (2 * c * D) * (c * D) = 2 * ((D * D) * (c * c)) := by
-      calc (2 * c * D) * (c * D) = 2 * (c * (D * (c * D))) := by
-              rw [Int.mul_assoc 2 c D, Int.mul_assoc 2 (c * D) (c * D), Int.mul_assoc c D (c * D)]
-        _ = 2 * (c * ((D * c) * D)) := by rw [← Int.mul_assoc D c D]
-        _ = 2 * (c * ((c * D) * D)) := by rw [Int.mul_comm D c]
-        _ = 2 * (c * (c * (D * D))) := by rw [Int.mul_assoc c D D]
-        _ = 2 * ((c * c) * (D * D)) := by rw [← Int.mul_assoc c c (D * D)]
-        _ = 2 * ((D * D) * (c * c)) := by rw [Int.mul_comm (c * c) (D * D)]
-    have hb : (2 * c * D) * (γ * (s * s)) = 2 * (γ * c * D * (s * s)) := by
-      calc (2 * c * D) * (γ * (s * s)) = 2 * ((c * D) * (γ * (s * s))) := by
-              rw [Int.mul_assoc 2 c D, Int.mul_assoc 2 (c * D) (γ * (s * s))]
-        _ = 2 * (((c * D) * γ) * (s * s)) := by rw [← Int.mul_assoc (c * D) γ (s * s)]
-        _ = 2 * ((γ * (c * D)) * (s * s)) := by rw [Int.mul_comm (c * D) γ]
-        _ = 2 * (γ * c * D * (s * s)) := by rw [← Int.mul_assoc γ c D]
-    have hc : (κ * (s * s)) * (c * D) = κ * c * D * (s * s) := by
-      rw [Int.mul_assoc κ (s * s) (c * D), Int.mul_comm (s * s) (c * D),
-          ← Int.mul_assoc κ (c * D) (s * s), ← Int.mul_assoc κ c D]
-    have hd : (κ * (s * s)) * (γ * (s * s)) = κ * γ * ((s * s) * (s * s)) := by
-      calc (κ * (s * s)) * (γ * (s * s))
-          = κ * ((s * s) * (γ * (s * s))) := Int.mul_assoc κ _ _
-        _ = κ * (γ * ((s * s) * (s * s))) := by rw [mg_mul_left_comm (s * s) γ (s * s)]
-        _ = (κ * γ) * ((s * s) * (s * s)) := (Int.mul_assoc κ γ _).symm
-    rw [ha, hb, hc, hd]
-    omega
-  have h2 : (s * s) * (D * D - 3 * γ * c * D - (γ * γ) * (s * s)) =
-      (D * D) * (s * s) - 3 * (γ * c * D * (s * s)) - (γ * γ) * ((s * s) * (s * s)) := by
-    simp only [Int.mul_sub]
-    have h0 : (s * s) * (D * D) = (D * D) * (s * s) := Int.mul_comm _ _
-    have ha : (s * s) * (3 * γ * c * D) = 3 * (γ * c * D * (s * s)) := by
-      rw [Int.mul_comm (s * s) (3 * γ * c * D), Int.mul_assoc 3 γ c,
-          Int.mul_assoc 3 (γ * c) D, Int.mul_assoc 3 (γ * c * D) (s * s)]
-    have hb : (s * s) * ((γ * γ) * (s * s)) = (γ * γ) * ((s * s) * (s * s)) :=
-      mg_mul_left_comm (s * s) (γ * γ) (s * s)
-    rw [h0, ha, hb]
-  have h3 : (s * s) * (3 * (D * D) + (κ - 5 * γ) * c * D + γ * (κ - γ) * (s * s)) =
-      3 * ((D * D) * (s * s)) + κ * c * D * (s * s) - 5 * (γ * c * D * (s * s)) +
-      κ * γ * ((s * s) * (s * s)) - (γ * γ) * ((s * s) * (s * s)) := by
-    simp only [Int.mul_add, Int.sub_mul, Int.mul_sub]
-    have ha : (s * s) * (3 * (D * D)) = 3 * ((D * D) * (s * s)) := by
-      rw [mg_mul_left_comm (s * s) 3 (D * D), Int.mul_comm (s * s) (D * D)]
-    have hb : (s * s) * (κ * c * D) = κ * c * D * (s * s) := Int.mul_comm _ _
-    have hc : (s * s) * (5 * γ * c * D) = 5 * (γ * c * D * (s * s)) := by
-      rw [Int.mul_comm (s * s) (5 * γ * c * D), Int.mul_assoc 5 γ c,
-          Int.mul_assoc 5 (γ * c) D, Int.mul_assoc 5 (γ * c * D) (s * s)]
-    have hd : (s * s) * (γ * κ * (s * s)) = κ * γ * ((s * s) * (s * s)) := by
-      rw [mg_mul_left_comm (s * s) (γ * κ) (s * s), Int.mul_comm γ κ]
-    have he : (s * s) * (γ * γ * (s * s)) = (γ * γ) * ((s * s) * (s * s)) :=
-      mg_mul_left_comm (s * s) (γ * γ) (s * s)
-    rw [ha, hb, hc, hd, he]
-    omega
-  have h4 : 2 * (D * D) * (D * D - c * c - s * s) =
-      2 * (D * D) * (D * D) - 2 * ((D * D) * (c * c)) - 2 * ((D * D) * (s * s)) := by
-    simp only [Int.mul_sub, Int.mul_assoc]
-  rw [h1, h2, h3, h4]
-  omega
+  unfold su2TestQuotL1Hom; ring
 
 /-- Theorem MG-4: Exact unconstrained symbolic polynomial identities over `ℤ` (lifting verbatim
     to `ℝ` and every commutative ring, with zero degenerate `Int`-domain collapses) for the
@@ -1045,124 +728,26 @@ theorem thm_mg_su2_vmf_spectral_gap_and_variance_identities :
     (∀ c s vPar vPerp D : Int, 4 * vPar ≤ D → 4 * vPerp ≤ D →
       4 * ((c * c) * vPar + (s * s) * vPerp) ≤ D * (c * c + s * s)) ∧
     ZSqrt37.mul ⟨0, -1, 0, 1⟩ (ZSqrt37.ofZSqrt7 mgLambda11) = ZSqrt37.scale 24 ZSqrt37.sqrt3 := by
-  have hksFn : ∀ k s : Int, k * (5 * k - k) * (s * s) = 4 * ((k * s) * (k * s)) := by
-    intro k s
-    have hsub : 5 * k - k = 4 * k := by omega
-    rw [hsub]
-    calc k * (4 * k) * (s * s) = (4 * (k * k)) * (s * s) := by rw [mg_mul_left_comm k 4 k]
-      _ = 4 * ((k * k) * (s * s)) := Int.mul_assoc 4 (k * k) (s * s)
-      _ = 4 * ((k * s) * (k * s)) := by
-            congr 1
-            calc (k * k) * (s * s) = k * (k * (s * s)) := Int.mul_assoc k k (s * s)
-              _ = k * ((k * s) * s) := by rw [← Int.mul_assoc k s s]
-              _ = k * ((s * k) * s) := by rw [Int.mul_comm k s]
-              _ = k * (s * (k * s)) := by rw [Int.mul_assoc s k s]
-              _ = (k * s) * (k * s) := (Int.mul_assoc k s (k * s)).symm
-  have hks2Fn : ∀ k s : Int, 2 * k * (5 * k - 2 * k) * (s * s) = 6 * ((k * s) * (k * s)) := by
-    intro k s
-    have hsub : 5 * k - 2 * k = 3 * k := by omega
-    rw [hsub]
-    calc (2 * k) * (3 * k) * (s * s)
-        = (2 * (k * (3 * k))) * (s * s) := by rw [Int.mul_assoc 2 k (3 * k)]
-      _ = (2 * (3 * (k * k))) * (s * s) := by rw [mg_mul_left_comm k 3 k]
-      _ = (6 * (k * k)) * (s * s) := by rw [← Int.mul_assoc 2 3 (k * k)]; rfl
-      _ = 6 * ((k * k) * (s * s)) := Int.mul_assoc 6 (k * k) (s * s)
-      _ = 6 * ((k * s) * (k * s)) := by
-            congr 1
-            calc (k * k) * (s * s) = k * (k * (s * s)) := Int.mul_assoc k k (s * s)
-              _ = k * ((k * s) * s) := by rw [← Int.mul_assoc k s s]
-              _ = k * ((s * k) * s) := by rw [Int.mul_comm k s]
-              _ = k * (s * (k * s)) := by rw [Int.mul_assoc s k s]
-              _ = (k * s) * (k * s) := (Int.mul_assoc k s (k * s)).symm
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, by decide⟩
   · intro κ γ c s
-    have h1 := su2TestQuotL1_poly_id κ γ c s
-    refine ⟨h1, ?_⟩
-    unfold su2TestQuotL0Diff
-    rw [h1]
-    simp only [Int.mul_add, Int.sub_mul, Int.mul_sub]
-    have hkc : κ * c * (s * s) = (s * s) * (κ * c) := Int.mul_comm (κ * c) (s * s)
-    have h2k : (s * s) * (2 * κ * c) = 2 * ((s * s) * (κ * c)) := by
-      rw [Int.mul_assoc 2 κ c, mg_mul_left_comm (s * s) 2 (κ * c)]
-    rw [hkc, h2k]
-    omega
+    exact ⟨su2TestQuotL1_poly_id κ γ c s, by unfold su2TestQuotL0Diff su2TestQuotL1; ring⟩
   · intro k c s
-    have h1 := su2TestQuotL1_poly_id (5 * k) k c s
-    have h2 := su2TestQuotL1_poly_id (5 * k) (2 * k) c s
-    refine ⟨?_, ?_⟩
-    · rw [h1, show 5 * k - 5 * k = 0 by omega, Int.zero_mul, Int.add_zero, hksFn k s]
-    · unfold su2TestQuotL0Diff
-      rw [h2, hks2Fn k s]
-      have hlin : 5 * k - 5 * (2 * k) = -(5 * k) := by omega
-      rw [hlin, Int.neg_mul]
-      simp only [Int.mul_add, Int.mul_neg]
-      rw [Int.mul_comm (s * s) (5 * k * c)]
-      omega
+    exact ⟨by unfold su2TestQuotL1; ring, by unfold su2TestQuotL0Diff su2TestQuotL1; ring⟩
   · intro k c s D hCirc
-    have hZero : D * D - c * c - s * s = 0 := by omega
-    have h1 := su2TestQuotL1Hom_poly_id (5 * k) k c s D
-    have h2 := su2TestQuotL1Hom_poly_id (5 * k) (2 * k) c s D
-    have heq1 : su2TestQuotL1Hom (5 * k) k c s D = (s * s) * (3 * (D * D) + 4 * ((k * s) * (k * s))) := by
-      rw [h1, hZero, Int.mul_zero, Int.add_zero,
-          show 5 * k - 5 * k = 0 by omega, Int.zero_mul, Int.zero_mul, Int.add_zero, hksFn k s]
-    have heq2 : su2TestQuotL0DiffHom (5 * k) (2 * k) c s D =
-        (s * s) * (3 * (D * D) + 6 * ((k * s) * (k * s))) := by
-      unfold su2TestQuotL0DiffHom
-      rw [h2, hZero, Int.mul_zero, Int.add_zero, hks2Fn k s]
-      have hlin : 5 * k - 5 * (2 * k) = -(5 * k) := by omega
-      rw [hlin, Int.neg_mul, Int.neg_mul]
-      simp only [Int.mul_add, Int.mul_neg]
-      rw [Int.mul_comm (s * s) (5 * k * c * D)]
-      omega
-    have hnn1 : 0 ≤ (s * s) * (4 * ((k * s) * (k * s))) :=
-      Int.mul_nonneg (int_sq_nonneg s) (Int.mul_nonneg (by decide) (int_sq_nonneg (k * s)))
-    have hnn2 : 0 ≤ (s * s) * (6 * ((k * s) * (k * s))) :=
-      Int.mul_nonneg (int_sq_nonneg s) (Int.mul_nonneg (by decide) (int_sq_nonneg (k * s)))
-    refine ⟨heq1, ?_, heq2, ?_⟩
-    · rw [heq1, Int.mul_add, Int.mul_comm (s * s) (3 * (D * D))]; omega
-    · rw [heq2, Int.mul_add, Int.mul_comm (s * s) (3 * (D * D))]; omega
+    have h1 : su2TestQuotL1Hom (5 * k) k c s D = (s * s) * (3 * (D * D) + 4 * ((k * s) * (k * s))) := by
+      rw [su2TestQuotL1Hom_poly_id]; nlinarith
+    have h2 : su2TestQuotL0DiffHom (5 * k) (2 * k) c s D = (s * s) * (3 * (D * D) + 6 * ((k * s) * (k * s))) := by
+      unfold su2TestQuotL0DiffHom; rw [su2TestQuotL1Hom_poly_id]; nlinarith
+    exact ⟨h1, by nlinarith [mul_self_nonneg s, mul_self_nonneg (k * s)],
+           h2, by nlinarith [mul_self_nonneg s, mul_self_nonneg (k * s)]⟩
   · intro m
-    change 2 * (natFact m * natFact (m + 1)) ≤ natFact m * ((m + 2) * natFact (m + 1))
-    have h1 : 2 * (natFact m * natFact (m + 1)) = natFact m * (2 * natFact (m + 1)) := by
-      rw [← Nat.mul_assoc, Nat.mul_comm 2 (natFact m), Nat.mul_assoc]
-    rw [h1]
-    exact Nat.mul_le_mul_left (natFact m) (Nat.mul_le_mul_right (natFact (m + 1)) (by omega))
-  · intro κ s
-    have h1 : (s + 2) * (s + 2) = s * s + 4 * s + 4 := by
-      simp only [Int.add_mul, Int.mul_add]; omega
-    have h2 : s * (s + 2) = s * s + 2 * s := by
-      rw [Int.mul_add]; omega
-    rw [h1, h2]
-    exact ⟨by omega, by omega⟩
-  · intro κ s D
-    have h1 : (s + 2 * D) * (s + 2 * D) = s * s + 4 * (D * s) + 4 * (D * D) := by
-      simp only [Int.add_mul, Int.mul_add]
-      have ha : s * (2 * D) = 2 * (D * s) := by rw [mg_mul_left_comm s 2 D, Int.mul_comm s D]
-      have hb : (2 * D) * s = 2 * (D * s) := Int.mul_assoc 2 D s
-      have hc : (2 * D) * (2 * D) = 4 * (D * D) := by
-        rw [Int.mul_assoc 2 D (2 * D), mg_mul_left_comm D 2 D, ← Int.mul_assoc 2 2]; rfl
-      rw [ha, hb, hc]; omega
-    have h2 : 3 * D * (s + 2 * D) = 3 * (D * s) + 6 * (D * D) := by
-      rw [Int.mul_add, Int.mul_assoc 3 D s, Int.mul_assoc 3 D (2 * D),
-          mg_mul_left_comm D 2 D, ← Int.mul_assoc 3 2]; rfl
-    have h3 : D * (s + 2 * D) = D * s + 2 * (D * D) := by
-      rw [Int.mul_add, mg_mul_left_comm D 2 D]
-    have h4 : s * (s + 2 * D) = s * s + 2 * (D * s) := by
-      rw [Int.mul_add, mg_mul_left_comm s 2 D, Int.mul_comm s D]
-    have h5 : 2 * D * (s + 2 * D) = 2 * (D * s) + 4 * (D * D) := by
-      rw [Int.mul_add, Int.mul_assoc 2 D s, Int.mul_assoc 2 D (2 * D),
-          mg_mul_left_comm D 2 D, ← Int.mul_assoc 2 2]; rfl
-    rw [h1, h2, h3, h4, h5]
-    exact ⟨by omega, by omega⟩
+    calc 2 * (natFact m * natFact (m + 1)) = natFact m * (2 * natFact (m + 1)) := by ring
+      _ ≤ natFact m * ((m + 2) * natFact (m + 1)) :=
+        Nat.mul_le_mul_left _ (Nat.mul_le_mul_right _ (by omega))
+  · intro κ s; exact ⟨by ring, by ring⟩
+  · intro κ s D; exact ⟨by ring, by ring⟩
   · intro c s vPar vPerp D hPar hPerp
-    have hc : 0 ≤ (c * c) * (D - 4 * vPar) := Int.mul_nonneg (int_sq_nonneg c) (by omega)
-    have hs : 0 ≤ (s * s) * (D - 4 * vPerp) := Int.mul_nonneg (int_sq_nonneg s) (by omega)
-    rw [Int.mul_sub, Int.mul_comm (c * c) D, ← Int.mul_assoc (c * c) 4 vPar,
-        Int.mul_comm (c * c) 4, Int.mul_assoc 4 (c * c) vPar] at hc
-    rw [Int.mul_sub, Int.mul_comm (s * s) D, ← Int.mul_assoc (s * s) 4 vPerp,
-        Int.mul_comm (s * s) 4, Int.mul_assoc 4 (s * s) vPerp] at hs
-    rw [Int.mul_add, Int.mul_add]
-    omega
+    nlinarith [mul_self_nonneg c, mul_self_nonneg s]
 
 /-- Exact `ℤ[√3, √7]` identities and zero-float integer-squared inequalities for all `SU(2)`
     thresholds and ratios past `β_BE^{24c}(SU(2)) = 1 / (4√7)`. -/
@@ -1251,7 +836,6 @@ private theorem matPowNat_weighted_step {N : Nat} (K : Fin N → Fin N → Nat)
     intro x
     simp only [Nat.pow_zero, Nat.one_mul, matPowNat]
     rw [sumFinNat_delta]
-    exact Nat.le_refl (v x)
   | succ m ih =>
     intro x
     have hDist : sumFinNat (fun y => matPowNat K (m + 1) x y * v y) =
@@ -1271,10 +855,7 @@ private theorem matPowNat_weighted_step {N : Nat} (K : Fin N → Fin N → Nat)
     have hPull : q ^ m * q * sumFinNat (fun z => K x z * sumFinNat (fun y => matPowNat K m z y * v y)) =
         q * sumFinNat (fun z => K x z * (q ^ m * sumFinNat (fun y => matPowNat K m z y * v y))) := by
       rw [Nat.mul_comm (q ^ m) q, Nat.mul_assoc q (q ^ m), ← sumFinNat_mul_left]
-      congr 1
-      congr 1
-      funext z
-      rw [← Nat.mul_assoc, Nat.mul_comm (q ^ m) (K x z), Nat.mul_assoc]
+      apply congrArg (q * ·); apply congrArg sumFinNat; funext z; ring
     rw [hPull]
     have hLe1 : sumFinNat (fun z => K x z * (q ^ m * sumFinNat (fun y => matPowNat K m z y * v y))) ≤
         sumFinNat (fun z => K x z * ((p * Q) ^ m * v z)) :=
@@ -1697,7 +1278,6 @@ private theorem fin_argmax_exists {L : Nat} (hL : L ≥ 1) (f : Fin L → Nat) :
         intro i hi
         have hEq : i = ⟨0, by omega⟩ := Fin.ext (show i.val = 0 by omega)
         rw [hEq]
-        exact Nat.le_refl _
       | succ t =>
         have ⟨mPrev, hmLt, hmMax⟩ := ih (by omega) (by omega)
         let cur : Fin L := ⟨t + 1, by omega⟩
@@ -1709,7 +1289,6 @@ private theorem fin_argmax_exists {L : Nat} (hL : L ≥ 1) (f : Fin L → Nat) :
           else
             have hEq : i = cur := Fin.ext (by dsimp [cur]; omega)
             rw [hEq]
-            exact Nat.le_refl _
         else
           refine ⟨mPrev, by omega, ?_⟩
           intro i hi
@@ -2422,14 +2001,14 @@ theorem thm_mg_d4_tetrahedra_per_triangle_eq_3 :
 
 /-- Exact `A_2` Weyl-chamber Pieri step for `SU(3)` tensor multiplication by `3 ⊕ 3̄`:
     tracks multiplicities of irreps `V(p, q)` on `[0..dim-1] × [0..dim-1]`. -/
-private def gridAt (g : List (List Nat)) (p q : Nat) : Nat :=
+def gridAt (g : List (List Nat)) (p q : Nat) : Nat :=
   (g.getD p []).getD q 0
 
-private def pieriInit (dim : Nat) : List (List Nat) :=
+def pieriInit (dim : Nat) : List (List Nat) :=
   (List.range dim).map fun p =>
     (List.range dim).map fun q => if p == 0 && q == 0 then 1 else 0
 
-private def pieriStep (dim : Nat) (g : List (List Nat)) : List (List Nat) :=
+def pieriStep (dim : Nat) (g : List (List Nat)) : List (List Nat) :=
   (List.range dim).map fun p =>
     (List.range dim).map fun q =>
       (if p > 0 then gridAt g (p - 1) q else 0) +
@@ -2439,7 +2018,7 @@ private def pieriStep (dim : Nat) (g : List (List Nat)) : List (List Nat) :=
       (if p > 0 then gridAt g (p - 1) (q + 1) else 0) +
       gridAt g (p + 1) q
 
-private def pieriGrid (dim : Nat) : Nat → List (List Nat)
+def pieriGrid (dim : Nat) : Nat → List (List Nat)
   | 0 => pieriInit dim
   | n + 1 => pieriStep dim (pieriGrid dim n)
 
@@ -2472,11 +2051,9 @@ private theorem natFact_dvd_of_le (a b : Nat) (h : a ≤ b) : natFact a ∣ natF
   | zero =>
     have ha : a = 0 := by omega
     rw [ha]
-    exact Nat.dvd_refl _
   | succ k ih =>
     if heq : a = k + 1 then
       rw [heq]
-      exact Nat.dvd_refl _
     else
       have hPrev := ih (by omega)
       rcases hPrev with ⟨c, hc⟩
@@ -2662,324 +2239,16 @@ private theorem su3_traceless_invariants (a1 a2 a3 : Int) (hTr : a1 + a2 + a3 = 
     4 * (u1 * u2 + u2 * u3 + u3 * u1) = 9 * (S * S) := by
   have ha3 : a3 = -(a1 + a2) := by omega
   subst ha3
-  -- Reduce to 2 free variables a1, a2 and express everything in terms of p = a1 + a2, q = a1 * a2!
-  -- Notice: a1^2 + a2^2 + (-(a1+a2))^2 = 2 (p^2 - q), e3 = -p q,
-  -- a1^4 + a2^4 + (-(a1+a2))^4 = 2 (p^2 - q)^2, etc.!
-  let p := a1 + a2
-  let q := a1 * a2
-  have hp2 : a1 * a1 + a2 * a2 = p * p - 2 * q := by
-    have h : (a1 + a2) * (a1 + a2) = a1 * a1 + 2 * (a1 * a2) + a2 * a2 := by
-      simp only [Int.add_mul, Int.mul_add, Int.mul_comm a2 a1]; omega
-    change a1 * a1 + a2 * a2 = (a1 + a2) * (a1 + a2) - 2 * (a1 * a2)
-    omega
-  have hNegSq : (-(a1 + a2)) * (-(a1 + a2)) = p * p := by
-    rw [Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  have hS : a1 * a1 + a2 * a2 + (-(a1 + a2)) * (-(a1 + a2)) = 2 * (p * p - q) := by
-    rw [hNegSq, hp2]; omega
-  have hA4 : a1 * a1 * a1 * a1 + a2 * a2 * a2 * a2 = (p * p - 2 * q) * (p * p - 2 * q) - 2 * (q * q) := by
-    have hsq : (a1 * a1 + a2 * a2) * (a1 * a1 + a2 * a2) =
-        (a1 * a1) * (a1 * a1) + 2 * ((a1 * a2) * (a1 * a2)) + (a2 * a2) * (a2 * a2) := by
-      simp only [Int.add_mul, Int.mul_add]
-      have hm1 : (a1 * a1) * (a2 * a2) = (a1 * a2) * (a1 * a2) := by
-        calc (a1 * a1) * (a2 * a2) = a1 * (a1 * (a2 * a2)) := Int.mul_assoc _ _ _
-          _ = a1 * ((a1 * a2) * a2) := by rw [← Int.mul_assoc a1 a2 a2]
-          _ = a1 * ((a2 * a1) * a2) := by rw [Int.mul_comm a1 a2]
-          _ = a1 * (a2 * (a1 * a2)) := by rw [Int.mul_assoc a2 a1 a2]
-          _ = (a1 * a2) * (a1 * a2) := (Int.mul_assoc _ _ _).symm
-      have hm2 : (a2 * a2) * (a1 * a1) = (a1 * a2) * (a1 * a2) := by rw [Int.mul_comm, hm1]
-      rw [hm1, hm2]; omega
-    have h4a : a1 * a1 * a1 * a1 = (a1 * a1) * (a1 * a1) := by rw [Int.mul_assoc (a1 * a1) a1 a1]
-    have h4b : a2 * a2 * a2 * a2 = (a2 * a2) * (a2 * a2) := by rw [Int.mul_assoc (a2 * a2) a2 a2]
-    rw [hp2] at hsq
-    rw [h4a, h4b]
-    change (a1 * a1) * (a1 * a1) + (a2 * a2) * (a2 * a2) =
-      (p * p - 2 * q) * (p * p - 2 * q) - 2 * ((a1 * a2) * (a1 * a2))
-    omega
-  have hNeg4 : (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) = (p * p) * (p * p) := by
-    have h4 : (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) =
-        ((-(a1 + a2)) * (-(a1 + a2))) * ((-(a1 + a2)) * (-(a1 + a2))) := by
-      rw [Int.mul_assoc ((-(a1 + a2)) * (-(a1 + a2)))]
-    rw [h4, hNegSq]
-  have hA4Sum : a1 * a1 * a1 * a1 + a2 * a2 * a2 * a2 +
-      (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) =
-      2 * ((p * p - q) * (p * p - q)) := by
-    rw [hA4, hNeg4]
-    simp only [Int.sub_mul, Int.mul_sub]
-    have hc1 : (p * p) * (2 * q) = 2 * ((p * p) * q) := by rw [mg_mul_left_comm]
-    have hc2 : (2 * q) * (p * p) = 2 * ((p * p) * q) := by rw [Int.mul_comm, hc1]
-    have hc3 : (2 * q) * (2 * q) = 4 * (q * q) := by
-      rw [Int.mul_assoc 2 q (2 * q), mg_mul_left_comm q 2 q, ← Int.mul_assoc 2 2 (q * q)]; rfl
-    have hc4 : q * (p * p) = (p * p) * q := Int.mul_comm q (p * p)
-    rw [hc1, hc2, hc3, hc4]
-    omega
-  have hA6Sum : a1 * a1 * a1 * a1 * a1 * a1 + a2 * a2 * a2 * a2 * a2 * a2 +
-      (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) =
-      2 * ((p * p - q) * (p * p - q) * (p * p - q)) + 3 * ((p * q) * (p * q)) := by
-    have h6a : a1 * a1 * a1 * a1 * a1 * a1 = (a1 * a1) * (a1 * a1 * a1 * a1) := by
-      simp only [Int.mul_assoc]
-    have h6b : a2 * a2 * a2 * a2 * a2 * a2 = (a2 * a2) * (a2 * a2 * a2 * a2) := by
-      simp only [Int.mul_assoc]
-    have h6c : (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) =
-        (p * p) * ((p * p) * (p * p)) := by
-      have hStep : (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) * (-(a1 + a2)) =
-          ((-(a1 + a2)) * (-(a1 + a2))) * (((-(a1 + a2)) * (-(a1 + a2))) * ((-(a1 + a2)) * (-(a1 + a2)))) := by
-        simp only [Int.mul_assoc]
-      rw [hStep, hNegSq]
-    have hProd : (a1 * a1 + a2 * a2) * (a1 * a1 * a1 * a1 + a2 * a2 * a2 * a2) =
-        (a1 * a1) * (a1 * a1 * a1 * a1) + (a2 * a2) * (a2 * a2 * a2 * a2) +
-        (q * q) * (a1 * a1 + a2 * a2) := by
-      simp only [Int.add_mul, Int.mul_add]
-      have hx1 : (a1 * a1) * (a2 * a2 * a2 * a2) = (q * q) * (a2 * a2) := by
-        change (a1 * a1) * (a2 * a2 * a2 * a2) = ((a1 * a2) * (a1 * a2)) * (a2 * a2)
-        have hq2 : (a1 * a2) * (a1 * a2) = (a1 * a1) * (a2 * a2) := by
-          calc (a1 * a2) * (a1 * a2) = a1 * (a2 * (a1 * a2)) := Int.mul_assoc _ _ _
-            _ = a1 * ((a2 * a1) * a2) := by rw [← Int.mul_assoc a2 a1 a2]
-            _ = a1 * ((a1 * a2) * a2) := by rw [Int.mul_comm a2 a1]
-            _ = a1 * (a1 * (a2 * a2)) := by rw [Int.mul_assoc a1 a2 a2]
-            _ = (a1 * a1) * (a2 * a2) := (Int.mul_assoc _ _ _).symm
-        rw [hq2, Int.mul_assoc (a1 * a1), ← Int.mul_assoc (a2 * a2) a2 a2]
-      have hx2 : (a2 * a2) * (a1 * a1 * a1 * a1) = (q * q) * (a1 * a1) := by
-        change (a2 * a2) * (a1 * a1 * a1 * a1) = ((a1 * a2) * (a1 * a2)) * (a1 * a1)
-        have hq2 : (a1 * a2) * (a1 * a2) = (a2 * a2) * (a1 * a1) := by
-          calc (a1 * a2) * (a1 * a2) = a1 * (a2 * (a1 * a2)) := Int.mul_assoc _ _ _
-            _ = a1 * ((a2 * a1) * a2) := by rw [← Int.mul_assoc a2 a1 a2]
-            _ = a1 * ((a1 * a2) * a2) := by rw [Int.mul_comm a2 a1]
-            _ = a1 * (a1 * (a2 * a2)) := by rw [Int.mul_assoc a1 a2 a2]
-            _ = (a1 * a1) * (a2 * a2) := (Int.mul_assoc _ _ _).symm
-            _ = (a2 * a2) * (a1 * a1) := Int.mul_comm _ _
-        rw [hq2, Int.mul_assoc (a2 * a2), ← Int.mul_assoc (a1 * a1) a1 a1]
-      rw [hx1, hx2]
-      omega
-    rw [h6a, h6b, h6c]
-    rw [hp2, hA4] at hProd
-    let P := p * p
-    have hpqSq : (p * q) * (p * q) = P * (q * q) := by
-      calc (p * q) * (p * q) = p * (q * (p * q)) := Int.mul_assoc _ _ _
-        _ = p * ((q * p) * q) := by rw [← Int.mul_assoc q p q]
-        _ = p * ((p * q) * q) := by rw [Int.mul_comm q p]
-        _ = p * (p * (q * q)) := by rw [Int.mul_assoc p q q]
-        _ = (p * p) * (q * q) := (Int.mul_assoc _ _ _).symm
-    have hL : (P - 2 * q) * ((P - 2 * q) * (P - 2 * q) - 2 * (q * q)) - (q * q) * (P - 2 * q) + P * (P * P) =
-        2 * ((P - q) * (P - q) * (P - q)) + 3 * (P * (q * q)) := by
-      simp only [Int.sub_mul, Int.mul_sub]
-      have m1 : P * (P * P) = P * P * P := (Int.mul_assoc P P P).symm
-      have m2 : P * (2 * q) = 2 * (P * q) := mg_mul_left_comm P 2 q
-      have m3 : (2 * q) * P = 2 * (P * q) := by rw [Int.mul_comm, m2]
-      have m4 : (2 * q) * (2 * q) = 4 * (q * q) := by
-        rw [Int.mul_assoc 2 q (2 * q), mg_mul_left_comm q 2 q, ← Int.mul_assoc 2 2 (q * q)]; rfl
-      have m5 : q * P = P * q := Int.mul_comm q P
-      have m7 : P * (2 * (P * q)) = 2 * (P * P * q) := by
-        rw [mg_mul_left_comm P 2 (P * q), ← Int.mul_assoc P P q]
-      have m8 : P * (4 * (q * q)) = 4 * (P * (q * q)) := mg_mul_left_comm P 4 (q * q)
-      have m9 : P * (2 * (q * q)) = 2 * (P * (q * q)) := mg_mul_left_comm P 2 (q * q)
-      have m10 : (2 * q) * (P * P) = 2 * (P * P * q) := by
-        rw [Int.mul_comm (2 * q) (P * P), mg_mul_left_comm (P * P) 2 q]
-      have m11 : (2 * q) * (2 * (P * q)) = 4 * (P * (q * q)) := by
-        calc (2 * q) * (2 * (P * q)) = 2 * (q * (2 * (P * q))) := Int.mul_assoc _ _ _
-          _ = 2 * (2 * (q * (P * q))) := by rw [mg_mul_left_comm q 2 (P * q)]
-          _ = 4 * (q * (P * q)) := by rw [← Int.mul_assoc 2 2]; rfl
-          _ = 4 * (P * (q * q)) := by rw [mg_mul_left_comm q P q]
-      have m12 : (2 * q) * (4 * (q * q)) = 8 * (q * (q * q)) := by
-        rw [Int.mul_assoc 2 q (4 * (q * q)), mg_mul_left_comm q 4 (q * q), ← Int.mul_assoc 2 4]; rfl
-      have m13 : (2 * q) * (2 * (q * q)) = 4 * (q * (q * q)) := by
-        rw [Int.mul_assoc 2 q (2 * (q * q)), mg_mul_left_comm q 2 (q * q), ← Int.mul_assoc 2 2]; rfl
-      have m14 : (q * q) * P = P * (q * q) := Int.mul_comm _ _
-      have m15 : (q * q) * (2 * q) = 2 * (q * (q * q)) := by
-        rw [mg_mul_left_comm (q * q) 2 q, Int.mul_comm (q * q) q]
-      have m16 : P * q * P = P * P * q := by rw [Int.mul_assoc P q P, Int.mul_comm q P, ← Int.mul_assoc]
-      have m18 : P * q * q = P * (q * q) := Int.mul_assoc P q q
-      have m19 : q * q * q = q * (q * q) := Int.mul_assoc q q q
-      rw [m2, m3, m4, m5, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m18, m19, m1]
-      omega
-    rw [hpqSq]
-    change (a1 * a1) * (a1 * a1 * a1 * a1) + (a2 * a2) * (a2 * a2 * a2 * a2) + P * (P * P) =
-      2 * ((P - q) * (P - q) * (P - q)) + 3 * (P * (q * q))
-    change (P - 2 * q) * ((P - 2 * q) * (P - 2 * q) - 2 * (q * q)) =
-      (a1 * a1) * (a1 * a1 * a1 * a1) + (a2 * a2) * (a2 * a2 * a2 * a2) + (q * q) * (P - 2 * q) at hProd
-    omega
-  have hE3Sq : (a1 * a2 * (-(a1 + a2))) * (a1 * a2 * (-(a1 + a2))) = (p * q) * (p * q) := by
-    have h : a1 * a2 * (-(a1 + a2)) = -(p * q) := by
-      rw [Int.mul_neg, Int.mul_comm (a1 * a2) (a1 + a2)]
-    rw [h, Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  have hNegSqGen : ∀ x : Int, (-x) * (-x) = x * x := by
-    intro x; rw [Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  have hDisc : ((a1 - a2) * (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) *
-      ((a1 - a2) * (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) =
-      4 * ((p * p - q) * (p * p - q) * (p * p - q)) - 27 * ((p * q) * (p * q)) := by
-    have hD1 : (a1 - a2) * (a1 - a2) = p * p - 4 * q := by
-      have h : (a1 - a2) * (a1 - a2) = a1 * a1 - 2 * (a1 * a2) + a2 * a2 := by
-        simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm a2 a1]; omega
-      change (a1 - a2) * (a1 - a2) = p * p - 4 * (a1 * a2)
-      omega
-    have hD2 : (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1) = -(2 * (p * p) + q) := by
-      have h1 : a2 - (-(a1 + a2)) = a1 + 2 * a2 := by omega
-      have h2 : (-(a1 + a2)) - a1 = -(2 * a1 + a2) := by omega
-      rw [h1, h2, Int.mul_neg]
-      have h3 : (a1 + 2 * a2) * (2 * a1 + a2) = 2 * (a1 * a1 + a2 * a2) + 5 * (a1 * a2) := by
-        simp only [Int.add_mul, Int.mul_add]
-        have ha : a1 * (2 * a1) = 2 * (a1 * a1) := mg_mul_left_comm a1 2 a1
-        have hb : (2 * a2) * (2 * a1) = 4 * (a1 * a2) := by
-          rw [Int.mul_assoc 2 a2 (2 * a1), mg_mul_left_comm a2 2 a1, Int.mul_comm a2 a1,
-              ← Int.mul_assoc 2 2]; rfl
-        have hc : (2 * a2) * a2 = 2 * (a2 * a2) := Int.mul_assoc 2 a2 a2
-        rw [ha, hb, hc]; omega
-      rw [h3, hp2]; omega
-    have hProd3 : ((a1 - a2) * (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) *
-        ((a1 - a2) * (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) =
-        ((a1 - a2) * (a1 - a2)) *
-        (((a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) * ((a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1))) := by
-      have hA : (a1 - a2) * (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1) =
-          (a1 - a2) * ((a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) := Int.mul_assoc _ _ _
-      rw [hA]
-      let x := a1 - a2
-      let y := (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)
-      calc (x * y) * (x * y) = x * (y * (x * y)) := Int.mul_assoc _ _ _
-        _ = x * ((y * x) * y) := by rw [← Int.mul_assoc y x y]
-        _ = x * ((x * y) * y) := by rw [Int.mul_comm y x]
-        _ = x * (x * (y * y)) := by rw [Int.mul_assoc x y y]
-        _ = (x * x) * (y * y) := (Int.mul_assoc _ _ _).symm
-    rw [hProd3, hD1, hD2, hNegSqGen]
-    let P := p * p
-    have hpqSq : (p * q) * (p * q) = P * (q * q) := by
-      calc (p * q) * (p * q) = p * (q * (p * q)) := Int.mul_assoc _ _ _
-        _ = p * ((q * p) * q) := by rw [← Int.mul_assoc q p q]
-        _ = p * ((p * q) * q) := by rw [Int.mul_comm q p]
-        _ = p * (p * (q * q)) := by rw [Int.mul_assoc p q q]
-        _ = (p * p) * (q * q) := (Int.mul_assoc _ _ _).symm
-    rw [hpqSq]
-    change (P - 4 * q) * ((2 * P + q) * (2 * P + q)) =
-      4 * ((P - q) * (P - q) * (P - q)) - 27 * (P * (q * q))
-    simp only [Int.sub_mul, Int.mul_sub, Int.add_mul, Int.mul_add]
-    have c1 : (2 * P) * (2 * P) = 4 * (P * P) := by
-      rw [Int.mul_assoc 2 P (2 * P), mg_mul_left_comm P 2 P, ← Int.mul_assoc 2 2]; rfl
-    have c2 : (2 * P) * q = 2 * (P * q) := Int.mul_assoc 2 P q
-    have c3 : q * (2 * P) = 2 * (P * q) := by rw [Int.mul_comm, c2]
-    have c4 : P * (4 * (P * P)) = 4 * (P * P * P) := by
-      rw [mg_mul_left_comm P 4 (P * P), ← Int.mul_assoc P P P]
-    have c5 : P * (2 * (P * q)) = 2 * (P * P * q) := by
-      rw [mg_mul_left_comm P 2 (P * q), ← Int.mul_assoc P P q]
-    have c6 : (4 * q) * (4 * (P * P)) = 16 * (P * P * q) := by
-      rw [Int.mul_assoc 4 q (4 * (P * P)), mg_mul_left_comm q 4 (P * P), ← Int.mul_assoc 4 4,
-          Int.mul_comm q (P * P)]; rfl
-    have c7 : (4 * q) * (2 * (P * q)) = 8 * (P * (q * q)) := by
-      calc (4 * q) * (2 * (P * q)) = 4 * (q * (2 * (P * q))) := Int.mul_assoc _ _ _
-        _ = 4 * (2 * (q * (P * q))) := by rw [mg_mul_left_comm q 2 (P * q)]
-        _ = 8 * (q * (P * q)) := by rw [← Int.mul_assoc 4 2]; rfl
-        _ = 8 * (P * (q * q)) := by rw [mg_mul_left_comm q P q]
-    have c8 : (4 * q) * (q * q) = 4 * (q * (q * q)) := Int.mul_assoc 4 q (q * q)
-    have c9 : q * P = P * q := Int.mul_comm q P
-    have c10 : P * q * P = P * P * q := by rw [Int.mul_assoc P q P, Int.mul_comm q P, ← Int.mul_assoc]
-    have c11 : q * q * P = P * (q * q) := Int.mul_comm _ _
-    have c12 : P * q * q = P * (q * q) := Int.mul_assoc P q q
-    have c13 : q * q * q = q * (q * q) := Int.mul_assoc q q q
-    rw [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13]
-    omega
-  -- Root-difference invariants u1, u2, u3
-  have hUsum : (a1 - a2) * (a1 - a2) + (a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2))) +
-      ((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1) = 6 * (p * p - q) := by
-    have h1 : (a1 - a2) * (a1 - a2) = a1 * a1 - 2 * q + a2 * a2 := by
-      simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm a2 a1]; omega
-    have h2 : (a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2))) = a1 * a1 + 4 * q + 4 * (a2 * a2) := by
-      have ha : a2 - (-(a1 + a2)) = a1 + 2 * a2 := by omega
-      rw [ha]; simp only [Int.add_mul, Int.mul_add]
-      have m1 : a1 * (2 * a2) = 2 * q := mg_mul_left_comm a1 2 a2
-      have m2 : (2 * a2) * a1 = 2 * q := by rw [Int.mul_comm, m1]
-      have m3 : (2 * a2) * (2 * a2) = 4 * (a2 * a2) := by
-        rw [Int.mul_assoc 2 a2 (2 * a2), mg_mul_left_comm a2 2 a2, ← Int.mul_assoc 2 2]; rfl
-      rw [m1, m2, m3]; omega
-    have h3 : ((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1) = 4 * (a1 * a1) + 4 * q + a2 * a2 := by
-      have ha : (-(a1 + a2)) - a1 = -(2 * a1 + a2) := by omega
-      rw [ha, hNegSqGen]; simp only [Int.add_mul, Int.mul_add]
-      have m1 : (2 * a1) * (2 * a1) = 4 * (a1 * a1) := by
-        rw [Int.mul_assoc 2 a1 (2 * a1), mg_mul_left_comm a1 2 a1, ← Int.mul_assoc 2 2]; rfl
-      have m2 : (2 * a1) * a2 = 2 * q := Int.mul_assoc 2 a1 a2
-      have m3 : a2 * (2 * a1) = 2 * q := by rw [Int.mul_comm, m2]
-      rw [m1, m2, m3]; omega
-    rw [h1, h2, h3]
-    omega
-  have hU2 :
-      let u1 := (a1 - a2) * (a1 - a2)
-      let u2 := (a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2)))
-      let u3 := ((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1)
-      4 * (u1 * u2 + u2 * u3 + u3 * u1) = 36 * ((p * p - q) * (p * p - q)) := by
-    let P := p * p
-    have hU1 : (a1 - a2) * (a1 - a2) = P - 4 * q := by
-      have h : (a1 - a2) * (a1 - a2) = a1 * a1 - 2 * q + a2 * a2 := by
-        simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm a2 a1]; omega
-      change (a1 - a2) * (a1 - a2) = p * p - 4 * q
-      omega
-    have hU23Sum : (a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2))) +
-        ((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1) = 5 * P - 2 * q := by
-      change (a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2))) +
-        ((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1) = 5 * (p * p) - 2 * q
-      change (a1 - a2) * (a1 - a2) = p * p - 4 * q at hU1
-      omega
-    have hU23Prod : ((a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2)))) *
-        (((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1)) = (2 * P + q) * (2 * P + q) := by
-      have hProd : ((a2 - (-(a1 + a2))) * (a2 - (-(a1 + a2)))) *
-          (((-(a1 + a2)) - a1) * ((-(a1 + a2)) - a1)) =
-          ((a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) *
-          ((a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1)) := by
-        let x := a2 - (-(a1 + a2))
-        let y := (-(a1 + a2)) - a1
-        calc (x * x) * (y * y) = x * (x * (y * y)) := Int.mul_assoc _ _ _
-          _ = x * ((x * y) * y) := by rw [← Int.mul_assoc x y y]
-          _ = x * ((y * x) * y) := by rw [Int.mul_comm x y]
-          _ = x * (y * (x * y)) := by rw [Int.mul_assoc y x y]
-          _ = (x * y) * (x * y) := (Int.mul_assoc _ _ _).symm
-      have hPair : (a2 - (-(a1 + a2))) * ((-(a1 + a2)) - a1) = -(2 * P + q) := by
-        have h1 : a2 - (-(a1 + a2)) = a1 + 2 * a2 := by omega
-        have h2 : (-(a1 + a2)) - a1 = -(2 * a1 + a2) := by omega
-        rw [h1, h2, Int.mul_neg]
-        have h3 : (a1 + 2 * a2) * (2 * a1 + a2) = 2 * (a1 * a1 + a2 * a2) + 5 * q := by
-          simp only [Int.add_mul, Int.mul_add]
-          have ha : a1 * (2 * a1) = 2 * (a1 * a1) := mg_mul_left_comm a1 2 a1
-          have hb : (2 * a2) * (2 * a1) = 4 * q := by
-            rw [Int.mul_assoc 2 a2 (2 * a1), mg_mul_left_comm a2 2 a1, Int.mul_comm a2 a1,
-                ← Int.mul_assoc 2 2]; rfl
-          have hc : (2 * a2) * a2 = 2 * (a2 * a2) := Int.mul_assoc 2 a2 a2
-          rw [ha, hb, hc]; omega
-        rw [h3, hp2]; omega
-      rw [hProd, hPair, hNegSqGen]
-    dsimp only
-    have hFactor :
-        (a1 - a2) * (a1 - a2) * ((a2 - -(a1 + a2)) * (a2 - -(a1 + a2))) +
-        (a2 - -(a1 + a2)) * (a2 - -(a1 + a2)) * ((-(a1 + a2) - a1) * (-(a1 + a2) - a1)) +
-        (-(a1 + a2) - a1) * (-(a1 + a2) - a1) * ((a1 - a2) * (a1 - a2)) =
-        (a1 - a2) * (a1 - a2) *
-          ((a2 - -(a1 + a2)) * (a2 - -(a1 + a2)) + (-(a1 + a2) - a1) * (-(a1 + a2) - a1)) +
-        (a2 - -(a1 + a2)) * (a2 - -(a1 + a2)) * ((-(a1 + a2) - a1) * (-(a1 + a2) - a1)) := by
-      rw [Int.mul_add, Int.mul_comm ((-(a1 + a2) - a1) * (-(a1 + a2) - a1)) ((a1 - a2) * (a1 - a2))]
-      omega
-    rw [hFactor, hU1, hU23Sum, hU23Prod]
-    change 4 * ((P - 4 * q) * (5 * P - 2 * q) + (2 * P + q) * (2 * P + q)) =
-      36 * ((P - q) * (P - q))
-    simp only [Int.sub_mul, Int.mul_sub, Int.add_mul, Int.mul_add]
-    have d1 : P * (5 * P) = 5 * (P * P) := mg_mul_left_comm P 5 P
-    have d2 : P * (2 * q) = 2 * (P * q) := mg_mul_left_comm P 2 q
-    have d3 : (4 * q) * (5 * P) = 20 * (P * q) := by
-      rw [Int.mul_assoc 4 q (5 * P), mg_mul_left_comm q 5 P, Int.mul_comm q P, ← Int.mul_assoc 4 5]; rfl
-    have d4 : (4 * q) * (2 * q) = 8 * (q * q) := by
-      rw [Int.mul_assoc 4 q (2 * q), mg_mul_left_comm q 2 q, ← Int.mul_assoc 4 2]; rfl
-    have d5 : (2 * P) * (2 * P) = 4 * (P * P) := by
-      rw [Int.mul_assoc 2 P (2 * P), mg_mul_left_comm P 2 P, ← Int.mul_assoc 2 2]; rfl
-    have d6 : (2 * P) * q = 2 * (P * q) := Int.mul_assoc 2 P q
-    have d7 : q * (2 * P) = 2 * (P * q) := by rw [Int.mul_comm, d6]
-    have d8 : q * P = P * q := Int.mul_comm q P
-    rw [d1, d2, d3, d4, d5, d6, d7, d8]
-    omega
   dsimp only
-  have hS2 : (2 * (p * p - q)) * (2 * (p * p - q)) = 4 * ((p * p - q) * (p * p - q)) := by
-    rw [Int.mul_assoc 2 (p * p - q) (2 * (p * p - q)), mg_mul_left_comm (p * p - q) 2 (p * p - q),
-        ← Int.mul_assoc 2 2]; rfl
-  have hS3 : (2 * (p * p - q)) * (2 * (p * p - q)) * (2 * (p * p - q)) =
-      8 * ((p * p - q) * (p * p - q) * (p * p - q)) := by
-    rw [hS2, Int.mul_assoc 4, mg_mul_left_comm ((p * p - q) * (p * p - q)) 2 (p * p - q),
-        ← Int.mul_assoc 4 2]; rfl
-  rw [hS, hS3, hS2, hA4Sum, hA6Sum, hE3Sq, hDisc, hUsum, hU2]
-  have hNonneg := int_sq_nonneg ((a1 - a2) * (a2 - -(a1 + a2)) * (-(a1 + a2) - a1))
-  rw [hDisc] at hNonneg
-  refine ⟨by omega, by omega, by omega, by omega, by omega, by omega⟩
+  have hDisc :
+      (a1 * a1 + a2 * a2 + -(a1 + a2) * -(a1 + a2)) *
+        (a1 * a1 + a2 * a2 + -(a1 + a2) * -(a1 + a2)) *
+        (a1 * a1 + a2 * a2 + -(a1 + a2) * -(a1 + a2)) -
+      54 * (a1 * a2 * -(a1 + a2) * (a1 * a2 * -(a1 + a2))) =
+      2 * ((a1 - a2) * (a2 - -(a1 + a2)) * (-(a1 + a2) - a1) *
+           ((a1 - a2) * (a2 - -(a1 + a2)) * (-(a1 + a2) - a1))) := by ring
+  refine ⟨by ring, by ring, hDisc, ?_, by ring, by ring⟩
+  nlinarith [mul_self_nonneg ((a1 - a2) * (a2 - -(a1 + a2)) * (-(a1 + a2) - a1))]
 
 private theorem su3_closed_form_cert :
     -- Exact algebraic derivation of tail constants from y = 317/375 (1 - y/2 = 433/750, 11*(750-317) = 4763, 12*317 = 3804)

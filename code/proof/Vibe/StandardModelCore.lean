@@ -1,10 +1,15 @@
-import Vibe.Algebra
-import Vibe.CuspGrowth
+module
+
+public import Vibe.Algebra
+public import Vibe.CuspGrowth
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.FinCases
 
 /-!
 # Vibe Theory: Standard Model Algebraic Core on `{3,4,3,4}` (Wave-5 Closure)
 
-Zero-dependency Lean `4.35.0` formalization of the six exact algebraic pillars underlying
+Lean `4.35.0` + Mathlib `v4.35.0` formalization of the six exact algebraic pillars underlying
 the Wave-5 Standard Model closure suite (`test/verify/`):
 
 1. **`thm_sm_anomaly_cancellation_and_z6_quotient`:**
@@ -61,26 +66,16 @@ the Wave-5 Standard Model closure suite (`test/verify/`):
      congruence (`Q ∈ {-1, 0, +1, +2}`, proton `u u d → +1`, neutron `u d d → 0`, `Δ^{++} u u u → +2`,
      `Δ^- d d d → -1`, plus general integer-charge law for any three `triality = 1` quarks).
 
-Zero `sorry`, zero `axiom`, zero `native_decide`, zero external packages, machine-checked by Lean `4.35.0`.
+Zero `sorry`, zero `axiom`, zero `native_decide`, machine-checked by Lean `4.35.0` with Mathlib `v4.35.0`.
 -/
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
 /-! ## Shared Small Helpers (Private to `Vibe.StandardModelCore`) -/
-
-private theorem sm_ite_pos {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : c) :
-    (if c then a else b) = a := by
-  cases d with
-  | isTrue _ => rfl
-  | isFalse hn => exact absurd h hn
-
-private theorem sm_ite_neg {c : Prop} [d : Decidable c] {α : Type} {a b : α} (h : ¬ c) :
-    (if c then a else b) = b := by
-  cases d with
-  | isTrue hp => exact absurd hp h
-  | isFalse _ => rfl
 
 /-- Explicit Boolean XOR with total, version-independent reduction. -/
 def smXor (a b : Bool) : Bool :=
@@ -395,232 +390,57 @@ def smSU3Delta4 (T : SMMat3Eis) : SMMat3Eis :=
 private theorem sm_mat5_ext (A B : SMMat5) (h : ∀ i j : Fin 5, A i j = B i j) : A = B :=
   funext (fun i => funext (fun j => h i j))
 
-private theorem sm_sum5_add (f g : Fin 5 → Int) :
-    smSum5Int (fun k => f k + g k) = smSum5Int f + smSum5Int g := by
-  unfold smSum5Int; dsimp only; omega
-
-private theorem sm_sum5_sub (f g : Fin 5 → Int) :
-    smSum5Int (fun k => f k - g k) = smSum5Int f - smSum5Int g := by
-  unfold smSum5Int; dsimp only; omega
-
-private theorem sm_sum5_mul_left (c : Int) (f : Fin 5 → Int) :
-    smSum5Int (fun k => c * f k) = c * smSum5Int f := by
-  unfold smSum5Int; simp only [Int.mul_add]
-
-private theorem sm_sum5_mul_right (f : Fin 5 → Int) (c : Int) :
-    smSum5Int (fun k => f k * c) = smSum5Int f * c := by
-  unfold smSum5Int; simp only [Int.add_mul]
-
-private theorem sm_int_mul_sq (k a : Int) : (k * a) * (k * a) = (k * k) * (a * a) := by
-  calc (k * a) * (k * a)
-    _ = k * (a * (k * a)) := Int.mul_assoc k a (k * a)
-    _ = k * ((a * k) * a) := by rw [← Int.mul_assoc a k a]
-    _ = k * ((k * a) * a) := by rw [Int.mul_comm a k]
-    _ = k * (k * (a * a)) := by rw [Int.mul_assoc k a a]
-    _ = (k * k) * (a * a) := (Int.mul_assoc k k (a * a)).symm
-
 private theorem sm_mat5FrobSq_scale (k : Int) (A : SMMat5) :
     smMat5FrobSq (smMat5Scale k A) = (k * k) * smMat5FrobSq A := by
-  unfold smMat5FrobSq smMat5Scale
-  have hInner : ∀ i : Fin 5,
-      smSum5Int (fun j => (k * A i j) * (k * A i j)) = (k * k) * smSum5Int (fun j => A i j * A i j) := by
-    intro i
-    have hFun : (fun j => (k * A i j) * (k * A i j)) = (fun j => (k * k) * (A i j * A i j)) :=
-      funext (fun j => sm_int_mul_sq k (A i j))
-    rw [hFun, sm_sum5_mul_left]
-  have hOuter : (fun i => smSum5Int (fun j => (k * A i j) * (k * A i j))) =
-      (fun i => (k * k) * smSum5Int (fun j => A i j * A i j)) := funext hInner
-  rw [hOuter, sm_sum5_mul_left]
+  unfold smMat5FrobSq smMat5Scale smSum5Int; ring
 
 private theorem sm_so5WilsonHom_orth (s c : Int) :
     smMat5Mul (smMat5Transpose (smSo5WilsonHom s c)) (smSo5WilsonHom s c) =
       smMat5ScaleId ((c * c + s * s) * (c * c + s * s)) := by
-  have h22 : (2 * 2 : Int) = 4 := by decide
-  have hNegSq : ∀ x : Int, (-x) * (-x) = x * x := by
-    intro x; rw [Int.neg_mul, Int.mul_neg]; omega
-  have hPyth : (c * c - s * s) * (c * c - s * s) + (2 * (s * c)) * (2 * (s * c)) =
-      (c * c + s * s) * (c * c + s * s) := by
-    have h1 : (2 * (s * c)) * (2 * (s * c)) = 4 * ((c * c) * (s * s)) := by
-      rw [sm_int_mul_sq 2 (s * c), sm_int_mul_sq s c, Int.mul_comm (s * s) (c * c), h22]
-    have h2 : (c * c - s * s) * (c * c - s * s) =
-        (c * c) * (c * c) - 2 * ((c * c) * (s * s)) + (s * s) * (s * s) := by
-      simp only [Int.sub_mul, Int.mul_sub]
-      rw [Int.mul_comm (s * s) (c * c)]
-      omega
-    have h3 : (c * c + s * s) * (c * c + s * s) =
-        (c * c) * (c * c) + 2 * ((c * c) * (s * s)) + (s * s) * (s * s) := by
-      simp only [Int.add_mul, Int.mul_add]
-      rw [Int.mul_comm (s * s) (c * c)]
-      omega
-    rw [h1, h2, h3]
-    omega
-  have hPythNeg : (c * c - s * s) * (c * c - s * s) + (-(2 * (s * c))) * (-(2 * (s * c))) =
-      (c * c + s * s) * (c * c + s * s) := by
-    rw [hNegSq, hPyth]
-  have hPythSwap : (2 * (s * c)) * (2 * (s * c)) + (c * c - s * s) * (c * c - s * s) =
-      (c * c + s * s) * (c * c + s * s) := by
-    omega
-  have hCross : (c * c - s * s) * (2 * (s * c)) + (-(2 * (s * c))) * (c * c - s * s) = 0 := by
-    rw [Int.neg_mul, Int.mul_comm (2 * (s * c)) (c * c - s * s)]; omega
-  have hCrossSwap : (2 * (s * c)) * (c * c - s * s) + (c * c - s * s) * (-(2 * (s * c))) = 0 := by
-    rw [Int.mul_neg, Int.mul_comm (2 * (s * c)) (c * c - s * s)]; omega
   apply sm_mat5_ext; intro i j
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    match j with
-    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-      simp [smMat5Mul, smMat5Transpose, smSo5WilsonHom, smMat5ScaleId, smSum5Int] <;>
-        first | exact hPythNeg | exact hPythSwap | exact hCross | exact hCrossSwap
+  fin_cases i <;> fin_cases j <;>
+    simp [smMat5Mul, smMat5Transpose, smSo5WilsonHom, smMat5ScaleId, smSum5Int] <;> ring
 
 private theorem sm_wilsonDeltaHom_scale (k s c : Int) (T : SMMat5) :
     smWilsonDeltaHom s c (smMat5Scale k T) = smMat5Scale k (smWilsonDeltaHom s c T) := by
   apply sm_mat5_ext; intro i j
-  unfold smWilsonDeltaHom smMat5Sub smMat5Mul smMat5Scale; dsimp only
-  have h1 : ∀ m : Fin 5,
-      smSum5Int (fun r => k * T m r * smSo5WilsonHom s c r j) =
-        k * smSum5Int (fun r => T m r * smSo5WilsonHom s c r j) := by
-    intro m
-    have hf : (fun r => k * T m r * smSo5WilsonHom s c r j) =
-        (fun r => k * (T m r * smSo5WilsonHom s c r j)) :=
-      funext (fun r => Int.mul_assoc k (T m r) (smSo5WilsonHom s c r j))
-    rw [hf, sm_sum5_mul_left]
-  have h2 : (fun m => smMat5Transpose (smSo5WilsonHom s c) i m *
-        smSum5Int (fun r => k * T m r * smSo5WilsonHom s c r j)) =
-      (fun m => k * (smMat5Transpose (smSo5WilsonHom s c) i m *
-        smSum5Int (fun r => T m r * smSo5WilsonHom s c r j))) := by
-    funext m; rw [h1 m, ← Int.mul_assoc, Int.mul_comm (smMat5Transpose (smSo5WilsonHom s c) i m) k, Int.mul_assoc]
-  have h3 : ((c * c + s * s) * (c * c + s * s)) * (k * T i j) =
-      k * (((c * c + s * s) * (c * c + s * s)) * T i j) := by
-    rw [← Int.mul_assoc, Int.mul_comm ((c * c + s * s) * (c * c + s * s)) k, Int.mul_assoc]
-  rw [h2, sm_sum5_mul_left, h3, Int.mul_sub]
+  unfold smWilsonDeltaHom smMat5Sub smMat5Mul smMat5Scale smSum5Int; ring
 
 private theorem sm_wilsonDeltaHom_add (s c : Int) (A B : SMMat5) :
     smWilsonDeltaHom s c (smMat5Add A B) = smMat5Add (smWilsonDeltaHom s c A) (smWilsonDeltaHom s c B) := by
   apply sm_mat5_ext; intro i j
-  unfold smWilsonDeltaHom smMat5Add smMat5Sub smMat5Mul smMat5Scale; dsimp only
-  have h1 : ∀ m : Fin 5,
-      smSum5Int (fun r => (A m r + B m r) * smSo5WilsonHom s c r j) =
-        smSum5Int (fun r => A m r * smSo5WilsonHom s c r j) +
-        smSum5Int (fun r => B m r * smSo5WilsonHom s c r j) := by
-    intro m
-    have hf : (fun r => (A m r + B m r) * smSo5WilsonHom s c r j) =
-        (fun r => A m r * smSo5WilsonHom s c r j + B m r * smSo5WilsonHom s c r j) :=
-      funext (fun r => Int.add_mul (A m r) (B m r) (smSo5WilsonHom s c r j))
-    rw [hf, sm_sum5_add]
-  have h2 : (fun m => smMat5Transpose (smSo5WilsonHom s c) i m *
-        smSum5Int (fun r => (A m r + B m r) * smSo5WilsonHom s c r j)) =
-      (fun m =>
-        smMat5Transpose (smSo5WilsonHom s c) i m * smSum5Int (fun r => A m r * smSo5WilsonHom s c r j) +
-        smMat5Transpose (smSo5WilsonHom s c) i m * smSum5Int (fun r => B m r * smSo5WilsonHom s c r j)) := by
-    funext m; rw [h1 m, Int.mul_add]
-  rw [h2, sm_sum5_add, Int.mul_add]; omega
+  unfold smWilsonDeltaHom smMat5Add smMat5Sub smMat5Mul smMat5Scale smSum5Int; ring
 
 private theorem sm_wilsonDeltaHom_sub (s c : Int) (A B : SMMat5) :
     smWilsonDeltaHom s c (smMat5Sub A B) = smMat5Sub (smWilsonDeltaHom s c A) (smWilsonDeltaHom s c B) := by
   apply sm_mat5_ext; intro i j
-  unfold smWilsonDeltaHom smMat5Sub smMat5Mul smMat5Scale; dsimp only
-  have h1 : ∀ m : Fin 5,
-      smSum5Int (fun r => (A m r - B m r) * smSo5WilsonHom s c r j) =
-        smSum5Int (fun r => A m r * smSo5WilsonHom s c r j) -
-        smSum5Int (fun r => B m r * smSo5WilsonHom s c r j) := by
-    intro m
-    have hf : (fun r => (A m r - B m r) * smSo5WilsonHom s c r j) =
-        (fun r => A m r * smSo5WilsonHom s c r j - B m r * smSo5WilsonHom s c r j) :=
-      funext (fun r => Int.sub_mul (A m r) (B m r) (smSo5WilsonHom s c r j))
-    rw [hf, sm_sum5_sub]
-  have h2 : (fun m => smMat5Transpose (smSo5WilsonHom s c) i m *
-        smSum5Int (fun r => (A m r - B m r) * smSo5WilsonHom s c r j)) =
-      (fun m =>
-        smMat5Transpose (smSo5WilsonHom s c) i m * smSum5Int (fun r => A m r * smSo5WilsonHom s c r j) -
-        smMat5Transpose (smSo5WilsonHom s c) i m * smSum5Int (fun r => B m r * smSo5WilsonHom s c r j)) := by
-    funext m; rw [h1 m, Int.mul_sub]
-  rw [h2, sm_sum5_sub, Int.mul_sub]; omega
+  unfold smWilsonDeltaHom smMat5Sub smMat5Mul smMat5Scale smSum5Int; ring
 
 private theorem sm_wilsonDeltaHom_La (a : Fin 3) (s c : Int) :
     smWilsonDeltaHom s c (smSo5L a) = smMat5Scale (c * c + s * s) (smDeltaLa a s c) := by
-  have h2r : (c * c + s * s) * (2 * (s * s)) =
-      (c * c + s * s) * (c * c + s * s) - (c * c + s * s) * (c * c - s * s) := by
-    rw [← Int.mul_sub]; congr 1; omega
-  have hComD : (c * c - s * s) * (c * c + s * s) = (c * c + s * s) * (c * c - s * s) :=
-    Int.mul_comm (c * c - s * s) (c * c + s * s)
-  have hComT : (2 * (s * c)) * (c * c + s * s) = (c * c + s * s) * (2 * (s * c)) :=
-    Int.mul_comm (2 * (s * c)) (c * c + s * s)
-  have h4 : (4 : Fin 5).val = 4 := rfl
   apply sm_mat5_ext; intro i j
-  match a with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
-    match i with
-    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-      match j with
-      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-        simp [smWilsonDeltaHom, smDeltaLa, smSo5L, smSo5E, smSo5WilsonHom, smMat5Transpose,
-          smMat5Mul, smMat5Add, smMat5Sub, smMat5Neg, smMat5Scale, smSum5Int,
-          Int.mul_neg, Int.neg_mul, h4, h2r, hComD, hComT] <;> omega
+  fin_cases a <;> fin_cases i <;> fin_cases j <;>
+    simp [smWilsonDeltaHom, smDeltaLa, smSo5L, smSo5E, smSo5WilsonHom, smMat5Transpose,
+      smMat5Mul, smMat5Add, smMat5Sub, smMat5Neg, smMat5Scale, smSum5Int] <;> ring
 
 private theorem sm_wilsonDeltaHom_R2 (s c : Int) :
     smWilsonDeltaHom s c (smSo5R ⟨2, by decide⟩) =
       smMat5Neg (smMat5Scale (c * c + s * s) (smDeltaLa ⟨2, by decide⟩ s c)) := by
-  have h2r : (c * c + s * s) * (2 * (s * s)) =
-      (c * c + s * s) * (c * c + s * s) - (c * c + s * s) * (c * c - s * s) := by
-    rw [← Int.mul_sub]; congr 1; omega
-  have hComD : (c * c - s * s) * (c * c + s * s) = (c * c + s * s) * (c * c - s * s) :=
-    Int.mul_comm (c * c - s * s) (c * c + s * s)
-  have hComT : (2 * (s * c)) * (c * c + s * s) = (c * c + s * s) * (2 * (s * c)) :=
-    Int.mul_comm (2 * (s * c)) (c * c + s * s)
-  have h4 : (4 : Fin 5).val = 4 := rfl
   apply sm_mat5_ext; intro i j
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    match j with
-    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-      simp [smWilsonDeltaHom, smDeltaLa, smSo5R, smSo5E, smSo5WilsonHom, smMat5Transpose,
-        smMat5Mul, smMat5Sub, smMat5Neg, smMat5Scale, smSum5Int,
-        Int.mul_neg, Int.neg_mul, h4, h2r, hComD, hComT] <;> omega
+  fin_cases i <;> fin_cases j <;>
+    simp [smWilsonDeltaHom, smDeltaLa, smSo5R, smSo5E, smSo5WilsonHom, smMat5Transpose,
+      smMat5Mul, smMat5Sub, smMat5Neg, smMat5Scale, smSum5Int] <;> ring
 
 private theorem sm_frobSq_deltaLa (a : Fin 3) (s c : Int) :
     smMat5FrobSq (smDeltaLa a s c) = 8 * (s * s) * (c * c + s * s) := by
-  have h22 : (2 * 2 : Int) = 4 := by decide
-  have hNegSq : ∀ x : Int, (-x) * (-x) = x * x := by
-    intro x
-    rw [Int.neg_mul, Int.mul_neg]
-    omega
-  have hSq1 : (2 * (s * s)) * (2 * (s * s)) = 4 * ((s * s) * (s * s)) := by
-    rw [sm_int_mul_sq 2 (s * s), h22]
-  have hSq1Neg : (-(2 * (s * s))) * (-(2 * (s * s))) = 4 * ((s * s) * (s * s)) := by
-    rw [hNegSq, hSq1]
-  have hSq2 : (2 * (s * c)) * (2 * (s * c)) = 4 * ((s * s) * (c * c)) := by
-    rw [sm_int_mul_sq 2 (s * c), sm_int_mul_sq s c, h22]
-  have hSq2Neg : (-(2 * (s * c))) * (-(2 * (s * c))) = 4 * ((s * s) * (c * c)) := by
-    rw [hNegSq, hSq2]
-  have hSum : 8 * ((s * s) * (s * s)) + 8 * ((s * s) * (c * c)) = 8 * (s * s) * (c * c + s * s) := by
-    calc 8 * ((s * s) * (s * s)) + 8 * ((s * s) * (c * c))
-      _ = 8 * ((s * s) * (c * c) + (s * s) * (s * s)) := by rw [Int.mul_add]; omega
-      _ = 8 * ((s * s) * (c * c + s * s)) := by rw [← Int.mul_add (s * s) (c * c) (s * s)]
-      _ = 8 * (s * s) * (c * c + s * s) := (Int.mul_assoc 8 (s * s) (c * c + s * s)).symm
   match a with
   | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
-    simp [smMat5FrobSq, smSum5Int, smDeltaLa]
-    rw [hSq1, hSq1Neg, hSq2, hSq2Neg, ← hSum]
-    omega
+    simp [smMat5FrobSq, smSum5Int, smDeltaLa]; ring
 
 private theorem sm_frobSq_scale_r_deltaLa (k s c : Int) (a : Fin 3) :
     smMat5FrobSq (smMat5Scale k (smMat5Scale (c * c + s * s) (smDeltaLa a s c))) =
       8 * ((k * k) * (s * s)) * ((c * c + s * s) * (c * c + s * s) * (c * c + s * s)) := by
-  rw [sm_mat5FrobSq_scale, sm_mat5FrobSq_scale, sm_frobSq_deltaLa]
-  let r := c * c + s * s
-  change (k * k) * ((r * r) * (8 * (s * s) * r)) = 8 * ((k * k) * (s * s)) * (r * r * r)
-  calc (k * k) * ((r * r) * (8 * (s * s) * r))
-    _ = (k * k) * (8 * (s * s) * (r * r * r)) := by
-        rw [Int.mul_comm (r * r) (8 * (s * s) * r), Int.mul_assoc (8 * (s * s)) r (r * r),
-            Int.mul_comm r (r * r)]
-    _ = (k * k) * (8 * ((s * s) * (r * r * r))) := by
-        rw [Int.mul_assoc 8 (s * s) (r * r * r)]
-    _ = 8 * ((k * k) * ((s * s) * (r * r * r))) := by
-        rw [← Int.mul_assoc (k * k) 8 _, Int.mul_comm (k * k) 8, Int.mul_assoc]
-    _ = 8 * (((k * k) * (s * s)) * (r * r * r)) := by
-        rw [← Int.mul_assoc (k * k) (s * s) (r * r * r)]
-    _ = 8 * ((k * k) * (s * s)) * (r * r * r) := by
-        rw [← Int.mul_assoc 8 ((k * k) * (s * s)) (r * r * r)]
+  rw [sm_mat5FrobSq_scale, sm_mat5FrobSq_scale, sm_frobSq_deltaLa]; ring
 
 private theorem sm_zl5_conj_block_so4 (M : SMMat5)
     (hBlock : ∀ i : Fin 4, M (smFin4To5 i) ⟨4, by decide⟩ = 0 ∧ M ⟨4, by decide⟩ (smFin4To5 i) = 0) :
@@ -635,7 +455,7 @@ private theorem sm_zl5_conj_block_so4 (M : SMMat5)
   rw [hEntry]
   if hi : i.val < 4 then
     if hj : j.val < 4 then
-      simp only [smZL5Diag, sm_ite_pos hi, sm_ite_pos hj]
+      simp only [smZL5Diag, ite_eq_left hi, ite_eq_left hj]
       omega
     else
       have hj4 : j = ⟨4, by decide⟩ := Fin.ext (by have := j.isLt; change j.val = 4; omega)
@@ -786,8 +606,7 @@ theorem thm_sm_so5_custodial_rho_one_and_center_parity :
                     (smMat5Scale (g * gp) (smMat5Neg (smMat5Scale (c * c + s * s) (smDeltaLa ⟨2, by decide⟩ s c)))) =
             smMat5Zero := by
         apply sm_mat5_ext; intro i j
-        unfold smMat5Add smMat5Scale smMat5Neg smMat5Zero; dsimp only
-        rw [Int.mul_comm gp g, Int.mul_neg]; omega
+        unfold smMat5Add smMat5Scale smMat5Neg smMat5Zero; ring
       rw [hZero]; decide
     have hZ : smMat5FrobSq (smWilsonDeltaHom s c
         (smMat5Sub (smMat5Scale (g * g) (smSo5L ⟨2, by decide⟩))
@@ -800,49 +619,18 @@ theorem thm_sm_so5_custodial_rho_one_and_center_parity :
                     (smMat5Scale (gp * gp) (smMat5Neg (smMat5Scale (c * c + s * s) (smDeltaLa ⟨2, by decide⟩ s c)))) =
             smMat5Scale (g * g + gp * gp) (smMat5Scale (c * c + s * s) (smDeltaLa ⟨2, by decide⟩ s c)) := by
         apply sm_mat5_ext; intro i j
-        unfold smMat5Sub smMat5Scale smMat5Neg; dsimp only
-        rw [Int.mul_neg, Int.sub_neg, ← Int.add_mul]
-      rw [hComb, sm_frobSq_scale_r_deltaLa]
-      unfold smMZ2
-      rw [Int.mul_assoc (g * g + gp * gp) (g * g + gp * gp) (s * s)]
+        unfold smMat5Sub smMat5Scale smMat5Neg; ring
+      rw [hComb, sm_frobSq_scale_r_deltaLa]; unfold smMZ2; ring
     have hRhoDirect :
         smMat5FrobSq (smWilsonDeltaHom s c (smMat5Scale g (smSo5L ⟨0, by decide⟩))) *
           ((g * g + gp * gp) * (g * g + gp * gp)) =
         smMat5FrobSq (smWilsonDeltaHom s c
           (smMat5Sub (smMat5Scale (g * g) (smSo5L ⟨2, by decide⟩))
                      (smMat5Scale (gp * gp) (smSo5R ⟨2, by decide⟩)))) * (g * g) := by
-      rw [hW0, hZ]
-      unfold smMW2 smMZ2
-      let r3 := (c * c + s * s) * (c * c + s * s) * (c * c + s * s)
-      let q := g * g + gp * gp
-      change 8 * (g * g * (s * s)) * r3 * (q * q) = 8 * (q * (q * (s * s))) * r3 * (g * g)
-      calc 8 * (g * g * (s * s)) * r3 * (q * q)
-        _ = 8 * (g * g * (s * s)) * (q * q) * r3 := by
-            rw [Int.mul_assoc (8 * (g * g * (s * s))) r3 (q * q), Int.mul_comm r3 (q * q),
-                ← Int.mul_assoc]
-        _ = 8 * ((g * g * (s * s)) * (q * q)) * r3 := by
-            rw [Int.mul_assoc 8 (g * g * (s * s)) (q * q)]
-        _ = 8 * ((q * (q * (s * s))) * (g * g)) * r3 := by
-            apply congrArg (fun x => 8 * x * r3)
-            calc (g * g * (s * s)) * (q * q)
-              _ = (g * g) * ((s * s) * (q * q)) := Int.mul_assoc (g * g) (s * s) (q * q)
-              _ = ((q * q) * (s * s)) * (g * g) := by
-                  rw [Int.mul_comm (s * s) (q * q), Int.mul_comm (g * g) ((q * q) * (s * s))]
-              _ = (q * (q * (s * s))) * (g * g) := by
-                  rw [Int.mul_assoc q q (s * s)]
-        _ = 8 * (q * (q * (s * s))) * (g * g) * r3 := by
-            rw [← Int.mul_assoc 8 (q * (q * (s * s))) (g * g)]
-        _ = 8 * (q * (q * (s * s))) * r3 * (g * g) := by
-            rw [Int.mul_assoc (8 * (q * (q * (s * s)))) (g * g) r3, Int.mul_comm (g * g) r3,
-                ← Int.mul_assoc]
+      rw [hW0, hZ]; unfold smMW2 smMZ2; ring
     exact ⟨hW0, hW1, hGam, hZ, hRhoDirect⟩
   have hRho : ∀ (g gp s : Int), smMW2 g s * (g * g + gp * gp) = smMZ2 g gp s * (g * g) := by
-    intro g gp s
-    unfold smMW2 smMZ2
-    calc (g * g * (s * s)) * (g * g + gp * gp)
-      _ = (g * g) * ((s * s) * (g * g + gp * gp)) := Int.mul_assoc (g * g) (s * s) (g * g + gp * gp)
-      _ = (g * g) * ((g * g + gp * gp) * (s * s)) := by rw [Int.mul_comm (s * s) (g * g + gp * gp)]
-      _ = ((g * g + gp * gp) * (s * s)) * (g * g) := Int.mul_comm (g * g) ((g * g + gp * gp) * (s * s))
+    intro g gp s; unfold smMW2 smMZ2; ring
   exact ⟨hAlg, hParity, ⟨sm_so5WilsonHom_orth, hMass, hRho⟩, ⟨by decide, by decide, by decide⟩⟩
 
 
@@ -953,23 +741,10 @@ theorem thm_sm_pure_zomega_slab_ir_light_mass :
      Eis.add (Eis.mul mw2p1 ⟨3, 0⟩) (Eis.mul ⟨-1, 0⟩ (Eis.neg w2p1)) = Eis.scale (-2) (Eis.mul (Eis.conj w2p1) ⟨-1, 0⟩) ∧
      ∀ D : Nat, 3 ^ (D + 1) = 3 * 3 ^ D ∧ (3 * (3 ^ D)) * (3 * (3 ^ D)) = 9 * ((3 ^ D) * (3 ^ D))) := by
   have hQuad : ∀ x : Int, (x - 1) * (x - 1) = 45 ↔ x * x - 2 * x - 44 = 0 := by
-    intro x
-    have hExp : (x - 1) * (x - 1) = x * x - 2 * x + 1 := by
-      simp only [Int.sub_mul, Int.mul_sub, Int.one_mul, Int.mul_one]
-      omega
-    rw [hExp]
-    omega
+    intro x; constructor <;> (intro h; linarith)
   have hExp3 : ∀ D : Nat,
       3 ^ (D + 1) = 3 * 3 ^ D ∧ (3 * (3 ^ D)) * (3 * (3 ^ D)) = 9 * ((3 ^ D) * (3 ^ D)) := by
-    intro D
-    refine ⟨by rw [Nat.pow_succ, Nat.mul_comm], ?_⟩
-    calc (3 * 3 ^ D) * (3 * 3 ^ D)
-      _ = 3 * (3 ^ D * (3 * 3 ^ D)) := Nat.mul_assoc 3 (3 ^ D) (3 * 3 ^ D)
-      _ = 3 * ((3 ^ D * 3) * 3 ^ D) := by rw [← Nat.mul_assoc (3 ^ D) 3 (3 ^ D)]
-      _ = 3 * ((3 * 3 ^ D) * 3 ^ D) := by rw [Nat.mul_comm (3 ^ D) 3]
-      _ = 3 * (3 * (3 ^ D * 3 ^ D)) := by rw [Nat.mul_assoc 3 (3 ^ D) (3 ^ D)]
-      _ = (3 * 3) * (3 ^ D * 3 ^ D) := (Nat.mul_assoc 3 3 (3 ^ D * 3 ^ D)).symm
-      _ = 9 * (3 ^ D * 3 ^ D) := rfl
+    intro D; exact ⟨by rw [Nat.pow_succ]; ring, by ring⟩
   exact ⟨by decide, by decide, ⟨by decide, by decide, by decide⟩,
     ⟨by decide, by decide, hQuad, by decide⟩,
     ⟨by decide, by decide, hExp3⟩⟩
@@ -1230,15 +1005,10 @@ private theorem sm_sl23_mul_spec :
   decide
 
 private theorem sm_mul_mod3_left (a b : Nat) : ((a % 3) * b) % 3 = (a * b) % 3 := by
-  have h : a = 3 * (a / 3) + a % 3 := by omega
-  have hmul : a * b = 3 * ((a / 3) * b) + (a % 3) * b := by
-    calc a * b = (3 * (a / 3) + a % 3) * b := congrArg (fun x => x * b) h
-      _ = (3 * (a / 3)) * b + (a % 3) * b := Nat.add_mul (3 * (a / 3)) (a % 3) b
-      _ = 3 * ((a / 3) * b) + (a % 3) * b := by rw [Nat.mul_assoc]
-  rw [hmul]; omega
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem sm_mul_mod3_right (a b : Nat) : (a * (b % 3)) % 3 = (a * b) % 3 := by
-  rw [Nat.mul_comm a (b % 3), sm_mul_mod3_left b a, Nat.mul_comm b a]
+  rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
 
 private theorem sm_sl23_act_mul (k1 k2 : Fin 24) (x y : Fin 3) :
     smMat2F3Act (smSL23Table k1) (smMat2F3Act (smSL23Table k2) (x, y)) =
@@ -1417,29 +1187,29 @@ private theorem sm_oh_mul_mat3 (g1 g2 : SMOh) (i j : Fin 3) :
     have h0 : (⟨0, by decide⟩ : Fin 3) = ⟨0, h0v⟩ := rfl
     have h1 : (⟨1, by decide⟩ : Fin 3) ≠ ⟨0, h0v⟩ := by intro h; have hv : 1 = 0 := congrArg Fin.val h; omega
     have h2 : (⟨2, by decide⟩ : Fin 3) ≠ ⟨0, h0v⟩ := by intro h; have hv : 2 = 0 := congrArg Fin.val h; omega
-    rw [sm_ite_pos h0, sm_ite_neg h1, sm_ite_neg h2, Int.mul_zero, Int.mul_zero, Int.add_zero, Int.add_zero]
+    rw [ite_eq_left h0, ite_eq_right h1, ite_eq_right h2, Int.mul_zero, Int.mul_zero, Int.add_zero, Int.add_zero]
     if hi : i = smPerm3 g1.perm ⟨0, h0v⟩ then
-      rw [sm_ite_pos hi, sm_ite_pos hi]
+      rw [ite_eq_left hi, ite_eq_left hi]
     else
-      rw [sm_ite_neg hi, sm_ite_neg hi, Int.zero_mul]
+      rw [ite_eq_right hi, ite_eq_right hi, Int.zero_mul]
   | 1, h1v =>
     have h0 : (⟨0, by decide⟩ : Fin 3) ≠ ⟨1, h1v⟩ := by intro h; have hv : 0 = 1 := congrArg Fin.val h; omega
     have h1 : (⟨1, by decide⟩ : Fin 3) = ⟨1, h1v⟩ := rfl
     have h2 : (⟨2, by decide⟩ : Fin 3) ≠ ⟨1, h1v⟩ := by intro h; have hv : 2 = 1 := congrArg Fin.val h; omega
-    rw [sm_ite_neg h0, sm_ite_pos h1, sm_ite_neg h2, Int.mul_zero, Int.mul_zero, Int.zero_add, Int.add_zero]
+    rw [ite_eq_right h0, ite_eq_left h1, ite_eq_right h2, Int.mul_zero, Int.mul_zero, Int.zero_add, Int.add_zero]
     if hi : i = smPerm3 g1.perm ⟨1, h1v⟩ then
-      rw [sm_ite_pos hi, sm_ite_pos hi]
+      rw [ite_eq_left hi, ite_eq_left hi]
     else
-      rw [sm_ite_neg hi, sm_ite_neg hi, Int.zero_mul]
+      rw [ite_eq_right hi, ite_eq_right hi, Int.zero_mul]
   | 2, h2v =>
     have h0 : (⟨0, by decide⟩ : Fin 3) ≠ ⟨2, h2v⟩ := by intro h; have hv : 0 = 2 := congrArg Fin.val h; omega
     have h1 : (⟨1, by decide⟩ : Fin 3) ≠ ⟨2, h2v⟩ := by intro h; have hv : 1 = 2 := congrArg Fin.val h; omega
     have h2 : (⟨2, by decide⟩ : Fin 3) = ⟨2, h2v⟩ := rfl
-    rw [sm_ite_neg h0, sm_ite_neg h1, sm_ite_pos h2, Int.mul_zero, Int.mul_zero, Int.add_zero, Int.zero_add]
+    rw [ite_eq_right h0, ite_eq_right h1, ite_eq_left h2, Int.mul_zero, Int.mul_zero, Int.add_zero, Int.zero_add]
     if hi : i = smPerm3 g1.perm ⟨2, h2v⟩ then
-      rw [sm_ite_pos hi, sm_ite_pos hi]
+      rw [ite_eq_left hi, ite_eq_left hi]
     else
-      rw [sm_ite_neg hi, sm_ite_neg hi, Int.zero_mul]
+      rw [ite_eq_right hi, ite_eq_right hi, Int.zero_mul]
   | _ + 3, h => exact absurd h (by omega)
 
 /-- Headline Theorem 4 (`ASL(2, 3)` Exact 2-Transitivity / Irreducible `1 ⊕ 8` & `O_h` `3_frame = A_{1g} ⊕ E_g`):
@@ -1912,18 +1682,18 @@ private theorem sm_edgeSingle_split (x y z d x0 y0 z0 d0 : Fin 3) :
         subst hz
         if hd : d = d0 then
           subst hd
-          rw [sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_pos rfl]; rfl
+          rw [ite_eq_left rfl, ite_eq_left rfl, ite_eq_left rfl, ite_eq_left rfl, ite_eq_left rfl]; rfl
         else
-          rw [sm_ite_neg (fun h => hd (congrArg SMEdge3.d h)),
-              sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_neg hd]; rfl
+          rw [ite_eq_right (fun h => hd (congrArg SMEdge3.d h)),
+              ite_eq_left rfl, ite_eq_left rfl, ite_eq_left rfl, ite_eq_right hd]; rfl
       else
-        rw [sm_ite_neg (fun h => hz (congrArg (fun e => e.v.z) h)),
-            sm_ite_pos rfl, sm_ite_pos rfl, sm_ite_neg hz]; rfl
+        rw [ite_eq_right (fun h => hz (congrArg (fun e => e.v.z) h)),
+            ite_eq_left rfl, ite_eq_left rfl, ite_eq_right hz]; rfl
     else
-      rw [sm_ite_neg (fun h => hy (congrArg (fun e => e.v.y) h)),
-          sm_ite_pos rfl, sm_ite_neg hy]; rfl
+      rw [ite_eq_right (fun h => hy (congrArg (fun e => e.v.y) h)),
+          ite_eq_left rfl, ite_eq_right hy]; rfl
   else
-    rw [sm_ite_neg (fun h => hx (congrArg (fun e => e.v.x) h)), sm_ite_neg hx]; rfl
+    rw [ite_eq_right (fun h => hx (congrArg (fun e => e.v.x) h)), ite_eq_right hx]; rfl
 
 private theorem sm_xorEdge3_single_left (e0 : SMEdge3) (f : SMEdge3 → Bool) :
     smXorEdge3 (fun e => smEdgeSingle e0 e && f e) = f e0 := by
@@ -2019,14 +1789,14 @@ private theorem sm_edgeSingle_shift (Δ v0 : SMVert3) (d0 : Fin 3) (e : SMEdge3)
     have hv : v = smVert3Add v0 Δ := congrArg SMEdge3.v h
     have hd : d = d0 := congrArg SMEdge3.d h
     have hSub : smVert3Sub v Δ = v0 := (sm_vert3_sub_eq_add_iff v Δ v0).mpr hv
-    rw [sm_ite_pos h, sm_ite_pos (by rw [hSub, hd])]
+    rw [ite_eq_left h, ite_eq_left (by rw [hSub, hd])]
   else
     have hNe : (⟨smVert3Sub v Δ, d⟩ : SMEdge3) ≠ ⟨v0, d0⟩ := by
       intro hEq
       have hv : smVert3Sub v Δ = v0 := congrArg SMEdge3.v hEq
       have hd : d = d0 := congrArg SMEdge3.d hEq
       exact h (by rw [(sm_vert3_sub_eq_add_iff v Δ v0).mp hv, hd])
-    rw [sm_ite_neg h, sm_ite_neg hNe]
+    rw [ite_eq_right h, ite_eq_right hNe]
 
 private theorem sm_ckrZ1_shift (Δ v : SMVert3) (d : Fin 3) :
     smCkrZ1 ⟨smVert3Add v Δ, d⟩ = ⟨smVert3Add (smCkrZ1 ⟨v, d⟩).v Δ, (smCkrZ1 ⟨v, d⟩).d⟩ := by
@@ -2176,12 +1946,12 @@ private theorem sm_ckr_SS_algebra (e1 e2 : SMEdge3) :
     unfold smMajoranaInc
     have hI1 : (if e1.v = e2.v then true else false) =
         (if smVert3Zero = smVert3Sub e2.v e1.v then true else false) := by
-      if hv : e1.v = e2.v then rw [sm_ite_pos hv, sm_ite_pos (hV.mp hv)]
-      else rw [sm_ite_neg hv, sm_ite_neg (fun h => hv (hV.mpr h))]
+      if hv : e1.v = e2.v then rw [ite_eq_left hv, ite_eq_left (hV.mp hv)]
+      else rw [ite_eq_right hv, ite_eq_right (fun h => hv (hV.mpr h))]
     have hI2 : (if smEdge3Dst e1 = smEdge3Dst e2 then true else false) =
         (if smEdge3Dst ⟨smVert3Zero, e1.d⟩ = smEdge3Dst ⟨smVert3Sub e2.v e1.v, e2.d⟩ then true else false) := by
-      if hd : smEdge3Dst e1 = smEdge3Dst e2 then rw [sm_ite_pos hd, sm_ite_pos (hDst.mp hd)]
-      else rw [sm_ite_neg hd, sm_ite_neg (fun h => hd (hDst.mpr h))]
+      if hd : smEdge3Dst e1 = smEdge3Dst e2 then rw [ite_eq_left hd, ite_eq_left (hDst.mp hd)]
+      else rw [ite_eq_right hd, ite_eq_right (fun h => hd (hDst.mpr h))]
     rw [hI1, hI2]
   rw [hShift, hIncShift, hSympS]
   have hDec : ∀ (d1 x2 y2 z2 d2 : Fin 3),
@@ -2220,11 +1990,11 @@ private theorem sm_ckr_SP_algebra (e : SMEdge3) (v : SMVert3) :
     if hc : v = e.v ∨ v = smEdge3Dst e then
       have hc' : smVert3Zero = smVert3Sub e.v v ∨ smVert3Zero = smEdge3Dst ⟨smVert3Sub e.v v, e.d⟩ :=
         hc.elim (fun a => Or.inl (h1.mp a)) (fun b => Or.inr (h2.mp b))
-      rw [sm_ite_pos hc, sm_ite_pos hc']
+      rw [ite_eq_left hc, ite_eq_left hc']
     else
       have hc' : ¬ (smVert3Zero = smVert3Sub e.v v ∨ smVert3Zero = smEdge3Dst ⟨smVert3Sub e.v v, e.d⟩) :=
         fun h => hc (h.elim (fun a => Or.inl (h1.mpr a)) (fun b => Or.inr (h2.mpr b)))
-      rw [sm_ite_neg hc, sm_ite_neg hc']
+      rw [ite_eq_right hc, ite_eq_right hc']
   rw [hShift, hInc, hSympSP]
   have hDec : ∀ (x y z d : Fin 3),
       (smCkrP smVert3Zero).z ⟨⟨x, y, z⟩, d⟩ = smEdgeVertInc ⟨⟨x, y, z⟩, d⟩ smVert3Zero := by decide

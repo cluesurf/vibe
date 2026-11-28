@@ -1,7 +1,17 @@
-import Vibe.Algebra
-import Vibe.CuspGrowth
-import Vibe.SchurGap
-import Vibe.SpectralSharp
+module
+
+public import Vibe.Algebra
+public import Vibe.CuspGrowth
+public import Vibe.SchurGap
+public import Vibe.SpectralSharp
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Data.Fintype.BigOperators
 
 /-!
 # Vibe Theory: Deep Spectral Radius Collapse for `{3,4,3,4}` (`913/80 < ρ ≤ 387141227/33670000 < 11.5`, `λ_gap > 13/25`)
@@ -83,78 +93,31 @@ set_option autoImplicit false
 
 namespace Vibe
 
-/-! ## Section 0: Private `Nat` / `Int` / `Fin` / Binary-Tree Summation & Grouping Helpers -/
+@[expose] public section
 
-private theorem sse_ite_pos {α : Type} {c : Prop} [h : Decidable c] (hc : c) (a b : α) :
-    (if c then a else b) = a :=
-  match h with | isTrue _ => rfl | isFalse hnc => absurd hc hnc
+/-! ## Section 0: Mathlib `Finset.sum` Bridges, Arithmetic & Binary-Tree Grouping Helpers -/
 
-private theorem sse_ite_neg {α : Type} {c : Prop} [h : Decidable c] (hnc : ¬ c) (a b : α) :
-    (if c then a else b) = b :=
-  match h with | isTrue hc => absurd hc hnc | isFalse _ => rfl
+private theorem sse_ite_pos {α : Type} {c : Prop} [Decidable c] (hc : c) (a b : α) :
+    (if c then a else b) = a := ite_eq_left hc
 
-private theorem sse_int_mul_pos (a b : Int) (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
-  have h : 0 ≤ (a - 1) * (b - 1) := Int.mul_nonneg (by omega) (by omega)
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.one_mul, Int.mul_one] at h; omega
+private theorem sse_ite_neg {α : Type} {c : Prop} [Decidable c] (hnc : ¬ c) (a b : α) :
+    (if c then a else b) = b := ite_eq_right hnc
 
-private theorem sse_int_mul_le_right (a b c : Int) (hab : a ≤ b) (hc : 0 ≤ c) : a * c ≤ b * c := by
-  have h : 0 ≤ (b - a) * c := Int.mul_nonneg (by omega) hc
-  rw [Int.sub_mul] at h; omega
+private theorem sse_int_mul_pos (a b : Int) (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by nlinarith
 
-private theorem sse_int_le_of_mul_le_right (x y d : Int) (hd : 0 < d) (h : x * d ≤ y * d) : x ≤ y := by
-  if hxy : x ≤ y then exact hxy
-  else
-    have hpos : 0 < (x - y) * d := sse_int_mul_pos (x - y) d (by omega) hd
-    rw [Int.sub_mul] at hpos; omega
+private theorem sse_int_mul_le_right (a b c : Int) (hab : a ≤ b) (hc : 0 ≤ c) : a * c ≤ b * c := by nlinarith
 
-private theorem sse_int_mul_right_comm (a b c : Int) : (a * b) * c = (a * c) * b := by
-  rw [Int.mul_assoc, Int.mul_comm b c, ← Int.mul_assoc]
+private theorem sse_int_le_of_mul_le_right (x y d : Int) (hd : 0 < d) (h : x * d ≤ y * d) : x ≤ y := by nlinarith
+
+private theorem sse_int_mul_right_comm (a b c : Int) : (a * b) * c = (a * c) * b := by ring
 
 private theorem sse_nat_mul_quad (w0 a b va vb x y : Nat) :
-    (w0 * (a * x) * va) * (w0 * (b * y) * vb) = w0 * w0 * (a * b * va * vb) * (x * y) := by
-  have h1 : w0 * (a * x) * va = (w0 * a * va) * x := by
-    rw [← Nat.mul_assoc w0 a x, Nat.mul_right_comm (w0 * a) x va]
-  have h2 : w0 * (b * y) * vb = (w0 * b * vb) * y := by
-    rw [← Nat.mul_assoc w0 b y, Nat.mul_right_comm (w0 * b) y vb]
-  rw [h1, h2]
-  have h3 : ∀ p q : Nat, (p * x) * (q * y) = (p * q) * (x * y) := by
-    intro p q; rw [Nat.mul_assoc, Nat.mul_left_comm x q y, ← Nat.mul_assoc]
-  rw [h3]
-  apply congrArg (· * (x * y))
-  calc (w0 * a * va) * (w0 * b * vb)
-      = ((w0 * (a * va)) * w0) * (b * vb) := by
-          rw [Nat.mul_assoc w0 a va, Nat.mul_assoc w0 b vb, ← Nat.mul_assoc (w0 * (a * va)) w0 (b * vb)]
-    _ = (w0 * w0) * ((a * va) * (b * vb)) := by
-          rw [Nat.mul_right_comm w0 (a * va) w0, Nat.mul_assoc (w0 * w0) (a * va) (b * vb)]
-    _ = (w0 * w0) * (a * (b * (va * vb))) := by
-          rw [Nat.mul_assoc a va (b * vb), Nat.mul_left_comm va b vb]
-    _ = w0 * w0 * (a * b * va * vb) := by
-          rw [← Nat.mul_assoc a b (va * vb), ← Nat.mul_assoc (a * b) va vb]
+    (w0 * (a * x) * va) * (w0 * (b * y) * vb) = w0 * w0 * (a * b * va * vb) * (x * y) := by ring
 
 private theorem sse_nat_mul_m0 (w1 w2 a b o0 v0 d : Nat) :
     (w1 * (a * d) * b) * (w2 * (o0 * (a * d)) * v0) =
-      w1 * w2 * (o0 * v0 * (a * a * b)) * (d * d) := by
-  have h1 : w1 * (a * d) * b = (w1 * a * b) * d := by
-    rw [← Nat.mul_assoc w1 a d, Nat.mul_right_comm (w1 * a) d b]
-  have h2 : w2 * (o0 * (a * d)) * v0 = (w2 * o0 * a * v0) * d := by
-    rw [← Nat.mul_assoc o0 a d, ← Nat.mul_assoc w2 (o0 * a) d,
-        Nat.mul_right_comm (w2 * (o0 * a)) d v0, ← Nat.mul_assoc w2 o0 a]
-  rw [h1, h2]
-  have h3 : ∀ p q : Nat, (p * d) * (q * d) = (p * q) * (d * d) := by
-    intro p q; rw [Nat.mul_assoc, Nat.mul_left_comm d q d, ← Nat.mul_assoc]
-  rw [h3]
-  apply congrArg (· * (d * d))
-  calc (w1 * a * b) * (w2 * o0 * a * v0)
-      = ((w1 * (a * b)) * w2) * ((o0 * v0) * a) := by
-          rw [Nat.mul_assoc w1 a b, Nat.mul_right_comm (w2 * o0) a v0,
-              Nat.mul_assoc w2 o0 v0, Nat.mul_assoc w2 (o0 * v0) a,
-              ← Nat.mul_assoc (w1 * (a * b)) w2 ((o0 * v0) * a)]
-    _ = (w1 * w2) * ((a * b) * ((o0 * v0) * a)) := by
-          rw [Nat.mul_right_comm w1 (a * b) w2, Nat.mul_assoc (w1 * w2) (a * b) ((o0 * v0) * a)]
-    _ = (w1 * w2) * ((o0 * v0) * ((a * b) * a)) := by
-          rw [Nat.mul_left_comm (a * b) (o0 * v0) a]
-    _ = w1 * w2 * (o0 * v0 * (a * a * b)) := by
-          rw [Nat.mul_right_comm a b a]
+      w1 * w2 * (o0 * v0 * (a * a * b)) * (d * d) := by ring
+
 
 private def sse_rangeMap {α : Type} (f : Nat → α) (start : Nat) : Nat → List α
   | 0 => []
@@ -203,131 +166,61 @@ def sseSumFinNatAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) : Nat
 /-- Exact finite `Nat` sum `∑_{i : Fin n} f i`. -/
 def sseSumFinNat {n : Nat} (f : Fin n → Nat) : Nat := sseSumFinNatAux n (Nat.le_refl n) f
 
-private theorem sse_sumFinNatAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    sseSumFinNatAux k hk (fun _ : Fin n => 0) = 0 := by
-  induction k with | zero => rfl | succ m ih => simp only [sseSumFinNatAux]; rw [ih (Nat.le_of_succ_le hk)]
 
-private theorem sse_sumFinNatAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat) :
-    sseSumFinNatAux k hk (fun i => f i + g i) = sseSumFinNatAux k hk f + sseSumFinNatAux k hk g := by
+private theorem sseSumFinNatAux_eq_sum {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) :
+    sseSumFinNatAux k hk f = ∑ i : Fin k, f ⟨i.val, Nat.lt_of_lt_of_le i.isLt hk⟩ := by
   induction k with
-  | zero => rfl
-  | succ m ih => simp only [sseSumFinNatAux]; rw [ih (Nat.le_of_succ_le hk)]; omega
-
-private theorem sse_sumFinNatAux_le {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat)
-    (h : ∀ i : Fin n, f i ≤ g i) : sseSumFinNatAux k hk f ≤ sseSumFinNatAux k hk g := by
-  induction k with
-  | zero => exact Nat.le_refl 0
+  | zero => simp [sseSumFinNatAux]
   | succ m ih =>
-    simp only [sseSumFinNatAux]
-    have hm := ih (Nat.le_of_succ_le hk)
-    have ht := h ⟨m, hk⟩
-    omega
+    simp only [sseSumFinNatAux, Fin.sum_univ_castSucc, ih (Nat.le_of_succ_le hk)]; rfl
 
-private theorem sse_sumFinNatAux_congr {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Nat)
-    (h : ∀ i : Fin n, f i = g i) : sseSumFinNatAux k hk f = sseSumFinNatAux k hk g := by
-  induction k with
-  | zero => rfl
-  | succ m ih => simp only [sseSumFinNatAux]; rw [ih (Nat.le_of_succ_le hk), h ⟨m, hk⟩]
+-- [helper]
+theorem sseSumFinNat_eq_sum {n : Nat} (f : Fin n → Nat) :
+    sseSumFinNat f = ∑ i : Fin n, f i :=
+  sseSumFinNatAux_eq_sum n (Nat.le_refl n) f
 
-private theorem sse_sumFinNatAux_mul_left {n : Nat} (k : Nat) (hk : k ≤ n) (c : Nat) (f : Fin n → Nat) :
-    sseSumFinNatAux k hk (fun i => c * f i) = c * sseSumFinNatAux k hk f := by
-  induction k with
-  | zero => simp only [sseSumFinNatAux, Nat.mul_zero]
-  | succ m ih => simp only [sseSumFinNatAux]; rw [ih (Nat.le_of_succ_le hk), Nat.mul_add]
-
-private theorem sse_sumFinNatAux_mul_right {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Nat) (c : Nat) :
-    sseSumFinNatAux k hk (fun i => f i * c) = sseSumFinNatAux k hk f * c := by
-  induction k with
-  | zero => simp only [sseSumFinNatAux, Nat.zero_mul]
-  | succ m ih => simp only [sseSumFinNatAux]; rw [ih (Nat.le_of_succ_le hk), Nat.add_mul]
-
-private theorem sse_sumFinNatAux_swap {n1 n2 : Nat} (k : Nat) (hk : k ≤ n1) (f : Fin n1 → Fin n2 → Nat) :
-    sseSumFinNatAux k hk (fun i => sseSumFinNat (fun j => f i j)) =
-      sseSumFinNat (fun j => sseSumFinNatAux k hk (fun i => f i j)) := by
-  induction k with
-  | zero => exact (sse_sumFinNatAux_zero n2 (Nat.le_refl n2)).symm
-  | succ m ih =>
-    simp only [sseSumFinNatAux]
-    rw [ih (Nat.le_of_succ_le hk)]
-    exact (sse_sumFinNatAux_add n2 (Nat.le_refl n2) _ _).symm
-
-private theorem sse_sumFinNatAux_kronecker {m : Nat} (k : Nat) (hk : k ≤ m) (u0 : Fin m) (g : Fin m → Nat) :
-    sseSumFinNatAux k hk (fun u : Fin m => if u0 = u then g u else 0) =
-      if u0.val < k then g u0 else 0 := by
-  induction k with
-  | zero => rw [sse_ite_neg (by omega)]; rfl
-  | succ p ih =>
-    simp only [sseSumFinNatAux]
-    rw [ih (Nat.le_of_succ_le hk)]
-    if hlt : u0.val < p then
-      have hlt1 : u0.val < p + 1 := by omega
-      have hne : u0 ≠ ⟨p, hk⟩ := fun h => by have hv : u0.val = p := congrArg Fin.val h; omega
-      rw [sse_ite_pos hlt, sse_ite_neg hne, sse_ite_pos hlt1]; omega
-    else if heq : u0.val = p then
-      have hlt1 : u0.val < p + 1 := by omega
-      have hfeq : u0 = ⟨p, hk⟩ := Fin.ext heq
-      rw [sse_ite_neg hlt, sse_ite_pos hfeq, ← hfeq, sse_ite_pos hlt1]; omega
-    else
-      have hlt1 : ¬ (u0.val < p + 1) := by omega
-      have hne : u0 ≠ ⟨p, hk⟩ := fun h => heq (congrArg Fin.val h)
-      rw [sse_ite_neg hlt, sse_ite_neg hne, sse_ite_neg hlt1]
-
-private theorem sse_sumFinNat_zero {n : Nat} : sseSumFinNat (fun _ : Fin n => 0) = 0 :=
-  sse_sumFinNatAux_zero n (Nat.le_refl n)
+private theorem sse_sumFinNat_zero {n : Nat} : sseSumFinNat (fun _ : Fin n => 0) = 0 := by
+  rw [sseSumFinNat_eq_sum]; exact Finset.sum_const_zero
 
 private theorem sse_sumFinNat_add {n : Nat} (f g : Fin n → Nat) :
-    sseSumFinNat (fun i => f i + g i) = sseSumFinNat f + sseSumFinNat g :=
-  sse_sumFinNatAux_add n (Nat.le_refl n) f g
+    sseSumFinNat (fun i => f i + g i) = sseSumFinNat f + sseSumFinNat g := by
+  simp only [sseSumFinNat_eq_sum]; exact Finset.sum_add_distrib
 
 private theorem sse_sumFinNat_le {n : Nat} (f g : Fin n → Nat) (h : ∀ i : Fin n, f i ≤ g i) :
-    sseSumFinNat f ≤ sseSumFinNat g := sse_sumFinNatAux_le n (Nat.le_refl n) f g h
+    sseSumFinNat f ≤ sseSumFinNat g := by
+  simp only [sseSumFinNat_eq_sum]; exact Finset.sum_le_sum fun i _ => h i
 
 private theorem sse_sumFinNat_congr {n : Nat} (f g : Fin n → Nat) (h : ∀ i : Fin n, f i = g i) :
-    sseSumFinNat f = sseSumFinNat g := sse_sumFinNatAux_congr n (Nat.le_refl n) f g h
+    sseSumFinNat f = sseSumFinNat g := by
+  simp only [sseSumFinNat_eq_sum]; exact Finset.sum_congr rfl fun i _ => h i
 
 private theorem sse_sumFinNat_mul_left {n : Nat} (c : Nat) (f : Fin n → Nat) :
-    sseSumFinNat (fun i => c * f i) = c * sseSumFinNat f :=
-  sse_sumFinNatAux_mul_left n (Nat.le_refl n) c f
+    sseSumFinNat (fun i => c * f i) = c * sseSumFinNat f := by
+  simp only [sseSumFinNat_eq_sum]; exact (Finset.mul_sum _ _ _).symm
 
 private theorem sse_sumFinNat_mul_right {n : Nat} (f : Fin n → Nat) (c : Nat) :
-    sseSumFinNat (fun i => f i * c) = sseSumFinNat f * c :=
-  sse_sumFinNatAux_mul_right n (Nat.le_refl n) f c
+    sseSumFinNat (fun i => f i * c) = sseSumFinNat f * c := by
+  simp only [sseSumFinNat_eq_sum]; exact (Finset.sum_mul _ _ _).symm
 
 private theorem sse_sumFinNat_swap {n1 n2 : Nat} (f : Fin n1 → Fin n2 → Nat) :
     sseSumFinNat (fun i => sseSumFinNat (fun j => f i j)) =
-      sseSumFinNat (fun j => sseSumFinNat (fun i => f i j)) :=
-  sse_sumFinNatAux_swap n1 (Nat.le_refl n1) f
+      sseSumFinNat (fun j => sseSumFinNat (fun i => f i j)) := by
+  simp only [sseSumFinNat_eq_sum]; exact Finset.sum_comm
 
 private theorem sse_sumFinNat_kronecker {m : Nat} (u0 : Fin m) (g : Fin m → Nat) :
     sseSumFinNat (fun u : Fin m => if u0 = u then g u else 0) = g u0 := by
-  unfold sseSumFinNat; rw [sse_sumFinNatAux_kronecker, sse_ite_pos u0.isLt]
+  rw [sseSumFinNat_eq_sum]; simp
 
 private theorem sse_sumFinNat_kronecker_symm {m : Nat} (u0 : Fin m) (g : Fin m → Nat) :
     sseSumFinNat (fun u : Fin m => if u = u0 then g u else 0) = g u0 := by
-  have h : (fun u : Fin m => if u = u0 then g u else 0) = (fun u : Fin m => if u0 = u then g u else 0) := by
-    funext u
-    if hu : u = u0 then rw [sse_ite_pos hu, sse_ite_pos hu.symm]
-    else rw [sse_ite_neg hu, sse_ite_neg (fun h' => hu h'.symm)]
-  rw [h]; exact sse_sumFinNat_kronecker u0 g
+  rw [sseSumFinNat_eq_sum]; simp
 
 private theorem sse_sumFinNat_bij {n : Nat} (π πInv : Fin n → Fin n)
     (hL : ∀ i : Fin n, πInv (π i) = i) (hR : ∀ j : Fin n, π (πInv j) = j) (f : Fin n → Nat) :
     sseSumFinNat (fun i => f (π i)) = sseSumFinNat f := by
-  have h1 : (fun i : Fin n => f (π i)) =
-      (fun i : Fin n => sseSumFinNat (fun j : Fin n => if π i = j then f j else 0)) :=
-    funext (fun i => (sse_sumFinNat_kronecker (π i) f).symm)
-  rw [h1, sse_sumFinNat_swap]
-  apply sse_sumFinNat_congr; intro j
-  have h2 : (fun i : Fin n => if π i = j then f j else 0) =
-      (fun i : Fin n => if i = πInv j then f j else 0) := by
-    funext i
-    if he : π i = j then
-      have hi : i = πInv j := by rw [← he, hL i]
-      rw [sse_ite_pos he, sse_ite_pos hi]
-    else
-      have hni : i ≠ πInv j := fun hi => he (by rw [hi, hR j])
-      rw [sse_ite_neg he, sse_ite_neg hni]
-  rw [h2, sse_sumFinNat_kronecker_symm (πInv j) (fun _ => f j)]
+  simp only [sseSumFinNat_eq_sum]
+  exact Fintype.sum_equiv ⟨π, πInv, hL, hR⟩ _ f fun _ => rfl
+
 
 -- O(log n)-depth binary-tree quantifier, summation, and tag-collection checkers (recursion depth 8 for Fin 216!).
 private def sse_allPow2 (P : Nat → Bool) : Nat → Nat → Bool
@@ -571,87 +464,30 @@ private theorem sse_checkGroupTbl_sound {n : Nat} {α : Type} [DecidableEq α]
   rw [sse_sumFinNat_eq_sumPow2 d hd, ← sse_treeCollect_mapSum P tag F d 0]
   exact sse_treeMapSum_eq_tableSum (sse_treeCollect P tag d 0) tbl F h.1.1 h.1.2 h.2
 
--- Private `Int` sum helpers over `Vibe.SpectralSharp.ssSumFin` for Section 4's subgraph Schur bridge.
-private theorem sse_ssSumFinAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Int) :
-    ssSumFinAux k hk (fun i => f i + g i) = ssSumFinAux k hk f + ssSumFinAux k hk g := by
-  induction k with
-  | zero => rfl
-  | succ m ih =>
-    change ssSumFinAux m (by omega) _ + (f ⟨m, by omega⟩ + g ⟨m, by omega⟩) =
-      (ssSumFinAux m (by omega) f + f ⟨m, by omega⟩) + (ssSumFinAux m (by omega) g + g ⟨m, by omega⟩)
-    rw [ih (by omega)]; omega
 
-private theorem sse_ssSumFinAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    ssSumFinAux k hk (fun _ : Fin n => (0 : Int)) = 0 := by
-  induction k with
-  | zero => rfl
-  | succ m ih => change ssSumFinAux m (by omega) _ + 0 = 0; rw [ih (by omega)]; omega
-
-private theorem sse_ssSumFinAux_le {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Int)
-    (h : ∀ i : Fin n, f i ≤ g i) : ssSumFinAux k hk f ≤ ssSumFinAux k hk g := by
-  induction k with
-  | zero => exact Int.le_refl 0
-  | succ m ih =>
-    change ssSumFinAux m (by omega) f + f ⟨m, by omega⟩ ≤ ssSumFinAux m (by omega) g + g ⟨m, by omega⟩
-    have hm := ih (by omega); have ht := h ⟨m, by omega⟩; omega
-
-private theorem sse_ssSumFinAux_mul_right {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Int) (c : Int) :
-    ssSumFinAux k hk (fun i => f i * c) = ssSumFinAux k hk f * c := by
-  induction k with
-  | zero => change (0 : Int) = 0 * c; rw [Int.zero_mul]
-  | succ m ih =>
-    change ssSumFinAux m (by omega) _ + f ⟨m, by omega⟩ * c =
-      (ssSumFinAux m (by omega) f + f ⟨m, by omega⟩) * c
-    rw [ih (by omega), Int.add_mul]
-
-private theorem sse_ssSumFinAux_swap {n1 n2 : Nat} (k : Nat) (hk : k ≤ n1) (f : Fin n1 → Fin n2 → Int) :
-    ssSumFinAux k hk (fun i => ssSumFin (fun j => f i j)) =
-      ssSumFin (fun j => ssSumFinAux k hk (fun i => f i j)) := by
-  induction k with
-  | zero => exact (sse_ssSumFinAux_zero n2 (Nat.le_refl n2)).symm
-  | succ m ih =>
-    change ssSumFinAux m (by omega) _ + ssSumFin (fun j => f ⟨m, by omega⟩ j) =
-      ssSumFin (fun j => ssSumFinAux m (by omega) (fun i => f i j) + f ⟨m, by omega⟩ j)
-    rw [ih (by omega)]
-    exact (sse_ssSumFinAux_add n2 (Nat.le_refl n2) _ _).symm
-
-private theorem sse_ssSumFinAux_kronecker {m : Nat} (k : Nat) (hk : k ≤ m) (u0 : Fin m) (g : Fin m → Int) :
-    ssSumFinAux k hk (fun u : Fin m => if u0 = u then g u else 0) = if u0.val < k then g u0 else 0 := by
-  induction k with
-  | zero => rw [sse_ite_neg (by omega)]; rfl
-  | succ p ih =>
-    change ssSumFinAux p (by omega) _ + (if u0 = ⟨p, by omega⟩ then g ⟨p, by omega⟩ else 0) =
-      if u0.val < p + 1 then g u0 else 0
-    rw [ih (by omega)]
-    if hlt : u0.val < p then
-      have hne : u0 ≠ ⟨p, by omega⟩ := fun h => by have hv : u0.val = p := congrArg Fin.val h; omega
-      rw [sse_ite_pos hlt, sse_ite_neg hne, sse_ite_pos (by omega)]; omega
-    else if heq : u0.val = p then
-      have hfeq : u0 = ⟨p, by omega⟩ := Fin.ext heq
-      rw [sse_ite_neg hlt, sse_ite_pos hfeq, ← hfeq, sse_ite_pos (by omega)]; omega
-    else
-      have hne : u0 ≠ ⟨p, by omega⟩ := fun h => heq (congrArg Fin.val h)
-      rw [sse_ite_neg hlt, sse_ite_neg hne, sse_ite_neg (by omega)]; omega
-
-private theorem sse_ssSumFin_zero {n : Nat} : ssSumFin (fun _ : Fin n => (0 : Int)) = 0 :=
-  sse_ssSumFinAux_zero n (Nat.le_refl n)
+-- Private `Int` sum helpers over `Vibe.SpectralSharp.ssSumFin` via `ssSumFin_eq_sum`.
+private theorem sse_ssSumFin_zero {n : Nat} : ssSumFin (fun _ : Fin n => (0 : Int)) = 0 := by
+  rw [ssSumFin_eq_sum]; exact Finset.sum_const_zero
 
 private theorem sse_ssSumFin_add {n : Nat} (f g : Fin n → Int) :
-    ssSumFin (fun i => f i + g i) = ssSumFin f + ssSumFin g := sse_ssSumFinAux_add n (Nat.le_refl n) f g
+    ssSumFin (fun i => f i + g i) = ssSumFin f + ssSumFin g := by
+  simp only [ssSumFin_eq_sum]; exact Finset.sum_add_distrib
 
 private theorem sse_ssSumFin_le {n : Nat} (f g : Fin n → Int) (h : ∀ i : Fin n, f i ≤ g i) :
-    ssSumFin f ≤ ssSumFin g := sse_ssSumFinAux_le n (Nat.le_refl n) f g h
+    ssSumFin f ≤ ssSumFin g := by
+  simp only [ssSumFin_eq_sum]; exact Finset.sum_le_sum fun i _ => h i
 
 private theorem sse_ssSumFin_mul_right {n : Nat} (f : Fin n → Int) (c : Int) :
-    ssSumFin (fun i => f i * c) = ssSumFin f * c := sse_ssSumFinAux_mul_right n (Nat.le_refl n) f c
+    ssSumFin (fun i => f i * c) = ssSumFin f * c := by
+  simp only [ssSumFin_eq_sum]; exact (Finset.sum_mul _ _ _).symm
 
 private theorem sse_ssSumFin_swap {n1 n2 : Nat} (f : Fin n1 → Fin n2 → Int) :
-    ssSumFin (fun i => ssSumFin (fun j => f i j)) = ssSumFin (fun j => ssSumFin (fun i => f i j)) :=
-  sse_ssSumFinAux_swap n1 (Nat.le_refl n1) f
+    ssSumFin (fun i => ssSumFin (fun j => f i j)) = ssSumFin (fun j => ssSumFin (fun i => f i j)) := by
+  simp only [ssSumFin_eq_sum]; exact Finset.sum_comm
 
 private theorem sse_ssSumFin_kronecker {m : Nat} (u0 : Fin m) (g : Fin m → Int) :
     ssSumFin (fun u : Fin m => if u0 = u then g u else 0) = g u0 := by
-  unfold ssSumFin; rw [sse_ssSumFinAux_kronecker, sse_ite_pos u0.isLt]
+  rw [ssSumFin_eq_sum]; simp
 
 
 /-! ## Section 1: `W(F_4)` Automorphisms & Exhaustive `216`-Clique Geometry -/
@@ -675,7 +511,8 @@ def sseWF4GenNat : Nat → Nat → Nat
     | 8 => 8 | 9 => 12 | 10 => 15 | 11 => 11 | 12 => 9 | 13 => 13 | 14 => 14 | 15 => 10
     | 16 => 5 | 17 => 17 | 18 => 18 | 19 => 6 | 20 => 1 | 21 => 21 | 22 => 22 | _ => 2
 
-private theorem sse_wf4GenNat_lt (k : Fin 4) (a : Fin 24) : sseWF4GenNat k.val a.val < 24 := by
+-- [helper]
+theorem sse_wf4GenNat_lt (k : Fin 4) (a : Fin 24) : sseWF4GenNat k.val a.val < 24 := by
   exact (by decide : ∀ (x : Fin 4) (y : Fin 24), sseWF4GenNat x.val y.val < 24) k a
 
 /-- Typed `W(F_4)` simple reflection generator on `Fin 24`. -/
@@ -736,13 +573,16 @@ private theorem sse_applyWord_val_eq_nat (w : List (Fin 4)) (a : Fin 24) :
   | cons k rest ih => simp only [sseApplyWord, List.map, sseApplyWordNat, sseWF4Gen, ih]
 
 /-- Fast `Nat` adjacency mirror on `0..23` matching `Vibe.CuspGrowth.adj24`. -/
-private abbrev sse_Adj8 := Nat × Nat × Nat × Nat × Nat × Nat × Nat × Nat
+-- [helper]
+abbrev sse_Adj8 := Nat × Nat × Nat × Nat × Nat × Nat × Nat × Nat
 
-private def sse_in8 (x : Nat) (t : sse_Adj8) : Bool :=
+-- [helper]
+def sse_in8 (x : Nat) (t : sse_Adj8) : Bool :=
   (x == t.1) || (x == t.2.1) || (x == t.2.2.1) || (x == t.2.2.2.1) ||
   (x == t.2.2.2.2.1) || (x == t.2.2.2.2.2.1) || (x == t.2.2.2.2.2.2.1) || (x == t.2.2.2.2.2.2.2)
 
-private def sse_adjTupleNat : Nat → sse_Adj8
+-- [helper]
+def sse_adjTupleNat : Nat → sse_Adj8
   | 0  => (4, 5, 8, 9, 12, 13, 16, 17)  | 1  => (4, 5, 8, 9, 14, 15, 18, 19)
   | 2  => (6, 7, 10, 11, 12, 13, 16, 17) | 3  => (6, 7, 10, 11, 14, 15, 18, 19)
   | 4  => (0, 1, 8, 9, 12, 14, 20, 21)  | 5  => (0, 1, 8, 9, 13, 15, 22, 23)
@@ -756,7 +596,8 @@ private def sse_adjTupleNat : Nat → sse_Adj8
   | 20 => (4, 6, 8, 10, 12, 14, 16, 18) | 21 => (4, 6, 9, 11, 12, 14, 17, 19)
   | 22 => (5, 7, 8, 10, 13, 15, 16, 18) | _  => (5, 7, 9, 11, 13, 15, 17, 19)
 
-private def sse_adjFast (a b : Nat) : Bool := sse_in8 b (sse_adjTupleNat a)
+-- [helper]
+def sse_adjFast (a b : Nat) : Bool := sse_in8 b (sse_adjTupleNat a)
 
 private theorem sse_adj24_eq_fast : ∀ a b : Fin 24, adj24 a b = sse_adjFast a.val b.val := by decide
 
@@ -764,7 +605,8 @@ private theorem sse_adj24_eq_fast : ∀ a b : Fin 24, adj24 a b = sse_adjFast a.
 def sseDotPlus2 (a b : Fin 24) : Nat := (dot4 (d4RootOf a) (d4RootOf b) + 2).toNat
 
 /-- Fast `Nat` root coordinates for `dot4 + 2` calculation. -/
-private def sse_dotPlus2Fast (a b : Nat) : Nat :=
+-- [helper]
+def sse_dotPlus2Fast (a b : Nat) : Nat :=
   let r : Nat → Int × Int × Int × Int
     | 0 => (1,1,0,0) | 1 => (1,-1,0,0) | 2 => (-1,1,0,0) | 3 => (-1,-1,0,0)
     | 4 => (1,0,1,0) | 5 => (1,0,-1,0) | 6 => (-1,0,1,0) | 7 => (-1,0,-1,0)
@@ -792,32 +634,57 @@ def sseAllCliquesList : List SseClique :=
   cliques2_24.map (fun p => SseClique.c2 p.1 p.2) ++
   cliques3_24.map (fun t => SseClique.c3 t.1 t.2.1 t.2.2)
 
-private abbrev sse_v0 : Fin 24 := ⟨0, by decide⟩
-private abbrev sse_v1 : Fin 24 := ⟨1, by decide⟩
-private abbrev sse_v2 : Fin 24 := ⟨2, by decide⟩
-private abbrev sse_v3 : Fin 24 := ⟨3, by decide⟩
-private abbrev sse_v4 : Fin 24 := ⟨4, by decide⟩
-private abbrev sse_v5 : Fin 24 := ⟨5, by decide⟩
-private abbrev sse_v6 : Fin 24 := ⟨6, by decide⟩
-private abbrev sse_v7 : Fin 24 := ⟨7, by decide⟩
-private abbrev sse_v8 : Fin 24 := ⟨8, by decide⟩
-private abbrev sse_v9 : Fin 24 := ⟨9, by decide⟩
-private abbrev sse_v10 : Fin 24 := ⟨10, by decide⟩
-private abbrev sse_v11 : Fin 24 := ⟨11, by decide⟩
-private abbrev sse_v12 : Fin 24 := ⟨12, by decide⟩
-private abbrev sse_v13 : Fin 24 := ⟨13, by decide⟩
-private abbrev sse_v14 : Fin 24 := ⟨14, by decide⟩
-private abbrev sse_v15 : Fin 24 := ⟨15, by decide⟩
-private abbrev sse_v16 : Fin 24 := ⟨16, by decide⟩
-private abbrev sse_v17 : Fin 24 := ⟨17, by decide⟩
-private abbrev sse_v18 : Fin 24 := ⟨18, by decide⟩
-private abbrev sse_v19 : Fin 24 := ⟨19, by decide⟩
-private abbrev sse_v20 : Fin 24 := ⟨20, by decide⟩
-private abbrev sse_v21 : Fin 24 := ⟨21, by decide⟩
-private abbrev sse_v22 : Fin 24 := ⟨22, by decide⟩
-private abbrev sse_v23 : Fin 24 := ⟨23, by decide⟩
+-- [helper]
+abbrev sse_v0 : Fin 24 := ⟨0, by decide⟩
+-- [helper]
+abbrev sse_v1 : Fin 24 := ⟨1, by decide⟩
+-- [helper]
+abbrev sse_v2 : Fin 24 := ⟨2, by decide⟩
+-- [helper]
+abbrev sse_v3 : Fin 24 := ⟨3, by decide⟩
+-- [helper]
+abbrev sse_v4 : Fin 24 := ⟨4, by decide⟩
+-- [helper]
+abbrev sse_v5 : Fin 24 := ⟨5, by decide⟩
+-- [helper]
+abbrev sse_v6 : Fin 24 := ⟨6, by decide⟩
+-- [helper]
+abbrev sse_v7 : Fin 24 := ⟨7, by decide⟩
+-- [helper]
+abbrev sse_v8 : Fin 24 := ⟨8, by decide⟩
+-- [helper]
+abbrev sse_v9 : Fin 24 := ⟨9, by decide⟩
+-- [helper]
+abbrev sse_v10 : Fin 24 := ⟨10, by decide⟩
+-- [helper]
+abbrev sse_v11 : Fin 24 := ⟨11, by decide⟩
+-- [helper]
+abbrev sse_v12 : Fin 24 := ⟨12, by decide⟩
+-- [helper]
+abbrev sse_v13 : Fin 24 := ⟨13, by decide⟩
+-- [helper]
+abbrev sse_v14 : Fin 24 := ⟨14, by decide⟩
+-- [helper]
+abbrev sse_v15 : Fin 24 := ⟨15, by decide⟩
+-- [helper]
+abbrev sse_v16 : Fin 24 := ⟨16, by decide⟩
+-- [helper]
+abbrev sse_v17 : Fin 24 := ⟨17, by decide⟩
+-- [helper]
+abbrev sse_v18 : Fin 24 := ⟨18, by decide⟩
+-- [helper]
+abbrev sse_v19 : Fin 24 := ⟨19, by decide⟩
+-- [helper]
+abbrev sse_v20 : Fin 24 := ⟨20, by decide⟩
+-- [helper]
+abbrev sse_v21 : Fin 24 := ⟨21, by decide⟩
+-- [helper]
+abbrev sse_v22 : Fin 24 := ⟨22, by decide⟩
+-- [helper]
+abbrev sse_v23 : Fin 24 := ⟨23, by decide⟩
 
-private def sse_clique216Nat (i : Nat) : SseClique :=
+-- [helper]
+def sse_clique216Nat (i : Nat) : SseClique :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => SseClique.c1 sse_v0 | 1 => SseClique.c1 sse_v1 | 2 => SseClique.c1 sse_v2 | 3 => SseClique.c1 sse_v3 | 4 => SseClique.c1 sse_v4 | 5 => SseClique.c1 sse_v5 | 6 => SseClique.c1 sse_v6 | 7 => SseClique.c1 sse_v7 | 8 => SseClique.c1 sse_v8 | 9 => SseClique.c1 sse_v9 | 10 => SseClique.c1 sse_v10 | 11 => SseClique.c1 sse_v11 | 12 => SseClique.c1 sse_v12 | 13 => SseClique.c1 sse_v13 | 14 => SseClique.c1 sse_v14 | 15 => SseClique.c1 sse_v15 | _ => SseClique.c1 sse_v0
@@ -969,7 +836,8 @@ def sseActCliqueGen (k : Fin 4) : SseClique → SseClique
     let t := sseSort3Fin (sseWF4Gen k a) (sseWF4Gen k b) (sseWF4Gen k c)
     SseClique.c3 t.1 t.2.1 t.2.2
 
-private def sse_act216Gen0Nat (i : Nat) : Nat :=
+-- [helper]
+def sse_act216Gen0Nat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 4 | 1 => 5 | 2 => 6 | 3 => 7 | 4 => 0 | 5 => 1 | 6 => 2 | 7 => 3 | 8 => 8 | 9 => 9 | 10 => 10 | 11 => 11 | 12 => 12 | 13 => 14 | 14 => 13 | 15 => 15 | _ => 0
@@ -1001,7 +869,8 @@ private def sse_act216Gen0Nat (i : Nat) : Nat :=
     | 0 => 208 | 1 => 209 | 2 => 212 | 3 => 213 | 4 => 210 | 5 => 211 | 6 => 214 | 7 => 215 | _ => 0
   | _ => 0
 
-private def sse_act216Gen1Nat (i : Nat) : Nat :=
+-- [helper]
+def sse_act216Gen1Nat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 0 | 1 => 1 | 2 => 2 | 3 => 3 | 4 => 8 | 5 => 9 | 6 => 10 | 7 => 11 | 8 => 4 | 9 => 5 | 10 => 6 | 11 => 7 | 12 => 16 | 13 => 17 | 14 => 18 | 15 => 19 | _ => 0
@@ -1033,7 +902,8 @@ private def sse_act216Gen1Nat (i : Nat) : Nat :=
     | 0 => 208 | 1 => 210 | 2 => 209 | 3 => 211 | 4 => 212 | 5 => 214 | 6 => 213 | 7 => 215 | _ => 0
   | _ => 0
 
-private def sse_act216Gen2Nat (i : Nat) : Nat :=
+-- [helper]
+def sse_act216Gen2Nat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 0 | 1 => 1 | 2 => 2 | 3 => 3 | 4 => 4 | 5 => 5 | 6 => 6 | 7 => 7 | 8 => 9 | 9 => 8 | 10 => 11 | 11 => 10 | 12 => 12 | 13 => 13 | 14 => 14 | 15 => 15 | _ => 0
@@ -1065,7 +935,8 @@ private def sse_act216Gen2Nat (i : Nat) : Nat :=
     | 0 => 209 | 1 => 208 | 2 => 211 | 3 => 210 | 4 => 213 | 5 => 212 | 6 => 215 | 7 => 214 | _ => 0
   | _ => 0
 
-private def sse_act216Gen3Nat (i : Nat) : Nat :=
+-- [helper]
+def sse_act216Gen3Nat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 0 | 1 => 20 | 2 => 23 | 3 => 3 | 4 => 4 | 5 => 16 | 6 => 19 | 7 => 7 | 8 => 8 | 9 => 12 | 10 => 15 | 11 => 11 | 12 => 9 | 13 => 13 | 14 => 14 | 15 => 10 | _ => 0
@@ -1097,7 +968,8 @@ private def sse_act216Gen3Nat (i : Nat) : Nat :=
     | 0 => 136 | 1 => 196 | 2 => 176 | 3 => 155 | 4 => 140 | 5 => 185 | 6 => 203 | 7 => 144 | _ => 0
   | _ => 0
 
-private def sse_act216GenNat (k i : Nat) : Nat :=
+-- [helper]
+def sse_act216GenNat (k i : Nat) : Nat :=
   match k with
   | 0 => sse_act216Gen0Nat i
   | 1 => sse_act216Gen1Nat i
@@ -1112,7 +984,8 @@ private theorem sse_act216GenNat_lt_fast :
       else true) 8 0 = true := by
   decide
 
-private theorem sse_act216GenNat_lt (k : Fin 4) (i : Fin 216) : sse_act216GenNat k.val i.val < 216 := by
+-- [helper]
+theorem sse_act216GenNat_lt (k : Fin 4) (i : Fin 216) : sse_act216GenNat k.val i.val < 216 := by
   have h := sse_allPow2_sound _ 8 0 sse_act216GenNat_lt_fast i.val (Nat.zero_le _) (by have := i.isLt; omega)
   rw [sse_ite_pos i.isLt] at h
   simp only [Bool.and_eq_true] at h
@@ -1198,7 +1071,8 @@ private theorem sse_act216_size (w : List (Fin 4)) (i : Fin 216) :
     sseSize216 (sseAct216 w i) = sseSize216 i := by
   induction w with | nil => rfl | cons k rest ih => simp only [sseAct216, sse_act216Gen_size, ih]
 
-private def sse_canonWord216Nat (i : Nat) : List Nat :=
+-- [helper]
+def sse_canonWord216Nat (i : Nat) : List Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => [] | 1 => [0, 1, 2, 1, 0] | 2 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3] | 3 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0] | 4 => [0] | 5 => [0, 1, 2, 1] | 6 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0] | 7 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1] | 8 => [0, 1] | 9 => [0, 1, 2] | 10 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1] | 11 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2] | 12 => [0, 1, 2, 3] | 13 => [0, 1, 2, 3, 1, 2, 1] | 14 => [0, 1, 2, 3, 1, 2, 1, 0] | 15 => [0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1] | _ => []
@@ -1322,19 +1196,23 @@ theorem thm_sse_wf4_automorphisms_and_216_cliques :
     stored in sorted `Nat` vertex representation (each entry `< 24`, mirroring `Fin 24`). -/
 abbrev SseD2StateNat := List Nat × List (Nat × List Nat)
 
-private def sse_insertNatSorted (x : Nat) : List Nat → List Nat
+-- [helper]
+def sse_insertNatSorted (x : Nat) : List Nat → List Nat
   | [] => [x]
   | y :: ys => if x < y then x :: y :: ys else if x == y then y :: ys else y :: sse_insertNatSorted x ys
 
-private def sse_sortNatList : List Nat → List Nat
+-- [helper]
+def sse_sortNatList : List Nat → List Nat
   | [] => []
   | x :: xs => sse_insertNatSorted x (sse_sortNatList xs)
 
-private def sse_insertPairSorted (p : Nat × List Nat) : List (Nat × List Nat) → List (Nat × List Nat)
+-- [helper]
+def sse_insertPairSorted (p : Nat × List Nat) : List (Nat × List Nat) → List (Nat × List Nat)
   | [] => [p]
   | q :: qs => if p.1 < q.1 then p :: q :: qs else q :: sse_insertPairSorted p qs
 
-private def sse_sortPairList : List (Nat × List Nat) → List (Nat × List Nat)
+-- [helper]
+def sse_sortPairList : List (Nat × List Nat) → List (Nat × List Nat)
   | [] => []
   | p :: ps => sse_insertPairSorted p (sse_sortPairList ps)
 
@@ -1382,7 +1260,8 @@ def sseD2Rep : Fin 19 → SseD2StateNat
   | _ => ([], [])
 
 /-- Exact Depth-2 upward transition table `(b, v, word)` for each state `u : Fin 19`. -/
-private def sse_d2TransList : Nat → List (Nat × Nat × List Nat)
+-- [helper]
+def sse_d2TransList : Nat → List (Nat × Nat × List Nat)
   | 0 => [(0, 1, []), (1, 1, [0, 1, 2, 1, 0]), (2, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3]), (3, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0]), (4, 1, [0]), (5, 1, [0, 1, 2, 1]), (6, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0]), (7, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1]), (8, 1, [0, 1]), (9, 1, [0, 1, 2]), (10, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1]), (11, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2]), (12, 1, [0, 1, 2, 3]), (13, 1, [0, 1, 2, 3, 1, 2, 1]), (14, 1, [0, 1, 2, 3, 1, 2, 1, 0]), (15, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1]), (16, 1, [0, 1, 2, 3, 1]), (17, 1, [0, 1, 2, 3, 1, 2]), (18, 1, [0, 1, 2, 3, 1, 2, 0, 1, 0]), (19, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2, 0]), (20, 1, [0, 1, 2, 3, 1, 0]), (21, 1, [0, 1, 2, 3, 1, 2, 0]), (22, 1, [0, 1, 2, 3, 1, 2, 0, 1]), (23, 1, [0, 1, 2, 3, 1, 2, 0, 1, 2])]
   | 1 => [(1, 2, [2, 3, 0, 1, 2, 1, 0]), (2, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3]), (3, 3, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0]), (4, 4, []), (5, 4, [1, 2, 1]), (6, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 1, 0]), (7, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1]), (8, 4, [1]), (9, 4, [1, 2]), (10, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 0]), (11, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0]), (12, 4, [1, 2, 3]), (13, 4, [1, 2, 3, 1, 2, 1]), (14, 5, [2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0]), (15, 5, [2, 3, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1, 0]), (16, 4, [1, 2, 3, 1]), (17, 4, [1, 2, 3, 1, 2]), (18, 5, [2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0]), (19, 5, [2, 3, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 1, 0]), (20, 2, [2, 0, 1, 2, 3, 2, 1, 0]), (21, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0]), (22, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1]), (23, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2])]
   | 2 => [(1, 2, [2, 3, 0, 1, 2, 1, 0]), (2, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3]), (3, 3, [0, 1, 2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0]), (4, 6, []), (5, 4, [1, 2, 1]), (6, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 1, 0]), (7, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1]), (8, 4, [1]), (9, 6, [2, 1, 2]), (10, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 0]), (11, 5, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0]), (12, 6, [2, 1, 2, 3]), (13, 4, [1, 2, 3, 1, 2, 1]), (14, 5, [2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 1, 0]), (15, 5, [2, 3, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1, 0]), (16, 4, [1, 2, 3, 1]), (17, 6, [2, 1, 2, 3, 2, 1, 2]), (18, 5, [2, 3, 1, 2, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0]), (19, 5, [2, 3, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 1, 0]), (20, 2, [2, 0, 1, 2, 3, 2, 1, 0]), (21, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0]), (22, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1]), (23, 2, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2])]
@@ -1404,7 +1283,8 @@ private def sse_d2TransList : Nat → List (Nat × Nat × List Nat)
   | 18 => [(1, 18, [2, 1, 0]), (2, 15, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2]), (3, 16, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 1, 0]), (5, 18, [2, 1]), (6, 15, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2, 0]), (7, 16, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 1]), (9, 18, [2]), (10, 15, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1]), (11, 16, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2]), (12, 12, [1, 2, 3, 2]), (13, 14, [2, 0, 1, 2, 3, 2, 1, 2, 1]), (14, 14, [2, 0, 1, 2, 3, 2, 1, 2, 1, 0]), (15, 15, [2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1]), (16, 12, [1, 2, 3, 2, 1]), (17, 14, [2, 0, 1, 2, 3, 2, 1, 2]), (18, 14, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 0]), (19, 15, [2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2, 0]), (20, 12, [1, 2, 3, 2, 1, 0]), (21, 14, [2, 0, 1, 2, 3, 2, 1, 2, 0]), (22, 14, [2, 0, 1, 2, 3, 2, 1, 2, 0, 1]), (23, 15, [2, 3, 2, 1, 2, 0, 1, 2, 3, 1, 2, 0, 1, 2])]
   | _ => []
 
-private def sse_d2Lookup (u b : Nat) : Option (Nat × List Nat) :=
+-- [helper]
+def sse_d2Lookup (u b : Nat) : Option (Nat × List Nat) :=
   match (sse_d2TransList u).find? (fun e => e.1 == b) with
   | some e => some (e.2.1, e.2.2)
   | none => none
@@ -1709,7 +1589,8 @@ theorem thm_sse_depth2_automaton_and_shell_growth :
 
 /-! ## Section 3: Exact `23`-Flag Upward-End Orbits, Unconditional `Aut`-Invariance & Reciprocity -/
 
-private def sse_d2DownFlagList : Nat → List (Nat × Nat)
+-- [helper]
+def sse_d2DownFlagList : Nat → List (Nat × Nat)
   | 0 => []
   | 1 => [(0, 0)]
   | 2 => [(0, 1)]
@@ -1870,7 +1751,8 @@ def sseD2CertP (e : Fin 23) : Int :=
   | 15 => 6405 | 16 => 3451 | 17 => 1905 | 18 => 1700 | 19 => 2521
   | 20 => 4402 | 21 => 7413 | 22 => 5241 | _  => 1
 
-private theorem sse_d2CertP_pos : ∀ e : Fin 23, 0 < sseD2CertP e := by decide
+-- [helper]
+theorem sse_d2CertP_pos : ∀ e : Fin 23, 0 < sseD2CertP e := by decide
 
 /-- Exact `QPos` Depth-2 Schur row sum `S_u = ∑_{b up} (p_{f(u,b)} / 10000) + ∑_{a down} (10000 / p_{f(u,a)})`
     computed directly from the certified transitions `sseD2UpFlag` and `sseD2DownFlag`. -/
@@ -2521,7 +2403,11 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
     · rename_i a b c d
       have ha := (hMem a).1 (Or.inl rfl); have hb := (hMem b).1 (Or.inr rfl)
       have e1 : a = c := by rcases ha with rfl | rfl <;> rcases hb with rfl | rfl <;> (try rfl) <;> omega
-      have e2 : b = d := by subst e1; rcases hb with rfl | rfl <;> (try rfl) <;> omega
+      have e2 : b = d := by
+        subst e1
+        rcases hb with rfl | rfl
+        · omega
+        · rfl
       rw [e1, e2]
     · rename_i a b c d e
       have hc := (hMem c).2 (Or.inl rfl); have hd := (hMem d).2 (Or.inr (Or.inl rfl)); have he := (hMem e).2 (Or.inr (Or.inr rfl))
@@ -2664,9 +2550,11 @@ theorem thm_sse_q3_link_and_zero_cascade :
 
 /-! ## Section 6: Exact `57` Pair-Orbit Algebra & All-Depth Symbolic Cartier-Foata Word-Sum Reduction -/
 
-private def sse_sort2Nat (a b : Nat) : Nat × Nat := if a ≤ b then (a, b) else (b, a)
+-- [helper]
+def sse_sort2Nat (a b : Nat) : Nat × Nat := if a ≤ b then (a, b) else (b, a)
 
-private def sse_sort3Nat (a b c : Nat) : Nat × Nat × Nat :=
+-- [helper]
+def sse_sort3Nat (a b c : Nat) : Nat × Nat × Nat :=
   let (x1, y1) := sse_sort2Nat a b
   let (y2, z2) := sse_sort2Nat y1 c
   let (x3, y3) := sse_sort2Nat x1 y2
@@ -2735,7 +2623,8 @@ private theorem sse_sort3Nat_perm312 (a b c : Nat) : sse_sort3Nat c a b = sse_so
 private theorem sse_sort3Nat_perm321 (a b c : Nat) : sse_sort3Nat c b a = sse_sort3Nat a b c := by
   rw [sse_sort3Nat_swap12 c b a, sse_sort3Nat_swap23 b c a, sse_sort3Nat_swap12 b a c]
 
-private def sse_rowCode (a : Fin 24) (c2 : SseClique) : Nat :=
+-- [helper]
+def sse_rowCode (a : Fin 24) (c2 : SseClique) : Nat :=
   match c2 with
   | SseClique.c1 b => sse_dotPlus2Fast a.val b.val
   | SseClique.c2 b1 b2 =>
@@ -2823,7 +2712,8 @@ def sseCodeToOrbitNat (code : Nat) : Nat :=
   | 12190778 => 56
   | _ => 0
 
-private theorem sse_codeToOrbitNat_lt (code : Nat) : sseCodeToOrbitNat code < 57 := by
+-- [helper]
+theorem sse_codeToOrbitNat_lt (code : Nat) : sseCodeToOrbitNat code < 57 := by
   unfold sseCodeToOrbitNat; split <;> decide
 
 /-- Exact `W(F_4)`-invariant pair orbit `ssePairOrbit216 i j : Fin 57` directly from `d4RootOf`. -/
@@ -2893,7 +2783,8 @@ private theorem sse_pairOrbit216_wf4 (w : List (Fin 4)) (i j : Fin 216) :
     ssePairOrbit216 (sseAct216 w i) (sseAct216 w j) = ssePairOrbit216 i j := by
   induction w with | nil => rfl | cons k rest ih => simp only [sseAct216, sse_pairOrbit216_wf4Gen, ih]
 
-private def sse_orbitMetaNat (i : Nat) : Nat × Nat × Nat × Nat × Nat :=
+-- [helper]
+def sse_orbitMetaNat (i : Nat) : Nat × Nat × Nat × Nat × Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => (18, 1, 1, 144, 6) | 1 => (0, 1, 1, 24, 1) | 2 => (9, 1, 1, 192, 8) | 3 => (102, 1, 2, 576, 6) | 4 => (48, 1, 2, 192, 2) | 5 => (57, 1, 2, 288, 3) | 6 => (510, 1, 3, 576, 6) | 7 => (276, 1, 3, 288, 3) | 8 => (3394, 2, 1, 576, 24) | 9 => (2260, 2, 1, 576, 24) | 10 => (1126, 2, 1, 192, 8) | 11 => (1135, 2, 1, 288, 12) | 12 => (3385, 2, 1, 192, 8) | 13 => (19282, 2, 2, 288, 3) | 14 => (20353, 2, 2, 576, 6) | 15 => (18103, 2, 2, 576, 6) | _ => (0, 1, 1, 0, 0)
@@ -2914,24 +2805,29 @@ def sseOrbitMultIn (o : Fin 57) : Nat := (sse_orbitMetaNat o.val).2.2.2.2
 
 /-- Exact incoming orbit-multiplicity tables for canonical cliques `[0]`, `[0,4]`, `[0,4,8]`
     and canonical `Q_3` cliques `[4]`, `[4,8]` (every entry kernel-verified against `adj24` below!). -/
-private def sse_inOrbitTblNat : Nat → List (Nat × Nat)
+-- [helper]
+def sse_inOrbitTblNat : Nat → List (Nat × Nat)
   | 1 => [(0, 6), (1, 1), (2, 8), (8, 24), (9, 24), (10, 8), (11, 12), (12, 8), (31, 24), (32, 24), (33, 12), (34, 24)]
   | 2 => [(3, 6), (4, 2), (5, 3), (13, 3), (14, 6), (15, 6), (16, 12), (17, 3), (18, 6), (19, 12), (20, 6), (21, 1), (22, 6), (23, 2), (35, 6), (36, 12), (37, 12), (38, 6), (39, 12), (40, 12), (41, 3), (42, 6), (43, 3), (44, 3)]
   | _ => [(6, 6), (7, 3), (24, 3), (25, 12), (26, 12), (27, 6), (28, 12), (29, 6), (30, 3), (45, 2), (46, 6), (47, 6), (48, 12), (49, 6), (50, 2), (51, 6), (52, 6), (53, 12), (54, 6), (55, 1), (56, 3)]
 
-private def sse_m1TblNat : Nat → List ((Nat × Nat) × Nat)
+-- [helper]
+def sse_m1TblNat : Nat → List ((Nat × Nat) × Nat)
   | 1 => [((0, 3), 3), ((10, 18), 3), ((10, 21), 1), ((10, 22), 3), ((10, 23), 1), ((11, 15), 3), ((11, 19), 6), ((11, 22), 3), ((12, 14), 3), ((12, 20), 3), ((12, 23), 1), ((1, 4), 1), ((2, 3), 3), ((2, 4), 1), ((2, 5), 3), ((31, 35), 6), ((31, 36), 6), ((31, 37), 6), ((32, 37), 6), ((32, 38), 6), ((32, 39), 6), ((32, 40), 6), ((33, 39), 6), ((33, 41), 3), ((33, 42), 3), ((34, 36), 6), ((34, 40), 6), ((34, 42), 3), ((34, 43), 3), ((34, 44), 3), ((8, 13), 3), ((8, 14), 3), ((8, 15), 3), ((8, 16), 6), ((9, 16), 6), ((9, 17), 3), ((9, 18), 3), ((9, 19), 6), ((9, 20), 3)]
   | _ => [((13, 24), 1), ((14, 25), 4), ((15, 24), 2), ((15, 26), 4), ((16, 25), 4), ((16, 26), 4), ((17, 27), 2), ((18, 28), 4), ((18, 29), 2), ((19, 26), 4), ((19, 27), 4), ((19, 28), 4), ((20, 25), 4), ((20, 29), 2), ((21, 30), 1), ((22, 28), 4), ((22, 30), 2), ((23, 29), 2), ((35, 45), 2), ((35, 46), 2), ((36, 47), 4), ((36, 48), 4), ((37, 46), 4), ((37, 48), 4), ((37, 49), 4), ((38, 49), 2), ((38, 50), 2), ((38, 51), 2), ((39, 51), 4), ((39, 52), 4), ((39, 53), 4), ((3, 6), 4), ((40, 48), 4), ((40, 53), 4), ((40, 54), 4), ((41, 52), 2), ((41, 55), 1), ((42, 53), 4), ((42, 56), 2), ((43, 54), 2), ((44, 47), 2), ((44, 56), 1), ((4, 7), 2), ((5, 6), 2), ((5, 7), 1)]
 
-private def sse_m2TblNat : Nat → List ((Nat × Nat) × Nat)
+-- [helper]
+def sse_m2TblNat : Nat → List ((Nat × Nat) × Nat)
   | 1 => [((0, 8), 3), ((2, 12), 1), ((8, 31), 6), ((9, 34), 3)]
   | _ => [((13, 35), 2), ((16, 36), 4), ((17, 43), 1), ((3, 14), 2)]
 
-private def sse_q3InTblNat : Nat → List (Nat × Nat)
+-- [helper]
+def sse_q3InTblNat : Nat → List (Nat × Nat)
   | 1 => [(0, 3), (2, 1), (8, 6), (9, 3)]
   | _ => [(3, 2), (13, 2), (16, 4), (17, 1)]
 
-private def sse_toFin57 (n : Nat) : Fin 57 := if h : n < 57 then ⟨n, h⟩ else ⟨0, by decide⟩
+-- [helper]
+def sse_toFin57 (n : Nat) : Fin 57 := if h : n < 57 then ⟨n, h⟩ else ⟨0, by decide⟩
 
 def sseInOrbitTbl (sz : Nat) : List (Fin 57 × Nat) :=
   (sse_inOrbitTblNat sz).map (fun e => (sse_toFin57 e.1, e.2))
@@ -3225,7 +3121,7 @@ private theorem sse_wordsEnd_le (k : Nat) (c : Fin 216) (f g : List (Fin 216) �
         rw [sse_ite_pos hF, sse_ite_pos hF]
         exact ih p (fun rev => f (c :: rev)) (fun rev => g (c :: rev)) (fun rev => h (c :: rev))
       else
-        rw [sse_ite_neg hF, sse_ite_neg hF]; exact Nat.le_refl 0
+        rw [sse_ite_neg hF, sse_ite_neg hF]
 
 private theorem sse_wordsEnd_zero (k : Nat) (c : Fin 216) :
     sseWordsEnd k c (fun _ => 0) = 0 := by
@@ -4446,7 +4342,7 @@ private theorem sse_cf_exact_up0Quad_ge (K M : Nat) (W : Nat → Nat) (om v : Fi
     rw [hIn]
     exact sse_sumFinNat_le _ _ (fun c => hDisj (M + 1) k c (sse_up0PairVal W om v))
   else
-    rw [sse_ite_neg hk2, sse_ite_neg hk2, Nat.mul_zero]; exact Nat.le_refl 0
+    rw [sse_ite_neg hk2, sse_ite_neg hk2, Nat.mul_zero]
 
 private theorem sse_orbit_totalPairs_exact (o : Fin 57) :
     sseSumFinNat (fun c : Fin 216 =>
@@ -4505,7 +4401,8 @@ theorem thm_sse_cf_57_orbits_and_exact_word_sum :
 
 /-! ## Section 7: Concrete CF 1-Step Lower Bound (`ρ > 913/80 = 11.4125`) & Master Certified Bracket -/
 
-private def sse_cf1OmNat (i : Nat) : Nat :=
+-- [helper]
+def sse_cf1OmNat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 100 | 1 => 83 | 2 => 88 | 3 => 41 | 4 => 37 | 5 => 38 | 6 => 22 | 7 => 21 | 8 => 126 | 9 => 80 | 10 => 71 | 11 => 74 | 12 => 113 | 13 => 54 | 14 => 60 | 15 => 41 | _ => 1
@@ -4517,7 +4414,8 @@ private def sse_cf1OmNat (i : Nat) : Nat :=
     | 0 => 24 | 1 => 21 | 2 => 16 | 3 => 16 | 4 => 15 | 5 => 18 | 6 => 21 | 7 => 15 | 8 => 19 | _ => 1
   | _ => 1
 
-private def sse_cf1VNat (i : Nat) : Nat :=
+-- [helper]
+def sse_cf1VNat (i : Nat) : Nat :=
   match i / 16 with
   | 0 => match i % 16 with
     | 0 => 146 | 1 => 148 | 2 => 147 | 3 => 119 | 4 => 119 | 5 => 119 | 6 => 101 | 7 => 101 | 8 => 135 | 9 => 144 | 10 => 147 | 11 => 145 | 12 => 136 | 13 => 118 | 14 => 115 | 15 => 118 | _ => 1
@@ -5364,5 +5262,8 @@ theorem thm_sse_combined_spectral_bracket :
    by decide,
    by decide,
    by decide⟩
+
+
+end
 
 end Vibe
