@@ -1,0 +1,196 @@
+\section{Expansion}
+\label{sec:expansion}
+
+Exponential shell growth transforms both cellular-automaton reversibility and wave propagation on $\{3,4,3,4\}$. Because over $94.5\%$ of every large ball lies on its single outermost shell, the Euclidean Moore--Myhill equivalence fails, post-hoc injectivity testing for arbitrary local rules becomes unsolvable, and every random walk evacuates outward at a Lean~4-certified exponential rate exceeding one half per step.
+
+\subsection{Non-Amenability}
+\label{subsec:non-amenability}
+
+On a flat lattice $\mathbb{Z}^d$, the boundary of a ball of radius $r$ grows as $O(r^{d-1})$ against volume $\Theta(r^d)$, so the surface-to-volume ratio $|\partial B_r|/|B_r|$ vanishes as $r \to \infty$. That amenability property drives the Moore--Myhill Garden-of-Eden theorem~\cite{moore1962,myhill1963,bartholdi2010}: a cellular automaton on an amenable group is globally surjective iff its restriction to finite configurations is injective. On hyperbolic tilings, boundary area stays a strictly positive fraction of volume. On the planar heptagrid $\{7,3\}$, Margenstern showed that $|\partial B_r|/|B_r| > 1/2$ for all radii, breaking Moore--Myhill so that injective-but-non-surjective and surjective-but-non-injective automata coexist~\cite{margenstern2007hedlund,margenstern2008injectivity}. Extending Kari's planar tiling reduction~\cite{kari1990,kari1994} via an almost plane-filling path across interwoven triangles, Margenstern further proved that deciding global injectivity of an arbitrary cellular automaton on $\{7,3\}$ is undecidable~\cite{margenstern2008injectivity}.
+
+On $\{3,4,3,4\}$, boundary dominance is far sharper: by Theorem~\ref{thm:cubic-growth} and~\eqref{eq:surface-vol}, $|\partial B_r|/|B_r| \to 0.945292$. Any finite patch of $n$ cells touches an outer perimeter nearly as large as its entire interior. Preimage collisions in an unstructured local rule table can therefore hide at arbitrarily large radii, making empirical injectivity checks futile. At the same time, strong non-amenability forces a wide spectral gap on the $24$-regular adjacency operator, ensuring that diffuse excitations decay exponentially fast rather than stalling near an active region.
+
+\subsection{Spectral Bounds}
+\label{subsec:spectral-bounds}
+
+A normalized random-walk spectral gap above $1/2$ means that every vector in $\ell^2(W(\Gamma_{24}))$ shrinks in norm by more than a factor of two on every step. Let $A$ be the $24$-regular adjacency operator on $\ell^2(W(\Gamma_{24}))$, with spectral radius $\rho = \|A\|_{2 \to 2}$ and normalized gap
+\begin{equation}
+\label{eq:gap-def}
+\lambda_{\mathrm{gap}} = 1 - \frac{\rho}{24}.
+\end{equation}
+By Kesten's criterion~\cite{kesten1959} (a finitely generated group is non-amenable iff its simple random walk has spectral radius strictly below $1$), non-amenability implies $\rho < 24$. Using the four-orbit Cartier--Foata matrix $M_{\mathrm{up}}$ of~\eqref{eq:m-up}, we sharpen that qualitative bound into a narrow rational interval strictly inside $(11, 12)$, certified completely over integers and rationals in Lean~4~\cite{pollard2026repo}.
+
+\paragraph{Upper bound via reciprocal edge weights.}
+Following the Gabber--Galil--Nagnibeda Schur test~\cite{nagnibeda1997}, assign a positive weight $w(u \to v) > 0$ to each directed edge of a symmetric finite graph $(V, A)$ subject to the reciprocal condition
+\begin{equation}
+\label{eq:reciprocal-schur}
+w(u \to v)\,w(v \to u) = 1 \qquad \text{for every edge } u \sim v.
+\end{equation}
+Because the arithmetic--geometric mean inequality gives
+\begin{equation}
+\label{eq:ag-mean}
+2\,|x_u x_v| \le w(u \to v)\,x_u^2 + w(v \to u)\,x_v^2,
+\end{equation}
+summing over all edges bounds the operator norm without requiring any curl-free vertex potential:
+\begin{equation}
+\label{eq:schur-quad}
+|\langle x, A x \rangle| \le \Bigl(\max_{u \in V} \sum_{v \sim u} w(u \to v)\Bigr)\,\langle x, x \rangle.
+\end{equation}
+On the Cartier--Foata strata $(C_0, C_1, C_2, C_3)$ of $\{3,4,3,4\}$, every edge connects a vertex $u$ at depth $r$ to a vertex $v$ at depth $r+1$ with $k = |D_R(v)| \in \{1,2,3\}$. Assign three positive rational parameters $(p_1, p_2, p_3)$ to \emph{upward} edges $u \to v$ entering stratum $C_k$, and their exact reciprocals $(p_1^{-1}, p_2^{-1}, p_3^{-1})$ to the reverse \emph{downward} edges $v \to u$ leaving stratum $C_k$. Because every vertex in $C_k$ has $k$ downward neighbors and upward degree row $k$ of $M_{\mathrm{up}}$ in~\eqref{eq:m-up}, the row sum in~\eqref{eq:schur-quad} collapses to four closed-form rational expressions:
+\begin{align}
+S_0 &= 24\,p_1, & S_1 &= p_1^{-1} + 15\,p_1 + 8\,p_2, \label{eq:schur-s01}\\
+S_2 &= 2\,p_2^{-1} + 11\,p_1 + 8\,p_2 + 3\,p_3, & S_3 &= 3\,p_3^{-1} + 9\,p_1 + 6\,p_2 + 6\,p_3. \label{eq:schur-s23}
+\end{align}
+
+\paragraph{Lower bound via stratum Rayleigh--Ritz compression.}
+To bound $\rho$ from below, test finite-support vectors $x(w) = \phi(r, k)$ depending only on graph depth $r \in \{1,\dots,R\}$ and right-descent clique size $k \in \{1,2,3\}$, factored into a radial envelope and three integer stratum weights $(a_1, a_2, a_3)$:
+\begin{equation}
+\label{eq:rr-ansatz}
+\phi(r, k) = a_k\,r\,(R + 1 - r)\,11^{r-1}\,47^{R-r},
+\end{equation}
+where the rational ratio $11/47 \approx \lambda_{3434}^{-1/2}$ scales each shell as $(11/47)^r \approx \lambda_{3434}^{-r/2}$ to counterbalance exponential shell growth while $47^R$ clears denominators to exact integers. Because every vertex in stratum $(r,k)$ shares the exact same upward degree vector $(M_{\mathrm{up}})_{k,k'}$ into depth $r+1$, the full quadratic form $\langle x, A x \rangle$ compresses identically onto the $3R$-dimensional stratum space even where downward degrees vary vertex by vertex.
+
+\begin{theorem}[Certified Spectral Bracket]
+\label{thm:spectral-bracket}
+Let $A$ be the adjacency operator on a finite bipartite subgraph matching the Cartier--Foata stratum counts and upward transition matrix $M_{\mathrm{up}}$ of $\{3,4,3,4\}$ up to radius $R$, and let $\rho = \|A\|_{2\to 2}$ be the infinite-graph spectral radius obtained by density of finitely supported vectors in $\ell^2(W(\Gamma_{24}))$.
+\begin{enumerate}
+\item For every radius $R$, substituting the simple rational tuple into~\eqref{eq:schur-s01}--\eqref{eq:schur-s23},
+\begin{equation}
+\label{eq:spectral-gap}
+(p_1, p_2, p_3) = \Bigl(\tfrac{1}{7},\, \tfrac{1}{3},\, \tfrac{4}{7}\Bigr) \;\Longrightarrow\; \max_k S_k = S_3 = \frac{335}{28} < 12, \qquad \lambda_{\mathrm{gap}} = 1 - \frac{\rho}{24} \ge \frac{337}{672} > \frac{1}{2},
+\end{equation}
+certifies $\rho/24 \le 335/672 < 1/2$, while the refined tuple in Table~\ref{tab:spectral-summary} tightens $\rho \le 11.9254$.
+\item Evaluating~\eqref{eq:rr-ansatz} at $R \ge 24$ with $(a_1, a_2, a_3) = (2,3,5)$ and at $R \ge 36$ with $(17,26,45)$ certifies $\rho > 11$ and $\rho > 11{,}049/1{,}000$, respectively.
+\end{enumerate}
+Combining both sides traps $\rho$ inside a certified interval of width under $0.88$:
+\begin{equation}
+\label{eq:rho-bracket}
+11 < \frac{11{,}049}{1{,}000} < \rho\bigl(\{3,4,3,4\}\bigr) \le \frac{3{,}325{,}977{,}059}{278{,}900{,}000} < \frac{335}{28} < 12.
+\end{equation}
+\end{theorem}
+
+Table~\ref{tab:spectral-summary} and Figure~\ref{fig:spectral-growth} record the exact rational certificates alongside the multi-dimensional ball-capacity curve. In Lean~4, the finite-graph reciprocal Schur test, the $217$-clique matrix $M_{\mathrm{up}}$, the upward-only bipartite Rayleigh compression, and every integer inequality in~\eqref{eq:rho-bracket} are verified unconditionally~\cite{pollard2026repo}. Passing from arbitrary finite subgraphs to the infinite operator norm on $\ell^2(W(\Gamma_{24}))$ uses standard density of finitely supported vectors together with the Coxeter exchange condition on $W(\Gamma_{24})$.
+
+\begin{table}[tb]
+\centering
+\caption{Exact rational spectral certificates for the $24$-regular dual graph of $\{3,4,3,4\}$~\cite{pollard2026repo}. Decimal inequalities round strictly outward so every stated bound remains valid.}
+\label{tab:spectral-summary}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Quantity & Witness tuple & Exact rational bound & Safe decimal bound \\
+\midrule
+Lower bound ($R \ge 24$) & $(a_1,a_2,a_3) = (2,3,5)$ & $> 11$ & $> 11.0000$ \\
+Lower bound ($R \ge 36$) & $(a_1,a_2,a_3) = (17,26,45)$ & $> 11{,}049 / 1{,}000$ & $> 11.0490$ \\
+Upper bound (simple) & $(p_1,p_2,p_3) = (1/7, 1/3, 4/7)$ & $\le 335 / 28$ & $\le 11.9643$ \\
+Upper bound (refined) & $(13{,}945,\, 33{,}282,\, 57{,}314)/10^5$ & $\le 3{,}325{,}977{,}059 / 278{,}900{,}000$ & $\le 11.9254$ \\
+Gap $\lambda_{\mathrm{gap}}$ (simple) & From simple upper bound & $\ge 337 / 672$ & $\ge 0.5014$ \\
+Gap $\lambda_{\mathrm{gap}}$ (refined) & From refined upper bound & $\ge 3{,}367{,}622{,}941 / 6{,}693{,}600{,}000$ & $\ge 0.5031$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+  % Subtle center divider only (pure white background, zero gray fill)
+  \draw[twZincRule, thin] (7.55,-0.40) -- (7.55,4.42);
+
+  % Left panel: log10 cumulative capacity vs depth d=0..5 (x = 0.0 .. 7.35)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.0,4.26) {Cumulative capacity $\log_{10} V(d)$};
+
+  % Axes: x in [0.85, 5.15] for d=0..5 (0.86 cm per step), y in [0.45, 3.45] for log10 in [0, 7] (0.42 cm per unit)
+  \draw[-{Stealth[length=4pt]}, twZincInk, thin] (0.85,0.45) -- (5.42,0.45);
+  \draw[-{Stealth[length=4pt]}, twZincInk, thin] (0.85,0.45) -- (0.85,3.45);
+  \node[anchor=south, font=\scriptsize, text=twZincInk] at (0.85,3.48) {$\log_{10} V$};
+  \node[font=\scriptsize, text=twZincInk] at (3.00,-0.22) {graph depth $d$};
+
+  % Ticks x: d = 0..5
+  \foreach \d in {0,1,2,3,4,5} {
+    \pgfmathsetmacro{\xx}{0.85 + \d*0.86}
+    \draw[twZinc, thin] (\xx,0.38) -- (\xx,0.52);
+    \node[below, font=\scriptsize, text=twZinc] at (\xx,0.34) {$\d$};
+  }
+  % Ticks y: 0, 2, 4, 6
+  \foreach \y in {0,2,4,6} {
+    \pgfmathsetmacro{\yy}{0.45 + \y*0.42}
+    \draw[twZinc, thin] (0.78,\yy) -- (0.92,\yy);
+    \node[left, font=\scriptsize, text=twZinc] at (0.74,\yy) {$\y$};
+  }
+
+  % Curve 1: 4D {3,4,3,4} cusp ball V_d = 1, 19, 349, 6383, 116681, 2132795
+  % log10 = 0, 1.2788, 2.5428, 3.8050, 5.0670, 6.3290 -> y = 0.45 + 0.42*log10
+  \draw[twEmerald, very thick] (0.85,0.450) -- (1.71,0.987) -- (2.57,1.518) -- (3.43,2.048) -- (4.29,2.578) -- (5.15,3.108);
+  \foreach \x/\y in {0.85/0.450, 1.71/0.987, 2.57/1.518, 3.43/2.048, 4.29/2.578, 5.15/3.108} {
+    \fill[twEmerald] (\x,\y) circle (2.2pt);
+  }
+  \node[anchor=west, font=\scriptsize\bfseries, text=twEmerald] at (5.24,3.11) {$\{3,4,3,4\}$ cusp};
+
+  % Curve 2: 3D {5,3,4} exact RACG ball V_d = 1, 13, 115, 927, 7329, 57741
+  % log10 = 0, 1.1139, 2.0607, 2.9671, 3.8650, 4.7615 -> y = 0.45 + 0.42*log10
+  \draw[twBlue, thick] (0.85,0.450) -- (1.71,0.918) -- (2.57,1.315) -- (3.43,1.696) -- (4.29,2.073) -- (5.15,2.450);
+  \foreach \x/\y in {0.85/0.450, 1.71/0.918, 2.57/1.315, 3.43/1.696, 4.29/2.073, 5.15/2.450} {
+    \fill[twBlue] (\x,\y) circle (2.0pt);
+  }
+  \node[anchor=west, font=\scriptsize, text=twBlue] at (5.30,2.45) {$\{5,3,4\}$ ball};
+
+  % Curve 3: Flat Z^4 l1 ball: 1, 9, 41, 129, 321, 681
+  % log10 = 0, 0.9542, 1.6128, 2.1106, 2.5065, 2.8331 -> y = 0.45 + 0.42*log10
+  \draw[twViolet, thick, dashed] (0.85,0.450) -- (1.71,0.851) -- (2.57,1.127) -- (3.43,1.336) -- (4.29,1.503) -- (5.15,1.640);
+  \foreach \x/\y in {0.85/0.450, 1.71/0.851, 2.57/1.127, 3.43/1.336, 4.29/1.503, 5.15/1.640} {
+    \fill[twViolet] (\x,\y) circle (2.0pt);
+  }
+  \draw[twViolet, thin] (5.19,1.66) -- (5.32,1.88);
+  \node[anchor=west, font=\scriptsize, text=twViolet] at (5.32,1.89) {flat $\mathbb{Z}^4$ ball};
+
+  % Curve 4: 2D {7,3} heptagrid ball: 1, 8, 29, 85, 232, 617
+  % log10 = 0, 0.9031, 1.4624, 1.9294, 2.3655, 2.7903 -> y = 0.45 + 0.42*log10
+  \draw[twZinc, thick, dotted] (0.85,0.450) -- (1.71,0.829) -- (2.57,1.064) -- (3.43,1.260) -- (4.29,1.443) -- (5.15,1.622);
+  \draw[twZinc, thin] (5.19,1.60) -- (5.32,1.32);
+  \node[anchor=west, font=\scriptsize, text=twZinc] at (5.32,1.30) {2D $\{7,3\}$ ball};
+
+  % Right panel: Certified Spectral Bracket on [0, 24] (x = 7.90 .. 15.15)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (7.95,4.26) {Certified $\{3,4,3,4\}$ spectral bracket};
+
+  % Top number line for rho in [0, 24] at y = 2.45 (x = 8.15 to 14.85, 6.70 cm)
+  \draw[twZincInk, thick] (8.15,2.45) -- (14.85,2.45);
+  \foreach \v in {0,6,12,18,24} {
+    \pgfmathsetmacro{\xv}{8.15 + \v*6.70/24}
+    \draw[twZincInk, thin] (\xv,2.34) -- (\xv,2.56);
+    \node[below, font=\scriptsize, text=twZinc] at (\xv,2.28) {$\v$};
+  }
+
+  % Bracket highlight on top bar: 11.049 -> x = 11.234, 11.9254 -> x = 11.479
+  \draw[twViolet, line width=4pt] (11.234,2.45) -- (11.479,2.45);
+
+  % Midpoint 12 dashed vertical line and left-aligned label above gap arrow
+  \draw[twPink, dashed, thin] (11.50,2.34) -- (11.50,3.62);
+  \node[anchor=east, font=\scriptsize, text=twPink] at (11.38,3.48) {$\rho = 12$ ($\lambda_{\mathrm{gap}} = 1/2$)};
+
+  % Gap span arrow cleanly above top bar (y = 2.95)
+  \draw[{Stealth[length=4pt]}-{Stealth[length=4pt]}, twEmerald, thick] (11.56,2.95) -- (14.85,2.95);
+  \node[above, font=\scriptsize\bfseries, text=twEmerald] at (13.20,3.00) {gap $> 12$ ($> 50\%$)};
+
+  % Zoom callout lines starting strictly BELOW top tick labels (y=1.90) and ending ABOVE zoomed title (y=1.22)
+  \draw[twZincRule, thin, dashed] (11.234,1.90) -- (9.47,1.22);
+  \draw[twZincRule, thin, dashed] (11.479,1.90) -- (13.41,1.22);
+
+  % Zoomed inset below (rho in [10.8, 12.2]) at y = 0.55 (x = 8.35 to 14.65, 4.50 cm/unit)
+  \draw[twZincInk, thick] (8.35,0.55) -- (14.65,0.55);
+  \draw[twViolet, line width=3.5pt] (9.47,0.55) -- (13.41,0.55);
+  \fill[twBlue] (9.47,0.55) circle (2.5pt);
+  \fill[twEmerald] (13.41,0.55) circle (2.5pt);
+  \draw[twPink, dashed, thin] (13.75,0.34) -- (13.75,0.82);
+
+  \node[above, font=\scriptsize\bfseries, text=twViolet] at (11.44,0.74) {$\rho(\{3,4,3,4\})$ (width $< 0.88$)};
+  \node[below, font=\scriptsize, text=twBlue] at (9.47,0.42) {$11.049$};
+  \node[below, font=\scriptsize, text=twEmerald] at (13.10,0.42) {$11.9254$};
+  \node[below, font=\scriptsize, text=twPink] at (14.05,0.42) {$12$};
+  \node[font=\scriptsize, text=twZinc] at (11.50,-0.22) {Zoomed view: certified rational interval $(11.049, 11.9254)$};
+\end{tikzpicture}
+\caption{Quantitative expansion on $\{3,4,3,4\}$. Left: exact logarithmic cumulative capacity $\log_{10} V(d)$ through depth $d = 5$, comparing $\{3,4,3,4\}$ cusp balls against exact 3D $\{5,3,4\}$ RACG balls, 2D $\{7,3\}$ balls, and flat $\mathbb{Z}^4$ $\ell_1$-balls. Right: Lean~4-certified spectral radius bracket $(11.049, 11.9254)$ on the $24$-regular dual graph, proving $\lambda_{\mathrm{gap}} > 1/2$.}
+\label{fig:spectral-growth}
+\end{figure}
+
+From a cellular-automata standpoint, Theorem~\ref{thm:spectral-bracket} underscores a clear structural requirement. With $\lambda_{\mathrm{gap}} > 1/2$ and $|\partial B_r|/|B_r| \to 0.9453$, unstructured local rules sit inside the non-amenable regime where global injectivity and surjectivity decouple and post-hoc injectivity verification is undecidable. Constructing provably reversible computation on $\{3,4,3,4\}$ therefore calls for a local algebraic factorization that enforces bijectivity by construction.

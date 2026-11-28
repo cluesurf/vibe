@@ -1,36 +1,70 @@
-module
-
-public import Vibe.Tone
-public import Vibe.Algebra
-public import Vibe.Rule
-public import Vibe.Geometry
-public import Vibe.Gauge
-public import Vibe.Limits
-public import Vibe.SchurGap
-public import Vibe.Uniqueness4D
-public import Vibe.CoxeterTransport
-public import Vibe.FockBeat
-public import Vibe.Chirality
-public import Vibe.CuspGrowth
-public import Vibe.Quantum
-public import Vibe.BreakthroughAlgebra
-public import Vibe.Countermodels
-public import Vibe.ParityUniqueness
-public import Vibe.CausalFoliation
-public import Vibe.SpectralSharp
-public import Vibe.BallisticDoublon
-public import Vibe.HolographicCode
-public import Vibe.HolographicCodeExt
-public import Vibe.D4MassGap
-public import Vibe.D4MassGapExt
-public import Vibe.SpectralSharpExt
-public import Vibe.CompositeTrion
-public import Vibe.DynamicalHolography
-public import Vibe.UniversalityObstructions
-public import Vibe.StandardModelCore
-public import Vibe.StandardModelMathlib
-public import Vibe.LogicEmergence
-public import Vibe.PlebanskiDarkFlux
+import Vibe.Tone
+import Vibe.Algebra
+import Vibe.Rule
+import Vibe.Geometry
+import Vibe.Gauge
+import Vibe.Limits
+import Vibe.SchurGap
+import Vibe.Uniqueness4D
+import Vibe.CoxeterTransport
+import Vibe.FockBeat
+import Vibe.Chirality
+import Vibe.CuspGrowth
+import Vibe.Quantum
+import Vibe.BreakthroughAlgebra
+import Vibe.Countermodels
+import Vibe.ParityUniqueness
+import Vibe.CausalFoliation
+import Vibe.SpectralSharp
+import Vibe.BallisticDoublon
+import Vibe.HolographicCode
+import Vibe.HolographicCodeExt
+import Vibe.D4MassGap
+import Vibe.D4MassGapExt
+import Vibe.SpectralSharpExt
+import Vibe.CompositeTrion
+import Vibe.DynamicalHolography
+import Vibe.UniversalityObstructions
+import Vibe.StandardModelCore
+import Vibe.StandardModelMathlib
+import Vibe.NoContraction
+import Vibe.PairRules
+import Vibe.Compute.PairRuleLink
+import Vibe.PartitionedStep
+import Vibe.Compute.Round
+import Vibe.QuantumGates
+import Vibe.QuantumBoundary
+import Vibe.QuantumMemory
+import Vibe.LineScattering
+import Vibe.WireInvariant
+import Vibe.SimulationContract
+import Vibe.Compute.SecondOrderZ3
+import Vibe.Compute.Selection
+import Vibe.Compute.RuleCensus
+import Vibe.Compute.Boundary
+import Vibe.Compute.LineScatteringExt
+import Vibe.Compute.QuantumWalk
+import Vibe.Compute.LinesMeetOnce
+import Vibe.Compute.Association
+import Vibe.Compute.Canon
+import Vibe.Compute.Lumpability
+import Vibe.Compute.SpinOneQ2R
+import Vibe.Compute.CoverDistance
+import Vibe.Compute.SpeciesTransport
+import Vibe.Compute.BeatLink
+import Vibe.Compute.Resonance
+import Vibe.Compute.Frontier
+import Vibe.Compute.Charge
+import Vibe.Compute.FiniteInteractionWire
+import Vibe.Compute.FiniteInteractionSpecies
+import Vibe.Compute.KleeneCertificates
+import Vibe.Compute.MeshNoGo
+import Vibe.Compute.SelectSteer
+import Vibe.Compute.Devices
+import Vibe.Compute.QuantumCoarse
+import Vibe.Compute.GateSetRank
+import Vibe.LogicEmergence
+import Vibe.PlebanskiDarkFlux
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
@@ -64,6 +98,15 @@ proof modules (`Vibe/FockBeat.lean` is a thin re-export facade over `Vibe/Fock/{
 - `Vibe.CompositeTrion`: Exact `ℤ[ω][1/7]` `P = 0` collinear `k = 3` `Sym^3` trion (`|r|^2 = 1/7`, `p_pair = 6/7`, `IPR = 9/32`), exact `∀ N` finite-box norm sums, `ℤ[ζ_9]` `cot^2(π/18)` cubic & Parseval margin, flat-`D_4` hyperbolic excision pocket (`335/672 < 1/2 < 7/13 < 7/10`), and Steinberg-to-depressed-cubic holographic rate `u^3 - 12 u + 12 = 0` (`r_∞ ∈ (0.0464895, 0.0464896)`)
 - `Vibe.DynamicalHolography`: Exact dynamical holography bridge & `B_1`/`B_2` IR distance amplification (`M_pair(ζ_18)` code-subspace triviality & `(u, v)` decoupling, `0/1,128` weight-1 affine lines & `27/243` `[9,9,9]` Bose-Mesner + twisted `{I, R}` collapse, `0/81` single-edge entangling intertwiners & `0/24` Bell-pair `P`-commutators, `Sp(50, 3)` `U_star(1)`, `U_NN`, `U_Floq` & universal symbolic `U_bdy` lift with `G`-covariance mod `H`, `2/48` uniform dock rigidity, `d^(0)(B_1) = 40` & `M_8=17, M_9=21, M_10=24 ⇒ d^(0)(B_2) ≥ 98`, `W(B_3)` `r=3` `0/165` zero-loss / `21/165` wt-6 & `r=4` `56/330` coupling threshold, `D=0` cusp Gauss-law uniqueness & `D≥1` cliques, and `24`-cone `144`-leg shield)
 - `Vibe.UniversalityObstructions`: All-time `ℤ_2^{48}` (`r : Bool`, lifting to `ℤ_2^{216}` on 9 roles) line-parity & per-(tone, role) multiset conservation on `fockBeat χ`, universal `k`-string dispersion floor & rapidity-velocity 2-to-1 / `W_0` no-go, `M_pair(ζ_18)` `837/10^6 < P_hop < 838/10^6` ceiling / Grover `1/36` cap / 9-role pigeonhole, straight-worldline `N(N-1)/2` crossing ceiling + symbolic `6 × 6` `ℤ[i]` Yang-Baxter + `3n-1 < 4^n-1`, Linden-Popescu unitary halting no-go + Casimir-certified `6 × 6` `ℤ[ω]` `4 W_0` Racah clearance `⟨L|4 W_0|L⟩ = 0`, hyperbolic geodesic 2-plane uniqueness + 4-line `Φ_odd` junction cap `J ≤ D(D-1)/12`, and exact mod-2 `ℤ_2 × ℤ_2` `D_4` triality quotient + `5/8` omnidirectional `L_7` Bragg gap + minimal period-12 `ℤ[ω]` 1-dock cavity compacton (`2 ω D` and `2 D`)
+- `Vibe.NoContraction`: No bijection of a finite metric space with at least 2 points is a strict contraction (maximal-pair argument, any strict partial order on distances, surjectivity only), so memory in a closed reversible box cannot be an attractor
+- `Vibe.PairRules`: The `432` sum-preserving maps of `Tone × Tone` and exactly `24` injective ones (the conservative reversible pair rules), `12` classes under cell swap and negation (Burnside `24, 8, 4, 12`), vacuum-fixing ⇔ `D`-conserving ⇔ swap-symmetric (`8` rules, `6` classes), chiral vacuum creation, and explicit inverses among the 24
+- `Vibe.PartitionedStep`: For any disjoint block of pairs on `Fin n` and any bijective sum-preserving pair map, the global step is a bijection with the same block of the inverse map as its explicit inverse, conserves `Q` (and `D` when the map does), and commutes with global negation for a negation-symmetric map
+- `Vibe.QuantumGates`: The bare beat's role meeting `M = (ζ_6 / 2) I + ((ω - 1) / 2) SWAP` is unitary on two and three roles, the Yang-fused pulse-doublon operator gives role-SWAP probability `2/3` (elastic `1/3`, amplitude `(2ω + 1) / 3`) with no loss and no antisymmetric leak, and multiplies the symmetric word by exactly `-1`
+- `Vibe.QuantumBoundary`: The dephased matrix `|U_ij|^2` of any two-sided unitary matrix over `ℤ[ζ_9][1/6]` is doubly stochastic and real, and the dephased line coins: `D` keeps a lone slot with `3/4` and flips it with `1/4`, `C = D^2` keeps it with `1/4` and flips it with `3/4`
+- `Vibe.QuantumMemory`: The pair-line mixer acts only on configurations with nonzero `[[24, 1, 8]]_3` charge syndrome, so it is the identity on that code space; the role meeting commutes with the collective role spin, so it keeps every total-spin sector (the decoherence-free subspace); the pair mixer's equal-role projector does not, so it is the layer that breaks the DFS
+- `Vibe.LineScattering`: For every momentum (an identity over any commutative ring with `ω`, `i` and a half), each line mode is an exact coin eigenvector, the like-tone one-line S-matrix of bare U is Yang's `R(θ₁ - θ₂)` with `θ = (cos p / 2 + sin W / √3) / sin p`, opposite tones give `S = -1`, the spectator-stopped identical pair `(w - i) / (w + i)`; Yang-Baxter holds for one tone, and a like pair beside an opposite tone misses it by exactly `-x y (x + y) (I + P)` (numerators)
+- `Vibe.WireInvariant`: The passenger laws of the 3-cycle wire rules: `swap.BCA.swap` and `swap.CAB.swap` keep one tone along every right-moving ray and the opposite tone along every left-moving ray of the brick line, whatever crosses them, so no ray started at an input or a constant computes Kleene `neg`, `min` or `max`; `id.CAB.swap` keeps `+1` along left rays only and no tone forward, which leaves its wire side free
+- `Vibe.SimulationContract`: Exact simulation contracts (a section `σ`, a block map `F` with `F ∘ σ = id`, a coarse rule `G`, and `φ^τ ∘ σ = σ ∘ G` on the image of `σ`) for any types and rules compose (`σ₁ ∘ σ₂` at `τ₁ τ₂` with `G₂`), lift to powers (`τ n` with `G^n`), keep their declared subset forever, and fix their coarse rule uniquely; the full swap under `brick2` with section `t ↦ (t, 0)` and decimation is a contract whose coarse rule is the shift by one block
 - `Vibe.StandardModelCore`: Exact Standard Model algebraic pillars on `{3,4,3,4}` (`16`-Weyl `6/6` + Witten anomaly cancellation & Tong `ℤ_6` / `ℤ_18` separation, unconstrained homogenized `5 × 5` `so(5)` custodial `ρ = 1` vs `3 × 3` `ℤ[ω]` `SU(3)_W` `ρ^2 = 4/3` & `sin^2 θ_W = 3/4` no-go, `4 × 4` pure-`ℤ[ω][1/2]` slab `8 U_depth(1)` unitarity/chiral/`ℤ[√5]` mass & `1/3` evanescent decay, `216`-element `ASL(2,3)` 2-transitivity / irreducible `1 ⊕ 8` & `48`-element `O_h` `3_frame = A_{1g} ⊕ E_g`, 3-qubit Levin–Wen T-junction `-I` vs `+I` + 8-dim `ℤ[i]` 6-step physical exchange & `3 × 3 × 3` `{4,3,4}` CKR 3D bosonization with exact cube Bianchi `+I`, and `{3,4,3,4}` cusp-shell recurrence `N_13 = 25123449085462194` + `ℤ_6` color-singlet baryon charge quantization)
 - `Vibe.StandardModelMathlib`: Canonical Mathlib `v4.35.0` proofs over `ℝ`, `ℂ`, `Matrix`, `Matrix.unitaryGroup`, `Matrix.det`, and `ZMod 6` (odd-dimension `3^k` pure-ternary parity obstruction via `Matrix.det`, continuous `SO(5)` custodial `ρ = 1` over `ℝ`, continuous `SU(3)_W` in `Matrix.unitaryGroup (Fin 3) ℂ` + `ρ^2(π/3) = 4/3` + `ζ_18^18 = 1`, `ZMod 6` SM center quotient & charge quantization, real Steinberg cubic bracket + `4 sin^2(θ/2)` gap identity, exact `D_4` outer triality `M_{D_4}^3 = 1, det(M_{D_4}-1) = 9, det(F_prim) = 36`, exact 24-root `D_4` honeycomb duality & Villain self-dual pair, and exact `2T_R = SL(2, 3)` 7-irrep character table & rank-1 origin density matrix)
 - `Vibe.LogicEmergence`: Exact logic of emergence over `DynSys`, `kerRel`, `Relation.EqvGen`, and rational `FinDist` pushforward functoriality (intra-model congruence vs `E`-invariance, equivalence-relation join, exogenous-measure contradiction & pushforward fix, strict transitivity & finite Ouroboros collapse, constrained emergence asymmetry, and instantiations on `ℤ_2^{48}`, `ZMod 6`, and `D_4 / 3 D_4`)
