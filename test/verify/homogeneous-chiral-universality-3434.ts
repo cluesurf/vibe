@@ -2126,6 +2126,160 @@ function runGateH4(): GateH4Metrics {
     `ZERO_TEST t_ret=[${ztReturns.join(',')}] (exact t_0+4c), M_undisturbed=${ztMarkerOk}, N_occConserved=${ztOccOk}, exactRev=${ztRevOk}`,
   )
 
+  // H4.5: Live 4D 3-pulse finite-seed lockstep protocol (Theorem 14(2) proof sketch):
+  //   - TEST_AND_INC: (q3,q0,q1) arrive at launcher at relative (0, 16, 22) (dist 2, 18, 24)
+  //       * c=0 (n=8): q3 returns to (0,0) at t=18 simultaneously with q0 -> 2-particle identity collision reflects q0
+  //         outward (exits dist=2 at t=20); when q1 is diverted before launcher (as by the t=18 RE diverter), q3 rebounds
+  //         off M and exits dist=2 at t=36 (spacing +16 from q0, M untouched at n=8, zero pulses left).
+  //       * c in {1,2,3} (n=10,12,14): q3 misses 18 & 24, F and G launch cleanly, M shifts +2 to n+2, and all 3 pulses
+  //         exit dist=2 on (q3,q0,q1) at exact c-independent spacings (0, +16, +26).
+  //   - 3P_INC: (q3,q0,q1) at relative (4, 16, 22) (dist 6, 18, 24) for c in {0,1,2} -> exact (0, +12, +22), M shifts +2.
+  //   - 3P_DEC: (q3,q2,q1) at relative (0, 16, 26) (dist 2, 18, 28) for c in {1,2,3} -> exact (0, +16, +22) on (q3,q2,q0), M shifts -2.
+  let p3TestZeroOk = true
+  let p3TestPosOk = true
+  let p3IncOk = true
+  let p3DecOk = true
+  let p3OccRevOk = true
+
+  {
+    // TEST_AND_INC c=0 (n=8): q3@dist=2 (hits launcher t=2, returns t=18), q0@dist=18 (hits launcher t=18);
+    // q1 is routed off-arm by the auto-resetting RE diverter triggered by q0's reflection at t=18, so we verify
+    // the exact 2-particle launcher collision on (q3,q0), immediate q0 reflection at dist=2 (t=20), q3 rebound
+    // exiting dist=2 (t=36, exact +16), M fixed at n=8, exact N_occ, and exact reversal.
+    const { sim } = buildLauncherSim(28, false)
+    sim.setPort(bulkRay[8]!, pEmpty, SP_M)
+    const [x3, y3] = stepCoord(dir3, 2)
+    const [x0, y0] = stepCoord(dir0, 18)
+    sim.setPort(graph.horoId(x3, y3), portIn(x3, y3, oppDir(dir3)), PULSE)
+    sim.setPort(graph.horoId(x0, y0), portIn(x0, y0, oppDir(dir0)), PULSE)
+    const snap0 = sim.snapshot()
+    const occ0 = sim.totalOccupied()
+    const [p0x, p0y] = stepCoord(dir0, 2)
+    const [p3x, p3y] = stepCoord(dir3, 2)
+    let tOutQ0 = -1
+    let tOutQ3 = -1
+    const simT = 42
+    for (let t = 1; t <= simT; t++) {
+      sim.stepForward()
+      if (sim.totalOccupied() !== occ0) p3OccRevOk = false
+      if (t > 18 && sim.getPort(graph.horoId(p0x, p0y), portIn(p0x, p0y, dir0)) === PULSE) tOutQ0 = t
+      if (t > 20 && sim.getPort(graph.horoId(p3x, p3y), portIn(p3x, p3y, dir3)) === PULSE) tOutQ3 = t
+    }
+    if (tOutQ0 !== 20 || tOutQ3 !== 36 || sim.getPort(bulkRay[8]!, pEmpty) !== SP_M) p3TestZeroOk = false
+    for (let t = 1; t <= simT; t++) sim.stepBackward()
+    if (sim.snapshot() !== snap0) p3OccRevOk = false
+  }
+
+  for (const c of [1, 2, 3] as const) {
+    // TEST_AND_INC c>=1 (n=8+2c): exact 3-pulse return spacings (0, +16, +26) on (q3, q0, q1) and M -> n+2
+    const nStart = 8 + 2 * c
+    const { sim } = buildLauncherSim(30, false)
+    sim.setPort(bulkRay[nStart]!, pEmpty, SP_M)
+    const [x3, y3] = stepCoord(dir3, 2)
+    const [x0, y0] = stepCoord(dir0, 18)
+    const [x1, y1] = stepCoord(dir1, 24)
+    sim.setPort(graph.horoId(x3, y3), portIn(x3, y3, oppDir(dir3)), PULSE)
+    sim.setPort(graph.horoId(x0, y0), portIn(x0, y0, oppDir(dir0)), PULSE)
+    sim.setPort(graph.horoId(x1, y1), portIn(x1, y1, oppDir(dir1)), PULSE)
+    const snap0 = sim.snapshot()
+    const occ0 = sim.totalOccupied()
+    const [p3x, p3y] = stepCoord(dir3, 2)
+    const [p0x, p0y] = stepCoord(dir0, 2)
+    const [p1x, p1y] = stepCoord(dir1, 2)
+    let t3 = -1
+    let t0 = -1
+    let t1 = -1
+    const simT = 2 * nStart + 38
+    for (let t = 1; t <= simT; t++) {
+      sim.stepForward()
+      if (sim.totalOccupied() !== occ0) p3OccRevOk = false
+      if (t > 6 && sim.getPort(graph.horoId(p3x, p3y), portIn(p3x, p3y, dir3)) === PULSE) t3 = t
+      if (t > 20 && sim.getPort(graph.horoId(p0x, p0y), portIn(p0x, p0y, dir0)) === PULSE) t0 = t
+      if (t > 26 && sim.getPort(graph.horoId(p1x, p1y), portIn(p1x, p1y, dir1)) === PULSE) t1 = t
+    }
+    if (t3 < 0 || t0 - t3 !== 16 || t1 - t3 !== 26 || sim.getPort(bulkRay[nStart + 2]!, pEmpty) !== SP_M) {
+      p3TestPosOk = false
+    }
+    for (let t = 1; t <= simT; t++) sim.stepBackward()
+    if (sim.snapshot() !== snap0) p3OccRevOk = false
+  }
+
+  for (const c of [0, 1, 2] as const) {
+    // 3P_INC c>=0 (n=8+2c): (q3,q0,q1) at dist (6,18,24) -> exact c-independent spacings (0, +12, +22), M -> n+2
+    const nStart = 8 + 2 * c
+    const { sim } = buildLauncherSim(30, false)
+    sim.setPort(bulkRay[nStart]!, pEmpty, SP_M)
+    const [x3, y3] = stepCoord(dir3, 6)
+    const [x0, y0] = stepCoord(dir0, 18)
+    const [x1, y1] = stepCoord(dir1, 24)
+    sim.setPort(graph.horoId(x3, y3), portIn(x3, y3, oppDir(dir3)), PULSE)
+    sim.setPort(graph.horoId(x0, y0), portIn(x0, y0, oppDir(dir0)), PULSE)
+    sim.setPort(graph.horoId(x1, y1), portIn(x1, y1, oppDir(dir1)), PULSE)
+    const snap0 = sim.snapshot()
+    const occ0 = sim.totalOccupied()
+    const [p3x, p3y] = stepCoord(dir3, 2)
+    const [p0x, p0y] = stepCoord(dir0, 2)
+    const [p1x, p1y] = stepCoord(dir1, 2)
+    let t3 = -1
+    let t0 = -1
+    let t1 = -1
+    const simT = 2 * nStart + 38
+    for (let t = 1; t <= simT; t++) {
+      sim.stepForward()
+      if (sim.totalOccupied() !== occ0) p3OccRevOk = false
+      if (t > 10 && sim.getPort(graph.horoId(p3x, p3y), portIn(p3x, p3y, dir3)) === PULSE) t3 = t
+      if (t > 20 && sim.getPort(graph.horoId(p0x, p0y), portIn(p0x, p0y, dir0)) === PULSE) t0 = t
+      if (t > 26 && sim.getPort(graph.horoId(p1x, p1y), portIn(p1x, p1y, dir1)) === PULSE) t1 = t
+    }
+    if (t3 < 0 || t0 - t3 !== 12 || t1 - t3 !== 22 || sim.getPort(bulkRay[nStart + 2]!, pEmpty) !== SP_M) {
+      p3IncOk = false
+    }
+    for (let t = 1; t <= simT; t++) sim.stepBackward()
+    if (sim.snapshot() !== snap0) p3OccRevOk = false
+  }
+
+  for (const c of [1, 2, 3] as const) {
+    // 3P_DEC c>=1 (n=8+2c): (q3,q2,q1) at dist (2,18,28) -> exact c-independent spacings (0, +16, +22) on (q3,q2,q0), M -> n-2
+    const nStart = 8 + 2 * c
+    const { sim } = buildLauncherSim(32, false)
+    sim.setPort(bulkRay[nStart]!, pEmpty, SP_M)
+    const [x3, y3] = stepCoord(dir3, 2)
+    const [x2, y2] = stepCoord(dir2, 18)
+    const [x1, y1] = stepCoord(dir1, 28)
+    sim.setPort(graph.horoId(x3, y3), portIn(x3, y3, oppDir(dir3)), PULSE)
+    sim.setPort(graph.horoId(x2, y2), portIn(x2, y2, oppDir(dir2)), PULSE)
+    sim.setPort(graph.horoId(x1, y1), portIn(x1, y1, oppDir(dir1)), PULSE)
+    const snap0 = sim.snapshot()
+    const occ0 = sim.totalOccupied()
+    const [p3x, p3y] = stepCoord(dir3, 2)
+    const [p2x, p2y] = stepCoord(dir2, 2)
+    const [p0x, p0y] = stepCoord(dir0, 2)
+    let t3 = -1
+    let t2 = -1
+    let t0 = -1
+    const simT = 2 * nStart + 36
+    for (let t = 1; t <= simT; t++) {
+      sim.stepForward()
+      if (sim.totalOccupied() !== occ0) p3OccRevOk = false
+      if (t > 6 && sim.getPort(graph.horoId(p3x, p3y), portIn(p3x, p3y, dir3)) === PULSE) t3 = t
+      if (t > 20 && sim.getPort(graph.horoId(p2x, p2y), portIn(p2x, p2y, dir2)) === PULSE) t2 = t
+      if (t > 20 && sim.getPort(graph.horoId(p0x, p0y), portIn(p0x, p0y, dir0)) === PULSE) t0 = t
+    }
+    if (t3 < 0 || t2 - t3 !== 16 || t0 - t3 !== 22 || sim.getPort(bulkRay[nStart - 2]!, pEmpty) !== SP_M) {
+      p3DecOk = false
+    }
+    for (let t = 1; t <= simT; t++) sim.stepBackward()
+    if (sim.snapshot() !== snap0) p3OccRevOk = false
+  }
+
+  recordCheck(
+    'H4',
+    'H4.5',
+    'Live 4D 3-pulse finite-seed lockstep TEST_AND_INC / 3P_INC / 3P_DEC (zero waiting horosphere pulses)',
+    p3TestZeroOk && p3TestPosOk && p3IncOk && p3DecOk && p3OccRevOk,
+    `TEST_AND_INC(c=0->0/+16,M fixed)=${p3TestZeroOk}, TEST_AND_INC(c=1..3->0/+16/+26,+2)=${p3TestPosOk}, 3P_INC(c=0..2->0/+12/+22,+2)=${p3IncOk}, 3P_DEC(c=1..3->0/+16/+22,-2)=${p3DecOk}, exactOcc&Rev=${p3OccRevOk}`,
+  )
+
   return { incSpacings, decSpacings, ztReturns, incReFlips }
 }
 
