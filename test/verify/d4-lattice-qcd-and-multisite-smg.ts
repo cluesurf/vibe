@@ -7,8 +7,9 @@
 //             chi(3,2) = -ln((W(3,2)*W(2,1))/(W(3,1)*W(2,2))), triangle string tension sigma_tri = chi(2,2)/2
 //             (null when chi(2,2) unavailable), temporal/spatial Polyakov loops <|L|>
 //           - Exact matrix-free quenched naive 4D D_4 chiral Dirac operator D = [[0, M], [-M^dag, 0]] on
-//             L = 4 (4^3 x 8) [NOTE: naive D_4 fermions carry 40 continuum species/doublers with two speeds
-//             of light: physical c = 1 at k = 0 and c = 1/3 at doublers such as (pi, pi, 0, k_t)]:
+//             L = 4 (4^3 x 8) [NOTE: naive D_4 fermions carry 72 continuum BZ(D_4) naive species (40
+//             sampled on power-of-2 grids {0, pi/2, pi, 3pi/2} plus 32 at +-2pi/3), with physical c = 1
+//             at k = 0 and c = 1/3 at doublers such as (pi, pi, 0, k_t)]:
 //             per-spin-color normalized (<psi_bar psi> / (4 N_c)) exact point-source & stochastic Z_2
 //             chiral condensate, exact Axial WTI (< 1e-9), pion correlator C_pi(tau), oscillating
 //             parity-partner cosh fit for C_rho(tau), jackknife error bars, GMOR fit, and m_pi / m_rho
@@ -1036,9 +1037,10 @@ function exactFreeD4Dispersion(
   Lt: number,
   mq: number,
 ): { readonly lamMinDoubler: number; readonly lamPhysK0: number; readonly pbpNorm: number } {
-  // Exact 4D naive D_4 dispersion over 2V Z^4 momenta (40 continuum species/doublers:
-  // physical c = 1 mode at k_vec = (0,0,0) has lam = sin(pi/L_t); c = 1/3 doubler at
-  // k_vec = (pi,pi,0) has lam_min = sin(pi/L_t)/3). pbpNorm is normalized by 1/(4 N_c) = 1/12.
+  // Exact 4D naive D_4 dispersion over 2V Z^4 momenta (72 continuum BZ(D_4) naive species:
+  // 40 sampled on power-of-2 grids {0, pi/2, pi, 3pi/2} plus 32 at +-2pi/3; physical c = 1
+  // mode at k_vec = (0,0,0) has lam = sin(pi/L_t); c = 1/3 doubler at k_vec = (pi,pi,0) has
+  // lam_min = sin(pi/L_t)/3). pbpNorm is normalized by 1/(4 N_c) = 1/12.
   const V = (Ls * Ls * Ls * Lt) / 2
   let lamMin2 = Number.POSITIVE_INFINITY
   let pbpSum = 0
@@ -2099,8 +2101,9 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   const t0 = performance.now()
   console.log('\n=================================================================================')
   console.log(`PART 1 (${MODE_LABEL}, Tier B/C): 4D D_4 LATTICE SU(2)/SU(3) MC & QUENCHED NAIVE D_4 FERMIONS`)
-  console.log('  [Disclosure] Fermion operator is quenched naive 4D D_4 (40 species/doublers: physical c=1')
-  console.log('               at k=0, c=1/3 at doublers e.g. (pi,pi,0,k_t)); <pbp> normalized by 1/(4 N_c).')
+  console.log('  [Disclosure] Fermion operator is quenched naive 4D D_4: 72 continuum BZ(D_4) naive species')
+  console.log('               (40 sampled on power-of-2 grids {0, pi/2, pi, 3pi/2} plus 32 at +-2pi/3; c=1 at k=0,')
+  console.log('               c=1/3 at doublers e.g. (pi,pi,0,k_t)); <pbp> normalized by 1/(4 N_c).')
   console.log('=================================================================================')
 
   const torusL4 = buildD4BoxTorus(4, 8)
@@ -2394,8 +2397,8 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
 
   return {
     mode: MODE_LABEL,
-    tier: 'Tier B/C (quenched pure-gauge D_4 SU(2)/SU(3) MC + quenched naive 40-doubler D_4 fermions)',
-    fermionDiscretization: 'quenched-naive-d4-40-doubler (c=1 physical at k=0, c=1/3 at doublers e.g. (pi,pi,0,k_t); <pbp> normalized by 1/(4 N_c))',
+    tier: 'Tier B/C (quenched pure-gauge D_4 SU(2)/SU(3) MC + quenched naive D_4 fermions: 72 continuum BZ(D_4) species)',
+    fermionDiscretization: 'quenched-naive-d4: 72 continuum BZ(D_4) naive species (40 sampled on power-of-2 grids {0, pi/2, pi, 3pi/2} plus 32 at +-2pi/3; c=1 physical at k=0, c=1/3 at doublers e.g. (pi,pi,0,k_t); <pbp> normalized by 1/(4 N_c))',
     censusL4: { V: torusL4.V, E: torusL4.E, T: torusL4.T },
     censusL6: { V: torusL6.V, E: torusL6.E, T: torusL6.T },
     gaugeRuns: allGaugeRuns,

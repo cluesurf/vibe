@@ -295,7 +295,9 @@ private theorem cg_step1_and_step2_exact (a b : Fin 24) :
     unfold step1Center
     rw [cg_twiceForm_add_right, cg_twiceForm_scale_right,
         thm_24_facets_geometry.2.2.2.1 a, thm_facet_gram_right_angled.1 a b]
-    ext <;> (dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale]; ring)
+    apply ZSqrt2.ext
+    · dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale]; ring
+    · rfl
   rw [hPair]
   funext i; unfold step1Center step2Center
   simp only [z2_scale_eq_mul]
@@ -306,7 +308,9 @@ private theorem cg_step1_and_step2_exact (a b : Fin 24) :
   have hNeg : ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
       -ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) := by
     change ZSqrt2.ofInt _ = ZSqrt2.neg (ZSqrt2.ofInt _)
-    ext <;> (dsimp [ZSqrt2.ofInt, ZSqrt2.neg]; ring)
+    apply ZSqrt2.ext
+    · dsimp [ZSqrt2.ofInt, ZSqrt2.neg]; ring
+    · rfl
   rw [hNeg]; ring
 
 private theorem cg_rec_coord (kv xa xa' xb xb' : Int) (hkv : kv ≥ 6)

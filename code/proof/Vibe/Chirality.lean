@@ -10,6 +10,7 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.NormNum
 
 /-!
 # Vibe Theory: Exact `W(F_4)` Symmetry (Order 1,152), Unconditional `k* = 4` Chirality & `Φ_odd` Covariance
@@ -142,7 +143,11 @@ private theorem vec4_cancel_scale2 (u v : Vec4) (h : scaleVec4 2 u = scaleVec4 2
   rcases u with ⟨u0, u1, u2, u3⟩; rcases v with ⟨v0, v1, v2, v3⟩
   simp only [scaleVec4, Prod.mk.injEq] at h
   rcases h with ⟨h0, h1, h2, h3⟩
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  have e0 : u0 = v0 := by omega
+  have e1 : u1 = v1 := by omega
+  have e2 : u2 = v2 := by omega
+  have e3 : u3 = v3 := by omega
+  subst e0; subst e1; subst e2; subst e3; rfl
 
 private theorem mat4Mul_assoc (A B C : Mat4) : mat4Mul (mat4Mul A B) C = mat4Mul A (mat4Mul B C) := by
   apply Matrix.of.injective
@@ -156,7 +161,7 @@ private theorem mat4Transpose_mul (A B : Mat4) :
 private theorem mat4Vec_mul (A B : Mat4) (v : Vec4) :
     mat4Vec (mat4Mul A B) v = mat4Vec A (mat4Vec B v) := by
   apply vec4_ext; intro i
-  rw [mat4Vec_coord, toMat4_mul, Matrix.mulVec_mulVec, mat4Vec_coord]
+  rw [mat4Vec_coord, toMat4_mul, ← Matrix.mulVec_mulVec, mat4Vec_coord]
   have hB : coord4 (mat4Vec B v) = Matrix.of B *ᵥ coord4 v := funext (mat4Vec_coord B v)
   rw [hB]
 
@@ -176,8 +181,8 @@ private theorem dot4_mat4Vec_orth (M : Mat4)
   rw [dot4_eq_dotProduct, dot4_eq_dotProduct,
       show coord4 (mat4Vec M u) = Matrix.of M *ᵥ coord4 u from funext (mat4Vec_coord M u),
       show coord4 (mat4Vec M v) = Matrix.of M *ᵥ coord4 v from funext (mat4Vec_coord M v),
-      Matrix.dotProduct_mulVec, Matrix.vecMul_transpose, Matrix.mulVec_mulVec, hO,
-      Matrix.smul_mulVec, Matrix.one_mulVec, dotProduct_smul, smul_eq_mul]
+      Matrix.dotProduct_mulVec, ← Matrix.vecMul_transpose, Matrix.vecMul_vecMul,
+      ← Matrix.dotProduct_mulVec, hO, Matrix.smul_mulVec, Matrix.one_mulVec, dotProduct_smul, smul_eq_mul]
 
 private theorem mat4_orth_mul_half (A B : Mat4)
     (hA : mat4Mul (mat4Transpose A) A = fun i j => if i = j then 4 else 0)
@@ -196,7 +201,7 @@ private theorem mat4_orth_mul_half (A B : Mat4)
         hOA, Matrix.smul_mul, Matrix.one_mul, Matrix.mul_smul, hOB, smul_smul]; norm_num
   rw [hM, Matrix.transpose_smul, Matrix.smul_mul, Matrix.mul_smul, smul_smul] at hSq
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe hSq) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) hSq
   simp only [Matrix.smul_apply, smul_eq_mul, Matrix.one_apply, ← toMat4_transpose, ← toMat4_mul, Matrix.of_apply] at hij
   split_ifs at hij ⊢ <;> omega
 
@@ -217,7 +222,7 @@ private theorem mat4_orth_mul_half_right (A B : Mat4)
         hOB, Matrix.smul_mul, Matrix.one_mul, Matrix.mul_smul, hOA, smul_smul]; norm_num
   rw [hM, Matrix.transpose_smul, Matrix.smul_mul, Matrix.mul_smul, smul_smul] at hSq
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe hSq) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) hSq
   simp only [Matrix.smul_apply, smul_eq_mul, Matrix.one_apply, ← toMat4_transpose, ← toMat4_mul, Matrix.of_apply] at hij
   split_ifs at hij ⊢ <;> omega
 
@@ -821,7 +826,7 @@ private theorem wd4Mul_mat2 (d1 d2 : WD4Elem) :
           rw [hE, hP, Matrix.smul_mul, Matrix.mul_smul, smul_smul]; rfl
       _ = (8 : Int) • Matrix.of (wd4Mat2 (wd4Mul d1 d2)) := by rw [← hW (wd4Mul d1 d2), smul_smul]; norm_num
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe h4) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) h4
   simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij
   omega
 
@@ -833,8 +838,8 @@ private theorem s3_basic_tables :
 
 private theorem s3_mul_inv_eq (c : Fin 6) :
     Matrix.of (s3Mat2 c) * Matrix.of (s3Mat2 (s3Inv c)) = (4 : Int) • (1 : Matrix (Fin 4) (Fin 4) Int) := by
-  ext i j; rw [← toMat4_mul, ← s3_basic_tables.1 c (s3Inv c) i j, (s3_basic_tables.2.2 c).1]
-  simp only [s3Mat2, mat4Id2, Matrix.smul_apply, smul_eq_mul, Matrix.one_apply, Matrix.of_apply]
+  ext i j; rw [← toMat4_mul, Matrix.of_apply, ← s3_basic_tables.1 c (s3Inv c) i j, (s3_basic_tables.2.2 c).1]
+  simp only [s3Mat2, mat4Id2, Matrix.smul_apply, smul_eq_mul, Matrix.one_apply]
   split_ifs <;> omega
 
 private theorem wd4_mat2ToWD4_left_inv (d : WD4Elem) : mat2ToWD4 (wd4Mat2 d) = d :=
@@ -856,7 +861,7 @@ private theorem conj_mat2ToWD4_eq (c : Fin 6) (A : Mat4) (w : WD4Elem)
         s3_mul_inv_eq, Matrix.mul_smul, Matrix.mul_one]
   have hM : mat4MulHalf (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) = wd4Mat2 w := by
     apply mat4_ext; intro i j
-    have hij := congrFun (congrFun (congrArg DFunLike.coe h4) i) j
+    have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) h4
     simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij
     change mat4Mul (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) i j / 2 = wd4Mat2 w i j; omega
   rw [hM, wd4_mat2ToWD4_left_inv]
@@ -874,7 +879,7 @@ private theorem conj_closed_mul_half (c : Fin 6) (A B C : Mat4) (w1 w2 : WD4Elem
     rw [← Matrix.mul_smul, hMC, ← Matrix.mul_assoc, ← toMat4_mul, hA, toMat4_mul,
         Matrix.mul_assoc, ← toMat4_mul, hB, toMat4_mul, ← Matrix.mul_assoc, hW, Matrix.smul_mul]
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe h2) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) h2
   simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij; omega
 
 private theorem conj_closed_s3_comp (c1 c2 : Fin 6) (A : Mat4) (w2 w1 : WD4Elem)
@@ -888,7 +893,7 @@ private theorem conj_closed_s3_comp (c1 c2 : Fin 6) (A : Mat4) (w2 w1 : WD4Elem)
     rw [← Matrix.smul_mul, ← Matrix.mul_smul, hS3, Matrix.mul_assoc, ← toMat4_mul, h2, toMat4_mul,
         ← Matrix.mul_assoc, ← toMat4_mul, h1, toMat4_mul, Matrix.mul_assoc]
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe hEq) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) hEq
   simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij; omega
 
 private def adjSwapPerm : Fin 3 → Fin 24
@@ -1011,19 +1016,27 @@ private theorem conj_closed_all_s3 (c : Fin 6) :
         have h := wd4_even_entries p ⟨0, by decide⟩ i j
         rw [show evenSignMat2 ⟨0, by decide⟩ = mat4Id2 from mat4_ext _ _ (by decide)] at h
         have hM : mat4Mul mat4Id2 (perm4Mat2 p) i j = 2 * perm4Mat2 p i j := by
-          have := congrFun (congrFun (congrArg DFunLike.coe (by rw [toMat4_mul, hId, Matrix.smul_mul, Matrix.one_mul])) i) j
-          simpa using this
+          have heq : Matrix.of (mat4Mul mat4Id2 (perm4Mat2 p)) = (2 : Int) • Matrix.of (perm4Mat2 p) := by
+            rw [toMat4_mul, hId, Matrix.smul_mul, Matrix.one_mul]
+          simpa only [Matrix.of_apply, Matrix.smul_apply, smul_eq_mul] using
+            congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) heq
         omega
-      rw [hW]; apply Matrix.of.injective; simp [toMat4_mul, s3Mat2, hId]
+      rw [hW]; apply Matrix.of.injective
+      rw [toMat4_mul, toMat4_mul, show s3Mat2 ⟨0, by decide⟩ = mat4Id2 from rfl, hId,
+          Matrix.smul_mul, Matrix.one_mul, Matrix.mul_smul, Matrix.mul_one]
     · have hW : wd4Mat2 (⟨0, by decide⟩, e) = evenSignMat2 e := by
         apply mat4_ext; intro i j
         have h := wd4_even_entries ⟨0, by decide⟩ e i j
         rw [show perm4Mat2 ⟨0, by decide⟩ = mat4Id2 from mat4_ext _ _ (by decide)] at h
         have hM : mat4Mul (evenSignMat2 e) mat4Id2 i j = 2 * evenSignMat2 e i j := by
-          have := congrFun (congrFun (congrArg DFunLike.coe (by rw [toMat4_mul, hId, Matrix.mul_smul, Matrix.mul_one])) i) j
-          simpa using this
+          have heq : Matrix.of (mat4Mul (evenSignMat2 e) mat4Id2) = (2 : Int) • Matrix.of (evenSignMat2 e) := by
+            rw [toMat4_mul, hId, Matrix.mul_smul, Matrix.mul_one]
+          simpa only [Matrix.of_apply, Matrix.smul_apply, smul_eq_mul] using
+            congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) heq
         omega
-      rw [hW]; apply Matrix.of.injective; simp [toMat4_mul, s3Mat2, hId]
+      rw [hW]; apply Matrix.of.injective
+      rw [toMat4_mul, toMat4_mul, show s3Mat2 ⟨0, by decide⟩ = mat4Id2 from rfl, hId,
+          Matrix.smul_mul, Matrix.one_mul, Matrix.mul_smul, Matrix.mul_one]
   | ⟨1, _⟩ => exact ⟨h1.1, h1.2.1⟩
   | ⟨2, _⟩ => exact ⟨h2P, h2E⟩
   | ⟨3, _⟩ => exact ⟨h3.1, h3.2.1⟩
@@ -1046,9 +1059,9 @@ private theorem s3_and_wd4_closure_tables :
   refine ⟨s3_basic_tables.1, s3_basic_tables.2.1, s3_basic_tables.2.2, ?_, ?_,
           perm4_mul_mat2, evenSign_mul_mat2, conjPermSign_mat2⟩
   · intro c e i j; obtain ⟨w, hw⟩ := (conj_closed_all_s3 c).2 e
-    rw [conj_mat2ToWD4_eq c (evenSignMat2 e) w hw]; exact congrFun (congrFun hw i) j
+    unfold conjS3Sign; rw [conj_mat2ToWD4_eq c (evenSignMat2 e) w hw]; exact congrFun (congrFun hw i) j
   · intro c p i j; obtain ⟨w, hw⟩ := (conj_closed_all_s3 c).1 p
-    rw [conj_mat2ToWD4_eq c (perm4Mat2 p) w hw]; exact congrFun (congrFun hw i) j
+    unfold conjS3Perm; rw [conj_mat2ToWD4_eq c (perm4Mat2 p) w hw]; exact congrFun (congrFun hw i) j
 
 private theorem wd4_det_and_s3_det_mul :
     (∀ p1 p2 : Fin 24, perm4Det (perm4Mul p1 p2) = perm4Det p1 * perm4Det p2) ∧
@@ -1104,7 +1117,7 @@ private theorem conjS3WD4_mat2 (c : Fin 6) (d : WD4Elem) :
       ext i j; rw [← toMat4_mul, ← toMat4_mul]; exact s3_and_wd4_closure_tables.2.2.2.2.1 c d.1 i j
     rw [← Matrix.mul_smul, hWD, ← Matrix.mul_assoc, hE, Matrix.mul_assoc, hP, ← Matrix.mul_assoc, hW, Matrix.smul_mul]
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe h2) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) h2
   simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij; omega
 
 private theorem wf4Mul_mat2 (g1 g2 : WF4Elem) :
@@ -1135,7 +1148,7 @@ private theorem wf4Mul_mat2 (g1 g2 : WF4Elem) :
           rw [hW, hS3, Matrix.smul_mul, Matrix.mul_smul, smul_smul]; rfl
       _ = (8 : Int) • Matrix.of (wf4Mat2 (wf4Mul g1 g2)) := by rw [← hF (wf4Mul g1 g2), smul_smul]; norm_num
   apply mat4_ext; intro i j
-  have hij := congrFun (congrFun (congrArg DFunLike.coe h4) i) j
+  have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) h4
   simp only [Matrix.smul_apply, smul_eq_mul, ← toMat4_mul, Matrix.of_apply] at hij; omega
 
 private theorem wf4Mat2_eq_of_perm_eq (g1 g2 : WF4Elem)
@@ -1173,7 +1186,8 @@ theorem thm_wf4_semidirect_order_1152 :
     intro g1 g2 hEq
     have hW2 : Matrix.of (wd4Mat2 (g1.1, g1.2.1)) * Matrix.of (s3Mat2 g1.2.2) =
         Matrix.of (wd4Mat2 (g2.1, g2.2.1)) * Matrix.of (s3Mat2 g2.2.2) := by
-      ext i j; rw [← toMat4_mul, ← toMat4_mul, ← wf4_even_entries g1 i j, ← wf4_even_entries g2 i j, hEq]
+      ext i j; rw [← toMat4_mul, ← toMat4_mul, Matrix.of_apply, Matrix.of_apply,
+        ← wf4_even_entries g1 i j, ← wf4_even_entries g2 i j, hEq]
     have hD2inv : Matrix.of (wd4Mat2 (wd4Inv (g2.1, g2.2.1))) * Matrix.of (wd4Mat2 (g2.1, g2.2.1)) =
         (4 : Int) • (1 : Matrix (Fin 4) (Fin 4) Int) := by
       ext i j; rw [← toMat4_mul]
@@ -1202,7 +1216,7 @@ theorem thm_wf4_semidirect_order_1152 :
             rw [hD2inv, hS21, Matrix.smul_mul, Matrix.mul_smul, Matrix.one_mul, smul_smul]; norm_num
     have hMeet : ∀ i j : Fin 4, wd4Mat2 (wd4Mul (wd4Inv (g2.1, g2.2.1)) (g1.1, g1.2.1)) i j =
         s3Mat2 (s3Mul g2.2.2 (s3Inv g1.2.2)) i j := fun i j => by
-      have hij := congrFun (congrFun (congrArg DFunLike.coe hProd) i) j
+      have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) hProd
       simp only [Matrix.smul_apply, smul_eq_mul, Matrix.of_apply] at hij; omega
     have hcZero : s3Mul g2.2.2 (s3Inv g1.2.2) = ⟨0, by decide⟩ :=
       if h : s3Mul g2.2.2 (s3Inv g1.2.2) = ⟨0, by decide⟩ then h
@@ -1214,7 +1228,7 @@ theorem thm_wf4_semidirect_order_1152 :
       have h := congrArg (fun M => M * Matrix.of (s3Mat2 (s3Inv g2.2.2))) hW2
       simpa only [Matrix.mul_assoc, s3_mul_inv_eq, Matrix.mul_smul, Matrix.mul_one] using h
     have hDMatch : ∀ i j : Fin 4, wd4Mat2 (g1.1, g1.2.1) i j = wd4Mat2 (g2.1, g2.2.1) i j := fun i j => by
-      have hij := congrFun (congrFun (congrArg DFunLike.coe hCancel) i) j
+      have hij := congrArg (fun M : Matrix (Fin 4) (Fin 4) Int => M i j) hCancel
       simp only [Matrix.smul_apply, smul_eq_mul, Matrix.of_apply] at hij; omega
     have ⟨hp, he⟩ := wd4_inj_and_disjoint_s3.1 g1.1 g2.1 g1.2.1 g2.2.1 hDMatch
     exact Prod.ext hp (Prod.ext he hcEq)
@@ -1322,7 +1336,8 @@ private theorem det4Vecs_evenSignSlot (e : Fin 8) (a b c d : Fin 24) :
   have hEq : ∀ x : Fin 24, d4RootOf (evenSignSlot e x) = evenSignVec e (d4RootOf x) :=
     fun x => vec4_cancel_scale2 _ _ (by rw [← mat4Vec_evenSign, factor_slot_align.2.2.1 e x])
   have hEven : (evenSignNegs e).length % 2 = 0 := (by decide : ∀ k : Fin 8, (evenSignNegs k).length % 2 = 0) e
-  rw [hEq a, hEq b, hEq c, hEq d, det4Vecs_applyNegs, ite_eq_left hEven, one_mul]
+  rw [hEq a, hEq b, hEq c, hEq d]; unfold evenSignVec
+  rw [det4Vecs_applyNegs, ite_eq_left hEven, one_mul]
 
 /-- Headline Theorem 6: Exact symbolic `4 × 4` determinant transformation law across ALL 1,152
     elements `g ∈ W(F_4)` and ALL quadruples `(a, b, c, d) : (Fin 24)^4`. -/
@@ -1579,7 +1594,8 @@ def sumFin24 (f : Fin 24 → Int) : Int := sumList24 f allSlots24
 private theorem inList24_eq_true_iff (a : Fin 24) : ∀ l : List (Fin 24), inList24 a l = true ↔ a ∈ l
   | [] => by simp [inList24]
   | x :: xs => by
-    simp only [inList24, Bool.or_eq_true, decide_eq_true_eq, List.mem_cons, inList24_eq_true_iff a xs, eq_comm]
+    simp only [inList24, Bool.or_eq_true, decide_eq_true_eq, List.mem_cons, inList24_eq_true_iff a xs]
+    rw [eq_comm]
 
 private theorem nodup_of_noDup24 : ∀ l : List (Fin 24), noDup24 l = true → l.Nodup
   | [], _ => List.nodup_nil
@@ -1595,12 +1611,13 @@ private theorem sumList24_eq_finset_sum (f : Fin 24 → Int) (l : List (Fin 24))
   | nil => simp [sumList24]
   | cons x xs ih =>
     rw [List.nodup_cons] at hnd
-    simp only [sumList24, List.toFinset_cons, Finset.sum_insert (by simpa using hnd.1), ih hnd.2]
+    have hnot : x ∉ xs.toFinset := by simp [hnd.1]
+    simp only [sumList24, List.toFinset_cons, Finset.sum_insert hnot, ih hnd.2]
 
 private theorem sumFin24_eq_sum (f : Fin 24 → Int) : sumFin24 f = ∑ i : Fin 24, f i := by
   unfold sumFin24 allSlots24
-  rw [sumList24_eq_finset_sum f _ (List.nodup_finRange 24)]
-  congr 1; ext i; simp
+  rw [sumList24_eq_finset_sum f _ (List.nodup_finRange 24),
+      show (List.finRange 24).toFinset = Finset.univ by ext i; simp]
 
 private theorem sumFin24_support (f : Fin 24 → Int) (S : List (Fin 24))
     (hndS : noDup24 S = true) (hZero : ∀ x : Fin 24, inList24 x S = false → f x = 0) :
@@ -1679,15 +1696,14 @@ theorem thm_chiOddPoly_transformation_laws :
     have hBij := (thm_wf4_action_orthogonal_and_bijective g).2.2.1
     let ePerm : Fin 24 ≃ Fin 24 :=
       ⟨wf4Perm g, wf4PermInv g, fun i => (hBij i).1, fun i => (hBij i).2⟩
-    simp only [chiOddPoly, sumFin24_eq_sum]
+    simp only [chiOddPoly, sumFin24_eq_sum, Finset.mul_sum]
     rw [← Equiv.sum_comp ePerm]
-    simp only [Finset.mul_sum]
     refine Finset.sum_congr rfl fun a _ => ?_
-    rw [← Equiv.sum_comp ePerm]; simp only [Finset.mul_sum]
+    rw [← Equiv.sum_comp ePerm]
     refine Finset.sum_congr rfl fun b _ => ?_
-    rw [← Equiv.sum_comp ePerm]; simp only [Finset.mul_sum]
+    rw [← Equiv.sum_comp ePerm]
     refine Finset.sum_congr rfl fun c _ => ?_
-    rw [← Equiv.sum_comp ePerm]; simp only [Finset.mul_sum]
+    rw [← Equiv.sum_comp ePerm]
     refine Finset.sum_congr rfl fun e _ => ?_
     change chiOddTerm (actWF4Dock g d) (wf4Perm g a) (wf4Perm g b) (wf4Perm g c) (wf4Perm g e) =
       wf4Det g * chiOddTerm d a b c e

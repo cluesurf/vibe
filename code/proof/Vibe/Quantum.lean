@@ -570,10 +570,10 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
         (fun k => if k = f i then (if k = f j then star (envSwapPhase f i) * envSwapPhase f j else Eis.zero) else Eis.zero) by
           funext k
           by_cases h1 : k = f i <;> by_cases h2 : k = f j
-          · rw [ite_eq_left h1, ite_eq_left h2]; rfl
-          · rw [ite_eq_left h1, ite_eq_right h2]; change star (envSwapPhase f i) * 0 = 0; ring
-          · rw [ite_eq_right h1, ite_eq_left h2]; change star (0 : Eis) * envSwapPhase f j = 0; simp
-          · rw [ite_eq_right h1, ite_eq_right h2]; change star (0 : Eis) * 0 = 0; simp,
+          · simp only [ite_eq_left h1, ite_eq_left h2]; rfl
+          · simp only [ite_eq_left h1, ite_eq_right h2]; change star (envSwapPhase f i) * 0 = 0; ring
+          · simp only [ite_eq_right h1, ite_eq_left h2]; change star (0 : Eis) * envSwapPhase f j = 0; simp
+          · simp only [ite_eq_right h1, ite_eq_right h2]; change star (0 : Eis) * 0 = 0; simp,
         sum6Eis_delta]
     simp only [hInj i j]
     by_cases hij : i = j

@@ -1733,36 +1733,37 @@ private theorem lookupEntries_setEntries (g h : Mat5) (d : FullDock) (es : List 
     cases q with | mk k dk =>
     simp only [setEntries]
     by_cases hlt : mat5Lt g k = true
-    · simp only [hlt, ↓reduceIte]
+    · rw [ite_eq_left hlt]
       by_cases hd : d = v1FullDock
-      · simp only [hd, ↓reduceIte]
+      · rw [ite_eq_left hd]
         by_cases hhg : h = g
         · subst hhg
           have hne : k ≠ h := fun e => by rw [e, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-          simp only [lookupEntries, ite_true, ite_eq_right hne]
+          simp only [lookupEntries, ite_true, ite_eq_right hne, hd]
           exact lookupEntries_not_lt h rest (fun p hp => mat5Lt_trans h k p.1 hlt (hs.1 p hp))
         · simp [hhg]
-      · simp only [hd, ↓reduceIte, lookupEntries]
+      · rw [ite_eq_right hd]
+        simp only [lookupEntries]
         by_cases hhg : h = g
         · subst hhg; simp
         · simp [hhg, Ne.symm hhg]
-    · simp only [hlt, ↓reduceIte]
+    · rw [ite_eq_right hlt]
       by_cases hkg : k = g
       · subst hkg
-        simp only [↓reduceIte]
+        rw [ite_eq_left rfl]
         by_cases hd : d = v1FullDock
-        · simp only [hd, ↓reduceIte]
+        · rw [ite_eq_left hd]
           by_cases hhg : h = k
-          · subst hhg; simp only [↓reduceIte]; exact lookupEntries_not_lt h rest hs.1
+          · subst hhg; rw [ite_eq_left rfl, hd]; exact lookupEntries_not_lt h rest hs.1
           · simp [hhg, Ne.symm hhg, lookupEntries]
-        · simp only [hd, ↓reduceIte, lookupEntries]
+        · rw [ite_eq_right hd]
           by_cases hhg : h = k
-          · subst hhg; simp
-          · simp [hhg, Ne.symm hhg]
-      · simp only [hkg, ↓reduceIte, lookupEntries]
+          · subst hhg; simp only [lookupEntries, ite_true]
+          · simp only [lookupEntries, ite_eq_right (Ne.symm hhg), ite_eq_right hhg]
+      · rw [ite_eq_right hkg]
         by_cases hkh : k = h
-        · subst hkh; simp [Ne.symm hkg]
-        · simp only [hkh, ↓reduceIte]; exact ih hs.2
+        · subst hkh; simp only [lookupEntries, ite_true, ite_eq_right hkg]
+        · simp only [lookupEntries, ite_eq_right hkh]; exact ih hs.2
 
 /-- Update dock `g` of `c` to `d` (deleting `g` if `d = v1FullDock`). -/
 def HoneycombConfig.setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) : HoneycombConfig :=
@@ -1861,8 +1862,12 @@ private theorem lookup_ofSites_foldl (cand : List Mat5) (f : Mat5 → FullDock)
     simp only [List.foldl, ih, memBool]
     by_cases hkg : k = g
     · subst hkg
-      cases hm : memBool k rest <;> simp [lookup_setDock]
-    · cases hm : memBool g rest <;> simp [hkg, lookup_setDock, Ne.symm hkg]
+      by_cases hm : memBool k rest = true
+      · simp [hm]
+      · simp [hm, lookup_setDock]
+    · by_cases hm : memBool g rest = true
+      · simp [hkg, hm]
+      · simp [hkg, Ne.symm hkg, hm, lookup_setDock]
 
 -- [helper]
 theorem lookup_ofSites (cand : List Mat5) (f : Mat5 → FullDock)

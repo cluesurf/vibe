@@ -86,6 +86,7 @@ private theorem sumFinAux_eq_sum {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n �
 
 private theorem sumFin_eq_sum {n : Nat} (f : Fin n → Int) :
     sumFin f = ∑ i : Fin n, f i := by
+  unfold sumFin
   simpa only [Fin.eta] using sumFinAux_eq_sum n (Nat.le_refl n) f
 
 private theorem sumFin_delta {n : Nat} (a : Fin n) (f : Fin n → Int) :
@@ -326,23 +327,23 @@ private theorem triGram24_cell24_upper :
     simpa only [Fin.eta] using h
   else if h1 : i.val < 6 then
     have h := triGram24Fast_band1 ⟨i.val - 3, by omega⟩ j (by dsimp; omega)
-    have heq : (⟨i.val - 3 + 3, by omega⟩ : Fin 24) = i := Fin.ext (by omega)
+    have heq : (⟨i.val - 3 + 3, by omega⟩ : Fin 24) = i := Fin.ext (by dsimp; omega)
     simpa only [heq] using h
   else if h2 : i.val < 9 then
     have h := triGram24Fast_band2 ⟨i.val - 6, by omega⟩ j (by dsimp; omega)
-    have heq : (⟨i.val - 6 + 6, by omega⟩ : Fin 24) = i := Fin.ext (by omega)
+    have heq : (⟨i.val - 6 + 6, by omega⟩ : Fin 24) = i := Fin.ext (by dsimp; omega)
     simpa only [heq] using h
   else if h3 : i.val < 12 then
     have h := triGram24Fast_band3 ⟨i.val - 9, by omega⟩ j (by dsimp; omega)
-    have heq : (⟨i.val - 9 + 9, by omega⟩ : Fin 24) = i := Fin.ext (by omega)
+    have heq : (⟨i.val - 9 + 9, by omega⟩ : Fin 24) = i := Fin.ext (by dsimp; omega)
     simpa only [heq] using h
   else if h4 : i.val < 17 then
     have h := triGram24Fast_band4 ⟨i.val - 12, by omega⟩ j (by dsimp; omega)
-    have heq : (⟨i.val - 12 + 12, by omega⟩ : Fin 24) = i := Fin.ext (by omega)
+    have heq : (⟨i.val - 12 + 12, by omega⟩ : Fin 24) = i := Fin.ext (by dsimp; omega)
     simpa only [heq] using h
   else
     have h := triGram24Fast_band5 ⟨i.val - 17, by have := i.isLt; omega⟩ j (by dsimp; omega)
-    have heq : (⟨i.val - 17 + 17, by have := i.isLt; omega⟩ : Fin 24) = i := Fin.ext (by omega)
+    have heq : (⟨i.val - 17 + 17, by have := i.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp; omega)
     simpa only [heq] using h
 
 private theorem cell24Tris_valid :
@@ -648,12 +649,15 @@ private theorem mat_ch5_trace_pow_pair (M : Mat2Eis)
   intro n
   induction n with
   | zero =>
-    refine ⟨by decide, ?_⟩
+    refine ⟨by change Mat2Eis.trace Mat2Eis.id = Eis.ofInt 2; decide, ?_⟩
     change Mat2Eis.trace (Mat2Eis.mul Mat2Eis.id M) = Eis.ofInt 5
     have hIdL : Mat2Eis.mul Mat2Eis.id M = M := by
       rcases M with ⟨m00, m01, m10, m11⟩
       simp only [Mat2Eis.mul, Mat2Eis.id, Mat2Eis.mk.injEq]
-      refine ⟨?_, ?_, ?_, ?_⟩ <;> (change (1 : Eis) * _ + 0 * _ = _ <|> change (0 : Eis) * _ + 1 * _ = _; ring)
+      exact ⟨by change (1 : Eis) * m00 + 0 * m10 = m00; ring,
+             by change (1 : Eis) * m01 + 0 * m11 = m01; ring,
+             by change (0 : Eis) * m00 + 1 * m10 = m10; ring,
+             by change (0 : Eis) * m01 + 1 * m11 = m11; ring⟩
     rw [hIdL]; exact hTr
   | succ n ih =>
     refine ⟨ih.2, ?_⟩
@@ -680,13 +684,13 @@ private theorem mat_ch5_infinite_order (M : Mat2Eis)
       have hT := congrArg Mat2Eis.trace hEq
       rw [hTrPow, Mat2Eis.trace_scale_id] at hT
       have hA : trSeq5 (k + 1) = 2 * (4 * pow4Int k) := by
-        simpa only [Eis.ofInt] using congrArg Eis.a hT
+        simpa only [Eis.ofInt, pow4Int] using congrArg Eis.a hT
       omega
     · intro hEq
       have hT := congrArg Mat2Eis.trace hEq
       rw [hTrPow, Mat2Eis.trace_scale_id] at hT
       have hA : trSeq5 (k + 1) = 2 * -(4 * pow4Int k) := by
-        simpa only [Eis.ofInt] using congrArg Eis.a hT
+        simpa only [Eis.ofInt, pow4Int] using congrArg Eis.a hT
       omega
 
 /-- Breakthrough 3 (`L_7` catalyst): exact unitarity, `det(L_7 C) = 1`, `Tr(L_7 C) = -5/4`
@@ -1142,7 +1146,9 @@ private theorem quadFormFin_pair69Entry16 (x : Fin 16 → Int) :
       ((if i = ⟨6, by decide⟩ then (1 : Int) else 0) +
        (if i = ⟨9, by decide⟩ then (1 : Int) else 0)) * x i) =
       x ⟨6, by decide⟩ + x ⟨9, by decide⟩ := by
-    simp only [sumFin_eq_sum, add_mul, Finset.sum_add_distrib, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte, one_mul, zero_mul]
+    rw [sumFin_eq_sum]
+    simp only [add_mul, Finset.sum_add_distrib, ite_mul, one_mul, zero_mul,
+      Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
   rw [hLin]
 
 /-- Exact all-vector (`∀ x : Fin 16 → Int`) sum-of-squares positivity and ground-state uniqueness
@@ -1187,26 +1193,27 @@ theorem thm_bt4a_smg_sos_positivity_and_unique_ground_state (x : Fin 16 → Int)
     rw [hId] at hZero
     refine ⟨mul_self_eq_zero.mp (by omega), fun i hi6 hi9 => ?_⟩
     match i with
-    | ⟨0, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨1, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨2, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨3, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨4, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨5, _⟩  => exact mul_self_eq_zero.mp (by omega)
+    | ⟨0, _⟩  => exact mul_self_eq_zero.mp (show e0 * e0 = 0 by omega)
+    | ⟨1, _⟩  => exact mul_self_eq_zero.mp (show e1 * e1 = 0 by omega)
+    | ⟨2, _⟩  => exact mul_self_eq_zero.mp (show e2 * e2 = 0 by omega)
+    | ⟨3, _⟩  => exact mul_self_eq_zero.mp (show e3 * e3 = 0 by omega)
+    | ⟨4, _⟩  => exact mul_self_eq_zero.mp (show e4 * e4 = 0 by omega)
+    | ⟨5, _⟩  => exact mul_self_eq_zero.mp (show e5 * e5 = 0 by omega)
     | ⟨6, _⟩  => exact absurd rfl hi6
-    | ⟨7, _⟩  => exact mul_self_eq_zero.mp (by omega)
-    | ⟨8, _⟩  => exact mul_self_eq_zero.mp (by omega)
+    | ⟨7, _⟩  => exact mul_self_eq_zero.mp (show e7 * e7 = 0 by omega)
+    | ⟨8, _⟩  => exact mul_self_eq_zero.mp (show e8 * e8 = 0 by omega)
     | ⟨9, _⟩  => exact absurd rfl hi9
-    | ⟨10, _⟩ => exact mul_self_eq_zero.mp (by omega)
-    | ⟨11, _⟩ => exact mul_self_eq_zero.mp (by omega)
-    | ⟨12, _⟩ => exact mul_self_eq_zero.mp (by omega)
-    | ⟨13, _⟩ => exact mul_self_eq_zero.mp (by omega)
-    | ⟨14, _⟩ => exact mul_self_eq_zero.mp (by omega)
-    | ⟨15, _⟩ => exact mul_self_eq_zero.mp (by omega)
+    | ⟨10, _⟩ => exact mul_self_eq_zero.mp (show e10 * e10 = 0 by omega)
+    | ⟨11, _⟩ => exact mul_self_eq_zero.mp (show e11 * e11 = 0 by omega)
+    | ⟨12, _⟩ => exact mul_self_eq_zero.mp (show e12 * e12 = 0 by omega)
+    | ⟨13, _⟩ => exact mul_self_eq_zero.mp (show e13 * e13 = 0 by omega)
+    | ⟨14, _⟩ => exact mul_self_eq_zero.mp (show e14 * e14 = 0 by omega)
+    | ⟨15, _⟩ => exact mul_self_eq_zero.mp (show e15 * e15 = 0 by omega)
     | ⟨n + 16, h⟩ => omega
   · rintro ⟨h69, hRest⟩
-    rw [hId, h69,
-        hRest ⟨0, by decide⟩ (by decide) (by decide),
+    rw [hId, h69]
+    dsimp only [e0, e1, e2, e3, e4, e5, e7, e8, e10, e11, e12, e13, e14, e15]
+    rw [hRest ⟨0, by decide⟩ (by decide) (by decide),
         hRest ⟨1, by decide⟩ (by decide) (by decide),
         hRest ⟨2, by decide⟩ (by decide) (by decide),
         hRest ⟨3, by decide⟩ (by decide) (by decide),
@@ -1261,22 +1268,31 @@ def ninthIsRational (x : Ninth) : Prop :=
   x.c1 = 0 ∧ x.c2 = 0 ∧ x.c3 = 0 ∧ x.c4 = 0 ∧ x.c5 = 0
 
 private theorem ninth_ofInt_eq_cast (k : Int) : Ninth.ofInt k = (k : Ninth) := by
-  cases k with
-  | ofNat n =>
-    induction n with
+  have hNat : ∀ n : Nat, Ninth.ofInt n = (n : Ninth) := by
+    intro n; induction n with
     | zero => rfl
-    | succ n ih =>
-      change Ninth.ofInt (n + 1 : Nat) = ((n : Ninth) + 1)
-      rw [← ih]; ext <;> simp [Ninth.ofInt, Ninth.add, Ninth.one]
+    | succ m ih =>
+      rw [show ((m + 1 : Nat) : Ninth) = (m : Ninth) + 1 from Nat.cast_succ m, ← ih]
+      change Ninth.ofInt ((m + 1 : Nat) : Int) = Ninth.add (Ninth.ofInt m) Ninth.one
+      apply Ninth.ext
+      · simp only [Ninth.ofInt, Ninth.add, Ninth.one]; omega
+      · rfl
+      · rfl
+      · rfl
+      · rfl
+      · rfl
+  cases k with
+  | ofNat n => exact hNat n
   | negSucc n =>
-    change Ninth.ofInt (Int.negSucc n) = -((n + 1 : Nat) : Ninth)
-    have hPos : Ninth.ofInt (n + 1 : Nat) = ((n + 1 : Nat) : Ninth) := by
-      induction (n + 1) with
-      | zero => rfl
-      | succ m ih =>
-        change Ninth.ofInt (m + 1 : Nat) = ((m : Ninth) + 1)
-        rw [← ih]; ext <;> simp [Ninth.ofInt, Ninth.add, Ninth.one]
-    rw [← hPos]; ext <;> simp [Ninth.ofInt, Ninth.neg, Int.negSucc_eq]
+    rw [Int.cast_negSucc, ← hNat (n + 1)]
+    change Ninth.ofInt (Int.negSucc n) = Ninth.neg (Ninth.ofInt ((n + 1 : Nat) : Int))
+    apply Ninth.ext
+    · simp only [Ninth.ofInt, Ninth.neg]; omega
+    · rfl
+    · rfl
+    · rfl
+    · rfl
+    · rfl
 
 /-- Column-skip map for exact un-shortcut Laplace minor extraction. -/
 def skipCol {n : Nat} (skip : Fin (n + 1)) (j : Fin n) : Fin (n + 1) :=
