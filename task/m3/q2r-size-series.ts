@@ -13,7 +13,8 @@
 // built by the same calls, and prints its geometry and curvature rows byte for byte. --set series adds every regular
 // map in PGL(2, m) for the moduli below (one per distinct group order, genus, r and L, so maps of one size and genus
 // with different systoles are read apart), each against the flat torus of equal cell count by the catalog's rule, and
-// the {3,4,3,4} 2-adic levels (2048, 16384, 131072 docks) against flat D4 boxes of equal size. --cells keeps only the
+// the {3,4,3,4} 2-adic levels 4, 5, 6 (2048, 16384, 1048576 docks; levels 1 to 3 repeat neighbours) against flat D4
+// boxes of equal size (8^4, 8 x 16^3, 32^3 x 64, over 2). --cells keeps only the
 // quotients of those cell counts, --max-cells drops larger ones.
 //
 // FROZEN AS IN E-CMP-0044, never re-tuned: the equilibrium thresholds, the crystal fields per degree, the rounds per
@@ -350,7 +351,9 @@ function honeycombPairs(levels: readonly number[], maxCells: number, failures: s
 
     const sys = ballSystole({
       neighbors: box.neighbors,
-      reference: referenceTiling([3, 4, 3, 3], Math.max(20000, 2 * honeycomb.docks)),
+      // 300,000 cells are complete only to radius 15, short of the 16 that the 32-sided box's loop needs; 600,000
+      // reach it. A smaller patch only makes r a lower bound (printed with a +)
+      reference: referenceTiling([3, 4, 3, 3], Math.min(600_000, Math.max(20000, 2 * honeycomb.docks))),
       referenceDegree: 24,
       centers: [0],
     })
@@ -401,7 +404,7 @@ const options = flags()
 const set = options.get('set') ?? 'reference'
 const pairKeys = listFlag(options, 'pairs', ['4.5', '6.4', '3.7', '3.4.3.4'])
 const onlyCells = new Set(intListFlag(options, 'cells', []))
-const maxCells = intFlag(options, 'max-cells', 140_000)
+const maxCells = intFlag(options, 'max-cells', 1_100_000)
 const levels = intListFlag(options, 'levels', set === 'reference' ? [4] : [4, 5, 6])
 const start = performance.now()
 const log = (line: string): void => console.log(`${line} (${seconds(start)} s)`)

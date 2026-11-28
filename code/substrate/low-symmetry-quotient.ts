@@ -438,25 +438,38 @@ export function cayleySubgroups(input: {
     found.push({ members, classSize, normalizerOrder: n / classSize, generators })
   }
 
-  const top = Math.min(scan, n)
-
-  for (let a = 1; a < top && found.length < limit; a++) {
+  for (let i = 0; i < candidates.length && found.length < limit; i++) {
+    const a = candidates[i]!
     const single = close([a])
 
     if (single) {
       register(single, [a])
     }
 
-    for (let b = a + 1; b < top && found.length < limit; b++) {
-      const pair = close([a, b])
+    for (let j = i + 1; j < candidates.length && found.length < limit; j++) {
+      const pair = close([a, candidates[j]!])
 
       if (pair) {
-        register(pair, [a, b])
+        register(pair, [a, candidates[j]!])
       }
     }
   }
 
   return found
+}
+
+// the docks whose breadth-first word from dock 0 has at least `minLength` slots, in breadth-first order, the first
+// `count` of them
+export function farDocks(cayley: CayleyStructure, minLength: number, count: number): number[] {
+  const out: number[] = []
+
+  for (let x = 0; x < cayley.order && out.length < count; x++) {
+    if (cayley.words[x]!.length >= minLength) {
+      out.push(x)
+    }
+  }
+
+  return out
 }
 
 // ---- flat periodic graphs modulo a lattice or a lattice and a glide ----

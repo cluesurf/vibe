@@ -3,7 +3,8 @@
 //
 //   pnpm call task/m3/symmetry-modes.ts [--reproduce true] [--surfaces 4-5-11,6-4-11,3-7-13] [--max-subgroup 12]
 //        [--min-cells 20] [--max-quotients 1] [--honeycomb-level 5] [--honeycomb-read false]
-//        [--honeycomb-quotients 0] [--honeycomb-subgroup-order 8] [--honeycomb-scan 48] [--orbit-cap 0]
+//        [--honeycomb-quotients 0] [--honeycomb-subgroup-order 8] [--honeycomb-scan 48] [--honeycomb-min-word 3]
+//        [--orbit-cap 0]
 //        [--automorphism-budget 200000] [--orbit-budget 400000] [--automorphisms true] [--orbits true]
 //        [--reproduce-bounds false]
 //
@@ -57,6 +58,7 @@ import {
   cayleyStructure,
   cayleySubgroups,
   D4_TILING,
+  farDocks,
   flatQuotient,
   HEXAGON_TILING,
   leftCosetQuotient,
@@ -97,6 +99,8 @@ const honeycombRead = f.get('honeycomb-read') === 'true'
 const honeycombSubgroupOrder = intFlag(f, 'honeycomb-subgroup-order', 8)
 const honeycombQuotients = intFlag(f, 'honeycomb-quotients', 0)
 const honeycombScan = intFlag(f, 'honeycomb-scan', 48)
+// candidate generators start at this word length from dock 0 (shorter words fold neighbours together)
+const honeycombMinWord = intFlag(f, 'honeycomb-min-word', 3)
 const orbitCapFlag = intFlag(f, 'orbit-cap', 0)
 const automorphismBudget = intFlag(f, 'automorphism-budget', 200_000)
 const orbitBudget = intFlag(f, 'orbit-budget', 400_000)
@@ -549,9 +553,10 @@ function honeycombGraphs(): GraphSpec[] {
   if (honeycombQuotients > 0) {
     const order = honeycombSubgroupOrder
     const cayley = cayleyStructure(q.neighbors)
-    const subgroups = cayleySubgroups({ cayley, order, scan: honeycombScan, limit: 4 * honeycombQuotients })
+    const candidates = farDocks(cayley, honeycombMinWord, honeycombScan)
+    const subgroups = cayleySubgroups({ cayley, order, candidates, limit: 4 * honeycombQuotients })
 
-    log(`honeycomb level ${honeycombLevel}: ${q.cells} docks, ${subgroups.length} classes of order-${order} subgroups from the first ${honeycombScan} docks`)
+    log(`honeycomb level ${honeycombLevel}: ${q.cells} docks, ${subgroups.length} classes of order-${order} subgroups from ${candidates.length} docks at word length >= ${honeycombMinWord}`)
 
     let taken = 0
 
