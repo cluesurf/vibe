@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 362
+const MIN_HEADLINE_THEOREM_COUNT = 383
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -418,6 +418,30 @@ const REQUIRED_THEOREMS = [
   'dh_b1_single_cone_threshold',
   'dh_cusp_d0_gauss_law_and_dge1_cliques',
   'dh_b1_stabilizer_code_contraction_invariants',
+  // Vibe.UniversalityObstructions (7 headline: Wave-5 Track 1 Turing & QTM universality obstructions)
+  'thm_univ_z216_parity_and_role_multiset_all_time',
+  'thm_univ_dispersion_floor_and_rapidity_nogo',
+  'thm_univ_mpair_ceiling_and_role_pigeonhole',
+  'thm_univ_yb_crossing_and_dim_ceiling',
+  'thm_univ_unitary_halting_nogo_and_w0_clearance',
+  'thm_univ_geodesic_2plane_and_junction_cap',
+  'thm_univ_mod2_triality_and_l7_bragg_gap',
+  // Vibe.StandardModelCore (6 headline: Wave-5 Standard Model exact algebraic pillars)
+  'thm_sm_anomaly_cancellation_and_z6_quotient',
+  'thm_sm_so5_custodial_rho_one_and_center_parity',
+  'thm_sm_pure_zomega_slab_ir_light_mass',
+  'thm_sm_asl23_two_transitivity_and_oh_triality_obstruction',
+  'thm_sm_ckr_3d_bosonization_and_fermion_exchange',
+  'thm_sm_cusp_shell_recurrence_and_baryon_charge',
+  // Vibe.StandardModelMathlib (8 headline: Canonical Mathlib v4.35.0 continuous/matrix/ZMod/D4-triality proofs)
+  'thm_ml_pure_ternary_odd_dim_parity_obstruction',
+  'thm_ml_ternary_qutrit_power_odd',
+  'thm_ml_so5_custodial_rho_eq_one_real',
+  'thm_ml_su3w_custodial_violation_real',
+  'thm_ml_su3w_unitary_and_zeta18_complex',
+  'thm_ml_z6_sm_quotient_and_baryon_quantization',
+  'thm_ml_steinberg_cubic_and_zeta18_gap_real',
+  'thm_ml_d4_outer_triality_fprim_det',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

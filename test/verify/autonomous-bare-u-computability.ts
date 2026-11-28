@@ -24,7 +24,7 @@
 //                  - U3d: Unavoidable 11/12 isotropic M_pair fan-out (0.0838% target hop, 10/11 loss),
 //                    m = 1..11 coherent refocusing bound (0.921% max), exact {3,4,3,4} girth-4 square
 //                    witness in O^+(4,1; Z[sqrt(2)]), and exact BigInt 2-dock pair-relay turn witness
-//   Pillar 4 (U4): Autonomous quantum-circuit universality (6/9-distinct-role M_pair = I verbatim-4D DFS)
+//   Pillar 4 (U4): Externally scheduled exchange-gate universality (6/9-distinct-role M_pair = I verbatim-4D DFS)
 //                  - U4a: Verbatim 4D BigInt proof that both 6 distinct roles {0..5} and all 9 distinct
 //                    roles {0..8} have M_pair = I identically (0 off-line branches, exact reversibility)
 //                  - U4b: Exact BigInt L_7 chiral catalyst density on single-vibe slot qubits
@@ -38,8 +38,8 @@
 //                    full 9-spin C(9,4) = 126-dim linear-chain Toffoli with explicit adjacent routing SWAPs
 //                    (13 1Q + 324 2Q + 36 routing SWAP = 373 adj colls, ||U16 - Toff(x)I2|| < 1e-14),
 //                    and same-encoding hybrid discrete <M_{01}, M_{12}> + spin-indep CZ Toffoli on C^126
-//   Pillar 5 (U5): Sharp classification table (classical railway CA vs bare-U weak ballistic universality
-//                  vs obstructed strong finite-seed Turing universality)
+//   Pillar 5 (U5): Sharp classification table (classical railway CA vs externally scheduled exchange-gate
+//                  synthesis U4 vs autonomous low-depth ballistic primitives U1/U2 vs obstructed U3)
 //
 // Strictly deterministic (zero randomness), zero external imports, strict tsc clean, laptop-safe (< 10 s).
 
@@ -3447,7 +3447,7 @@ function runPillar4(): void {
   console.log(`        Yang R(w=1) [sqrt(SWAP)] Makhlin: G_1=(${makhSqrtSwap.G1[0].toFixed(4)}, ${makhSqrtSwap.G1[1].toFixed(4)}i), G_2=${makhSqrtSwap.G2.toFixed(4)}, e_p=${makhSqrtSwap.ep.toFixed(6)} (1/6)`)
   console.log(`        Yang R(w=1/sqrt(3)) [M_meet] Makhlin: G_1=(${makhBareMeet.G1[0].toFixed(4)}, ${makhBareMeet.G1[1].toFixed(4)}i), G_2=${makhBareMeet.G2.toFixed(4)}, e_p=${makhBareMeet.ep.toFixed(6)}`)
   console.log(`        2-Collision Loss-DiVincenzo Yang CNOT: CZ err=${czYangErr.toExponential(2)}, CNOT err=${cnotYangErr.toExponential(2)}, Makhlin=(${makhCNOT.G1[0].toFixed(4)}+${makhCNOT.G1[1].toFixed(4)}i, ${makhCNOT.G2.toFixed(4)})`)
-  console.log(`        Autonomous Bell State from |0_L, 0_L> (S_tot=0 60-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
+  console.log(`        S_tot=0 60-coll DFS CNOT Bell State from |0_L, 0_L> (externally scheduled exchange): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
   console.log(`  [U4d] Spin-Independent 5-Spin CZ/CNOT (S_AB=0 & S_AB=1) + Full 9-Spin C(9,4)=126-Dim Toffoli (Explicit Adjacent Routing SWAPs):`)
   console.log(`        Spin-Independent 53-coll CZ  (C(6,3)=20, uniErr=${czSI_uniErr.toExponential(1)}): S_AB=0 leak=${czSI_S0.leak.toExponential(2)} err=${czSI_errS0.toExponential(2)} | S_AB=1 leak=${czSI_S1.leak.toExponential(2)} err=${czSI_errS1.toExponential(2)} | ||U(0)-U(1)||_F=${czSI_phaseMatch.toExponential(2)}`)
   console.log(`        Spin-Independent 54-coll CNOT(C(6,3)=20, uniErr=${cnotSI_uniErr.toExponential(1)}): S_AB=0 leak=${cnotSI_S0.leak.toExponential(2)} err=${cnotSI_errS0.toExponential(2)} | S_AB=1 leak=${cnotSI_S1.leak.toExponential(2)} err=${cnotSI_errS1.toExponential(2)} | ||U(0)-U(1)||_F=${cnotSI_phaseMatch.toExponential(2)}`)
@@ -3525,14 +3525,13 @@ function runPillar5(startNs: bigint): void {
   console.log('================================================================================')
   console.log('  1. Classical Railway CA on {3,4,3,4} (0012 / Zenodo 20710630):')
   console.log('       STRONG Turing universal (dedicated classical transition table, static finite tracks & deterministic 2-way switches).')
-  console.log('  2. Verbatim Bare Quantum U Gate/Circuit Model (W12 + 0018 + W23 U4):')
-  console.log('       EXACT BQP / SU(2^n) universal (dense SU(2) via slot-qubit L_7+C |Tr|=5/4 & 3-role DFS bare <M_{01},M_{12}> |Tr|=5/4; su(9) -> SU(4) on 6-role DFS with M_pair=I; spin-independent 53/54-coll CZ/CNOT, CHSH=2*sqrt(2), full 9-spin 126D Toffoli).')
-  console.log('  3. Verbatim Bare Quantum U Autonomous Ballistic Scattering (W23 U1, U2, U4 -- ZERO external time-dependent gates):')
-  console.log('       WEAK AUTONOMOUS BQP UNIVERSAL (fixed-depth circuits encoded spatially in initial wavepackets/doublons evolved strictly by bare U^t):')
-  console.log('         - Sequential collinear CZ doubling (pi -> 2pi) & 5-body 2-station truth table (U1a)')
-  console.log('         - Single-collision survival-conditioned 2-qutrit Bell state (log_2 3 bits) & remote D_1<->D_2 memory bus (U1b)')
+  console.log('  2. Verbatim Bare Quantum U Externally Scheduled Exchange-Gate Synthesis (Paper 0019 Sec. 4.4 / W23 U4):')
+  console.log('       EXACT externally scheduled exchange-only universal gate synthesis from bare U\'s Yang R-matrix family, certified up to n=3 DFS qubits (k=9 distinct roles) on C^126 with verbatim 4D M_pair=I (dense SU(2) via slot-qubit L_7+C |Tr|=5/4 & 3-role DFS bare <M_{01},M_{12}> |Tr|=5/4; su(9) -> SU(4) on 6-role DFS; spin-independent 53/54-step CZ/CNOT, CHSH=2*sqrt(2), 373-step C^126 linear-chain Toffoli, hybrid <M_{01},M_{12}> C^126 Toffoli; extendable in the abstract exchange circuit model).')
+  console.log('       (Explicit infinite-line ballistic ceilings: v(u)=sqrt(3)u/(3u^2+1) w=0 zero-relative-velocity SWAP obstruction, C(9,2)=36 single-pass crossing cap, and 9-role n<=3 leakage-free ceiling.)')
+  console.log('  3. Verbatim Bare Quantum U Autonomous Low-Depth Ballistic Scattering Primitives (W23 U1, U2 -- ZERO external time-dependent gates, evolved strictly under uninterrupted bare U^t):')
+  console.log('         - Sequential 2-lap periodic-ring collinear CZ doubling (pi -> 2pi) & 5-body 2-station additive phase truth table (U1a)')
+  console.log('         - Single-collision survival-conditioned 2-qutrit Bell state (log_2 3 bits) & 5-role remote D_1<->D_2 memory bus (U1b)')
   console.log('         - Verbatim 4D k=5/k=6 M_pair+Phi_odd conditional 12-line Mach-Zehnder routing shift at t=3 (U2)')
-  console.log('         - Exact 6/9-distinct-role M_pair=I spin-independent CNOT & full 9-spin 126D linear-chain Toffoli synthesis (U4)')
   console.log('  4. Verbatim Bare Quantum U Finite-Seed Strong Autonomous Turing Machine (W23 U3 -- OBSTRUCTED / OPEN):')
   console.log('       OBSTRUCTED by four exact theorems (no static finite-support tracks/mirrors by Pell compacton no-go; no single-vibe 4D turns by Z_2^{24}; no 2/3-rail neutral switches by (-I,C); 10/11 unwanted M_pair fan-out & <0.93% single-contact target turn even with m=11 focusing).')
 
