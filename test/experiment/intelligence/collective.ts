@@ -202,12 +202,6 @@ interface SolveRun {
 }
 
 const NO_RUN: SolveRun = { work: NO_WORK, overBudget: 0, wrong: 0, usingMacro: 0 }
-const addRun = (a: SolveRun, b: SolveRun): SolveRun => ({
-  work: addWork(a.work, b.work),
-  overBudget: a.overBudget + b.overBudget,
-  wrong: a.wrong + b.wrong,
-  usingMacro: a.usingMacro + b.usingMacro,
-})
 
 function solveAll(
   field: Field,
@@ -328,6 +322,8 @@ interface EntityResult {
   discovery: Preprocessing
   selection: Preprocessing
   runs: Record<ArmA | 'cross', SolveRun>
+  /** whether the environment has its matched partner, so the cross arm ran */
+  paired: boolean
 }
 
 interface EnvironmentResult {
@@ -417,6 +413,7 @@ function runEnvironmentA(field: Field): EnvironmentResult {
       discovery,
       selection: judging.work(),
       runs: { none: NO_RUN, isolated: NO_RUN, union: NO_RUN, foreign: NO_RUN, pooled: NO_RUN, cross: NO_RUN },
+      paired: false,
     })
   }
 
@@ -492,6 +489,7 @@ function runCross(a: EnvironmentResult, b: EnvironmentResult, fail: (message: st
   for (const result of [a, b]) {
     result.field.entities.forEach((entity, k) => {
       result.entities[k]!.runs.cross = solveAll(result.field, entity.test, library === null ? [] : [library], fail)
+      result.entities[k]!.paired = true
     })
   }
 }
@@ -1055,7 +1053,9 @@ function certify(args: CollectiveArgs, grade: Grade<MeshState>, problem: Problem
 type ArmB = 'joint' | 'apart' | 'knockout' | 'wire' | 'smuggler' | 'wrongWords'
 
 const ARMS_B: readonly ArmB[] = ['joint', 'apart', 'knockout', 'wire', 'smuggler', 'wrongWords']
-const HONEST_B: readonly ArmB[] = ['joint', 'apart', 'knockout', 'wire']
+type HonestB = 'joint' | 'apart' | 'knockout' | 'wire'
+
+const HONEST_B: readonly HonestB[] = ['joint', 'apart', 'knockout', 'wire']
 
 type BaseArgs = Omit<CollectiveArgs, 'preprocessing'>
 
@@ -1153,7 +1153,7 @@ const SOLVERS_B: readonly SolverB[] = ['aStar', ...ARMS_B]
 
 export default experiment({
   id: 'intelligence/collective',
-  code: 'E-CMP-0097',
+  code: 'E-CMP-0098',
   title:
     'intelligence level 8, slice 1: whether many entities together grow in problem-solving capacity; (A) three external solvers per environment of family A on the four degree-matched pairs, each discovering and selecting macros on its own starts, against the same solvers sharing their kept operators (union), only the others\' operators, one pooled selection and the union across a matched pair, with family H harm violations and per-entity gains kept apart from net; (B) two mesh devices on the line, each holding one input of level 7\'s tie-break word, run together and apart, the census of the preference functions each realizes on the 56 quiet cells, and the selected collective against the same devices apart, its identity knockout, the best wire and level-1 A*, every round metered by the outside evaluator and recomputed by a judge',
   category: 'computation',
@@ -1214,12 +1214,16 @@ export default experiment({
 
     // capacity, cost, harm
     const entityRows = resultsA.flatMap(r => r.entities.map((e, k) => ({ id: `${r.field.environment.id}#${k}`, e })))
-    const armWork = (arm: ArmA | 'cross'): Work => entityRows.reduce((sum, row) => addWork(sum, row.e.runs[arm].work), NO_WORK)
-    const armOver = (arm: ArmA | 'cross'): number => entityRows.reduce((sum, row) => sum + row.e.runs[arm].overBudget, 0)
-    const armWrong = (arm: ArmA | 'cross'): number => entityRows.reduce((sum, row) => sum + row.e.runs[arm].wrong, 0)
-    const armMacro = (arm: ArmA | 'cross'): number => entityRows.reduce((sum, row) => sum + row.e.runs[arm].usingMacro, 0)
+    // the cross arm runs only where the matched partner exists, so it is summed and compared on those entities alone
+    const pairedRows = entityRows.filter(row => row.e.paired)
+    const rowsFor = (arm: ArmA | 'cross') => (arm === 'cross' ? pairedRows : entityRows)
+    const armWork = (arm: ArmA | 'cross'): Work => rowsFor(arm).reduce((sum, row) => addWork(sum, row.e.runs[arm].work), NO_WORK)
+    const armOver = (arm: ArmA | 'cross'): number => rowsFor(arm).reduce((sum, row) => sum + row.e.runs[arm].overBudget, 0)
+    const armWrong = (arm: ArmA | 'cross'): number => rowsFor(arm).reduce((sum, row) => sum + row.e.runs[arm].wrong, 0)
+    const armMacro = (arm: ArmA | 'cross'): number => rowsFor(arm).reduce((sum, row) => sum + row.e.runs[arm].usingMacro, 0)
     const none = armWork('none')
-    const gainOf = (arm: ArmA | 'cross'): Work => subWork(none, armWork(arm))
+    const pairedWork = (arm: ArmA): Work => pairedRows.reduce((sum, row) => addWork(sum, row.e.runs[arm].work), NO_WORK)
+    const gainOf = (arm: ArmA | 'cross'): Work => subWork(arm === 'cross' ? pairedWork('none') : none, armWork(arm))
     const discoveryCalls = entityRows.reduce((sum, row) => sum + row.e.discovery.operatorCalls, 0)
     const isolatedSelection = entityRows.reduce((sum, row) => sum + row.e.selection.operatorCalls, 0)
     const pooledSelection = resultsA.reduce((sum, r) => sum + r.pooledSelection.operatorCalls, 0)
@@ -1228,8 +1232,9 @@ export default experiment({
     const fixed = (value: number): number => Number(value.toFixed(6))
 
     const harmOf = (arm: ArmA | 'cross') => {
-      const gains = entityRows.map(row => row.e.runs.isolated.work.elementary - row.e.runs[arm].work.elementary)
-      const harmed = entityRows.filter((_, i) => gains[i]! < 0).map(row => row.id)
+      const list = rowsFor(arm)
+      const gains = list.map(row => row.e.runs.isolated.work.elementary - row.e.runs[arm].work.elementary)
+      const harmed = list.filter((_, i) => gains[i]! < 0).map(row => row.id)
 
       return {
         violations: harmed.length,
@@ -1349,7 +1354,6 @@ export default experiment({
 
     const argmin = (list: readonly number[], score: readonly number[]): number => list.reduce((bestG, g) => (score[g]! < score[bestG]! ? g : bestG), list[0]!)
     const allFunctions = Array.from({ length: FUNCTIONS }, (_, g) => g)
-    const twoInput = allFunctions.filter(g => !oneInput(g))
     const bestTest = argmin(allFunctions, cTest)
     const bestF1Test = argmin(F1, cTest)
     const bestTrain = argmin(allFunctions, cTrain)
@@ -1408,7 +1412,7 @@ export default experiment({
     const chosenRow = census.find(row => row.joint.has(gCol))!
     const placement = chosenRow.joint.get(gCol)!
     const arms = armsFor(gCol, gWire, placement)
-    const devices = Object.fromEntries(HONEST_B.map(name => [name, judgeDevice(plain(arms[name]))])) as Record<'joint' | 'apart' | 'knockout' | 'wire', JudgeDevice>
+    const devices = Object.fromEntries(HONEST_B.map(name => [name, judgeDevice(plain(arms[name]))])) as Record<HonestB, JudgeDevice>
     const fApart = deviceFunction(devices.apart)
     const fKnockout = deviceFunction(devices.knockout)
 
@@ -1625,6 +1629,10 @@ export default experiment({
     metrics.foreignHarmViolations = harm.foreign.violations
     metrics.pooledHarmViolations = harm.pooled.violations
     metrics.crossHarmViolations = harm.cross.violations
+    metrics.pairedEntities = pairedRows.length
+    metrics.pairedNoneElementary = pairedWork('none').elementary
+    metrics.pairedIsolatedElementary = pairedWork('isolated').elementary
+    metrics.pairedUnionElementary = pairedWork('union').elementary
     metrics.transferHyperbolicToFlatCross = transfer.toFlat.cross
     metrics.transferHyperbolicToFlatAlone = transfer.toFlat.alone
     metrics.transferFlatToHyperbolicCross = transfer.toHyperbolic.cross
@@ -1700,7 +1708,7 @@ export default experiment({
 
     const p = placement
     const entityLines = entityRows
-      .map(row => `${row.id} ${ARMS_A.map(arm => `${arm} ${row.e.runs[arm].work.elementary}`).join(' ')} cross ${row.e.runs.cross.work.elementary} (kept ${row.e.kept.length} of ${row.e.candidates})`)
+      .map(row => `${row.id} ${ARMS_A.map(arm => `${arm} ${row.e.runs[arm].work.elementary}`).join(' ')} cross ${row.e.paired ? row.e.runs.cross.work.elementary : 'unpaired'} (kept ${row.e.kept.length} of ${row.e.candidates})`)
       .join('; ')
     const ceilingRows = allFunctions.map(g => `${g}${oneInput(g) ? '*' : ''}:${cTrain[g]}/${cTest[g]}`).join(' ')
     const cellRows = census.map(c => `${c.name} ${c.kind}: joint ${c.joint.size} (two-input ${[...c.joint.keys()].filter(g => !oneInput(g)).length}), apart ${c.apart.size}, interacting ${c.interacting} of ${c.placements}`).join('; ')

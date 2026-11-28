@@ -574,7 +574,7 @@ function readStructure(input: {
         let over = false
 
         for (let t = 1; t <= HORIZON && !over; t++) {
-          over = !roundWithin(deviationDyn, alone) || alone.size > SUPPORT_CAP
+          over = !roundWithin(deviationDyn, alone, SUPPORT_CAP) || alone.size > SUPPORT_CAP
         }
 
         if (!over) {
@@ -893,6 +893,14 @@ export function boundarySlice(sizes: SliceSizes, log?: (line: string) => void): 
     const forBox = rules.filter(r => r.kind === box.kind && startSizes(r, box.column, sizes).length > 0)
 
     if (forBox.length === 0) {
+      continue
+    }
+
+    // The canonical coloring of a cell colors every earlier cell its chain reaches first. On {3,4,3,4} that ball passes
+    // the lazy tiling's cell table (a Map of at most 2^24 entries) before the first perturbation run ends, so Q2R is not
+    // computable there (found by the 0058 timing probe).
+    if (box.kind === 'vertex' && box.column === '{3,4,3,4}') {
+      skipped.push(`${box.key} every Q2R rule: the canonical vertex coloring is not computable on the lazy {3,4,3,4} tiling`)
       continue
     }
 

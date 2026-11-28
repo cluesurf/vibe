@@ -68,6 +68,8 @@ export type Dynamics = {
   readonly pieces: number
   // apply piece k of a round in place
   piece(state: Tones, k: number): void
+  // after piece k: a lower bound on the support at the end of this round, exact arithmetic (see each dynamics)
+  settled(state: Tones, k: number): number
   readonly ledgers: readonly Ledger[]
 }
 
@@ -77,15 +79,15 @@ export function round(dyn: Dynamics, state: Tones): void {
   }
 }
 
-// One round that stops (false, the state left mid-round and never read) once the support passes PIECE_CAP after a
-// piece. A memory guard: on the 4D boxes a spreading rule doubles its support at each of 24 pieces and would fill
-// 2^24 cells inside one round. For a pair rule with at most 7 pieces it changes nothing, since a piece can at most
-// halve the support (no nonzero pair maps to the vacuum pair) and the round end would pass SUPPORT_CAP anyway.
-export function roundWithin(dyn: Dynamics, state: Tones): boolean {
+// One round that stops (false, the state left mid-round and never read) as soon as the round end is sure to hold more
+// than `cap` cells (`settled` passes it), or the support passes PIECE_CAP after a piece. On the 4D boxes a spreading
+// rule doubles its support at each of 24 pieces and would fill 2^24 cells inside one round. The `settled` stop changes
+// no reading: the round end would pass `cap` anyway. The PIECE_CAP stop is a memory guard, the same budget outcome.
+export function roundWithin(dyn: Dynamics, state: Tones, cap: number): boolean {
   for (let k = 0; k < dyn.pieces; k++) {
     dyn.piece(state, k)
 
-    if (state.size > PIECE_CAP) {
+    if (state.size > PIECE_CAP || dyn.settled(state, k) > cap) {
       return false
     }
   }
@@ -108,6 +110,9 @@ export function pairDynamics(input: {
     space,
     pieces: colors.length,
     piece: (state, k) => sparseRound({ space, colors: [colors[k]!], rule, background, state }),
+    // a matching at most halves the support (the rule is a bijection fixing the background pair, so no other pair
+    // becomes it), so the round end holds at least size / 2^(pieces left)
+    settled: (state, k) => Math.ceil(state.size / 2 ** (colors.length - 1 - k)),
     ledgers: input.ledgers,
   }
 }
@@ -142,6 +147,18 @@ export function q2rDynamics(input: {
     background,
     space,
     pieces: coloring.colors,
+    // a cell of a color already updated this round keeps its tone to the round end
+    settled: (state, k) => {
+      let n = 0
+
+      for (const c of state.keys()) {
+        if (inside(c) && coloring.colorOf(c) <= k) {
+          n++
+        }
+      }
+
+      return n
+    },
     piece: (state, k) => {
       const touched = new Set<number>()
 
@@ -309,7 +326,7 @@ export function structureOf(dyn: Dynamics, start: Tones, maxCells: number): Stru
     for (let k = 0; k < dyn.pieces; k++) {
       dyn.piece(state, k)
 
-      if (state.size > PIECE_CAP) {
+      if (state.size > PIECE_CAP || dyn.settled(state, k) > maxCells) {
         return null
       }
 
@@ -568,7 +585,7 @@ export function readPerturbation(dyn: Dynamics, s: Structure, p: Perturbation): 
   let lastWrong = matches(0) ? -1 : 0
 
   for (let t = 1; t <= HORIZON; t++) {
-    if (!roundWithin(dyn, state)) {
+    if (!roundWithin(dyn, state, SUPPORT_CAP)) {
       return { perturbation: p, outcome: 'budget', lastWrong, final: state, kept }
     }
 
@@ -705,7 +722,7 @@ export function readWalled(walled: Dynamics, s: Structure, p: Perturbation): Wal
   let rebrokenAt = -1
 
   for (let t = 1; t <= RETURN_CAP; t++) {
-    if (!roundWithin(walled, state) || state.size > SUPPORT_CAP) {
+    if (!roundWithin(walled, state, SUPPORT_CAP) || state.size > SUPPORT_CAP) {
       return { rebroken: rebrokenAt > 0, rebrokenAt, returned: 0, budget: true }
     }
 
