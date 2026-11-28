@@ -90,7 +90,9 @@ const QUOTIENT_CAP = 400_000
 const SUPPORT_CAP = 64
 const DIM = 5
 const BACKGROUNDS = [-1, 0, 1] as const
+
 type Order = 'forward' | 'reverse'
+
 const ORDERS: readonly Order[] = ['forward', 'reverse']
 
 // ---- exact Z[sqrt 2] matrices ----
@@ -404,6 +406,7 @@ function quotientOfW(faces: readonly ExactMatrix[], ring: LevelRing): Quotient {
     for (let g = 0; g < 24; g++) {
       const next = levelProduct(frames[head]!, letters[g]!, ring)
       const k = next.join(',')
+
       let id = indexOf.get(k)
 
       if (id === undefined) {
@@ -540,6 +543,7 @@ export default experiment({
     // ---- gates on the representation ----
     const involutions = faces.every(f => key(matrixProduct(f, f)) === IDENTITY_KEY)
     const facesPreserve = faces.every(preservesForm)
+
     let commutationAgrees = true
     let infinitePairsAgree = true
 
@@ -571,6 +575,7 @@ export default experiment({
 
     // ---- R2: coincident mirror conjugates ----
     const mirrorRepeats: string[] = []
+
     let invariantMirrors = 0
 
     for (const al of algebras) {
@@ -596,11 +601,13 @@ export default experiment({
 
     // ---- R1 on {3,4,3,4} ----
     const space = lazySpaceFactory('{3,4,3,4}')!()
+
     const wordOf = (c: number): number[] => {
       const a = space.address(c)
 
       return a === '' ? [] : a.split('.').map(Number)
     }
+
     const trackFor = (letters: readonly number[]): Track => {
       const cache = new Map<number, number[]>()
 
@@ -623,6 +630,7 @@ export default experiment({
         return list[t]!
       }
     }
+
     const tracks = new Map<Order, { along: Track; against: Track }>(
       ORDERS.map(order => {
         const own = roundLetters(order)
@@ -653,6 +661,7 @@ export default experiment({
       return { order: al.order, lookup, counts, met: met.length, roundsOf }
     })
     const checkBall = spaceBall(space, CHECK_RADIUS, 100_000)!.cells.filter(c => c !== 0)
+
     let steppedAgrees = true
 
     for (const m of meetingSummary) {
@@ -668,6 +677,7 @@ export default experiment({
 
     // an off-origin anchor: a = s_0, partners a s_h, read the same counts as (1, s_h)
     const anchor = space.partner(0, 0)
+
     let anchorAgrees = true
 
     for (const order of ORDERS) {
@@ -735,10 +745,13 @@ export default experiment({
     // ---- CONTROL LEVEL 4 ----
     const ring = levelRing({ twoPower: LEVEL_TWO_POWER, odd: 1 })
     const quotient = quotientOfW(faces, ring)
+
     let wOrder = 0
     let quotientGates = false
     let quotientCells: CellReading[] = []
+
     const quotientCounts: number[] = []
+
     let quotientMatrixAgrees = false
 
     if (quotient.fits) {
@@ -768,6 +781,7 @@ export default experiment({
       }).every(Boolean)
 
       const qStarts = Array.from({ length: quotient.docks }, (_, c) => c).filter(c => quotient.distance[c]! <= START_RADIUS)
+
       const qTrack = (letters: readonly number[]): Track => (start, t) => {
         let c = start
 
