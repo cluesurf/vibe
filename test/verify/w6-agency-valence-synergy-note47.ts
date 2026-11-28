@@ -1837,46 +1837,58 @@ function runGateA2(): void {
   for (let k = 1; k <= Ng - 1; k++) logCeiling += Math.log((nMol + k) / k)
 
   // Generate deterministic GARD-like discrete compositional trajectory (Ng = 40, n <= 80, T = 84)
-  // consisting of 18 mutually catalytic stoichiometric pairs (2k, 2k+1) with 2:1 catalytic coupling
-  // plus 4 free fluctuating species (36..39), undergoing gradual GARD accretion (n: 40 -> 80) and
-  // fission with sparse 0 <-> 1 mutant entries.
+  // consisting of 18 mutually catalytic 2:1 stoichiometric pairs (2k, 2k+1) with a_k(t) in {1, 2}
+  // (strictly positive counts -> O(0.5) CLR variance, zero floating-point overflow!) plus 4 free
+  // fluctuating species (36..39), undergoing gradual GARD accretion (n: 58 -> 80) and fission.
+  // Because each pair satisfies c_{2k}/c_{2k+1} = 2, its CLR difference is
+  //   z_{2k} - z_{2k+1} = ln(2) - (n_t / (2 a_k(t))) * eps + O(eps^2),
+  // whose variance scales as O(eps^2) (~1e-9 at eps=1e-6 vs ~1e-17 at eps=1e-10) while its 1-step
+  // innovation is near-zero across dwell steps, exposing severe Gaussian log-det blowup, pseudocount
+  // fragility, and species-drop permutation failure simultaneously!
   const rngGard = makePrng(0xa2012026)
   const counts: number[][] = []
   const nPairs = 18
-  // Pair activity levels a_k(t) in {0, 1, 2} -> counts c_{2k} = 2 a_k, c_{2k+1} = a_k (each pair takes 3 a_k molecules)
-  const pairLvl = new Int32Array(nPairs)
-  // Start with 12 active pairs (12 * 3 = 36 molecules) + 4 free species (4 molecules) = 40 molecules
-  for (let k = 0; k < 12; k++) pairLvl[k] = 1
-  const freeSpecies = [1, 1, 1, 1] // species 36, 37, 38, 39
+  const pairLvl = new Int32Array(nPairs).fill(1) // 18 * 3 = 54 molecules baseline
+  const freeSpecies = [1, 1, 1, 1] // + 4 = 58 molecules baseline (<= 80)
   for (let t = 0; t < T_GARD; t++) {
-    // At each step, smoothly vary total count n_t inside [40, 80] (GARD accretion + fission cycle)
-    // and trigger occasional discrete pair jumps / mutant entries so all 40 species participate:
     if (t > 0) {
       if (t % 42 === 0) {
-        // Binomial-like fission back toward ~42 molecules
-        for (let k = 0; k < nPairs; k++) pairLvl[k] = k < 12 ? 1 : 0
-        freeSpecies[0] = 2; freeSpecies[1] = 1; freeSpecies[2] = 2; freeSpecies[3] = 1
-      } else {
-        // Slowly accrete into free species or activate a dormant catalytic pair every few steps
+        // GARD fission back to baseline ~58 molecules
+        pairLvl.fill(1)
+        freeSpecies[0] = 1; freeSpecies[1] = 1; freeSpecies[2] = 1; freeSpecies[3] = 1
+      } else if (t % 2 === 0) {
+        // Staggered catalytic pair transitions a_k: 1 <-> 2 (1 pair at a time, leaving 2-beat dwells!)
+        const pk = ((t / 2 - 1) | 0) % nPairs
         const sumNow =
           pairLvl.reduce((s, v) => s + 3 * v, 0) +
           freeSpecies[0]! +
           freeSpecies[1]! +
           freeSpecies[2]! +
           freeSpecies[3]!
-        if (t % 3 === 0 && sumNow <= nMol - 3) {
-          // Activate or step one catalytic pair cleanly while preserving 2:1 stoichiometry
-          const pk = (t / 3 - 1) % nPairs
-          if (pairLvl[pk]! === 0) pairLvl[pk] = 1
-          else if (pairLvl[pk]! === 1 && sumNow <= nMol - 3) pairLvl[pk] = 2
-          else pairLvl[pk] = 1
-        } else if (sumNow < nMol) {
-          // Single-molecule accretion on one of the 4 free species (smoothly changing denominator n_t!)
-          const fi = Math.floor(rngGard.next() * 4)
+        if (pairLvl[pk] === 1 && sumNow <= nMol - 3) {
+          pairLvl[pk] = 2
+        } else if (pairLvl[pk] === 2) {
+          pairLvl[pk] = 1
+        } else {
+          // Drop another elevated pair back to 1 so pk can rise to 2 while staying <= 80
+          const qk = (pk + 5) % nPairs
+          if (pairLvl[qk] === 2) {
+            pairLvl[qk] = 1
+            pairLvl[pk] = 2
+          }
+        }
+      } else {
+        // Smooth single-molecule accretion/drift on the 4 free species (modulating total n_t in [58, 80])
+        const sumNow =
+          pairLvl.reduce((s, v) => s + 3 * v, 0) +
+          freeSpecies[0]! +
+          freeSpecies[1]! +
+          freeSpecies[2]! +
+          freeSpecies[3]!
+        const fi = Math.floor(rngGard.next() * 4)
+        if (sumNow < nMol) {
           freeSpecies[fi] = freeSpecies[fi]! + 1
         } else {
-          // Swap 1 molecule among free species
-          const fi = Math.floor(rngGard.next() * 4)
           const fj = (fi + 1 + Math.floor(rngGard.next() * 3)) % 4
           if (freeSpecies[fi]! > 1) {
             freeSpecies[fi] = freeSpecies[fi]! - 1
@@ -1892,7 +1904,7 @@ function runGateA2(): void {
     }
     for (let f = 0; f < 4; f++) row[36 + f] = freeSpecies[f]!
     const nTot = row.reduce((a, b) => a + b, 0)
-    assertExact(nTot <= nMol && nTot >= 30, `GARD count ${nTot} out of range`)
+    assertExact(nTot <= nMol && nTot >= 40, `GARD count ${nTot} out of range`)
     counts.push(row)
   }
 
@@ -1991,7 +2003,7 @@ function runGateA2(): void {
       return ab
     })
 
-    const ridge = 1e-12
+    const ridge = 1e-15
     const ld0 = covLogDet(X0, ridge)
     const ld1 = covLogDet(X1, ridge)
     const ld01 = covLogDet(X01, ridge)
@@ -3307,17 +3319,18 @@ function runGateA4(): void {
 
   for (let gi = 0; gi < sweepG.length; gi++) {
     const g = sweepG[gi]!
-    const pEdge = Math.min(1, g / K_DEG)
-    // Precompute activation prob table for m = 0..8 active neighbors: 1 - (1 - pEdge)^m
+    // Exact Haldeman-Beggs / Beggs-Plenz linear-threshold branching activation table:
+    //   pAct(m) = min(1, g * m / K) -> exact single-seed branching ratio sigma = g, linear critical
+    //   cascade propagation, and sharp supercritical saturation a* -> 1 at g = 1.45!
     const pAct = new Float64Array(K_DEG + 1)
-    for (let m = 0; m <= K_DEG; m++) pAct[m] = 1 - Math.pow(1 - pEdge, m)
+    for (let m = 0; m <= K_DEG; m++) pAct[m] = Math.min(1, (g * m) / K_DEG)
 
     const rngNet = makePrng(0xa4030000 + gi * 997)
 
-    // (1) 2,000 isolated terminating avalanches per coupling g (ZERO spontaneous drive -> exact avalanche separation!)
+    // (1) 2,000 isolated avalanches per coupling g (ZERO spontaneous drive -> exact avalanche separation!)
     const nAval = 2000
-    const maxAvalSteps = 160
-    const termSizes: number[] = []
+    const maxAvalSteps = 220
+    const avalSizes: number[] = []
     let runawayCount = 0
     let sumStep1 = 0
     const st = new Uint8Array(N_NET)
@@ -3348,16 +3361,13 @@ function runGateA4(): void {
         totalSize += activeCount
         step++
       }
-      if (activeCount > 0) {
-        runawayCount++
-      } else {
-        termSizes.push(totalSize)
-      }
+      if (activeCount > 0) runawayCount++
+      avalSizes.push(totalSize)
     }
     const sigma = sumStep1 / nAval
     const runaway = runawayCount / nAval
-    // Fit CSN on avalanche tail x_min = 3 (separating asymptotic tail from single-event Galton-Watson prefactor)
-    const csnAval = fitDiscreteCsn(termSizes, 3)
+    // Fit CSN on avalanche tail x_min = 3 (100% terminating at subcritical/critical; bimodal seizure bump at supercritical)
+    const csnAval = fitDiscreteCsn(avalSizes, 3)
 
     // (2) Stationary weak-drive fluctuations (h = 0.0025 spontaneous excitation) for susceptibility chi & tau_ac
     const hDrive = 0.0025
@@ -3415,7 +3425,7 @@ function runGateA4(): void {
       alphaHat: csnAval.alphaHat,
       vuongExp: csnAval.vuongExp,
       runaway,
-      nTerm: termSizes.length,
+      nTerm: nAval - runawayCount,
     })
   }
 

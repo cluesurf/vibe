@@ -1005,23 +1005,24 @@ function runGateP2(): void {
     return bwd
   }
 
-  // Strictly causal minimum-phase 1st-order high-pass + 1st-order low-pass IIR filter
-  // (all poles and zeros strictly inside unit circle -> preserves Granger non-causality B -/-> A!)
+  // Strictly invertible minimum-phase causal IIR filter (all poles & zeros strictly inside unit circle:
+  // zero z_0 = 0.50, poles p_1 = 0.85, p_2 = 0.45 -> Barnett & Seth 2011 exact Granger invariance!)
   const applyCausalMinPhaseIir = (sig: Float64Array): Float64Array => {
     const n = sig.length
     const hp = new Float64Array(n)
-    const aHp = 0.90 // pole at +0.90, zero at +1 (causal high-pass detrend)
+    const aHp = 0.85
+    const zHp = 0.50
     let xPrev = 0
     let yPrev = 0
     for (let t = 0; t < n; t++) {
       const xt = sig[t]!
-      const yt = aHp * (yPrev + xt - xPrev)
+      const yt = aHp * yPrev + xt - zHp * xPrev
       hp[t] = yt
       xPrev = xt
       yPrev = yt
     }
     const lp = new Float64Array(n)
-    const aLp = 0.45 // pole at +0.45 (causal low-pass)
+    const aLp = 0.45
     let zPrev = 0
     for (let t = 0; t < n; t++) {
       const zt = (1 - aLp) * hp[t]! + aLp * zPrev
@@ -1076,6 +1077,7 @@ function runGateP2(): void {
   }
 
   const rngGr = makePrng(0x47e24000)
+  const rGranger = 500
   let rawTrueAB = 0
   let rawFalseBA = 0
   let mpTrueAB = 0
@@ -1087,7 +1089,7 @@ function runGateP2(): void {
   const A_arr = new Float64Array(T_GR)
   const B_arr = new Float64Array(T_GR)
 
-  for (let r = 0; r < R_TRIALS; r++) {
+  for (let r = 0; r < rGranger; r++) {
     let aPrev = 0
     let bPrev = 0
     for (let t = -burnGr; t < T_GR; t++) {
@@ -1104,8 +1106,8 @@ function runGateP2(): void {
     const gBA = grangerTest(B_arr, A_arr, 3, 40)
     const A_mp = applyCausalMinPhaseIir(A_arr)
     const B_mp = applyCausalMinPhaseIir(B_arr)
-    const gMpAB = grangerTest(A_mp, B_mp, 4, 40)
-    const gMpBA = grangerTest(B_mp, A_mp, 4, 40)
+    const gMpAB = grangerTest(A_mp, B_mp, 6, 40)
+    const gMpBA = grangerTest(B_mp, A_mp, 6, 40)
     const A_zp = applyZeroPhaseFir(A_arr)
     const B_zp = applyZeroPhaseFir(B_arr)
     const gZpBA = grangerTest(B_zp, A_zp, 3, 40)
@@ -1119,23 +1121,23 @@ function runGateP2(): void {
     sumMpFba += gMpBA.fStat
     sumZpFba += gZpBA.fStat
   }
-  const rawAbPower = rawTrueAB / R_TRIALS
-  const rawBaFpr = rawFalseBA / R_TRIALS
-  const mpAbPower = mpTrueAB / R_TRIALS
-  const mpBaFpr = mpFalseBA / R_TRIALS
-  const zpBaFpr = zpFalseBA / R_TRIALS
+  const rawAbPower = rawTrueAB / rGranger
+  const rawBaFpr = rawFalseBA / rGranger
+  const mpAbPower = mpTrueAB / rGranger
+  const mpBaFpr = mpFalseBA / rGranger
+  const zpBaFpr = zpFalseBA / rGranger
 
   recordCheck(
     'P2.3',
     'P2',
     'Tier A',
-    'Eldin causal VAR Granger (unfiltered + min-phase IIR) vs zero-phase FIR trap (R=200)',
+    `Eldin causal VAR Granger (unfiltered + min-phase IIR) vs zero-phase FIR trap (R=${rGranger})`,
     rawAbPower === 1.0 &&
       rawBaFpr < 0.01 &&
       mpAbPower === 1.0 &&
       mpBaFpr < 0.01 &&
       zpBaFpr > 0.95,
-    `Unfiltered VAR: A->B=${(100 * rawAbPower).toFixed(1)}%, false B->A=${(100 * rawBaFpr).toFixed(2)}% (F=${(sumRawFba / R_TRIALS).toFixed(2)}) | MinPhase causal IIR: A->B=${(100 * mpAbPower).toFixed(1)}%, false B->A=${(100 * mpBaFpr).toFixed(2)}% (F=${(sumMpFba / R_TRIALS).toFixed(2)}) | Zero-phase FIR false B->A=${(100 * zpBaFpr).toFixed(1)}% (>95%, F=${(sumZpFba / R_TRIALS).toFixed(1)})`,
+    `Unfiltered VAR: A->B=${(100 * rawAbPower).toFixed(1)}%, false B->A=${(100 * rawBaFpr).toFixed(2)}% (F=${(sumRawFba / rGranger).toFixed(2)}) | MinPhase causal IIR: A->B=${(100 * mpAbPower).toFixed(1)}%, false B->A=${(100 * mpBaFpr).toFixed(2)}% (F=${(sumMpFba / rGranger).toFixed(2)}) | Zero-phase FIR false B->A=${(100 * zpBaFpr).toFixed(1)}% (>95%, F=${(sumZpFba / rGranger).toFixed(1)})`,
   )
 
   // --- Part D: Eldin Anti-Confound Guard G2.4 (Exact CSN 2009 Hurwitz-Zeta MLE vs Naive OLS) ---
