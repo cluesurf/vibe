@@ -384,20 +384,27 @@ def envPhaseMat2 (p0 p1 : Fin 6) : Mat2F :=
 private theorem envPhaseMat2_unitary (p0 p1 : Fin 6) :
     (∀ i j : Fin 2, mat2FMul (mat2FDag (envPhaseMat2 p0 p1)) (envPhaseMat2 p0 p1) i j = mat2FId 1 i j) ∧
     (∀ i j : Fin 2, mat2FMul (envPhaseMat2 p0 p1) (mat2FDag (envPhaseMat2 p0 p1)) i j = mat2FId 1 i j) := by
-  constructor <;> (
-    intro i j
-    fin_cases i <;> fin_cases j <;> (
-      unfold mat2FMul mat2FDag envPhaseMat2 mat2FId sum2Eis
-      dsimp only
-      change _ = _
-      try (change star (zeta6Pow6 _) * zeta6Pow6 _ + star 0 * 0 = 1; rw [zeta6Pow6_unit_left]; simp)
-      try (change star 0 * 0 + star (zeta6Pow6 _) * zeta6Pow6 _ = 1; rw [zeta6Pow6_unit_left]; simp)
-      try (change zeta6Pow6 _ * star (zeta6Pow6 _) + 0 * star 0 = 1; rw [zeta6Pow6_unit_right]; simp)
-      try (change 0 * star 0 + zeta6Pow6 _ * star (zeta6Pow6 _) = 1; rw [zeta6Pow6_unit_right]; simp)
-      try (change star (zeta6Pow6 _) * 0 + star 0 * zeta6Pow6 _ = 0; simp)
-      try (change star 0 * zeta6Pow6 _ + star (zeta6Pow6 _) * 0 = 0; simp)
-      try (change zeta6Pow6 _ * star 0 + 0 * star (zeta6Pow6 _) = 0; simp)
-      try (change 0 * star (zeta6Pow6 _) + zeta6Pow6 _ * star 0 = 0; simp)))
+  constructor
+  · intro i j
+    match i, j with
+    | ⟨0, _⟩, ⟨0, _⟩ =>
+      change star (zeta6Pow6 p0) * zeta6Pow6 p0 + star (0 : Eis) * 0 = 1
+      rw [zeta6Pow6_unit_left]; simp
+    | ⟨0, _⟩, ⟨1, _⟩ => change star (zeta6Pow6 p0) * 0 + star (0 : Eis) * zeta6Pow6 p1 = 0; simp
+    | ⟨1, _⟩, ⟨0, _⟩ => change star (0 : Eis) * zeta6Pow6 p0 + star (zeta6Pow6 p1) * 0 = 0; simp
+    | ⟨1, _⟩, ⟨1, _⟩ =>
+      change star (0 : Eis) * 0 + star (zeta6Pow6 p1) * zeta6Pow6 p1 = 1
+      rw [zeta6Pow6_unit_left]; simp
+  · intro i j
+    match i, j with
+    | ⟨0, _⟩, ⟨0, _⟩ =>
+      change zeta6Pow6 p0 * star (zeta6Pow6 p0) + 0 * star (0 : Eis) = 1
+      rw [zeta6Pow6_unit_right]; simp
+    | ⟨0, _⟩, ⟨1, _⟩ => change zeta6Pow6 p0 * star (0 : Eis) + 0 * star (zeta6Pow6 p1) = 0; simp
+    | ⟨1, _⟩, ⟨0, _⟩ => change 0 * star (zeta6Pow6 p0) + zeta6Pow6 p1 * star (0 : Eis) = 0; simp
+    | ⟨1, _⟩, ⟨1, _⟩ =>
+      change 0 * star (0 : Eis) + zeta6Pow6 p1 * star (zeta6Pow6 p1) = 1
+      rw [zeta6Pow6_unit_right]; simp
 
 /-- Exact `E-QTM-0205` `36/36` `ℤ_6 × ℤ_6` phase envariance on `|Ψ_2⟩`. -/
 theorem thm_qtm_0205_psi2_schmidt_and_z6x6_envariance :
@@ -411,18 +418,23 @@ theorem thm_qtm_0205_psi2_schmidt_and_z6x6_envariance :
       (∀ s e : Fin 2, bipartiteApply2 uS uE envPsi2 s e = envPsi2 s e) := by
   refine ⟨by decide, by decide, fun p0 p1 => ⟨(envPhaseMat2_unitary p0 p1).1,
     (envPhaseMat2_unitary (phaseInv6 p0) (phaseInv6 p1)).1, fun s e => ?_⟩⟩
-  rw [bipartiteApply2, sum2Eis_eq_sum]
-  simp only [sum2Eis_eq_sum]
-  fin_cases s <;> fin_cases e <;> (
-    simp only [Fin.sum_univ_two, envPhaseMat2, envPsi2, Fin.isValue]
-    dsimp only
-    first
-    | (change zeta6Pow6 p0 * zeta6Pow6 (phaseInv6 p0) * ⟨1, 1⟩ + zeta6Pow6 p0 * 0 * 0 + (0 * zeta6Pow6 (phaseInv6 p0) * 0 + 0 * 0 * ⟨1, -1⟩) = ⟨1, 1⟩
-       rw [zeta6Pow6_mul_inv]; ring)
-    | (change 0 * 0 * ⟨1, 1⟩ + 0 * zeta6Pow6 (phaseInv6 p1) * 0 + (zeta6Pow6 p1 * 0 * 0 + zeta6Pow6 p1 * zeta6Pow6 (phaseInv6 p1) * ⟨1, -1⟩) = ⟨1, -1⟩
-       rw [zeta6Pow6_mul_inv]; ring)
-    | (change zeta6Pow6 p0 * 0 * ⟨1, 1⟩ + zeta6Pow6 p0 * zeta6Pow6 (phaseInv6 p1) * 0 + (0 * 0 * 0 + 0 * zeta6Pow6 (phaseInv6 p1) * ⟨1, -1⟩) = 0; ring)
-    | (change 0 * zeta6Pow6 (phaseInv6 p0) * ⟨1, 1⟩ + 0 * 0 * 0 + (zeta6Pow6 p1 * zeta6Pow6 (phaseInv6 p0) * 0 + zeta6Pow6 p1 * 0 * ⟨1, -1⟩) = 0; ring))
+  match s, e with
+  | ⟨0, _⟩, ⟨0, _⟩ =>
+    change zeta6Pow6 p0 * zeta6Pow6 (phaseInv6 p0) * ⟨1, 1⟩ + zeta6Pow6 p0 * 0 * 0 +
+      (0 * zeta6Pow6 (phaseInv6 p0) * 0 + 0 * 0 * ⟨1, -1⟩) = ⟨1, 1⟩
+    rw [zeta6Pow6_mul_inv]; ring
+  | ⟨0, _⟩, ⟨1, _⟩ =>
+    change zeta6Pow6 p0 * 0 * ⟨1, 1⟩ + zeta6Pow6 p0 * zeta6Pow6 (phaseInv6 p1) * 0 +
+      (0 * 0 * 0 + 0 * zeta6Pow6 (phaseInv6 p1) * ⟨1, -1⟩) = 0
+    ring
+  | ⟨1, _⟩, ⟨0, _⟩ =>
+    change 0 * zeta6Pow6 (phaseInv6 p0) * ⟨1, 1⟩ + 0 * 0 * 0 +
+      (zeta6Pow6 p1 * zeta6Pow6 (phaseInv6 p0) * 0 + zeta6Pow6 p1 * 0 * ⟨1, -1⟩) = 0
+    ring
+  | ⟨1, _⟩, ⟨1, _⟩ =>
+    change 0 * 0 * ⟨1, 1⟩ + 0 * zeta6Pow6 (phaseInv6 p1) * 0 +
+      (zeta6Pow6 p1 * 0 * 0 + zeta6Pow6 p1 * zeta6Pow6 (phaseInv6 p1) * ⟨1, -1⟩) = ⟨1, -1⟩
+    rw [zeta6Pow6_mul_inv]; ring
 
 /-- Initial 2-branch bipartite state embedded into `H_S^(6) ⊗ H_E^(6)` at `role = 0` (`den = 2`). -/
 def envPsi6Init : Fin 6 → Fin 6 → Eis :=
@@ -504,7 +516,7 @@ private theorem envSwapPhase_unit_left (f : Fin 6 → Fin 6)
     star (envSwapPhase f j) * envSwapPhase f j = 1 := by
   unfold envSwapPhase
   cases hj : isActiveBranch6 j with
-  | false => decide
+  | false => change star (1 : Eis) * 1 = 1; simp
   | true =>
     have hfj : isActiveBranch6 (f j) = true := by rw [hAct j, hj]
     change star (envPsi4Diag (f j) * star (envPsi4Diag j)) * (envPsi4Diag (f j) * star (envPsi4Diag j)) = 1
@@ -521,7 +533,7 @@ private theorem envSwapPhase_mul_diag (f : Fin 6 → Fin 6)
   cases hj : isActiveBranch6 j with
   | false =>
     have hfj : isActiveBranch6 (f j) = false := by rw [hAct j, hj]
-    rw [envPsi4Diag_inactive_zero j hj, envPsi4Diag_inactive_zero (f j) hfj]; change 1 * 0 = 0; ring
+    rw [envPsi4Diag_inactive_zero j hj, envPsi4Diag_inactive_zero (f j) hfj]; change (1 : Eis) * 0 = 0; ring
   | true =>
     change envPsi4Diag (f j) * star (envPsi4Diag j) * envPsi4Diag j = envPsi4Diag (f j)
     rw [mul_assoc, envPsi4Diag_active_unit j hj]; ring
@@ -549,52 +561,69 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
         (fun k => if i = f k then (if j = f k then Eis.one else Eis.zero) else Eis.zero) by
           funext k; split_ifs <;> decide,
         sum6Eis_bij_delta f fInv hL hR i, hR i]
-    split_ifs with h1 h2 <;> simp_all [Eis.ofInt, Eis.one]
+    by_cases h : i = j
+    · subst h; simp [Eis.ofInt, Eis.one]
+    · simp [h, Ne.symm h]
   · intro i j; unfold mat6Mul mat6Dag envSwapUE mat6Id
     rw [show (fun k => Eis.mul (Eis.conj (if k = f i then envSwapPhase f i else Eis.zero))
             (if k = f j then envSwapPhase f j else Eis.zero)) =
         (fun k => if k = f i then (if k = f j then star (envSwapPhase f i) * envSwapPhase f j else Eis.zero) else Eis.zero) by
-          funext k; split_ifs <;> first | rfl | (change star 0 * _ = 0; simp) | (change _ * 0 = 0; simp),
+          funext k
+          by_cases h1 : k = f i <;> by_cases h2 : k = f j
+          · simp only [h1, h2, ↓reduceIte]; rfl
+          · simp only [h1, h2, ↓reduceIte]; change star (envSwapPhase f i) * 0 = 0; ring
+          · simp only [h1, h2, ↓reduceIte]; change star (0 : Eis) * envSwapPhase f j = 0; simp
+          · simp only [h1, h2, ↓reduceIte]; change star (0 : Eis) * 0 = 0; simp,
         sum6Eis_delta]
     simp only [hInj i j]
-    split_ifs with hij
-    · subst hij; exact envSwapPhase_unit_left f hAct i
-    · rfl
+    by_cases hij : i = j
+    · subst hij; simp only [↓reduceIte]; exact envSwapPhase_unit_left f hAct i
+    · simp only [hij, ↓reduceIte]
   · intro i j; unfold mat6Mul mat6Dag envSwapUE mat6Id
     rw [show (fun k => Eis.mul (if i = f k then envSwapPhase f k else Eis.zero)
             (Eis.conj (if j = f k then envSwapPhase f k else Eis.zero))) =
         (fun k => if i = f k then (if j = f k then envSwapPhase f k * star (envSwapPhase f k) else Eis.zero) else Eis.zero) by
-          funext k; split_ifs <;> first | rfl | (change 0 * _ = 0; simp) | (change _ * star 0 = 0; simp),
+          funext k
+          by_cases h1 : i = f k <;> by_cases h2 : j = f k
+          · simp only [h1, h2, ↓reduceIte]; rfl
+          · simp only [h1, h2, ↓reduceIte]; change envSwapPhase f k * star (0 : Eis) = 0; simp
+          · simp only [h1, h2, ↓reduceIte]; change (0 : Eis) * star (envSwapPhase f k) = 0; ring
+          · simp only [h1, h2, ↓reduceIte]; change (0 : Eis) * star (0 : Eis) = 0; simp,
         sum6Eis_bij_delta f fInv hL hR i, hR i]
-    split_ifs with h1 h2
-    · subst h2; rw [mul_comm, envSwapPhase_unit_left f hAct (fInv j)]; rfl
-    · exact absurd h1.symm h2
-    · exact absurd h2.symm h1
-    · rfl
+    by_cases h : i = j
+    · subst h; simp only [↓reduceIte]; rw [mul_comm, envSwapPhase_unit_left f hAct (fInv i)]; rfl
+    · simp only [h, Ne.symm h, ↓reduceIte]
   · intro s e; unfold bipartiteApply6 envSwapUS envSwapUE
     have hInner : ∀ s' : Fin 6,
         sum6Eis (fun e' => Eis.mul (Eis.mul (if s = f s' then Eis.one else Eis.zero)
           (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e')) =
         if s = f s' then envSwapPhase f (fInv e) * envPsi4 s' (fInv e) else Eis.zero := by
       intro s'
-      split_ifs with hs
-      · rw [show (fun e' => Eis.mul (Eis.mul Eis.one (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e')) =
+      by_cases hs : s = f s'
+      · simp only [hs, ↓reduceIte]
+        rw [show (fun e' => Eis.mul (Eis.mul Eis.one (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e')) =
             (fun e' => if e = f e' then envSwapPhase f e' * envPsi4 s' e' else Eis.zero) by
-              funext e'; split_ifs <;> (change _ = _; ring),
+              funext e'
+              by_cases he : e = f e'
+              · simp only [he, ↓reduceIte]; change (1 : Eis) * envSwapPhase f e' * envPsi4 s' e' = _; ring
+              · simp only [he, ↓reduceIte]; change (1 : Eis) * 0 * envPsi4 s' e' = 0; ring,
             sum6Eis_bij_delta f fInv hL hR e]
-      · rw [show (fun e' => Eis.mul (Eis.mul Eis.zero (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e')) =
-            (fun _ => Eis.zero) by funext e'; change 0 * _ * _ = 0; ring]
+      · simp only [hs, ↓reduceIte]
+        rw [show (fun e' => Eis.mul (Eis.mul Eis.zero (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e')) =
+            (fun _ => Eis.zero) by
+              funext e'
+              change (0 : Eis) * (if e = f e' then envSwapPhase f e' else Eis.zero) * envPsi4 s' e' = 0; ring]
         decide
     rw [show (fun s' => sum6Eis (fun e' => Eis.mul (Eis.mul (if s = f s' then Eis.one else Eis.zero)
             (if e = f e' then envSwapPhase f e' else Eis.zero)) (envPsi4 s' e'))) =
         (fun s' => if s = f s' then envSwapPhase f (fInv e) * envPsi4 s' (fInv e) else Eis.zero) from funext hInner,
         sum6Eis_bij_delta f fInv hL hR s]
     unfold envPsi4
-    split_ifs with h1 h2
-    · subst h2; rw [envSwapPhase_mul_diag f hAct (fInv e), hR e]
-    · exact absurd (by rw [← hR s, h1, hR e]) h2
-    · exact absurd (h2 ▸ rfl) h1
-    · change _ * 0 = 0; ring
+    by_cases hse : s = e
+    · subst hse; simp only [↓reduceIte]; rw [envSwapPhase_mul_diag f hAct (fInv s), hR s]
+    · have hfne : fInv s ≠ fInv e := fun h => hse (by rw [← hR s, h, hR e])
+      simp only [hse, hfne, ↓reduceIte]
+      change envSwapPhase f (fInv e) * 0 = 0; ring
 
 /-- Explicit list of all `4! = 24` permutations of `Fin 4` as 4-tuples `(π(0), π(1), π(2), π(3))`. -/
 def s4Perms : List (Fin 4 × Fin 4 × Fin 4 × Fin 4) :=

@@ -1,5 +1,9 @@
 // EXACT DEPTH-5 -> DEPTH-6 SPECTRAL RADIUS COLLAPSE ON {3,4,3,4} (4D HYPERBOLIC 24-CELL HONEYCOMB)
 //
+// Target graph: the 24-regular Right-Angled Coxeter Group (RACG) Cayley graph, which is the
+// cell-adjacency graph (dual 1-skeleton) of the 4D hyperbolic honeycomb {3,4,3,4} (whose primal
+// vertices are ideal points on the boundary at infinity).
+//
 // Upgrades the Depth-5 / 2-step Cartier-Foata bracket [11.439047, 11.443713] (width 0.004666)
 // from BOTH ends with 100% exact BigInt Collatz-Wielandt / Rayleigh certificates using multi-threaded
 // node:worker_threads + SharedArrayBuffer:
@@ -10,9 +14,9 @@
 //        level-synchronous parallel worker_threads + compact O(1) S_5 automorphism table + zero-GC flat
 //        open-addressed TypedArray hash table; verifies exact BigInt shell sums r = 0..7 & exact
 //        integrality at every S_6 state!
-//      - Warm-starts parallel SharedArrayBuffer Nonlinear Perron-Frobenius + Howard policy iteration
-//        from exact converged S_5 solution to primal-dual gap < 1e-7, then certifies the upper bound
-//        with 100% exact BigInt Collatz-Wielandt / Schur arithmetic at Q = 10^6 and Q = 10^7!
+//      - Warm-starts parallel SharedArrayBuffer damped Nonlinear Perron-Frobenius iteration from exact
+//        converged S_5 solution to primal-dual gap < 1e-7, then certifies the upper bound with 100%
+//        exact BigInt Collatz-Wielandt / Schur arithmetic at Q = 10^6 and Q = 10^7!
 //   2. LOWER BOUND SHARPENING (Deep 2-Step CF + Exact 3-Step Quadruple-Orbit CF + Exact BigInt Witness):
 //      - Builds exact 216 cliques, 57 pair orbits, 4,440 triple orbits, and exact quadruple orbits
 //        (~550k orbits via 3.8 MB O(1) TRIPLE_TO_REP_PERM + REP_C4_TO_QUAD lookup table!).
@@ -23,9 +27,10 @@
 //        finite-support witness psi in Z^V (ZERO sqrt, ZERO asymptotic limit) certifying rho >= L_new!
 //
 // Modes:
-//   --smoke (default; laptop-safe < 2 s, verifies D2->D3->D4 exact BigInt bounds, 1-step & quick 2-step
-//            CF lower bounds, 2-thread worker self-test, and exact quadruple-orbit O(1) integrality!)
-//   --full  (full multi-core Depth-6 + 3-Step CF collapse; alias --m3; saves tmp/spectral-depth5-results.json)
+//   --smoke (default; laptop-safe < 5 s, verifies D2->D3->D4 exact BigInt bounds, cold-start parallel
+//            worker parity, S6_STEP_WORKER_JS boot/step self-test, 1-step & quick 2-step CF lower
+//            bounds, BigInt witness, analytical gradient, and exact quadruple-orbit O(1) integrality!)
+//   --full  (full multi-core Depth-6 + 3-Step CF collapse; saves tmp/spectral-depth5-results.json)
 //
 // Strictly deterministic (ZERO Math.random()), zero external imports, strict TypeScript clean.
 
@@ -38,7 +43,7 @@ import { Worker } from 'node:worker_threads'
 const PKG_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
 const T0_GLOBAL = performance.now()
-const IS_FULL = process.argv.includes('--full') || process.argv.includes('--m3')
+const IS_FULL = process.argv.includes('--full')
 const MODE_LABEL = IS_FULL ? 'FULL PRODUCTION' : 'SMOKE'
 const N_WORKERS = IS_FULL ? Math.min(10, Math.max(2, os.cpus().length - 2)) : 2
 
@@ -902,8 +907,9 @@ async function runUpperBounds(): Promise<UpperSuiteResult> {
   aOff2[19] = ap2; bOff2[19] = bp2
   assertExact(d2States.length === 19 && d2FlagKey.size === 23, 'D2 size mismatch')
   const sol2 = solveNonlinearPerron(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, 1200)
+  assertExact(sol2.upper - sol2.dual < 1e-6, `D2 primal-dual gap did not converge: ${sol2.upper - sol2.dual}`)
   const c2 = certifyBigIntSync(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, sol2.f, 1_000_000)
-  console.log(`  D2 [St_2(y), b] (    19 states,     23 vars): opt=${sol2.upper.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c2.num, c2.den, 6)}`)
+  console.log(`  D2 [St_2(y), b] (    19 states,     23 vars): opt=${sol2.upper.toFixed(8)} dual=${sol2.dual.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c2.num, c2.den, 6)}`)
 
   // --- D3 (169 states, 220 flags) ---
   const d3States: D3State[] = [{ c0: 0, downs2: new Map() }]
@@ -948,8 +954,9 @@ async function runUpperBounds(): Promise<UpperSuiteResult> {
   aOff3[169] = ap3; bOff3[169] = bp3
   assertExact(d3States.length === 169 && d3FlagKey.size === 220, 'D3 size mismatch')
   const sol3 = solveNonlinearPerron(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, 1200)
+  assertExact(sol3.upper - sol3.dual < 1e-6, `D3 primal-dual gap did not converge: ${sol3.upper - sol3.dual}`)
   const c3 = certifyBigIntSync(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, sol3.f, 1_000_000)
-  console.log(`  D3 [St_3(y), b] (   169 states,    220 vars): opt=${sol3.upper.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c3.num, c3.den, 6)}`)
+  console.log(`  D3 [St_3(y), b] (   169 states,    220 vars): opt=${sol3.upper.toFixed(8)} dual=${sol3.dual.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c3.num, c3.den, 6)}`)
 
   // --- D4 (2,197 states, 2,801 flags) ---
   const d4States: D4State[] = [{ c0: 0, downs3: new Map() }]
@@ -1032,27 +1039,110 @@ async function runUpperBounds(): Promise<UpperSuiteResult> {
   }
 
   const sol4 = solveNonlinearPerron(2197, 2801, aOff4, aE4, aM4, bOff4, bE4, bM4, 1000)
+  assertExact(sol4.upper - sol4.dual < 1e-6, `D4 primal-dual gap did not converge: ${sol4.upper - sol4.dual}`)
   const c4 = certifyBigIntSync(2197, 2801, aOff4, aE4, aM4, bOff4, bE4, bM4, sol4.f, 1_000_000)
-  const par4 = await solveNonlinearPerronAndCertParallel(2197, 2801, aOff4, aE4, aM4, bOff4, bE4, bM4, 400, [1_000_000], {
-    b: sol4.b, w: sol4.w, theta: sol4.theta,
-  })
+  // Cold-start parallel SAB parity check (NO warm start) exercising full parallel update + theta loop
+  const par4 = await solveNonlinearPerronAndCertParallel(2197, 2801, aOff4, aE4, aM4, bOff4, bE4, bM4, 1000, [1_000_000])
+  assertExact(par4.sol.iters >= 100, `Cold-start parallel D4 exited too early: ${par4.sol.iters} iters`)
+  assertExact(par4.sol.upper - par4.sol.dual < 1e-6, `Cold-start parallel D4 gap did not converge: ${par4.sol.upper - par4.sol.dual}`)
   const d4ParallelCheckErr = Math.abs(par4.sol.upper - sol4.upper)
   const par4Cert = par4.certs[0]!
-  assertExact(d4ParallelCheckErr < 1e-6, `Parallel D4 solver diverged: ${d4ParallelCheckErr}`)
+  const par4BigIntDiff = Math.abs(
+    Number((par4Cert.num * 1_000_000_000n) / par4Cert.den - (c4.num * 1_000_000_000n) / c4.den) / 1e9,
+  )
+  assertExact(d4ParallelCheckErr < 1e-6 && par4BigIntDiff < 2e-6, `Parallel D4 solver diverged: float=${d4ParallelCheckErr}, bigInt=${par4BigIntDiff}`)
   console.log(
-    `  D4 [St_4(y), b] (  2197 states,   2801 vars): opt=${sol4.upper.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c4.num, c4.den, 6)} ` +
-      `(parallel worker check: <= ${ratCeilDec(par4Cert.num, par4Cert.den, 6)}, |diff|=${d4ParallelCheckErr.toExponential(2)})`,
+    `  D4 [St_4(y), b] (  2197 states,   2801 vars): opt=${sol4.upper.toFixed(8)} dual=${sol4.dual.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c4.num, c4.den, 6)} ` +
+      `(cold-start parallel ${par4.sol.iters} iters: <= ${ratCeilDec(par4Cert.num, par4Cert.den, 6)}, |diff|=${d4ParallelCheckErr.toExponential(2)})`,
   )
 
   if (!IS_FULL) {
+    // Smoke self-test of S6_STEP_WORKER_JS: instantiate, step real D4 states u=0 (k=0) and u=1 (k=1), verify exact output!
+    const canonIdByMaskEntries: [number, number][] = []
+    const canonMaskById = new Int32Array(CLIQUE_MASK_LIST.length)
+    const canonPermOff = new Int32Array(CLIQUE_MASK_LIST.length + 1)
+    const permFlatTmp: number[] = []
+    for (const [mask, info] of CANON_CLIQUE) {
+      canonIdByMaskEntries.push([mask, info.id])
+      canonMaskById[info.id] = info.canon
+      canonPermOff[info.id] = permFlatTmp.length
+      for (const pi of info.permIds) permFlatTmp.push(pi)
+    }
+    canonPermOff[CLIQUE_MASK_LIST.length] = permFlatTmp.length
+    const canonPermList = new Uint16Array(permFlatTmp)
+
+    const mockStepIdSab = new SharedArrayBuffer(2197 * 24 * 4)
+    const mockStepPermSab = new SharedArrayBuffer(2197 * 24 * 2)
+    new Int32Array(mockStepIdSab).set(d4StepId)
+    new Uint16Array(mockStepPermSab).set(d4StepPerm)
+    const mockAutRowSab = new SharedArrayBuffer(2197 * 4)
+    const mockAutRow = new Int32Array(mockAutRowSab).fill(-1)
+    const mockNontriv: number[][] = []
+    for (let u = 0; u < 2197; u++) {
+      if (d4Auts[u]!.length > 1) { mockAutRow[u] = mockNontriv.length; mockNontriv.push(d4Auts[u]!) }
+    }
+    const mockMinCosetSab = new SharedArrayBuffer(mockNontriv.length * 1152 * 2)
+    const mockMinCoset = new Uint16Array(mockMinCosetSab)
+    for (let row = 0; row < mockNontriv.length; row++) {
+      const aut = mockNontriv[row]!, base = row * 1152
+      for (let p = 0; p < 1152; p++) {
+        let mn = 1152
+        for (let i = 0; i < aut.length; i++) { const hp = WF4_MUL[aut[i]! * 1152 + p]!; if (hp < mn) mn = hp }
+        mockMinCoset[base + p] = mn
+      }
+    }
+    const s6ProbeWk = new Worker(S6_STEP_WORKER_JS, {
+      eval: true,
+      workerData: {
+        wf4FlatSab: WF4_FLAT_SAB, wf4MulSab: WF4_MUL_SAB, wf4InvSab: WF4_INV_SAB,
+        adjMaskArr: Array.from(ADJ_MASK), d5StepIdSab: mockStepIdSab, d5StepPermSab: mockStepPermSab,
+        d5AutRowSab: mockAutRowSab, d5MinCosetSab: mockMinCosetSab,
+        canonIdByMaskEntries, canonMaskById, canonPermOff, canonPermList,
+      },
+    })
+    let s6SmokeCount = 0
+    try {
+      const probeRes = await new Promise<{ readonly count: number; readonly buf: Int32Array }>((resolve, reject) => {
+        s6ProbeWk.once('message', resolve)
+        s6ProbeWk.once('error', reject)
+        // Step state u=0 (root: c0=0, k=0) and u=1 (first shell: c0=1, k=1, downA=0, downId=0, downP=0)
+        s6ProbeWk.postMessage({
+          uList: Int32Array.from([0, 1]),
+          c0Arr: Int32Array.from([0, 1]),
+          kArr: Uint8Array.from([0, 1]),
+          selfIdArr: Uint16Array.from([0, d4StepId[0]!]),
+          selfPArr: Uint16Array.from([0, 0]),
+          downAArr: Uint8Array.from([0, 0, 0, 0, 0, 0]),
+          downIdArr: Uint16Array.from([0, 0, 0, 0, 0, 0]),
+          downPArr: Uint16Array.from([0, 0, 0, 0, 0, 0]),
+        })
+      })
+      s6SmokeCount = probeRes.count
+      assertExact(s6SmokeCount === 24 + 23, `S6_STEP_WORKER_JS smoke count mismatch: ${s6SmokeCount}`)
+      // Verify u=0 produces 24 k=1 transitions and u=1 produces 8 k=2 (adjacent to bit 0) + 15 k=1 transitions
+      let k1Cnt = 0, k2Cnt = 0
+      for (let r = 0; r < s6SmokeCount; r++) {
+        const u = probeRes.buf[r * 15]!, nk = probeRes.buf[r * 15 + 3]!
+        if (u === 0) assertExact(nk === 1, 'S6 worker u=0 must yield nk=1')
+        else if (nk === 1) k1Cnt++
+        else if (nk === 2) k2Cnt++
+      }
+      assertExact(k1Cnt === 15 && k2Cnt === 8, `S6 worker u=1 branch counts mismatch: k1=${k1Cnt}, k2=${k2Cnt}`)
+    } finally {
+      s6ProbeWk.terminate()
+    }
+    console.log(`  S6_STEP_WORKER_JS smoke boot & step verified: 2 states -> ${s6SmokeCount} exact transitions (k=1: 24+15, k=2: 8)`)
+
     recordGate(
       'S1.1',
-      'Exact D2 -> D3 -> D4 Nagnibeda BigInt upper bounds + parallel SAB worker parity',
+      'Exact D2 -> D3 -> D4 Nagnibeda BigInt upper bounds + cold-start parallel SAB parity + S6 worker smoke check',
       c4.num * 1000000n <= 11447000n * c4.den &&
         c4.num * c3.den < c3.num * c4.den &&
         c3.num * c2.den < c2.num * c3.den &&
-        d4ParallelCheckErr < 1e-6,
-      `D2<=${ratCeilDec(c2.num, c2.den, 6)} > D3<=${ratCeilDec(c3.num, c3.den, 6)} > D4<=${ratCeilDec(c4.num, c4.den, 6)}; parallel diff=${d4ParallelCheckErr.toExponential(2)}`,
+        d4ParallelCheckErr < 1e-6 &&
+        par4.sol.iters >= 100 &&
+        s6SmokeCount === 47,
+      `D2<=${ratCeilDec(c2.num, c2.den, 6)} > D3<=${ratCeilDec(c3.num, c3.den, 6)} > D4<=${ratCeilDec(c4.num, c4.den, 6)}; cold par4(${par4.sol.iters} it) diff=${d4ParallelCheckErr.toExponential(2)}; S6 worker 47/47 ok`,
     )
     return {
       d2Upper: ratCeilDec(c2.num, c2.den, 6), d3Upper: ratCeilDec(c3.num, c3.den, 6), d4Upper: ratCeilDec(c4.num, c4.den, 6),
@@ -1274,19 +1364,26 @@ async function runUpperBounds(): Promise<UpperSuiteResult> {
       const imgB = d5StepImgB[sBase + b]!, kv = d5K[v]!, vBase = v * 3
       let slot = -1
       for (let i = 0; i < kv; i++) if (d5DownA[vBase + i] === imgB) { slot = i; break }
+      assertExact(slot >= 0, `D5 missing downward slot at u=${u}, b=${b}, v=${v}`)
       const fid = d5FlagId[vBase + slot]!
+      assertExact(fid >= 0, `D5 invalid flag id at v=${v}, slot=${slot}`)
       up.set(fid, (up.get(fid) ?? 0) + 1)
     }
     for (const [fid, m] of up) { aE5[a5] = fid; aM5[a5] = m; a5++ }
     bOff5[u] = b5
     const ku = d5K[u]!, uBase = u * 3, dn = new Map<number, number>()
-    for (let i = 0; i < ku; i++) { const fid = d5FlagId[uBase + i]!; dn.set(fid, (dn.get(fid) ?? 0) + 1) }
+    for (let i = 0; i < ku; i++) {
+      const fid = d5FlagId[uBase + i]!
+      assertExact(fid >= 0, `D5 invalid downward flag id at u=${u}, i=${i}`)
+      dn.set(fid, (dn.get(fid) ?? 0) + 1)
+    }
     for (const [fid, m] of dn) { bE5[b5] = fid; bM5[b5] = m; b5++ }
   }
   aOff5[nD5] = a5; bOff5[nD5] = b5
 
   const par5 = await solveNonlinearPerronAndCertParallel(nD5, nD5Flags, aOff5, aE5, aM5, bOff5, bE5, bM5, 1200, [1_000_000])
   const sol5 = par5.sol, c5 = par5.certs[0]!
+  assertExact(sol5.upper - sol5.dual < 1e-6, `D5 primal-dual gap did not converge: ${sol5.upper - sol5.dual}`)
   console.log(
     `  D5 [St_5(y), b] ( 34523 states,  43312 vars): opt=${sol5.upper.toFixed(8)} dual=${sol5.dual.toFixed(8)} | ` +
       `BigInt Q=10^6 <= ${ratCeilDec(c5.num, c5.den, 6)} | nontrivAut=${d5NontrivAuts.length}/${nD5} (${((performance.now() - tD5) / 1000).toFixed(2)}s)`,
@@ -1507,13 +1604,19 @@ async function runUpperBounds(): Promise<UpperSuiteResult> {
       const imgB = d6StepImgB[sBase + b]!, kv = d6K[v]!, vBase = v * 3
       let slot = -1
       for (let i = 0; i < kv; i++) if (d6DownA[vBase + i] === imgB) { slot = i; break }
+      assertExact(slot >= 0, `D6 missing downward slot at u=${u}, b=${b}, v=${v}`)
       const fid = d6FlagId[vBase + slot]!
+      assertExact(fid >= 0, `D6 invalid flag id at v=${v}, slot=${slot}`)
       upMap.set(fid, (upMap.get(fid) ?? 0) + 1)
     }
     for (const [fid, m] of upMap) { aE6[a6] = fid; aM6[a6] = m; a6++ }
     bOff6[u] = b6; dnMap.clear()
     const ku = d6K[u]!, uBase = u * 3
-    for (let i = 0; i < ku; i++) { const fid = d6FlagId[uBase + i]!; dnMap.set(fid, (dnMap.get(fid) ?? 0) + 1) }
+    for (let i = 0; i < ku; i++) {
+      const fid = d6FlagId[uBase + i]!
+      assertExact(fid >= 0, `D6 invalid downward flag id at u=${u}, i=${i}`)
+      dnMap.set(fid, (dnMap.get(fid) ?? 0) + 1)
+    }
     for (const [fid, m] of dnMap) { bE6[b6] = fid; bM6[b6] = m; b6++ }
   }
   aOff6[nD6] = a6; bOff6[nD6] = b6
@@ -1851,21 +1954,26 @@ function runLowerBounds(): LowerSuiteResult {
       M2[tr.oIn * N_PAIR + tr.oOut] = M2[tr.oIn * N_PAIR + tr.oOut]! + tr.multFromOIn * w * w
     }
     const pL = new Float64Array(N_PAIR).fill(1 / N_PAIR), pR = new Float64Array(N_PAIR).fill(1 / N_PAIR), tmp57 = new Float64Array(N_PAIR)
-    let lam = 1
-    for (let it = 0; it < 200; it++) {
+    let lam = 1, diffPL2 = 1, diffPR2 = 0
+    for (let it = 0; it < 600; it++) {
       tmp57.fill(0)
       for (let i = 0; i < N_PAIR; i++) { const pi = pL[i]!, base = i * N_PAIR; for (let j = 0; j < N_PAIR; j++) tmp57[j] = tmp57[j]! + pi * M2[base + j]! }
       let s = 0; for (let j = 0; j < N_PAIR; j++) s += tmp57[j]!; lam = s
       let diff = 0; for (let j = 0; j < N_PAIR; j++) { const nv = tmp57[j]! / s; diff += Math.abs(nv - pL[j]!); pL[j] = nv }
+      diffPL2 = diff
       if (diff < 1e-14) break
     }
+    if (needGrad) assertExact(diffPL2 < 1e-10, `eval2StepV4440 pL did not converge: diff=${diffPL2}`)
     if (needGrad) {
-      for (let it = 0; it < 200; it++) {
+      diffPR2 = 1
+      for (let it = 0; it < 600; it++) {
         let s = 0
         for (let i = 0; i < N_PAIR; i++) { let acc = 0; const base = i * N_PAIR; for (let j = 0; j < N_PAIR; j++) acc += M2[base + j]! * pR[j]!; tmp57[i] = acc; s += acc }
         let diff = 0; for (let i = 0; i < N_PAIR; i++) { const nv = tmp57[i]! / s; diff += Math.abs(nv - pR[i]!); pR[i] = nv }
+        diffPR2 = diff
         if (diff < 1e-14) break
       }
+      assertExact(diffPR2 < 1e-10, `eval2StepV4440 pR did not converge: diff=${diffPR2}`)
       let lr = 0; for (let i = 0; i < N_PAIR; i++) lr += pL[i]! * pR[i]!
       for (let i = 0; i < N_PAIR; i++) pR[i] = pR[i]! / lr
     }
@@ -1906,18 +2014,30 @@ function runLowerBounds(): LowerSuiteResult {
     const invSqP = new Float64Array(N_PAIR)
     for (let i = 0; i < N_PAIR; i++) invSqP[i] = 1 / Math.sqrt(pL[i]!)
     const u = new Float64Array(N_PAIR).fill(1 / Math.sqrt(N_PAIR))
-    let rho = 0
-    for (let it = 0; it < 400; it++) {
-      let n2 = 0
+    let rho = 0, lastDiff57 = 1
+    for (let it = 0; it < 600; it++) {
+      let n2 = 0, ray = 0
       for (let i = 0; i < N_PAIR; i++) {
         let s = 0; const base = i * N_PAIR
         for (let j = 0; j < N_PAIR; j++) s += A57[base + j]! * invSqP[j]! * u[j]!
-        const nv = s * invSqP[i]! + 24.0 * u[i]!; tmp57[i] = nv; n2 += nv * nv
+        const sym = s * invSqP[i]!
+        ray += u[i]! * sym
+        const nv = sym + 24.0 * u[i]!; tmp57[i] = nv; n2 += nv * nv
       }
-      const nrm = Math.sqrt(n2); rho = nrm - 24.0
+      const nrm = Math.sqrt(n2); rho = ray
       let diff = 0; for (let i = 0; i < N_PAIR; i++) { const nv = tmp57[i]! / nrm; diff += Math.abs(nv - u[i]!); u[i] = nv }
-      if (diff < 1e-15) break
+      lastDiff57 = diff
+      if (diff < 1e-14) break
     }
+    // Exact final Rayleigh quotient u^T A_sym u on normalized u (matches Hellmann-Feynman identically)
+    let rhoFinal57 = 0
+    for (let i = 0; i < N_PAIR; i++) {
+      let s = 0; const base = i * N_PAIR
+      for (let j = 0; j < N_PAIR; j++) s += A57[base + j]! * invSqP[j]! * u[j]!
+      rhoFinal57 += u[i]! * s * invSqP[i]!
+    }
+    rho = rhoFinal57
+    if (needGrad) assertExact(lastDiff57 < 1e-10, `eval2StepV57 power iteration did not converge: diff=${lastDiff57}`)
     const v = new Float64Array(N_PAIR)
     for (let i = 0; i < N_PAIR; i++) v[i] = u[i]! * invSqP[i]!
     if (!needGrad) return { rho, gradLogW: new Float64Array(0) }
@@ -1985,21 +2105,26 @@ function runLowerBounds(): LowerSuiteResult {
       M2[tr.oIn * N_PAIR + tr.oOut] = M2[tr.oIn * N_PAIR + tr.oOut]! + tr.multFromOIn * w * w
     }
     const pL = new Float64Array(N_PAIR).fill(1 / N_PAIR), pR = new Float64Array(N_PAIR).fill(1 / N_PAIR), tmp57 = new Float64Array(N_PAIR)
-    let lam = 1
-    for (let it = 0; it < 200; it++) {
+    let lam = 1, diffPL2 = 1, diffPR2 = 0
+    for (let it = 0; it < 600; it++) {
       tmp57.fill(0)
       for (let i = 0; i < N_PAIR; i++) { const pi = pL[i]!, base = i * N_PAIR; for (let j = 0; j < N_PAIR; j++) tmp57[j] = tmp57[j]! + pi * M2[base + j]! }
       let s = 0; for (let j = 0; j < N_PAIR; j++) s += tmp57[j]!; lam = s
       let diff = 0; for (let j = 0; j < N_PAIR; j++) { const nv = tmp57[j]! / s; diff += Math.abs(nv - pL[j]!); pL[j] = nv }
+      diffPL2 = diff
       if (diff < 1e-14) break
     }
+    if (needGrad) assertExact(diffPL2 < 1e-10, `eval2StepV4440 pL did not converge: diff=${diffPL2}`)
     if (needGrad) {
-      for (let it = 0; it < 200; it++) {
+      diffPR2 = 1
+      for (let it = 0; it < 600; it++) {
         let s = 0
         for (let i = 0; i < N_PAIR; i++) { let acc = 0; const base = i * N_PAIR; for (let j = 0; j < N_PAIR; j++) acc += M2[base + j]! * pR[j]!; tmp57[i] = acc; s += acc }
         let diff = 0; for (let i = 0; i < N_PAIR; i++) { const nv = tmp57[i]! / s; diff += Math.abs(nv - pR[i]!); pR[i] = nv }
+        diffPR2 = diff
         if (diff < 1e-14) break
       }
+      assertExact(diffPR2 < 1e-10, `eval2StepV4440 pR did not converge: diff=${diffPR2}`)
       let lr = 0; for (let i = 0; i < N_PAIR; i++) lr += pL[i]! * pR[i]!
       for (let i = 0; i < N_PAIR; i++) pR[i] = pR[i]! / lr
     }
@@ -2063,17 +2188,23 @@ function runLowerBounds(): LowerSuiteResult {
     } else {
       for (let t = 0; t < N_TRIPLE; t++) u[t] = Math.sqrt(bTri[t]!)
     }
-    let rho = 0
-    for (let it = 0; it < 200; it++) {
+    let rho = 0, lastDiff2 = 1
+    for (let it = 0; it < 600; it++) {
       for (let t = 0; t < N_TRIPLE; t++) v[t] = u[t]! * invSqB[t]!
       applyA4440(v, av)
       let n2 = 0
       for (let t = 0; t < N_TRIPLE; t++) { const nv = av[t]! * invSqB[t]! + 24.0 * u[t]!; av[t] = nv; n2 += nv * nv }
-      const nrm = Math.sqrt(n2); rho = nrm - 24.0
+      const nrm = Math.sqrt(n2)
       let diff = 0; for (let t = 0; t < N_TRIPLE; t++) { const nv = av[t]! / nrm; diff += Math.abs(nv - u[t]!); u[t] = nv }
+      lastDiff2 = diff
       if (diff < 1e-13) break
     }
+    if (needGrad) assertExact(lastDiff2 < 1e-10, `eval2StepV4440 power iteration did not converge: diff=${lastDiff2}`)
     for (let t = 0; t < N_TRIPLE; t++) v[t] = u[t]! * invSqB[t]!
+    // Exact generalized Rayleigh quotient v^T A v (with v^T B v = u^T u = 1) matching Hellmann-Feynman gradient
+    applyA4440(v, av)
+    let ray2 = 0; for (let t = 0; t < N_TRIPLE; t++) ray2 += v[t]! * av[t]!
+    rho = ray2
     if (!needGrad) return { rho, gradLogW: new Float64Array(0), v4440: v }
 
     const gOmega = new Float64Array(N_TRIPLE), gPL = new Float64Array(N_PAIR), gBTri = new Float64Array(N_TRIPLE)
@@ -2541,23 +2672,28 @@ function runLowerBounds(): LowerSuiteResult {
   ): { readonly rho: number; readonly gradLogW: Float64Array; readonly pL: Float64Array; readonly v4440: Float64Array } => {
     const pL = pLInit ? Float64Array.from(pLInit) : new Float64Array(N_TRIPLE).fill(1 / N_TRIPLE)
     const tmpT = new Float64Array(N_TRIPLE)
-    let lam = 1
-    for (let it = 0; it < 200; it++) {
+    let lam = 1, diffPL3 = 1
+    for (let it = 0; it < 600; it++) {
       tmpT.fill(0)
       for (let q = 0; q < N_QUAD; q++) { const w = omegaQ[q]!, to = QUAD_TOUT[q]!; tmpT[to] = tmpT[to]! + pL[QUAD_TIN[q]!]! * QUAD_MULT_FROM[q]! * w * w }
       let s = 0; for (let t = 0; t < N_TRIPLE; t++) s += tmpT[t]!; lam = s
       let diff = 0; for (let t = 0; t < N_TRIPLE; t++) { const nv = tmpT[t]! / s; diff += Math.abs(nv - pL[t]!); pL[t] = nv }
+      diffPL3 = diff
       if (diff < 1e-13) break
     }
+    if (needGrad) assertExact(diffPL3 < 1e-10, `eval3StepV4440 pL did not converge: diff=${diffPL3}`)
     const pR = new Float64Array(N_TRIPLE).fill(1 / N_TRIPLE)
     if (needGrad) {
-      for (let it = 0; it < 200; it++) {
+      let diffPR3 = 1
+      for (let it = 0; it < 600; it++) {
         tmpT.fill(0)
         for (let q = 0; q < N_QUAD; q++) { const w = omegaQ[q]!, ti = QUAD_TIN[q]!; tmpT[ti] = tmpT[ti]! + QUAD_MULT_FROM[q]! * w * w * pR[QUAD_TOUT[q]!]! }
         let s = 0; for (let t = 0; t < N_TRIPLE; t++) s += tmpT[t]!
         let diff = 0; for (let t = 0; t < N_TRIPLE; t++) { const nv = tmpT[t]! / s; diff += Math.abs(nv - pR[t]!); pR[t] = nv }
+        diffPR3 = diff
         if (diff < 1e-13) break
       }
+      assertExact(diffPR3 < 1e-10, `eval3StepV4440 pR did not converge: diff=${diffPR3}`)
       let lr = 0; for (let t = 0; t < N_TRIPLE; t++) lr += pL[t]! * pR[t]!
       for (let t = 0; t < N_TRIPLE; t++) pR[t] = pR[t]! / lr
     }
@@ -2616,17 +2752,23 @@ function runLowerBounds(): LowerSuiteResult {
     } else {
       for (let t = 0; t < N_TRIPLE; t++) u[t] = Math.sqrt(pL[t]!)
     }
-    let rho = 0
-    for (let it = 0; it < 200; it++) {
+    let rho = 0, lastDiff3 = 1
+    for (let it = 0; it < 600; it++) {
       for (let t = 0; t < N_TRIPLE; t++) v[t] = u[t]! * invSqP[t]!
       applyA3(v, av)
       let n2 = 0
       for (let t = 0; t < N_TRIPLE; t++) { const nv = av[t]! * invSqP[t]! + 24.0 * u[t]!; av[t] = nv; n2 += nv * nv }
-      const nrm = Math.sqrt(n2); rho = nrm - 24.0
+      const nrm = Math.sqrt(n2)
       let diff = 0; for (let t = 0; t < N_TRIPLE; t++) { const nv = av[t]! / nrm; diff += Math.abs(nv - u[t]!); u[t] = nv }
+      lastDiff3 = diff
       if (diff < 1e-13) break
     }
+    if (needGrad) assertExact(lastDiff3 < 1e-10, `eval3StepV4440 power iteration did not converge: diff=${lastDiff3}`)
     for (let t = 0; t < N_TRIPLE; t++) v[t] = u[t]! * invSqP[t]!
+    // Exact generalized Rayleigh quotient v^T A3 v (with v^T P v = u^T u = 1) matching Hellmann-Feynman gradient
+    applyA3(v, av)
+    let ray3 = 0; for (let t = 0; t < N_TRIPLE; t++) ray3 += v[t]! * av[t]!
+    rho = ray3
     if (!needGrad) return { rho, gradLogW: new Float64Array(0), pL, v4440: v }
 
     const gOmega = new Float64Array(N_QUAD), gPL = new Float64Array(N_TRIPLE)
@@ -2681,13 +2823,16 @@ function runLowerBounds(): LowerSuiteResult {
     let pDotG = 0; for (let t = 0; t < N_TRIPLE; t++) pDotG += pL[t]! * gPL[t]!
     const qAdj = new Float64Array(N_TRIPLE), rTerm = new Float64Array(N_TRIPLE)
     for (let t = 0; t < N_TRIPLE; t++) { const rv = (gPL[t]! - pDotG) * invLam; rTerm[t] = rv; qAdj[t] = rv }
-    for (let it = 0; it < 120; it++) {
+    let qAdjNrm = 1
+    for (let it = 0; it < 300; it++) {
       tmpT.fill(0)
       for (let q = 0; q < N_QUAD; q++) { const w = omegaQ[q]!, ti = QUAD_TIN[q]!; tmpT[ti] = tmpT[ti]! + QUAD_MULT_FROM[q]! * w * w * invLam * rTerm[QUAD_TOUT[q]!]! }
       let pDotR = 0; for (let t = 0; t < N_TRIPLE; t++) pDotR += pL[t]! * tmpT[t]!
       let nrm = 0; for (let t = 0; t < N_TRIPLE; t++) { const nv = tmpT[t]! - pDotR; qAdj[t] = qAdj[t]! + nv; rTerm[t] = nv; nrm += Math.abs(nv) }
+      qAdjNrm = nrm
       if (nrm < 1e-14) break
     }
+    assertExact(qAdjNrm < 1e-10, `eval3StepV4440 qAdj Neumann solve did not converge: nrm=${qAdjNrm}`)
     for (let q = 0; q < N_QUAD; q++) {
       const w = omegaQ[q]!
       gOmega[q] = gOmega[q]! + pL[QUAD_TIN[q]!]! * (gLam * pR[QUAD_TOUT[q]!]! + qAdj[QUAD_TOUT[q]!]!) * QUAD_MULT_FROM[q]! * 2 * w
@@ -2705,7 +2850,17 @@ function runLowerBounds(): LowerSuiteResult {
   assertExact(Math.abs(init3.rho - rho2Step4440) < 1e-6, `3-step lift mismatch: ${init3.rho} vs ${rho2Step4440}`)
 
   let maxGradErr3 = 0
-  for (const idx of [0, 77, 12345, 98765, 250000, N_QUAD - 1]) {
+  const gradSampleIdx = Array.from(
+    new Set([
+      0,
+      Math.min(77, N_QUAD - 1),
+      Math.floor(N_QUAD * 0.05),
+      Math.floor(N_QUAD * 0.25),
+      Math.floor(N_QUAD * 0.6),
+      N_QUAD - 1,
+    ]),
+  )
+  for (const idx of gradSampleIdx) {
     const eps = 1e-5, old = logWQInit[idx]!
     omQScratch[idx] = Math.exp(old + eps)
     const fp = eval3StepV4440(omQScratch, false, init3.pL, init3.v4440).rho
@@ -2852,7 +3007,8 @@ function runLowerBounds(): LowerSuiteResult {
 
 async function main(): Promise<void> {
   console.log('=================================================================================')
-  console.log(`EXACT DEPTH-5 -> DEPTH-6 SPECTRAL RADIUS COLLAPSE ON {3,4,3,4} [${MODE_LABEL}]`)
+  console.log(`EXACT DEPTH-5 -> DEPTH-6 SPECTRAL RADIUS COLLAPSE ON {3,4,3,4} DUAL 1-SKELETON [${MODE_LABEL}]`)
+  console.log(`Graph: 24-regular RACG Cayley / cell-adjacency graph (primal vertices ideal)`)
   console.log(`Workers: ${N_WORKERS} | Node ${process.version} | CPUs: ${os.cpus().length}`)
   console.log('=================================================================================')
 
@@ -2883,9 +3039,9 @@ async function main(): Promise<void> {
   } else {
     recordGate(
       'S3.1',
-      'Smoke-mode consistency & laptop time budget (< 5 s)',
-      lower.bestLowerNum * upper.bestUpperDen < upper.bestUpperNum * lower.bestLowerDen && elapsedSec < 5.0,
-      `smoke bracket [${finLo}, ${upHi}] (width=${finWidth.toFixed(6)}), time=${elapsedSec.toFixed(2)}s (< 5 s)`,
+      'Smoke-mode consistency & laptop time budget (< 8 s)',
+      lower.bestLowerNum * upper.bestUpperDen < upper.bestUpperNum * lower.bestLowerDen && elapsedSec < 8.0,
+      `smoke bracket [${finLo}, ${upHi}] (width=${finWidth.toFixed(6)}), time=${elapsedSec.toFixed(2)}s (< 8 s)`,
     )
   }
 
@@ -2895,6 +3051,7 @@ async function main(): Promise<void> {
   const payload = {
     meta: {
       script: 'test/verify/spectral-radius-depth5.ts',
+      graph: '24-regular RACG Cayley graph = cell-adjacency graph (dual 1-skeleton) of {3,4,3,4} (primal vertices ideal)',
       mode: MODE_LABEL,
       nodeVersion: process.version,
       workers: N_WORKERS,
@@ -2904,16 +3061,13 @@ async function main(): Promise<void> {
       gatesTotal: GATES.length,
     },
     baselineDepth5: {
-      concreteBigInt: ['11.439047', '11.443713'],
-      width: 0.004666,
+      concreteBigInt: { tier: 'A', lower: '11.439047', upper: '11.443713', width: 0.004666 },
     },
     certifiedBracket: {
-      concreteBigInt: [finLo, upHi],
-      concreteWidth: Number(finWidth.toFixed(6)),
-      asymptotic: [asympLo, upHi],
-      asymptoticWidth: Number(asympWidth.toFixed(6)),
-      rhoOver24: [rho24Lo, rho24Hi],
-      spectralGap: [gapLo, gapHi],
+      concreteBigInt: { tier: 'A', bounds: [finLo, upHi], width: Number(finWidth.toFixed(6)) },
+      asymptotic: { tier: 'B', bounds: [asympLo, upHi], width: Number(asympWidth.toFixed(6)) },
+      rhoOver24: { tier: 'A', bounds: [rho24Lo, rho24Hi] },
+      spectralGap: { tier: 'A', bounds: [gapLo, gapHi] },
     },
     upper: {
       ...upper,

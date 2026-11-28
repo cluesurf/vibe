@@ -495,8 +495,12 @@ instance : CommRing NinthLoc6 where
   add_comm := NinthLoc6.add_comm
   sub_eq_add_neg _ _ := rfl
   left_distrib := NinthLoc6.mul_add
-  right_distrib := NinthLoc6.add_mul
-  zero_mul := NinthLoc6.zero_mul
+  right_distrib a b c := by
+    change mul (add a b) c = add (mul a c) (mul b c)
+    rw [NinthLoc6.mul_comm, NinthLoc6.mul_add, NinthLoc6.mul_comm c a, NinthLoc6.mul_comm c b]
+  zero_mul a := by
+    change mul zero a = zero
+    rw [NinthLoc6.mul_comm, NinthLoc6.mul_zero]
   mul_zero := NinthLoc6.mul_zero
   mul_assoc := NinthLoc6.mul_assoc
   one_mul := NinthLoc6.one_mul

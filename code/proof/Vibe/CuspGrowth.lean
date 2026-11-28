@@ -69,7 +69,7 @@ private theorem cg_reflection_vec (n x : Vec5) :
   simp only [sub_mul, mul_assoc, Finset.sum_sub_distrib, ← Finset.mul_sum, hDot]
   have hKron : (∑ k : Fin 5, mat5Id i k * x k) = x i := by
     rw [← sum5_eq_sum]
-    have h1 : sum5 (fun k => ZSqrt2.mul (mat5Id i k) (x k)) = mat5Vec mat5Id x i := rfl
+    have h1 : (sum5 fun k => mat5Id i k * x k) = mat5Vec mat5Id x i := rfl
     rw [h1, mat5Vec_eq_mulVec, toMat5_id, Matrix.one_mulVec]
   rw [hKron]
 
@@ -175,7 +175,10 @@ theorem thm_orthogonal_reflections_commute :
         rw [← sum5_eq_sum]
         have h : mat5Vec (mat5Transpose mat5Id) ru j = ru j := by
           rw [mat5Vec_eq_mulVec, toMat5_transpose, toMat5_id, Matrix.transpose_one, Matrix.one_mulVec]
-        simpa only [mat5Vec, mat5Transpose, mul_comm] using h
+        have hEq : (sum5 fun k => ru k * mat5Id k j) = mat5Vec (mat5Transpose mat5Id) ru j := by
+          rw [mat5Vec, sum5_eq_sum, sum5_eq_sum]
+          exact Finset.sum_congr rfl fun k _ => mul_comm _ _
+        exact hEq.trans h
       rw [hK1, hK2, hK3]; ring
     rw [hProd n m hOrth, hProd m n (by rw [cg_twiceForm_symm, hOrth])]
     funext i j
@@ -295,10 +298,10 @@ private theorem cg_step1_and_step2_exact (a b : Fin 24) :
     ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale] <;> ring
   rw [hPair]
   funext i; unfold step1Center step2Center
-  rw [z2_scale_eq_mul]
-  change (baseCenter i + ZSqrt2.scale 2 (facetNormal b i)) -
+  simp only [z2_scale_eq_mul]
+  change (baseCenter i + ZSqrt2.ofInt 2 * facetNormal b i) -
       facetNormal a i * ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
-    (baseCenter i + ZSqrt2.scale 2 (facetNormal b i)) +
+    (baseCenter i + ZSqrt2.ofInt 2 * facetNormal b i) +
       ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * facetNormal a i
   have hNeg : ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
       -ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) := by
@@ -512,15 +515,15 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
       have hkGe6 : k ≥ 6 := by change 6 - 4 * dot4 (d4RootOf a) (d4RootOf b) ≥ 6; omega
       obtain ⟨bb0L, bb0U, bb1L, bb1U, bb2L, bb2U, bb3L, bb3U⟩ := cg_d4_coord_bounds b
       obtain ⟨bb0L', bb0U', bb1L', bb1U', bb2L', bb2U', bb3L', bb3U'⟩ := cg_d4_coord_bounds b'
-      have hRecCoord : ∀ (xa xa' xb xb' : Int),
+      have hRecCoord : ∀ (kv xa xa' xb xb' : Int), kv ≥ 6 →
           -1 ≤ xb → xb ≤ 1 → -1 ≤ xb' → xb' ≤ 1 →
-          2 * xb + k * xa = 2 * xb' + k * xa' → xa = xa' ∧ xb = xb' := fun xa xa' xb xb' h5 h6 h7 h8 hE => by
+          2 * xb + kv * xa = 2 * xb' + kv * xa' → xa = xa' ∧ xb = xb' := fun kv xa xa' xb xb' hkv h5 h6 h7 h8 hE => by
         have hxa : xa = xa' := by nlinarith
         exact ⟨hxa, by nlinarith⟩
-      have c0 := hRecCoord _ _ _ _ bb0L bb0U bb0L' bb0U' hCoordEq.1
-      have c1 := hRecCoord _ _ _ _ bb1L bb1U bb1L' bb1U' hCoordEq.2.1
-      have c2 := hRecCoord _ _ _ _ bb2L bb2U bb2L' bb2U' hCoordEq.2.2.1
-      have c3 := hRecCoord _ _ _ _ bb3L bb3U bb3L' bb3U' hCoordEq.2.2.2
+      have c0 := hRecCoord k _ _ _ _ hkGe6 bb0L bb0U bb0L' bb0U' hCoordEq.1
+      have c1 := hRecCoord k _ _ _ _ hkGe6 bb1L bb1U bb1L' bb1U' hCoordEq.2.1
+      have c2 := hRecCoord k _ _ _ _ hkGe6 bb2L bb2U bb2L' bb2U' hCoordEq.2.2.1
+      have c3 := hRecCoord k _ _ _ _ hkGe6 bb3L bb3U bb3L' bb3U' hCoordEq.2.2.2
       have hRootInj : ∀ x y : Fin 24, d4RootOf x = d4RootOf y → x = y := by decide
       exact ⟨hRootInj a a' (Prod.ext c0.1 (Prod.ext c1.1 (Prod.ext c2.1 c3.1))),
              hRootInj b b' (Prod.ext c0.2 (Prod.ext c1.2 (Prod.ext c2.2 c3.2)))⟩
@@ -778,23 +781,35 @@ private theorem foata_cubic_step_bundle :
   | succ m ih =>
     obtain ⟨⟨h0a, h0b, h0c⟩, ⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩⟩ := ih
     refine ⟨⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩, ⟨?_, ?_, ?_⟩⟩
-    · change foataA1 (m + 7) + 51 * foataA1 (m + 5) = 21 * foataA1 (m + 6) + 23 * foataA1 (m + 4)
-      rw [(foata_shift_eqs (m + 6)).2.1, (foata_shift_eqs (m + 5)).2.1,
-          (foata_shift_eqs (m + 4)).2.1, (foata_shift_eqs (m + 3)).2.1,
-          (foata_shift_eqs (m + 5)).1, (foata_shift_eqs (m + 4)).1,
-          (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1]
+    · have s7 : foataA1 (m + 7) = 15 * foataA1 (m + 6) + 44 * foataA2 (m + 6) + 36 * foataA3 (m + 6) := by
+        simpa only [(foata_shift_eqs (m + 5)).1, Nat.zero_add] using (foata_shift_eqs (m + 6)).2.1
+      have s6 : foataA1 (m + 6) = 15 * foataA1 (m + 5) + 44 * foataA2 (m + 5) + 36 * foataA3 (m + 5) := by
+        simpa only [(foata_shift_eqs (m + 4)).1, Nat.zero_add] using (foata_shift_eqs (m + 5)).2.1
+      have s5 : foataA1 (m + 5) = 15 * foataA1 (m + 4) + 44 * foataA2 (m + 4) + 36 * foataA3 (m + 4) := by
+        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.1
+      have s4 : foataA1 (m + 4) = 15 * foataA1 (m + 3) + 44 * foataA2 (m + 3) + 36 * foataA3 (m + 3) := by
+        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.1
+      change foataA1 (m + 7) + 51 * foataA1 (m + 5) = 21 * foataA1 (m + 6) + 23 * foataA1 (m + 4)
       omega
-    · change foataA2 (m + 7) + 51 * foataA2 (m + 5) = 21 * foataA2 (m + 6) + 23 * foataA2 (m + 4)
-      rw [(foata_shift_eqs (m + 5)).2.2.1, (foata_shift_eqs (m + 4)).2.2.1,
-          (foata_shift_eqs (m + 3)).2.2.1, (foata_shift_eqs (m + 2)).2.2.1,
-          (foata_shift_eqs (m + 4)).1, (foata_shift_eqs (m + 3)).1,
-          (foata_shift_eqs (m + 2)).1, (foata_shift_eqs (m + 1)).1]
+    · have s7 : foataA2 (m + 7) = 19 * foataA1 (m + 5) + 63 * foataA2 (m + 5) + 54 * foataA3 (m + 5) := by
+        simpa only [(foata_shift_eqs (m + 4)).1, Nat.zero_add] using (foata_shift_eqs (m + 5)).2.2.1
+      have s6 : foataA2 (m + 6) = 19 * foataA1 (m + 4) + 63 * foataA2 (m + 4) + 54 * foataA3 (m + 4) := by
+        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.2.1
+      have s5 : foataA2 (m + 5) = 19 * foataA1 (m + 3) + 63 * foataA2 (m + 3) + 54 * foataA3 (m + 3) := by
+        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.2.1
+      have s4 : foataA2 (m + 4) = 19 * foataA1 (m + 2) + 63 * foataA2 (m + 2) + 54 * foataA3 (m + 2) := by
+        simpa only [(foata_shift_eqs (m + 1)).1, Nat.zero_add] using (foata_shift_eqs (m + 2)).2.2.1
+      change foataA2 (m + 7) + 51 * foataA2 (m + 5) = 21 * foataA2 (m + 6) + 23 * foataA2 (m + 4)
       omega
-    · change foataA3 (m + 7) + 51 * foataA3 (m + 5) = 21 * foataA3 (m + 6) + 23 * foataA3 (m + 4)
-      rw [(foata_shift_eqs (m + 4)).2.2.2, (foata_shift_eqs (m + 3)).2.2.2,
-          (foata_shift_eqs (m + 2)).2.2.2, (foata_shift_eqs (m + 1)).2.2.2,
-          (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1,
-          (foata_shift_eqs (m + 1)).1, (foata_shift_eqs m).1]
+    · have s7 : foataA3 (m + 7) = 21 * foataA1 (m + 4) + 75 * foataA2 (m + 4) + 68 * foataA3 (m + 4) := by
+        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.2.2
+      have s6 : foataA3 (m + 6) = 21 * foataA1 (m + 3) + 75 * foataA2 (m + 3) + 68 * foataA3 (m + 3) := by
+        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.2.2
+      have s5 : foataA3 (m + 5) = 21 * foataA1 (m + 2) + 75 * foataA2 (m + 2) + 68 * foataA3 (m + 2) := by
+        simpa only [(foata_shift_eqs (m + 1)).1, Nat.zero_add] using (foata_shift_eqs (m + 2)).2.2.2
+      have s4 : foataA3 (m + 4) = 21 * foataA1 (m + 1) + 75 * foataA2 (m + 1) + 68 * foataA3 (m + 1) := by
+        simpa only [(foata_shift_eqs m).1, Nat.zero_add] using (foata_shift_eqs (m + 1)).2.2.2
+      change foataA3 (m + 7) + 51 * foataA3 (m + 5) = 21 * foataA3 (m + 6) + 23 * foataA3 (m + 4)
       omega
 
 /-- Headline Theorem 9 (Exact Steinberg Cubic Recurrence & Inclusion-Exclusion Identities for ALL `n : Nat`). -/
@@ -924,7 +939,8 @@ theorem thm_cusp_and_ball_growth_rate_bounds :
           fun r hr => by cases r with | zero => omega | succ n => exact (hBall n).1,
           by decide⟩
 
-private theorem cuspShell_zero_ge_one : cuspShell 0 ≥ 1 := by decide
+-- [helper]
+theorem cuspShell_zero_ge_one : cuspShell 0 ≥ 1 := by decide
 
 /-- Headline Theorem 13 (Unconditional `{3,4,3,4}` Exponential Cusp Shell Lower Bound). -/
 theorem thm_unconditional_cusp_shell_exp :

@@ -1,31 +1,40 @@
-// 4D D_4 LATTICE QCD (SU(2) & SU(3) ON L = 4, L = 6) & MULTI-SITE 3+1D CHIRAL SMG SUITE:
-//   Part 1: L = 4 (256 sites, 3,072 links, 8,192 triangles) & L = 6 (1,296 sites, 15,552 links,
-//           41,472 triangles) 4D D_4 Lattice SU(2) & SU(3) Monte Carlo
+// 4D D_4 LATTICE QCD (SU(2) & SU(3) ON L = 4, L = 6) & MULTI-SITE SU(4) CAYLEY-4-FORM SMG BENCHMARK:
+//   Part 1 (Tier B/C): L = 4 (256 sites, 3,072 links, 8,192 triangles) & L = 6 (1,296 sites, 15,552 links,
+//           41,472 triangles) 4D D_4 Lattice SU(2) & SU(3) Monte Carlo + Quenched Naive D_4 Fermions
 //           - Exact Kennedy-Pendleton Cabibbo-Marinari heatbath + exact microcanonical overrelaxation
-//           - Weak-to-strong beta ladder: <P_tri>, planar rhombic Wilson loops W(I,J), exact Creutz
-//             ratios chi_{D4}(I,J) & triangle string tension sigma_{D4}(beta), temporal Polyakov <|L|>
-//           - Exact matrix-free 4D D_4 chiral Dirac operator D = [[0, M], [-M^dag, 0]] on L = 4 (4^3 x 8):
-//             stochastic Z_2 chiral condensate <psi_bar psi>(m_q -> 0), exact Axial WTI (< 1e-9),
-//             pion & rho correlators C_pi(tau), C_rho(tau), GMOR fit, and m_pi / m_rho
-//           - Negative controls: strong-coupling exact analytical check (<P_tri> vs beta / (2 N_c^2)
-//             for SU(3) and I_2(beta)/I_1(beta) ~ beta/4 for SU(2)) + quenched free-field (U = I)
-//             exact dispersion & chiral-limit check + weak-coupling 1-loop plaquette check
-//   Part 2: Interacting Multi-Site 3+1D Chiral Symmetric Mass Generation (SMG)
-//           - Coupled multi-site Spin(7) Cayley-4-form interacting fermion lattice (2-site 16-Majorana,
-//             2-site 32-Majorana = two coupled 16-Majorana 8_s (+) 8_c banks, and 4-site 32-Majorana
-//             chiral ring with exact V = 0 Dirac zero modes!)
-//           - Exact Spin(7) Cartan-charge (Q_1, Q_2, Q_3) symmetry block reduction (65,536 -> 1,810 max!)
-//             + full-reorthogonalized Block-Lanczos Krylov ED in Float64Array (residual < 1e-12)
-//           - Measures Delta_SMG(V/t), single-particle gap Delta_1p(V/t), exact bilinear condensate
-//             |<psi_bar psi>| (< 1e-12 across ALL on-site/staggered/off-flavor bilinears), and
-//             2-point G_2(r) vs connected 4-point G_4(r) correlators across V/t = 0 -> 6
-//           - Negative controls: anomalous 4-Majorana/site (half-multiplet nu = 4 mod 8) & diagonal-only
-//             8-Majorana/site sectors that CANNOT open a symmetric mass gap (gap collapses O(t^2/V) -> 0
-//             or stays degenerate gsDeg >= 2 with diverging bilinear SSB susceptibility)
+//           - Weak-to-strong beta ladder: <P_tri> (binned jackknife error), planar rhombic Wilson loops
+//             W(1,1), W(2,1), W(2,2), W(3,1), W(3,2), standard Creutz ratios chi(2,2) &
+//             chi(3,2) = -ln((W(3,2)*W(2,1))/(W(3,1)*W(2,2))), triangle string tension sigma_tri = chi(2,2)/2
+//             (null when chi(2,2) unavailable), temporal/spatial Polyakov loops <|L|>
+//           - Exact matrix-free quenched naive 4D D_4 chiral Dirac operator D = [[0, M], [-M^dag, 0]] on
+//             L = 4 (4^3 x 8) [NOTE: naive D_4 fermions carry 40 continuum species/doublers with two speeds
+//             of light: physical c = 1 at k = 0 and c = 1/3 at doublers such as (pi, pi, 0, k_t)]:
+//             per-spin-color normalized (<psi_bar psi> / (4 N_c)) exact point-source & stochastic Z_2
+//             chiral condensate, exact Axial WTI (< 1e-9), pion correlator C_pi(tau), oscillating
+//             parity-partner cosh fit for C_rho(tau), jackknife error bars, GMOR fit, and m_pi / m_rho
+//           - Negative controls: strong-coupling analytical check (<P_tri> vs beta/(2 N_c^2) + beta^2/216
+//             for SU(3) and I_2(beta)/I_1(beta) for SU(2)), weak-coupling 1-loop check with exact T^4
+//             b_1 = 4 zero-mode factor (1 - 3/(11 V)), and free-field (U = I) dispersion check (both c = 1
+//             physical sin(pi/L_t) and c = 1/3 doubler sin(pi/L_t)/3 modes)
+//   Part 2 (Tier B): Interacting 0+1D / 1+1D Multi-Site SU(4) (~= Spin(6)) Bipartite Cayley-4-Form SMG
+//           Benchmark (spinless complex hopping preserves SU(4) ~= Spin(6); full dynamical 3+1D/4D
+//           gauge-coupled chiral SMG remains Tier C open!)
+//           - Model 2A: 2-site coupled 8-Majorana/site (16 Majoranas, dim 256 -> Cartan blocks 18, 10, 9, ...)
+//           - Model 2B: 2-site coupled opposite-chirality 16-Majorana/site (32 Majoranas, Bank A = +Gamma_9
+//             8_s & Bank B = -Gamma_9 8_c with SU(4)_A x SU(4)_B-invariant quartic-times-quartic coupling
+//             v_cross * sum_x H_{C,A}^(+)(x) H_{C,B}^(-)(x), dim 65,536 -> GS block 324, global sector scan)
+//           - Model 2C: 4-site periodic 1+1D chiral ring 8-Majorana/site (32 Majoranas, exact V = 0 Dirac
+//             zero modes, dim 65,536 -> complete |Delta N| <= 2 sector scan incl. neutral SU(4) adjoint!)
+//           - Exact sparse CG multi-channel Kubo static susceptibilities chi_O = (2/N) <psi_0|O(H-E_0)^-1 O|psi_0>
+//             across staggered Z, uniform Z, bond dimerization (VBS), and cross-block off-flavor bilinears
+//             (uniform & staggered), all bounded O(1/V) in SMG without any superselection tautology!
+//           - Negative controls: 1+1D Fidkowski-Kitaev anomalous 4-Majorana/site (nu = 4 mod 8) with
+//             IDENTICALLY normalized staggered Z_0 operator (gap collapses O(t^2/V), chi_stag diverges O(V/t^2))
+//             and diagonal-only 8-Majorana/site sector (4-fold atomic degeneracy, gap collapses, chi diverges)
 //
 // Modes:
-//   --smoke (default; laptop-safe < 3 s, < 250 MB RAM, saves tmp/d4-qcd-smg-smoke.json)
-//   --full  (full multi-threaded production run; alias --m3; saves tmp/d4-qcd-smg-results.json)
+//   --smoke (default; laptop-safe < 6 s, < 300 MB RAM, saves tmp/d4-qcd-smg-smoke.json)
+//   --full  (full multi-threaded production run; saves tmp/d4-qcd-smg-results.json)
 //
 // Strictly deterministic (Mulberry32 PRNG, ZERO Math.random()), zero external packages,
 // strict TypeScript (--strict --noUncheckedIndexedAccess clean).
@@ -40,7 +49,7 @@ const PKG_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 
 const T0_GLOBAL = performance.now()
 const PI = Math.PI
-const IS_FULL = process.argv.includes('--full') || process.argv.includes('--m3')
+const IS_FULL = process.argv.includes('--full')
 const MODE_LABEL = IS_FULL ? 'FULL PRODUCTION' : 'SMOKE'
 const N_WORKERS = IS_FULL ? Math.min(10, Math.max(2, os.cpus().length - 2)) : 2
 
@@ -1022,7 +1031,14 @@ function solveGramCG(
   return { iters: it, relRes: Math.sqrt(rsOld / bNorm2) }
 }
 
-function exactFreeD4Dispersion(Ls: number, Lt: number, mq: number): { readonly lamMin: number; readonly pbpSite: number } {
+function exactFreeD4Dispersion(
+  Ls: number,
+  Lt: number,
+  mq: number,
+): { readonly lamMinDoubler: number; readonly lamPhysK0: number; readonly pbpNorm: number } {
+  // Exact 4D naive D_4 dispersion over 2V Z^4 momenta (40 continuum species/doublers:
+  // physical c = 1 mode at k_vec = (0,0,0) has lam = sin(pi/L_t); c = 1/3 doubler at
+  // k_vec = (pi,pi,0) has lam_min = sin(pi/L_t)/3). pbpNorm is normalized by 1/(4 N_c) = 1/12.
   const V = (Ls * Ls * Ls * Lt) / 2
   let lamMin2 = Number.POSITIVE_INFINITY
   let pbpSum = 0
@@ -1049,7 +1065,98 @@ function exactFreeD4Dispersion(Ls: number, Lt: number, mq: number): { readonly l
       }
     }
   }
-  return { lamMin: Math.sqrt(lamMin2), pbpSite: pbpSum / V }
+  return { lamMinDoubler: Math.sqrt(lamMin2), lamPhysK0: Math.sin(PI / Lt), pbpNorm: pbpSum / (12 * V) }
+}
+
+function binnedJackknifeErr(samples: Float64Array, maxBins = 10): number {
+  const n = samples.length
+  if (n <= 1) return 0
+  const nBins = n >= 8 ? Math.min(maxBins, Math.max(4, Math.floor(n / 4))) : n
+  const binLen = Math.floor(n / nBins)
+  const binMeans = new Float64Array(nBins)
+  let total = 0
+  for (let b = 0; b < nBins; b++) {
+    const start = b * binLen
+    const end = b === nBins - 1 ? n : start + binLen
+    let s = 0
+    for (let i = start; i < end; i++) s += samples[i]!
+    const m = s / (end - start)
+    binMeans[b] = m
+    total += m
+  }
+  const grand = total / nBins
+  let ss = 0
+  for (let b = 0; b < nBins; b++) {
+    const loo = (total - binMeans[b]!) / (nBins - 1)
+    ss += (loo - grand) * (loo - grand)
+  }
+  return Math.sqrt(((nBins - 1) / nBins) * ss)
+}
+
+function fitRhoOscillatingCosh(
+  symC: readonly number[],
+  Lt: number,
+): { readonly mRho: number; readonly ampA: number; readonly ampB: number; readonly oscRatio: number; readonly relRmsErr: number } {
+  // Oscillating parity-partner cosh fit for naive D_4 vector correlator on tau = 1..Lt/2:
+  //   C_rho(tau) = A cosh(m_rho (tau - Lt/2)) + (-1)^tau B cosh(m_rho (tau - Lt/2))
+  // On Lt = 6 (tau = 1, 2, 3), C(1) and C(3) share parity (-1)^1 = (-1)^3 = -1, giving the
+  // exact closed-form oscillating solution cosh(2 m_rho) = C(1)/C(3). On Lt >= 8 (4+ points),
+  // 1D variable projection solves exact weighted least-squares for (A(m), B(m)) with zero clamps.
+  const half = Lt / 2
+  assert(half >= 3, `Lt=${Lt} too small for oscillating parity-partner rho fit`)
+  if (half === 3) {
+    const c1 = symC[1]!, c2 = symC[2]!, c3 = symC[3]!
+    assert(c1 > c3 && c3 > 0, `Non-monotone same-parity rho correlator C(1)=${c1}, C(3)=${c3}`)
+    const mRho = 0.5 * Math.acosh(c1 / c3)
+    const evenBase = c2 / Math.cosh(mRho)
+    const ampA = 0.5 * (evenBase + c3)
+    const ampB = 0.5 * (evenBase - c3)
+    assert(ampA > 0, `Non-positive rho non-oscillating amplitude A=${ampA}`)
+    return { mRho, ampA, ampB, oscRatio: ampB / ampA, relRmsErr: 0 }
+  }
+  const evalM = (m: number): { readonly sse: number; readonly A: number; readonly B: number } => {
+    let g00 = 0, g01 = 0, g11 = 0, r0 = 0, r1 = 0
+    for (let tau = 1; tau <= half; tau++) {
+      const y = symC[tau]!
+      const invW = 1 / Math.max(1e-12, Math.abs(y))
+      const ch = Math.cosh(m * (tau - half))
+      const f0 = ch * invW
+      const f1 = ((tau & 1) === 0 ? 1 : -1) * ch * invW
+      const yw = y * invW
+      g00 += f0 * f0; g01 += f0 * f1; g11 += f1 * f1
+      r0 += f0 * yw; r1 += f1 * yw
+    }
+    const det = g00 * g11 - g01 * g01
+    if (det <= 1e-30) return { sse: Number.POSITIVE_INFINITY, A: 0, B: 0 }
+    const A = (g11 * r0 - g01 * r1) / det
+    const B = (g00 * r1 - g01 * r0) / det
+    if (A <= 0) return { sse: Number.POSITIVE_INFINITY, A, B }
+    let sse = 0
+    for (let tau = 1; tau <= half; tau++) {
+      const y = symC[tau]!
+      const pred = (A + ((tau & 1) === 0 ? B : -B)) * Math.cosh(m * (tau - half))
+      const rel = (pred - y) / Math.max(1e-12, Math.abs(y))
+      sse += rel * rel
+    }
+    return { sse, A, B }
+  }
+  let bestM = 1.0, best = evalM(bestM)
+  for (let i = 1; i <= 160; i++) {
+    const m = 0.1 + (3.9 * i) / 160
+    const ev = evalM(m)
+    if (ev.sse < best.sse) { best = ev; bestM = m }
+  }
+  let lo = Math.max(0.05, bestM - 0.05), hi = Math.min(4.5, bestM + 0.05)
+  const phi = 0.6180339887498949
+  for (let it = 0; it < 60; it++) {
+    const x1 = hi - phi * (hi - lo), x2 = lo + phi * (hi - lo)
+    if (evalM(x1).sse < evalM(x2).sse) hi = x2
+    else lo = x1
+  }
+  const mRho = 0.5 * (lo + hi)
+  const fin = evalM(mRho)
+  assert(Number.isFinite(fin.sse) && fin.A > 0, `Oscillating rho fit failed: A=${fin.A}, sse=${fin.sse}`)
+  return { mRho, ampA: fin.A, ampB: fin.B, oscRatio: fin.B / fin.A, relRmsErr: Math.sqrt(fin.sse / half) }
 }
 
 function solveCoshMassAt(cTau: number, cTau1: number, tau: number, Lt: number): number {
@@ -1232,11 +1339,12 @@ function measureD4FermionsOnConfig(
     totIters += cg.iters; nSolves++
     let dot = 0
     for (let i = 0; i < nBlk; i++) dot += rhsR[i]! * solR[i]! + rhsI[i]! * solI[i]!
-    pbpStochSum += (2 * mq * dot) / V
+    pbpStochSum += (2 * mq * dot) / (12 * V)
   }
-  const pbpStoch = nStochNoise > 0 ? pbpStochSum / nStochNoise : trS0
+  const pbpExactNorm = trS0 / 12
+  const pbpStoch = nStochNoise > 0 ? pbpStochSum / nStochNoise : pbpExactNorm
 
-  return { cPi, cRho, pbpExactPt: trS0, pbpStoch, wtiRelErr, avgCgIters: totIters / Math.max(1, nSolves) }
+  return { cPi, cRho, pbpExactPt: pbpExactNorm, pbpStoch, wtiRelErr, avgCgIters: totIters / Math.max(1, nSolves) }
 }
 
 // =================================================================================================
@@ -1261,8 +1369,9 @@ type GaugePointResult = {
   readonly w11: number
   readonly w21: number
   readonly w22: number
+  readonly w31: number
   readonly w32: number
-  readonly chi11: number
+  readonly chi11: number | null
   readonly chi22: number | null
   readonly chi32: number | null
   readonly sigmaTri: number | null
@@ -1297,7 +1406,7 @@ function runGaugePointSync(
     }
 
     const plaqs = new Float64Array(nMeas)
-    let sumPolyT = 0, sumPolyS = 0, sumW11 = 0, sumW21 = 0, sumW22 = 0, sumW32 = 0
+    let sumPolyT = 0, sumPolyS = 0, sumW11 = 0, sumW21 = 0, sumW22 = 0, sumW31 = 0, sumW32 = 0
 
     for (let m = 0; m < nMeas; m++) {
       sweepSu2Heatbath(torus, links, beta, rng)
@@ -1311,6 +1420,7 @@ function runGaugePointSync(
         sumW22 += measureSu2WilsonLoop(torus, links, 2, 2)
       }
       if (maxIJ >= 3) {
+        sumW31 += 0.5 * (measureSu2WilsonLoop(torus, links, 3, 1) + measureSu2WilsonLoop(torus, links, 1, 3))
         sumW32 += 0.5 * (measureSu2WilsonLoop(torus, links, 3, 2) + measureSu2WilsonLoop(torus, links, 2, 3))
       }
     }
@@ -1318,20 +1428,22 @@ function runGaugePointSync(
     let meanP = 0
     for (let m = 0; m < nMeas; m++) meanP += plaqs[m]!
     meanP /= nMeas
-    let varP = 0
-    for (let m = 0; m < nMeas; m++) varP += (plaqs[m]! - meanP) ** 2
-    const errP = nMeas > 1 ? Math.sqrt(varP / (nMeas * (nMeas - 1))) : 0
+    const errP = binnedJackknifeErr(plaqs)
 
-    const w11 = sumW11 / nMeas, w21 = maxIJ >= 2 ? sumW21 / nMeas : 0, w22 = maxIJ >= 2 ? sumW22 / nMeas : 0, w32 = maxIJ >= 3 ? sumW32 / nMeas : 0
-    const chi11 = w11 > 1e-15 ? -Math.log(w11) : Number.NaN
+    const w11 = sumW11 / nMeas
+    const w21 = maxIJ >= 2 ? sumW21 / nMeas : 0
+    const w22 = maxIJ >= 2 ? sumW22 / nMeas : 0
+    const w31 = maxIJ >= 3 ? sumW31 / nMeas : 0
+    const w32 = maxIJ >= 3 ? sumW32 / nMeas : 0
+    const chi11 = w11 > 1e-12 ? -Math.log(w11) : null
     const chi22 = maxIJ >= 2 && w22 > 1e-12 && w11 > 1e-12 && w21 > 1e-12 ? -Math.log((w22 * w11) / (w21 * w21)) : null
-    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w11) / (w22 * w21)) : null
-    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : Number.isFinite(chi11) ? 0.5 * chi11 : null
+    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w31 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w21) / (w31 * w22)) : null
+    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : null
 
     return {
       group, L: torus.Ls, Ls: torus.Ls, Lt: torus.Lt, V: torus.V, E: torus.E, T: torus.T, beta, nTherm, nMeas,
       plaqMean: meanP, plaqErr: errP, polyTemp: sumPolyT / nMeas, polySpat: sumPolyS / nMeas,
-      w11, w21, w22, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
+      w11, w21, w22, w31, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
       elapsedSec: (performance.now() - t0) / 1000,
     }
   } else {
@@ -1348,7 +1460,7 @@ function runGaugePointSync(
     }
 
     const plaqs = new Float64Array(nMeas)
-    let sumPolyT = 0, sumPolyS = 0, sumW11 = 0, sumW21 = 0, sumW22 = 0, sumW32 = 0
+    let sumPolyT = 0, sumPolyS = 0, sumW11 = 0, sumW21 = 0, sumW22 = 0, sumW31 = 0, sumW32 = 0
 
     for (let m = 0; m < nMeas; m++) {
       sweepSu3Heatbath(torus, links, beta, rng)
@@ -1363,6 +1475,7 @@ function runGaugePointSync(
         sumW22 += measureSu3WilsonLoop(torus, links, 2, 2)
       }
       if (maxIJ >= 3) {
+        sumW31 += 0.5 * (measureSu3WilsonLoop(torus, links, 3, 1) + measureSu3WilsonLoop(torus, links, 1, 3))
         sumW32 += 0.5 * (measureSu3WilsonLoop(torus, links, 3, 2) + measureSu3WilsonLoop(torus, links, 2, 3))
       }
     }
@@ -1370,20 +1483,22 @@ function runGaugePointSync(
     let meanP = 0
     for (let m = 0; m < nMeas; m++) meanP += plaqs[m]!
     meanP /= nMeas
-    let varP = 0
-    for (let m = 0; m < nMeas; m++) varP += (plaqs[m]! - meanP) ** 2
-    const errP = nMeas > 1 ? Math.sqrt(varP / (nMeas * (nMeas - 1))) : 0
+    const errP = binnedJackknifeErr(plaqs)
 
-    const w11 = sumW11 / nMeas, w21 = maxIJ >= 2 ? sumW21 / nMeas : 0, w22 = maxIJ >= 2 ? sumW22 / nMeas : 0, w32 = maxIJ >= 3 ? sumW32 / nMeas : 0
-    const chi11 = w11 > 1e-15 ? -Math.log(w11) : Number.NaN
+    const w11 = sumW11 / nMeas
+    const w21 = maxIJ >= 2 ? sumW21 / nMeas : 0
+    const w22 = maxIJ >= 2 ? sumW22 / nMeas : 0
+    const w31 = maxIJ >= 3 ? sumW31 / nMeas : 0
+    const w32 = maxIJ >= 3 ? sumW32 / nMeas : 0
+    const chi11 = w11 > 1e-12 ? -Math.log(w11) : null
     const chi22 = maxIJ >= 2 && w22 > 1e-12 && w11 > 1e-12 && w21 > 1e-12 ? -Math.log((w22 * w11) / (w21 * w21)) : null
-    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w11) / (w22 * w21)) : null
-    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : Number.isFinite(chi11) ? 0.5 * chi11 : null
+    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w31 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w21) / (w31 * w22)) : null
+    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : null
 
     return {
       group, L: torus.Ls, Ls: torus.Ls, Lt: torus.Lt, V: torus.V, E: torus.E, T: torus.T, beta, nTherm, nMeas,
       plaqMean: meanP, plaqErr: errP, polyTemp: sumPolyT / nMeas, polySpat: sumPolyS / nMeas,
-      w11, w21, w22, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
+      w11, w21, w22, w31, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
       elapsedSec: (performance.now() - t0) / 1000,
     }
   }
@@ -1637,27 +1752,36 @@ for (const task of tasks) {
     const pB = plaq(); or(); const pA = plaq(); const orMaxDeltaP = Math.abs(pA - pB);
     for (let sw = 0; sw < nTherm; sw++) { hb(); for (let r = 0; r < nOrPerHb; r++) or(); }
     const ps = new Float64Array(nMeas);
-    let sPT = 0, sPS = 0, sW11 = 0, sW21 = 0, sW22 = 0, sW32 = 0;
+    let sPT = 0, sPS = 0, sW11 = 0, sW21 = 0, sW22 = 0, sW31 = 0, sW32 = 0;
     for (let m = 0; m < nMeas; m++) {
       hb(); for (let r = 0; r < nOrPerHb; r++) or();
       ps[m] = plaq();
       const po = poly(); sPT += po.tempAbs; sPS += po.spatAbs;
       sW11 += wloop(1, 1);
       if (maxIJ >= 2) { sW21 += 0.5 * (wloop(2, 1) + wloop(1, 2)); sW22 += wloop(2, 2); }
-      if (maxIJ >= 3) { sW32 += 0.5 * (wloop(3, 2) + wloop(2, 3)); }
+      if (maxIJ >= 3) { sW31 += 0.5 * (wloop(3, 1) + wloop(1, 3)); sW32 += 0.5 * (wloop(3, 2) + wloop(2, 3)); }
     }
     let mP = 0; for (let m = 0; m < nMeas; m++) mP += ps[m]; mP /= nMeas;
-    let vP = 0; for (let m = 0; m < nMeas; m++) vP += (ps[m] - mP) ** 2;
-    const eP = nMeas > 1 ? Math.sqrt(vP / (nMeas * (nMeas - 1))) : 0;
-    const w11 = sW11 / nMeas, w21 = maxIJ >= 2 ? sW21 / nMeas : 0, w22 = maxIJ >= 2 ? sW22 / nMeas : 0, w32 = maxIJ >= 3 ? sW32 / nMeas : 0;
-    const chi11 = w11 > 1e-15 ? -Math.log(w11) : NaN;
+    const nBins = nMeas >= 8 ? Math.min(10, Math.max(4, Math.floor(nMeas / 4))) : nMeas;
+    const binLen = Math.floor(nMeas / nBins), bMeans = new Float64Array(nBins);
+    let bTot = 0;
+    for (let b = 0; b < nBins; b++) {
+      const st = b * binLen, en = b === nBins - 1 ? nMeas : st + binLen;
+      let ss = 0; for (let i = st; i < en; i++) ss += ps[i];
+      bMeans[b] = ss / (en - st); bTot += bMeans[b];
+    }
+    const bGrand = bTot / nBins; let bVar = 0;
+    for (let b = 0; b < nBins; b++) { const loo = (bTot - bMeans[b]) / (nBins - 1); bVar += (loo - bGrand) ** 2; }
+    const eP = nBins > 1 ? Math.sqrt(((nBins - 1) / nBins) * bVar) : 0;
+    const w11 = sW11 / nMeas, w21 = maxIJ >= 2 ? sW21 / nMeas : 0, w22 = maxIJ >= 2 ? sW22 / nMeas : 0, w31 = maxIJ >= 3 ? sW31 / nMeas : 0, w32 = maxIJ >= 3 ? sW32 / nMeas : 0;
+    const chi11 = w11 > 1e-12 ? -Math.log(w11) : null;
     const chi22 = maxIJ >= 2 && w22 > 1e-12 && w11 > 1e-12 && w21 > 1e-12 ? -Math.log((w22 * w11) / (w21 * w21)) : null;
-    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w11) / (w22 * w21)) : null;
-    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : Number.isFinite(chi11) ? 0.5 * chi11 : null;
+    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w31 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w21) / (w31 * w22)) : null;
+    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : null;
     results.push({
       group, L: tp.Ls, Ls: tp.Ls, Lt: tp.Lt, V: tp.V, E: tp.E, T: tp.T, beta, nTherm, nMeas,
       plaqMean: mP, plaqErr: eP, polyTemp: sPT / nMeas, polySpat: sPS / nMeas,
-      w11, w21, w22, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
+      w11, w21, w22, w31, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
       elapsedSec: (performance.now() - t0) / 1000,
     });
   } else {
@@ -1805,7 +1929,7 @@ for (const task of tasks) {
       if ((sw + 1) % 5 === 0) for (let e = 0; e < tp.E; e++) m3PolishAt(links, e * 18);
     }
     const ps = new Float64Array(nMeas);
-    let sPT = 0, sPS = 0, sW11 = 0, sW21 = 0, sW22 = 0, sW32 = 0;
+    let sPT = 0, sPS = 0, sW11 = 0, sW21 = 0, sW22 = 0, sW31 = 0, sW32 = 0;
     for (let m = 0; m < nMeas; m++) {
       hb(); for (let r = 0; r < nOrPerHb; r++) or();
       if ((m + 1) % 5 === 0) for (let e = 0; e < tp.E; e++) m3PolishAt(links, e * 18);
@@ -1813,20 +1937,29 @@ for (const task of tasks) {
       const po = poly(); sPT += po.tempAbs; sPS += po.spatAbs;
       sW11 += wloop(1, 1);
       if (maxIJ >= 2) { sW21 += 0.5 * (wloop(2, 1) + wloop(1, 2)); sW22 += wloop(2, 2); }
-      if (maxIJ >= 3) { sW32 += 0.5 * (wloop(3, 2) + wloop(2, 3)); }
+      if (maxIJ >= 3) { sW31 += 0.5 * (wloop(3, 1) + wloop(1, 3)); sW32 += 0.5 * (wloop(3, 2) + wloop(2, 3)); }
     }
     let mP = 0; for (let m = 0; m < nMeas; m++) mP += ps[m]; mP /= nMeas;
-    let vP = 0; for (let m = 0; m < nMeas; m++) vP += (ps[m] - mP) ** 2;
-    const eP = nMeas > 1 ? Math.sqrt(vP / (nMeas * (nMeas - 1))) : 0;
-    const w11 = sW11 / nMeas, w21 = maxIJ >= 2 ? sW21 / nMeas : 0, w22 = maxIJ >= 2 ? sW22 / nMeas : 0, w32 = maxIJ >= 3 ? sW32 / nMeas : 0;
-    const chi11 = w11 > 1e-15 ? -Math.log(w11) : NaN;
+    const nBins = nMeas >= 8 ? Math.min(10, Math.max(4, Math.floor(nMeas / 4))) : nMeas;
+    const binLen = Math.floor(nMeas / nBins), bMeans = new Float64Array(nBins);
+    let bTot = 0;
+    for (let b = 0; b < nBins; b++) {
+      const st = b * binLen, en = b === nBins - 1 ? nMeas : st + binLen;
+      let ss = 0; for (let i = st; i < en; i++) ss += ps[i];
+      bMeans[b] = ss / (en - st); bTot += bMeans[b];
+    }
+    const bGrand = bTot / nBins; let bVar = 0;
+    for (let b = 0; b < nBins; b++) { const loo = (bTot - bMeans[b]) / (nBins - 1); bVar += (loo - bGrand) ** 2; }
+    const eP = nBins > 1 ? Math.sqrt(((nBins - 1) / nBins) * bVar) : 0;
+    const w11 = sW11 / nMeas, w21 = maxIJ >= 2 ? sW21 / nMeas : 0, w22 = maxIJ >= 2 ? sW22 / nMeas : 0, w31 = maxIJ >= 3 ? sW31 / nMeas : 0, w32 = maxIJ >= 3 ? sW32 / nMeas : 0;
+    const chi11 = w11 > 1e-12 ? -Math.log(w11) : null;
     const chi22 = maxIJ >= 2 && w22 > 1e-12 && w11 > 1e-12 && w21 > 1e-12 ? -Math.log((w22 * w11) / (w21 * w21)) : null;
-    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w11) / (w22 * w21)) : null;
-    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : Number.isFinite(chi11) ? 0.5 * chi11 : null;
+    const chi32 = maxIJ >= 3 && w32 > 1e-12 && w21 > 1e-12 && w31 > 1e-12 && w22 > 1e-12 ? -Math.log((w32 * w21) / (w31 * w22)) : null;
+    const sigmaTri = chi22 !== null && Number.isFinite(chi22) ? 0.5 * chi22 : null;
     results.push({
       group, L: tp.Ls, Ls: tp.Ls, Lt: tp.Lt, V: tp.V, E: tp.E, T: tp.T, beta, nTherm, nMeas,
       plaqMean: mP, plaqErr: eP, polyTemp: sPT / nMeas, polySpat: sPS / nMeas,
-      w11, w21, w22, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
+      w11, w21, w22, w31, w32, chi11, chi22, chi32, sigmaTri, orMaxDeltaP,
       elapsedSec: (performance.now() - t0) / 1000,
     });
   }
@@ -1880,17 +2013,24 @@ async function runGaugeTasksParallel(torus: D4BoxTorus, tasks: readonly GaugeTas
 }
 
 // =================================================================================================
-// SECTION 5: PART 1 RUNNER — D_4 LATTICE SU(2)/SU(3) MONTE CARLO & FERMION SPECTROSCOPY
+// SECTION 5: PART 1 RUNNER - D_4 LATTICE SU(2)/SU(3) MONTE CARLO & QUENCHED NAIVE D_4 FERMIONS
 // =================================================================================================
 
 type FermionMassRow = {
   readonly mq: number
   readonly pbpPt: number
+  readonly pbpPtErr: number
   readonly pbpStoch: number
+  readonly pbpStochErr: number
   readonly pbpFree: number
   readonly mPi: number
+  readonly mPiErr: number
   readonly mRho: number
+  readonly mRhoErr: number
+  readonly mRhoOscRatio: number
+  readonly mRhoFitRelRms: number
   readonly mPiOverMRho: number
+  readonly mPiOverMRhoErr: number
   readonly wtiMaxErr: number
   readonly cPi: number[]
   readonly cRho: number[]
@@ -1898,6 +2038,8 @@ type FermionMassRow = {
 
 type Part1Summary = {
   readonly mode: string
+  readonly tier: string
+  readonly fermionDiscretization: string
   readonly censusL4: { readonly V: number; readonly E: number; readonly T: number }
   readonly censusL6: { readonly V: number; readonly E: number; readonly T: number }
   readonly gaugeRuns: readonly GaugePointResult[]
@@ -1911,12 +2053,20 @@ type Part1Summary = {
     readonly su3Exact: number
     readonly su3RelErr: number
   }
+  readonly weakCouplingCheck: {
+    readonly beta: number
+    readonly L: number
+    readonly measured: number
+    readonly oneLoopT4Pred: number
+    readonly absDiff: number
+  }
   readonly freeFieldChecks: {
     readonly L: number
     readonly adjIdentityErr: number
-    readonly freeDispLamMin: number
-    readonly freePbpAnalytical: number
-    readonly freePbpCg: number
+    readonly freeDispLamPhysK0: number
+    readonly freeDispLamMinDoubler: number
+    readonly freePbpNormAnalytical: number
+    readonly freePbpNormCg: number
     readonly freePbpRelErr: number
     readonly freeWtiErr: number
   }
@@ -1948,7 +2098,9 @@ function linReg(xs: readonly number[], ys: readonly number[]): { readonly interc
 async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   const t0 = performance.now()
   console.log('\n=================================================================================')
-  console.log(`PART 1 (${MODE_LABEL}): 4D D_4 LATTICE SU(2) & SU(3) MONTE CARLO & CHIRAL FERMIONS`)
+  console.log(`PART 1 (${MODE_LABEL}, Tier B/C): 4D D_4 LATTICE SU(2)/SU(3) MC & QUENCHED NAIVE D_4 FERMIONS`)
+  console.log('  [Disclosure] Fermion operator is quenched naive 4D D_4 (40 species/doublers: physical c=1')
+  console.log('               at k=0, c=1/3 at doublers e.g. (pi,pi,0,k_t)); <pbp> normalized by 1/(4 N_c).')
   console.log('=================================================================================')
 
   const torusL4 = buildD4BoxTorus(4, 8)
@@ -2034,10 +2186,11 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   )
 
   const wcSu3 = allGaugeRuns.find(r => r.group === 'SU3' && Math.abs(r.beta - 20.0) < 1e-6)!
-  const wcPred = 1 - ((11 * 8) / (64 * wcSu3.beta)) * (1 - 1 / (11 * wcSu3.V))
+  // Exact 1-loop weak-coupling plaquette on T^4 D_4: 12V links - (V-1) gauge - b_1(T^4)=4 harmonic zero modes = 11V - 3
+  const wcPred = 1 - ((11 * 8) / (64 * wcSu3.beta)) * (1 - 3 / (11 * wcSu3.V))
   const wcErr = Math.abs(wcSu3.plaqMean - wcPred)
   console.log(
-    `  [NegCtrl Weak-Coupling 1-Loop b=20] SU(3) L=${wcSu3.L}: MC=${wcSu3.plaqMean.toFixed(5)} vs 1-loop=${wcPred.toFixed(5)} (|diff|=${wcErr.toFixed(5)})`,
+    `  [NegCtrl Weak-Coupling 1-Loop T^4 (b_1=4) b=20] SU(3) L=${wcSu3.L}: MC=${wcSu3.plaqMean.toFixed(5)} vs 1-loop=${wcPred.toFixed(5)} (|diff|=${wcErr.toFixed(5)})`,
   )
 
   const { sigR, sigBarR } = buildSigTables(torusL4.posR4)
@@ -2066,12 +2219,13 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   const freeLinksL4 = initSu3Links(torusL4.E, false, rngF)
   const freeMq = 0.2
   const freeExact = exactFreeD4Dispersion(4, 8, freeMq)
+  assert(Math.abs(freeExact.lamMinDoubler - Math.sin(PI / 8) / 3) < 1e-14, 'Free doubler lam_min mismatch')
   const freeMeas = measureD4FermionsOnConfig(torusL4, freeLinksL4, sigR, sigBarR, freeMq, 0, rngF)
-  const freePbpRelErr = Math.abs(freeMeas.pbpExactPt - freeExact.pbpSite) / freeExact.pbpSite
+  const freePbpRelErr = Math.abs(freeMeas.pbpExactPt - freeExact.pbpNorm) / freeExact.pbpNorm
   console.log(
     `  [NegCtrl Free-Field L=4 (4^3 x 8, U=I)] <u,Mv>=<M^dag u,v> err=${adjIdentityErr.toExponential(2)} | ` +
-      `lam_min=${freeExact.lamMin.toFixed(6)} (exact sin(pi/8)/3) | pbp(0.2): CG=${freeMeas.pbpExactPt.toFixed(8)} vs Exact=${freeExact.pbpSite.toFixed(8)} ` +
-      `(relErr=${freePbpRelErr.toExponential(2)}, WTI=${freeMeas.wtiRelErr.toExponential(2)})`,
+      `lam_phys(k=0)=${freeExact.lamPhysK0.toFixed(6)} (c=1 sin(pi/8)), lam_doubler=${freeExact.lamMinDoubler.toFixed(6)} (c=1/3 sin(pi/8)/3) | ` +
+      `pbp/(4Nc)(0.2): CG=${freeMeas.pbpExactPt.toFixed(8)} vs Exact=${freeExact.pbpNorm.toFixed(8)} (relErr=${freePbpRelErr.toExponential(2)}, WTI=${freeMeas.wtiRelErr.toExponential(2)})`,
   )
 
   const fermTorus = IS_FULL ? torusL4 : buildD4BoxTorus(2, 6)
@@ -2104,50 +2258,93 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
     fermConfigs.push(Float64Array.from(fLinks))
   }
   console.log(
-    `  [Fermion Spectroscopy L=${fermTorus.Ls} (${fermTorus.Ls}^3 x ${fermTorus.Lt}, V=${fermTorus.V}, beta=${fermBeta}, ${nFermConfigs} configs, <P_tri>=${(fermPlaqSum / nFermConfigs).toFixed(4)})]:`,
+    `  [Quenched Naive D_4 Fermion Spectroscopy L=${fermTorus.Ls} (${fermTorus.Ls}^3 x ${fermTorus.Lt}, V=${fermTorus.V}, beta=${fermBeta}, ${nFermConfigs} configs, <P_tri>=${(fermPlaqSum / nFermConfigs).toFixed(4)})]:`,
   )
 
   const fermionSpectrum: FermionMassRow[] = []
   let maxWtiFerm = 0
+  let maxStochPtRelDiff = 0
+  const halfT = fermTorus.Lt / 2
+  const symCorr = (arr: Float64Array): number[] => {
+    const out: number[] = []
+    for (let tau = 0; tau <= halfT; tau++) {
+      out.push(0.5 * (arr[tau]! + arr[(fermTorus.Lt - tau) % fermTorus.Lt]!))
+    }
+    return out
+  }
+  const jackknifeStd = (looVals: readonly number[], fullVal: number): number => {
+    const n = looVals.length
+    if (n <= 1) return 0
+    let ss = 0
+    for (let i = 0; i < n; i++) ss += (looVals[i]! - fullVal) ** 2
+    return Math.sqrt(((n - 1) / n) * ss)
+  }
+
   for (const mq of mqLadder) {
-    const cPiAvg = new Float64Array(fermTorus.Lt), cRhoAvg = new Float64Array(fermTorus.Lt)
+    const cPiSum = new Float64Array(fermTorus.Lt), cRhoSum = new Float64Array(fermTorus.Lt)
+    const cPiPerCfg: Float64Array[] = [], cRhoPerCfg: Float64Array[] = []
+    const pbpPtPerCfg = new Float64Array(nFermConfigs), pbpStochPerCfg = new Float64Array(nFermConfigs)
     let sumPbpPt = 0, sumPbpStoch = 0, wtiMq = 0
     for (let c = 0; c < nFermConfigs; c++) {
       const m = measureD4FermionsOnConfig(fermTorus, fermConfigs[c]!, fSigR, fSigBarR, mq, nStochNoise, rngF)
+      cPiPerCfg.push(m.cPi); cRhoPerCfg.push(m.cRho)
+      pbpPtPerCfg[c] = m.pbpExactPt; pbpStochPerCfg[c] = m.pbpStoch
       for (let t = 0; t < fermTorus.Lt; t++) {
-        cPiAvg[t] = cPiAvg[t]! + m.cPi[t]!
-        cRhoAvg[t] = cRhoAvg[t]! + m.cRho[t]!
+        cPiSum[t] = cPiSum[t]! + m.cPi[t]!
+        cRhoSum[t] = cRhoSum[t]! + m.cRho[t]!
       }
       sumPbpPt += m.pbpExactPt; sumPbpStoch += m.pbpStoch
       if (m.wtiRelErr > wtiMq) wtiMq = m.wtiRelErr
     }
     if (wtiMq > maxWtiFerm) maxWtiFerm = wtiMq
+    const cPiAvg = new Float64Array(fermTorus.Lt), cRhoAvg = new Float64Array(fermTorus.Lt)
     for (let t = 0; t < fermTorus.Lt; t++) {
-      cPiAvg[t] = cPiAvg[t]! / nFermConfigs
-      cRhoAvg[t] = cRhoAvg[t]! / nFermConfigs
+      cPiAvg[t] = cPiSum[t]! / nFermConfigs
+      cRhoAvg[t] = cRhoSum[t]! / nFermConfigs
     }
-    const halfT = fermTorus.Lt / 2
-    const symPi = (tau: number): number => 0.5 * (cPiAvg[tau]! + cPiAvg[(fermTorus.Lt - tau) % fermTorus.Lt]!)
-    const symRho = (tau: number): number => 0.5 * (cRhoAvg[tau]! + cRhoAvg[(fermTorus.Lt - tau) % fermTorus.Lt]!)
-    const mPi = solveCoshMassAt(symPi(halfT - 1), symPi(halfT), halfT - 1, fermTorus.Lt)
-    const rho1 = symRho(1), rho2 = symRho(2)
-    const rhoA = symRho(halfT - 1), rhoB = symRho(halfT)
-    const mRho =
-      fermTorus.Lt >= 8 && rhoA > rhoB && rhoB > 0.02 * rho1
-        ? solveCoshMassAt(rhoA, rhoB, halfT - 1, fermTorus.Lt)
-        : rho1 > rho2 && rho2 > 0
-          ? solveCoshMassAt(rho1, rho2, 1, fermTorus.Lt)
-          : Math.log(Math.max(1.01, rho1 / Math.max(1e-12, Math.abs(rho2))))
-    const freeAtMq = exactFreeD4Dispersion(fermTorus.Ls, fermTorus.Lt, mq).pbpSite
+    const symPiMean = symCorr(cPiAvg)
+    const symRhoMean = symCorr(cRhoAvg)
+    const mPi = solveCoshMassAt(symPiMean[halfT - 1]!, symPiMean[halfT]!, halfT - 1, fermTorus.Lt)
+    const rhoFit = fitRhoOscillatingCosh(symRhoMean, fermTorus.Lt)
+    const mRho = rhoFit.mRho
+    const ratioFull = mPi / mRho
+
+    const jkMPi: number[] = [], jkMRho: number[] = [], jkRatio: number[] = [], jkPbpPt: number[] = [], jkPbpStoch: number[] = []
+    const tmpPi = new Float64Array(fermTorus.Lt), tmpRho = new Float64Array(fermTorus.Lt)
+    for (let k = 0; k < nFermConfigs; k++) {
+      const inv = 1 / (nFermConfigs - 1)
+      for (let t = 0; t < fermTorus.Lt; t++) {
+        tmpPi[t] = (cPiSum[t]! - cPiPerCfg[k]![t]!) * inv
+        tmpRho[t] = (cRhoSum[t]! - cRhoPerCfg[k]![t]!) * inv
+      }
+      const sp = symCorr(tmpPi), sr = symCorr(tmpRho)
+      const mpK = solveCoshMassAt(sp[halfT - 1]!, sp[halfT]!, halfT - 1, fermTorus.Lt)
+      const mrK = fitRhoOscillatingCosh(sr, fermTorus.Lt).mRho
+      jkMPi.push(mpK); jkMRho.push(mrK); jkRatio.push(mpK / mrK)
+      jkPbpPt.push((sumPbpPt - pbpPtPerCfg[k]!) * inv)
+      jkPbpStoch.push((sumPbpStoch - pbpStochPerCfg[k]!) * inv)
+    }
+    const pbpPtMean = sumPbpPt / nFermConfigs, pbpStochMean = sumPbpStoch / nFermConfigs
+    const pbpPtErr = jackknifeStd(jkPbpPt, pbpPtMean)
+    const pbpStochErr = jackknifeStd(jkPbpStoch, pbpStochMean)
+    const mPiErr = jackknifeStd(jkMPi, mPi)
+    const mRhoErr = jackknifeStd(jkMRho, mRho)
+    const mPiOverMRhoErr = jackknifeStd(jkRatio, ratioFull)
+    const stochRelDiff = Math.abs(pbpStochMean - pbpPtMean) / Math.max(1e-12, pbpPtMean)
+    if (stochRelDiff > maxStochPtRelDiff) maxStochPtRelDiff = stochRelDiff
+
+    const freeAtMq = exactFreeD4Dispersion(fermTorus.Ls, fermTorus.Lt, mq).pbpNorm
     const row: FermionMassRow = {
-      mq, pbpPt: sumPbpPt / nFermConfigs, pbpStoch: sumPbpStoch / nFermConfigs, pbpFree: freeAtMq,
-      mPi, mRho, mPiOverMRho: mPi / mRho, wtiMaxErr: wtiMq,
+      mq, pbpPt: pbpPtMean, pbpPtErr, pbpStoch: pbpStochMean, pbpStochErr, pbpFree: freeAtMq,
+      mPi, mPiErr, mRho, mRhoErr, mRhoOscRatio: rhoFit.oscRatio, mRhoFitRelRms: rhoFit.relRmsErr,
+      mPiOverMRho: ratioFull, mPiOverMRhoErr, wtiMaxErr: wtiMq,
       cPi: Array.from(cPiAvg), cRho: Array.from(cRhoAvg),
     }
     fermionSpectrum.push(row)
     console.log(
-      `    m_q=${mq.toFixed(2)}: <pbp>_pt=${row.pbpPt.toFixed(4)} <pbp>_stoch=${row.pbpStoch.toFixed(4)} (free=${row.pbpFree.toFixed(4)}) | ` +
-        `m_pi=${row.mPi.toFixed(4)}, m_rho=${row.mRho.toFixed(4)}, m_pi/m_rho=${row.mPiOverMRho.toFixed(4)} | WTI=${wtiMq.toExponential(1)}`,
+      `    m_q=${mq.toFixed(2)}: <pbp>/(4Nc)=${row.pbpPt.toFixed(4)}+/-${row.pbpPtErr.toFixed(4)} stoch=${row.pbpStoch.toFixed(4)}+/-${row.pbpStochErr.toFixed(4)} (free=${row.pbpFree.toFixed(4)}) | ` +
+        `m_pi=${row.mPi.toFixed(4)}+/-${row.mPiErr.toFixed(4)}, m_rho=${row.mRho.toFixed(4)}+/-${row.mRhoErr.toFixed(4)} (B/A=${row.mRhoOscRatio.toFixed(2)}), ` +
+        `m_pi/m_rho=${row.mPiOverMRho.toFixed(4)}+/-${row.mPiOverMRhoErr.toFixed(4)} | WTI=${wtiMq.toExponential(1)}`,
     )
   }
 
@@ -2155,7 +2352,7 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   const pbpFit = linReg(fermionSpectrum.map(r => r.mq), fermionSpectrum.map(r => r.pbpPt))
   console.log(
     `  [Chiral Extrapolation] GMOR m_pi^2 = ${gmorFit.intercept.toFixed(4)} + ${gmorFit.slope.toFixed(3)} m_q (R^2=${gmorFit.r2.toFixed(5)}) | ` +
-      `<psi_bar psi>(m_q->0) = ${pbpFit.intercept.toFixed(4)} (> 0 SBCS!)`,
+      `<psi_bar psi>/(4Nc)(m_q->0) = ${pbpFit.intercept.toFixed(4)} (> 0 SBCS; max stoch-vs-pt diff=${(maxStochPtRelDiff * 100).toFixed(1)}%)`,
   )
 
   recordGate(
@@ -2168,14 +2365,14 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   recordGate(
     'G1.2',
     'Part 1',
-    'Strong-coupling & weak-coupling analytical negative controls (SU(2) & SU(3) on D_4)',
+    'Strong-coupling & weak-coupling 1-loop T^4 (b_1=4) analytical negative controls (SU(2) & SU(3) on D_4)',
     su2RelErr < 0.08 && su3RelErr < 0.12 && wcErr < 0.02,
-    `SC b=0.2 SU(2) relErr=${(su2RelErr * 100).toFixed(2)}%, SU(3) relErr=${(su3RelErr * 100).toFixed(2)}%; WC b=20 |diff|=${wcErr.toFixed(5)}`,
+    `SC b=0.2 SU(2) relErr=${(su2RelErr * 100).toFixed(2)}%, SU(3) relErr=${(su3RelErr * 100).toFixed(2)}%; WC T^4 b=20 |diff|=${wcErr.toFixed(5)}`,
   )
   recordGate(
     'G1.3',
     'Part 1',
-    'Matrix-free L=4 chiral Dirac adjoint & exact free-field (U=I) dispersion/condensate control',
+    'Matrix-free L=4 naive D_4 Dirac adjoint & exact free-field (U=I) dispersion/condensate control',
     adjIdentityErr < 1e-13 && freePbpRelErr < 1e-9 && freeMeas.wtiRelErr < 1e-9,
     `adjErr=${adjIdentityErr.toExponential(2)}, freePbpRelErr=${freePbpRelErr.toExponential(2)}, freeWTI=${freeMeas.wtiRelErr.toExponential(2)}`,
   )
@@ -2184,18 +2381,21 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   recordGate(
     'G1.4',
     'Part 1',
-    'D_4 SU(3) dynamical SBCS, Axial WTI, GMOR scaling & m_pi/m_rho hierarchy',
+    'Quenched naive D_4 SU(3) dynamical SBCS, stoch-vs-pt <pbp>, Axial WTI, GMOR & oscillating m_rho hierarchy',
     maxWtiFerm < 1e-9 &&
-      pbpFit.intercept > 0.4 &&
+      pbpFit.intercept > 0.1 &&
       lightest.pbpPt > 2.0 * lightest.pbpFree &&
+      maxStochPtRelDiff < 0.2 &&
       gmorFit.r2 > 0.985 &&
       lightest.mPi < lightest.mRho &&
       lightest.mPiOverMRho < heaviest.mPiOverMRho,
-    `<pbp>(0)=${pbpFit.intercept.toFixed(4)}, GMOR R^2=${gmorFit.r2.toFixed(5)}, m_pi/m_rho=${lightest.mPiOverMRho.toFixed(3)}->${heaviest.mPiOverMRho.toFixed(3)}, WTI=${maxWtiFerm.toExponential(1)}`,
+    `<pbp>/(4Nc)(0)=${pbpFit.intercept.toFixed(4)}, stoch-vs-pt<=${(maxStochPtRelDiff * 100).toFixed(1)}%, GMOR R^2=${gmorFit.r2.toFixed(5)}, m_pi/m_rho=${lightest.mPiOverMRho.toFixed(3)}->${heaviest.mPiOverMRho.toFixed(3)}, WTI=${maxWtiFerm.toExponential(1)}`,
   )
 
   return {
     mode: MODE_LABEL,
+    tier: 'Tier B/C (quenched pure-gauge D_4 SU(2)/SU(3) MC + quenched naive 40-doubler D_4 fermions)',
+    fermionDiscretization: 'quenched-naive-d4-40-doubler (c=1 physical at k=0, c=1/3 at doublers e.g. (pi,pi,0,k_t); <pbp> normalized by 1/(4 N_c))',
     censusL4: { V: torusL4.V, E: torusL4.E, T: torusL4.T },
     censusL6: { V: torusL6.V, E: torusL6.E, T: torusL6.T },
     gaugeRuns: allGaugeRuns,
@@ -2203,9 +2403,12 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
       su2Beta: scSu2.beta, su2Measured: scSu2.plaqMean, su2Exact: su2ExactSC, su2RelErr,
       su3Beta: scSu3.beta, su3Measured: scSu3.plaqMean, su3Exact: su3ExactSC, su3RelErr,
     },
+    weakCouplingCheck: {
+      beta: wcSu3.beta, L: wcSu3.L, measured: wcSu3.plaqMean, oneLoopT4Pred: wcPred, absDiff: wcErr,
+    },
     freeFieldChecks: {
-      L: 4, adjIdentityErr, freeDispLamMin: freeExact.lamMin,
-      freePbpAnalytical: freeExact.pbpSite, freePbpCg: freeMeas.pbpExactPt, freePbpRelErr, freeWtiErr: freeMeas.wtiRelErr,
+      L: 4, adjIdentityErr, freeDispLamPhysK0: freeExact.lamPhysK0, freeDispLamMinDoubler: freeExact.lamMinDoubler,
+      freePbpNormAnalytical: freeExact.pbpNorm, freePbpNormCg: freeMeas.pbpExactPt, freePbpRelErr, freeWtiErr: freeMeas.wtiRelErr,
     },
     fermionBeta: fermBeta, fermionL: fermTorus.Ls, fermionConfigs: nFermConfigs,
     fermionSpectrum, gmorR2: gmorFit.r2, gmorIntercept: gmorFit.intercept, chiralCondensateExtrap: pbpFit.intercept,
@@ -2214,7 +2417,10 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
 }
 
 // =================================================================================================
-// SECTION 6: PART 2 — INTERACTING MULTI-SITE 3+1D CHIRAL SMG (Spin(7) CAYLEY-4-FORM)
+// SECTION 6: PART 2 - TIER-B 0+1D/1+1D MULTI-SITE SU(4) (~= Spin(6)) CAYLEY-4-FORM SMG BENCHMARK
+//   Note: On-site Cayley 4-form is Spin(7)-invariant (projecting onto +Gamma_9 8_s or -Gamma_9 8_c),
+//   while bipartite spinless complex hopping preserves SU(4) ~= Spin(6). NegCtrl 2D tests 1+1D
+//   Fidkowski-Kitaev nu = 4 mod 8; full dynamical 3+1D/4D gauge-coupled chiral SMG remains Tier C open.
 // =================================================================================================
 
 type PauliTerm = { readonly xMask: number; readonly zMask: number; readonly iPow: number }
@@ -2250,7 +2456,10 @@ const FANO_TRIPLES: readonly (readonly [number, number, number])[] = [
 
 type OneSiteOp = { readonly diag: Float64Array; readonly offDst: Int32Array; readonly offVal: Float64Array }
 
-function buildOneSiteCayleyOp(diagonalOnly: boolean): OneSiteOp {
+function buildOneSiteCayleyOp(diagonalOnly: boolean, chirality: 1 | -1 = 1): OneSiteOp {
+  // Exact 1-site 8-Majorana Cayley 4-form:
+  //   chirality = +1: H_C^(+) = -sum_{Fano} (A + *A) projects onto +Gamma_9 (8_s, even parity, E0=-14 unique)
+  //   chirality = -1: H_C^(-) = +sum_{Fano} (A - *A) projects onto -Gamma_9 (8_c, odd parity, E0=-14 unique)
   const dim = 16
   const re = new Float64Array(dim * dim), im = new Float64Array(dim * dim)
   const phases: readonly [number, number][] = [[1, 0], [0, 1], [-1, 0], [0, -1]]
@@ -2271,7 +2480,7 @@ function buildOneSiteCayleyOp(diagonalOnly: boolean): OneSiteOp {
   for (const [i, j, k] of FANO_TRIPLES) {
     const rawA = [0, i, j, k]
     const sortedA = [...rawA].sort((x, y) => x - y)
-    addTerm(sortedA, -leviCivitaSign(rawA))
+    addTerm(sortedA, -chirality * leviCivitaSign(rawA))
     const setA = new Set(rawA)
     const comp = [0, 1, 2, 3, 4, 5, 6, 7].filter(x => !setA.has(x))
     addTerm(comp, -leviCivitaSign([...rawA, ...comp]))
