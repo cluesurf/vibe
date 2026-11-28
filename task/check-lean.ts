@@ -717,6 +717,15 @@ const REQUIRED_THEOREMS = [
   'thm_lump_line_conflict_witnesses',
   'gen_lump_block_maps_eq',
   'gen_partitioned_ring_eq',
+  // Vibe.Compute.KleeneCertificates (8 headline, L19: B4 the four one-law cells compute neg in a width-9 window and min, max in width-12 windows on the Lean brick round, every input, from the code's layouts; A9 the T5 counter ADD and SUB for every a : Int and n, from the register step on any matching; B5 the code's 162 cases; bridges of Generated/Kleene)
+  'thm_kleene_neg_width_nine',
+  'thm_kleene_min_max_width_twelve',
+  'thm_kleene_register_move',
+  'thm_kleene_register_stay',
+  'thm_kleene_counter_add_sub',
+  'thm_kleene_counter_cases',
+  'gen_kleene_layouts_eq',
+  'gen_kleene_counter_eq',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

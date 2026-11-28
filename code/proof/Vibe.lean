@@ -57,6 +57,7 @@ import Vibe.Compute.Frontier
 import Vibe.Compute.Charge
 import Vibe.Compute.FiniteInteractionWire
 import Vibe.Compute.FiniteInteractionSpecies
+import Vibe.Compute.KleeneCertificates
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
