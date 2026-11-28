@@ -64,6 +64,30 @@ import {
   windowRadius,
 } from '@/code/compute/lab/coarse-block'
 import { encodeState, globalPermutation } from '@/code/rule/partitioned-pair'
+import {
+  BEAT_LAYERS,
+  BEAT_LAYER_NAMES,
+  type BeatState,
+  Z9_COIN_DIAG,
+  Z9_COIN_OFF,
+  Z9_MEET_SWAP,
+  Z9_OMEGA,
+  Z9_ZETA18,
+  Z9_ZETA6,
+  type Z9,
+  applyBeat,
+  applyBeats,
+  applyHalfCoinD,
+  applyOddChiralPhase,
+  applyOppositeSignBounce,
+  applyPairLineMixer,
+  applyRoleMeet,
+  basisKet,
+  conjZ9,
+  decodeConfig,
+  mulZ9,
+  stepDock,
+} from '@/code/rule/bare-beat'
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 
@@ -631,6 +655,366 @@ export function exportPartitionedRing(): string {
   })
 }
 
+// L15 (models-0085): the bare beat against the Lean Fock beat (Vibe.Compute.BeatLink). A family vibe is
+// (slot, tone, role) at dock 0 of a fresh {3,4,3,4} mesh. The family: every one-excitation state of dock 0, every
+// two-excitation state with an excitation on line 0 (slot 0 or its opposite), and every identical full-line pair
+// (same tone, same role) on any line, roles 0 and 1 only (the Lean Fock model has 2 roles). It is closed under the
+// seven dock-local layers, which the export checks. Also: the layer coefficients as the layers produce them, the
+// beat itself, the 24 neighbour centers, and the lone vibe (slot 0, +1, role 0) to beat 16 with q-ladder Q5's
+// moments and returns, which the export checks against the printed table.
+const BARE_BEAT_SOURCES = ['code/rule/bare-beat.ts', 'code/compute/quantum/particles.ts'] as const
+const BARE_BEAT_LINE_REACH = 16
+
+type BareBeatVibe = readonly [number, number, number]
+
+function bareBeatKey(vibes: readonly BareBeatVibe[]): string {
+  return [...vibes]
+    .sort((a, b) => a[0] - b[0])
+    .map(v => v.join(':'))
+    .join(';')
+}
+
+function bareBeatFamily(): BareBeatVibe[][] {
+  const tones = [-1, 1]
+  const roles = [0, 1]
+  const lineZero = [0, OPPOSITE_SLOT[0]!]
+  const family: BareBeatVibe[][] = []
+
+  for (let s = 0; s < 24; s++) {
+    for (const t of tones) {
+      for (const r of roles) {
+        family.push([[s, t, r]])
+      }
+    }
+  }
+
+  for (let s1 = 0; s1 < 24; s1++) {
+    for (let s2 = s1 + 1; s2 < 24; s2++) {
+      const touchesLineZero = lineZero.includes(s1) || lineZero.includes(s2)
+
+      if (!touchesLineZero && OPPOSITE_SLOT[s1] !== s2) {
+        continue
+      }
+
+      for (const t1 of tones) {
+        for (const r1 of roles) {
+          for (const t2 of tones) {
+            for (const r2 of roles) {
+              if (!touchesLineZero && (t1 !== t2 || r1 !== r2)) {
+                continue
+              }
+
+              family.push([
+                [s1, t1, r1],
+                [s2, t2, r2],
+              ])
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return family
+}
+
+// an integer as a natural number (zigzag: 2c for c >= 0, -2c - 1 for c < 0), so every table is a list of naturals
+function bareBeatZig(c: bigint): string {
+  return String(c >= 0n ? 2n * c : -2n * c - 1n)
+}
+
+// amp / den as num / 6^e (the Lean NinthRaw6 form) with the least e such that den divides 6^e: the six zigzag
+// coefficients of num, then e
+function bareBeatRaw(amp: Z9, den: bigint): string {
+  let e = 0
+
+  while (6n ** BigInt(e) % den !== 0n) {
+    e++
+
+    if (e > 64) {
+      throw new Error(`denominator ${den} is not a product of 2s and 3s`)
+    }
+  }
+
+  const k = 6n ** BigInt(e) / den
+
+  return `${amp.map(c => bareBeatZig(c * k)).join(', ')}, ${e}`
+}
+
+function bareBeatKet(vibes: readonly BareBeatVibe[]): BeatState {
+  return basisKet(vibes.map(([s, t, r]) => [0, s, t as -1 | 1, r] as const))
+}
+
+// a state as rows (family index of its configuration read at dock 0, amplitude), sorted by index
+function bareBeatRows(
+  state: BeatState,
+  indexOf: Map<string, number>,
+  onDock: (dock: number, slot: number) => boolean,
+): string {
+  const rows: [number, string][] = []
+
+  for (const [key, amp] of state.amp) {
+    const vibes = decodeConfig(key)
+
+    for (const [dock, slot] of vibes) {
+      if (!onDock(dock, slot)) {
+        throw new Error(`output ${key} leaves the expected dock`)
+      }
+    }
+
+    const j = indexOf.get(bareBeatKey(vibes.map(([, s, t, r]) => [s, t, r] as const)))
+
+    if (j === undefined) {
+      throw new Error(`output ${key} is outside the family`)
+    }
+
+    rows.push([j, bareBeatRaw(amp, state.den)])
+  }
+
+  rows.sort((a, b) => a[0] - b[0])
+
+  return `[${rows.map(([j, a]) => `${j}, ${a}`).join(', ')}]`
+}
+
+// |amp|^2 numerator over den^2, refusing a value that is not rational
+function bareBeatNormSq(amp: Z9): bigint {
+  const n = mulZ9(conjZ9(amp), amp)
+
+  if (n.slice(1).some(c => c !== 0n)) {
+    throw new Error(`|amp|^2 of ${amp.join(',')} is not rational`)
+  }
+
+  return n[0]!
+}
+
+function bareBeatRatio(num: bigint, den: bigint): string {
+  let x = num < 0n ? -num : num
+  let y = den
+
+  while (y !== 0n) {
+    ;[x, y] = [y, x % y]
+  }
+
+  const g = x === 0n ? den : x
+
+  return `${num / g}/${den / g}`
+}
+
+// q-ladder Q5: the bare-U lone vibe's printed second moments and returns to the start dock
+const Q5_LONE_MOMENT: Record<number, string> = {
+  1: '1/1',
+  2: '1/1',
+  3: '3/2',
+  4: '23/8',
+  5: '61/16',
+  6: '663/128',
+  7: '1855/256',
+  8: '9259/1024',
+  16: '1171761107/33554432',
+}
+const Q5_LONE_RETURN: Record<number, string> = {
+  1: '0/1',
+  2: '3/4',
+  3: '0/1',
+  4: '21/64',
+  5: '0/1',
+  6: '39/256',
+  7: '0/1',
+  8: '2433/16384',
+  16: '76931769/1073741824',
+}
+
+export function exportBareBeat(): string {
+  const family = bareBeatFamily()
+  const indexOf = new Map(family.map((v, i) => [bareBeatKey(v), i] as const))
+  const atBase = (dock: number): boolean => dock === 0
+  const layers = [
+    ['phi', (s: BeatState) => applyOddChiralPhase(s, false)],
+    ['coin', (s: BeatState) => applyHalfCoinD(s, false)],
+    ['bounce', (s: BeatState) => applyOppositeSignBounce(s)],
+    ['pair', (s: BeatState) => applyPairLineMixer(s, false)],
+    ['meet', (s: BeatState) => applyRoleMeet(s, false)],
+  ] as const
+
+  // a dock center key 'a,b;...' (five a + b sqrt 2) as ten zigzag naturals
+  const centerNats = (key: string): string => {
+    const parts = key.split(';').flatMap(entry => entry.split(','))
+
+    if (parts.length !== 10) {
+      throw new Error(`dock center ${key} does not have 5 coordinates`)
+    }
+
+    return `[${parts.map(p => bareBeatZig(BigInt(p))).join(', ')}]`
+  }
+
+  const body = withGeometry('3434', () => {
+    const neighbourCenters = OPPOSITE_SLOT.map((_, s) => centerNats(dockCenterKey(stepDock(0, s))))
+    const layerTables = layers.map(
+      ([name, apply]) => [name, family.map(v => bareBeatRows(apply(bareBeatKet(v)), indexOf, atBase))] as const,
+    )
+    // every output vibe of the beat sits on the neighbour its own slot points to, so a beat row is written by the
+    // pre-stream configuration at dock 0
+    const beatRows = family.map(v =>
+      bareBeatRows(applyBeat(bareBeatKet(v)), indexOf, (dock, slot) => dockCenterKey(dock) === dockCenterKey(stepDock(0, slot))),
+    )
+
+    const o = OPPOSITE_SLOT[0]!
+    const witness = (state: BeatState, vibes: readonly BareBeatVibe[]): string => {
+      const z = state.amp.get(
+        [...vibes]
+          .sort((a, b) => a[0] - b[0])
+          .map(([s, t, r]) => `0:${s}:${t}:${r}`)
+          .join(';'),
+      )
+
+      if (z === undefined) {
+        throw new Error('a coefficient witness has no amplitude')
+      }
+
+      return bareBeatRaw(z, state.den)
+    }
+    const lone: BareBeatVibe[] = [[0, 1, 0]]
+    const oppSign: BareBeatVibe[] = [[0, 1, 0], [o, -1, 0]]
+    const ident: BareBeatVibe[] = [[0, 1, 0], [o, 1, 0]]
+    const diffRole: BareBeatVibe[] = [[0, 1, 0], [o, 1, 1]]
+    const coeffs = [
+      ['coin_diag', witness(applyHalfCoinD(bareBeatKet(lone), false), lone)],
+      ['coin_off', witness(applyHalfCoinD(bareBeatKet(lone), false), [[o, 1, 0]])],
+      ['full_line_phase', witness(applyHalfCoinD(bareBeatKet(oppSign), false), oppSign)],
+      ['bounce_sign', witness(applyOppositeSignBounce(bareBeatKet(oppSign)), [[0, -1, 0], [o, 1, 0]])],
+      ['meet_equal_role_phase', witness(applyRoleMeet(bareBeatKet(ident), false), ident)],
+      ['meet_keep', witness(applyRoleMeet(bareBeatKet(diffRole), false), diffRole)],
+      ['meet_swap', witness(applyRoleMeet(bareBeatKet(diffRole), false), [[0, 1, 1], [o, 1, 0]])],
+      ['pair_keep', witness(applyPairLineMixer(bareBeatKet(ident), false), ident)],
+      ['pair_hop', witness(applyPairLineMixer(bareBeatKet(ident), false), [[1, 1, 0], [OPPOSITE_SLOT[1]!, 1, 0]])],
+    ]
+
+    const chain = lineChain(0, 0, BARE_BEAT_LINE_REACH)
+    const dockAt = new Map<number, number>()
+
+    for (const [dock, k] of chain) {
+      dockAt.set(k, dock)
+    }
+
+    const lineCenters: string[] = []
+
+    for (let k = -BARE_BEAT_LINE_REACH; k <= BARE_BEAT_LINE_REACH; k++) {
+      lineCenters.push(centerNats(dockCenterKey(dockAt.get(k)!)))
+    }
+
+    const walk: string[] = []
+    const moments: string[] = []
+    const returns: string[] = []
+
+    for (let t = 0; t <= BARE_BEAT_LINE_REACH; t++) {
+      const state = applyBeats(basisKet([[0, 0, 1, 0]]), t)
+      const rows: [number, number, string][] = []
+      let moment = 0n
+      let back = 0n
+
+      for (const [key, amp] of state.amp) {
+        const vibes = decodeConfig(key)
+
+        if (vibes.length !== 1) {
+          throw new Error(`lone walk beat ${t} holds ${vibes.length} vibes`)
+        }
+
+        const [dock, slot, tone, role] = vibes[0]!
+        const k = chain.get(dock)
+
+        if (k === undefined || tone !== 1 || role !== 0 || (slot !== 0 && slot !== o)) {
+          throw new Error(`lone walk beat ${t} leaves line 0: ${key}`)
+        }
+
+        rows.push([k, slot, bareBeatRaw(amp, state.den)])
+        const p = bareBeatNormSq(amp)
+
+        moment += BigInt(k * k) * p
+
+        if (k === 0) {
+          back += p
+        }
+      }
+
+      rows.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+      walk.push(`[${rows.map(([k, s, a]) => `${bareBeatZig(BigInt(k))}, ${s}, ${a}`).join(', ')}]`)
+      const den2 = state.den * state.den
+
+      if (Q5_LONE_MOMENT[t] !== undefined && bareBeatRatio(moment, den2) !== Q5_LONE_MOMENT[t]) {
+        throw new Error(`beat ${t} second moment ${bareBeatRatio(moment, den2)} is not q-ladder's ${Q5_LONE_MOMENT[t]}`)
+      }
+
+      if (Q5_LONE_RETURN[t] !== undefined && bareBeatRatio(back, den2) !== Q5_LONE_RETURN[t]) {
+        throw new Error(`beat ${t} return ${bareBeatRatio(back, den2)} is not q-ladder's ${Q5_LONE_RETURN[t]}`)
+      }
+
+      moments.push(bareBeatRaw([moment, 0n, 0n, 0n, 0n, 0n], den2))
+      returns.push(bareBeatRaw([back, 0n, 0n, 0n, 0n, 0n], den2))
+    }
+
+    if (inconsistentStepCount() !== 0) {
+      throw new Error('the {3,4,3,4} mesh counted an inconsistent frame step')
+    }
+
+    const z9 = (z: Z9): string => `(${z.join(', ')})`
+    const raw = 'List (Nat × (Int × Int × Int × Int × Int × Int) × Nat)'
+
+    return [
+      '/-- The `Z9` constants of bare-beat.ts (coefficients on `1, z, ..., z^5`, `z^6 + z^3 + 1 = 0`):',
+      '    `Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6, Z9_OMEGA`, in that order. -/',
+      `def bareBeatZ9 : List (Int × Int × Int × Int × Int × Int) :=\n  [${[Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6, Z9_OMEGA].map(z9).join(', ')}]`,
+      '',
+      '/-- Each layer coefficient as the layer itself produces it on its smallest witness state, as',
+      '    `(num, exp)` for `num / 6^exp`. -/',
+      `def bareBeatCoeffs : List (String × (Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${coeffs.map(([n, a]) => `("${n}", ${a})`).join(',\n   ')}]`,
+      '',
+      '/-- `BEAT_LAYER_NAMES` and the function names of `BEAT_LAYERS`, in execution order. -/',
+      `def bareBeatLayerNames : List (String × String) :=\n  [${BEAT_LAYER_NAMES.map((n, i) => `("${n}", "${BEAT_LAYERS[i]!.name}")`).join(', ')}]`,
+      '',
+      '/-- The declared family at dock 0: each state a list of `(slot, tone, role)` sorted by slot. -/',
+      `def bareBeatFamily : List (List (Nat × Int × Nat)) :=\n  [${family.map(v => `[${v.map(([s, t, r]) => `(${s}, ${t}, ${r})`).join(', ')}]`).join(',\n   ')}]`,
+      '',
+      ...layerTables.flatMap(([name, rows]) => [
+        `/-- Layer \`${name}\` on every family state: rows \`(output family index, num, exp)\`. -/`,
+        `def bareBeatLayer_${name} : List (${raw}) :=\n  [${rows.join(',\n   ')}]`,
+        '',
+      ]),
+      '/-- `applyBeat` on every family state: rows `(family index of the pre-stream configuration, num, exp)`;',
+      '    every output vibe sits on the dock its slot points to from dock 0. -/',
+      `def bareBeatBeat : List (${raw}) :=\n  [${beatRows.join(',\n   ')}]`,
+      '',
+      '/-- The center of `stepDock(0, s)` for every slot `s` (`dockCenterKey`, five `(a, b)` pairs of `a + b √2`). -/',
+      `def bareBeatNeighbourCenters : List (List (Int × Int)) :=\n  [${neighbourCenters.join(',\n   ')}]`,
+      '',
+      `/-- The centers of the docks of \`lineChain(0, 0, ${BARE_BEAT_LINE_REACH})\` at coordinates -${BARE_BEAT_LINE_REACH} .. ${BARE_BEAT_LINE_REACH}. -/`,
+      `def bareBeatLineCenters : List (List (Int × Int)) :=\n  [${lineCenters.join(',\n   ')}]`,
+      '',
+      `/-- \`applyBeats\` of the lone vibe (dock 0, slot 0, +1, role 0) at beats 0 .. ${BARE_BEAT_LINE_REACH}: rows`,
+      '    `(line coordinate, slot, num, exp)`. -/',
+      `def bareBeatWalk : List (List (Int × Nat × (Int × Int × Int × Int × Int × Int) × Nat)) :=\n  [${walk.join(',\n   ')}]`,
+      '',
+      '/-- Per beat of the lone walk, the second moment `sum k^2 p` as `(num, exp)` (checked by the export against',
+      "    q-ladder Q5's printed table). -/",
+      `def bareBeatWalkMoments : List ((Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${moments.join(', ')}]`,
+      '',
+      '/-- Per beat of the lone walk, the return probability to dock 0 as `(num, exp)` (checked likewise). -/',
+      `def bareBeatWalkReturns : List ((Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${returns.join(', ')}]`,
+    ].join('\n')
+  })
+
+  return wrap({
+    header: header({
+      sources: BARE_BEAT_SOURCES,
+      lines: [
+        `Exports the layer coefficients, the ${family.length}-state family's seven dock-local layer tables and beat`,
+        `table, the neighbour centers, and the lone walk to beat ${BARE_BEAT_LINE_REACH} of the bare beat.`,
+        'Bridge: Vibe.Compute.BeatLink.',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -683,6 +1067,19 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridgeModule: 'Vibe.Compute.Lumpability',
     bridges: ['gen_partitioned_ring_eq'],
     render: exportPartitionedRing,
+  },
+  {
+    name: 'BareBeat',
+    sources: BARE_BEAT_SOURCES,
+    bridgeModule: 'Vibe.Compute.BeatLink',
+    bridges: [
+      'gen_bare_beat_coeffs_eq',
+      'gen_bare_beat_layers_eq',
+      'gen_bare_beat_family_eq',
+      'gen_bare_beat_beat_eq',
+      'gen_bare_beat_walk_eq',
+    ],
+    render: exportBareBeat,
   },
 ]
 

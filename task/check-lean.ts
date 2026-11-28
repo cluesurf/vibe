@@ -642,6 +642,14 @@ const REQUIRED_THEOREMS = [
   'thm_cover_systole_even',
   'thm_cover_systole_odd',
   'thm_surface_limited_reads',
+  // Vibe.Compute.SpeciesTransport (7 headline, L04: A4 the M6 no-feedback lemma on any graph and schedule, the pull-back lemma, B15 the lemma table over the 24 species cells and genTable, A5 output copy and no Kleene gate on the 12 occupancy-blind cells, A25 M10 P2 a point mutation marks exactly one cell)
+  'thm_species_transport',
+  'thm_species_pull_back',
+  'thm_species_output_copy',
+  'thm_species_no_kleene',
+  'thm_species_transport_cells',
+  'thm_species_blind_cells',
+  'thm_species_point_mutation',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
