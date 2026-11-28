@@ -2679,9 +2679,20 @@ function blockLanczosLowest(
   throw new Error('Block Lanczos terminated unexpectedly')
 }
 
-type SmgBlock = { readonly nSites: number; readonly states: Int32Array; readonly stateToIdx: Int32Array; readonly Q1: number; readonly Q2: number; readonly Q3: number }
+type SmgBlock = {
+  readonly nSites: number
+  readonly chirality: 1 | -1
+  readonly states: Int32Array
+  readonly stateToIdx: Int32Array
+  readonly Q1: number
+  readonly Q2: number
+  readonly Q3: number
+}
 
-function buildSmgCartanBlock(nSites: number, Q1: number, Q2: number, Q3: number): SmgBlock {
+function buildSmgCartanBlock(nSites: number, Q1: number, Q2: number, Q3: number, chirality: 1 | -1 = 1): SmgBlock {
+  // Cartan U(1)^3 charges conserved by both hopping and Cayley 4-form:
+  //   chirality = +1 (+Gamma_9, 8_s): Q1 = N0 - N3, Q2 = N1 - N2, Q3 = N0 + N1
+  //   chirality = -1 (-Gamma_9, 8_c): Q1 = N0 + N3, Q2 = N1 - N2, Q3 = N0 - N1
   const totalDim = 1 << (4 * nSites)
   const list: number[] = []
   const stateToIdx = new Int32Array(totalDim).fill(-1)
@@ -2691,12 +2702,71 @@ function buildSmgCartanBlock(nSites: number, Q1: number, Q2: number, Q3: number)
       const nib = (s >> (4 * x)) & 0xf
       n0 += nib & 1; n1 += (nib >> 1) & 1; n2 += (nib >> 2) & 1; n3 += (nib >> 3) & 1
     }
-    if (n0 - n3 === Q1 && n1 - n2 === Q2 && n0 + n1 === Q3) {
+    const match =
+      chirality === 1
+        ? n0 - n3 === Q1 && n1 - n2 === Q2 && n0 + n1 === Q3
+        : n0 + n3 === Q1 && n1 - n2 === Q2 && n0 - n1 === Q3
+    if (match) {
       stateToIdx[s] = list.length
       list.push(s)
     }
   }
-  return { nSites, states: Int32Array.from(list), stateToIdx, Q1, Q2, Q3 }
+  return { nSites, chirality, states: Int32Array.from(list), stateToIdx, Q1, Q2, Q3 }
+}
+
+function solveShiftedCG(
+  H: SparseSym,
+  shift: number,
+  rhsIn: Float64Array,
+  projVec: Float64Array | null,
+  tol = 1e-12,
+  maxIter = 450,
+): { readonly sol: Float64Array; readonly iters: number; readonly relRes: number } {
+  // Solves (H + shift * I) x = P_perp rhs using Conjugate Gradient (strictly SPD on P_perp).
+  const n = H.n
+  const b = Float64Array.from(rhsIn)
+  const projectOut = (v: Float64Array): void => {
+    if (projVec === null) return
+    let d = 0
+    for (let i = 0; i < n; i++) d += projVec[i]! * v[i]!
+    for (let i = 0; i < n; i++) v[i] = v[i]! - d * projVec[i]!
+  }
+  projectOut(b)
+  let bNorm2 = 0
+  for (let i = 0; i < n; i++) bNorm2 += b[i]! * b[i]!
+  const x = new Float64Array(n)
+  if (bNorm2 < 1e-28) return { sol: x, iters: 0, relRes: 0 }
+
+  const r = Float64Array.from(b), p = Float64Array.from(b), ap = new Float64Array(n)
+  let rsOld = bNorm2
+  let it = 0
+  const tolSq = tol * tol * bNorm2
+  for (; it < maxIter; it++) {
+    spmvSym(H, p, ap)
+    for (let i = 0; i < n; i++) ap[i] = ap[i]! + shift * p[i]!
+    projectOut(ap)
+    let pAp = 0
+    for (let i = 0; i < n; i++) pAp += p[i]! * ap[i]!
+    if (pAp <= 1e-30) break
+    const alpha = rsOld / pAp
+    let rsNew = 0
+    for (let i = 0; i < n; i++) {
+      x[i] = x[i]! + alpha * p[i]!
+      r[i] = r[i]! - alpha * ap[i]!
+      rsNew += r[i]! * r[i]!
+    }
+    if (projVec !== null && (it + 1) % 20 === 0) {
+      projectOut(x); projectOut(r)
+      rsNew = 0
+      for (let i = 0; i < n; i++) rsNew += r[i]! * r[i]!
+    }
+    if (rsNew <= tolSq) { rsOld = rsNew; it++; break }
+    const beta = rsNew / rsOld
+    for (let i = 0; i < n; i++) p[i] = r[i]! + beta * p[i]!
+    rsOld = rsNew
+  }
+  projectOut(x)
+  return { sol: x, iters: it, relRes: Math.sqrt(rsOld / bNorm2) }
 }
 
 function buildSmgBlockHamiltonian(
@@ -2766,9 +2836,11 @@ function measureSmgObservables(
   blk: SmgBlock,
   psi: Float64Array,
   cayleyOp: OneSiteOp,
-): { readonly maxBilinearCond: number; readonly g2ByDist: number[]; readonly g4ConnByDist: number[]; readonly cayleyPerSite: number } {
+): { readonly diagSymmetryCheck: number; readonly g2ByDist: number[]; readonly g4ConnByDist: number[]; readonly cayleyPerSite: number } {
   const n = blk.states.length, nSites = blk.nSites
-  let maxBil = 0
+  // Numerical symmetry sanity check for on-site diagonal Z_{x,q} (zero by exact symmetry in unique GS;
+  // NOT dynamical evidence against SSB - dynamical stability is measured by Kubo susceptibilities below!)
+  let maxDiagZ = 0
   for (let x = 0; x < nSites; x++) {
     for (let q = 0; q < 4; q++) {
       const bit = 4 * x + q
@@ -2777,26 +2849,7 @@ function measureSmgObservables(
         const p = psi[i]! * psi[i]!
         zExp += ((blk.states[i]! >> bit) & 1) === 0 ? p : -p
       }
-      if (Math.abs(zExp) > maxBil) maxBil = Math.abs(zExp)
-    }
-  }
-  for (let x = 0; x < nSites; x++) {
-    for (let q1 = 0; q1 < 4; q1++) {
-      for (let q2 = q1 + 1; q2 < 4; q2++) {
-        const b1 = 4 * x + q1, b2 = 4 * x + q2
-        let exp = 0
-        for (let i = 0; i < n; i++) {
-          const s = blk.states[i]!
-          if (((s >> b1) & 1) === ((s >> b2) & 1)) continue
-          const j = blk.stateToIdx[s ^ (1 << b1) ^ (1 << b2)]!
-          if (j >= 0) {
-            const mask = ((1 << b2) - 1) ^ ((1 << (b1 + 1)) - 1)
-            const jw = (popcount(s & mask) & 1) === 0 ? 1 : -1
-            exp += jw * psi[i]! * psi[j]!
-          }
-        }
-        if (Math.abs(exp) > maxBil) maxBil = Math.abs(exp)
-      }
+      if (Math.abs(zExp) > maxDiagZ) maxDiagZ = Math.abs(zExp)
     }
   }
 
@@ -2848,31 +2901,173 @@ function measureSmgObservables(
     for (let i = 0; i < n; i++) { expR += psi[i]! * hrPsi[i]!; exp0R += h0Psi[i]! * hrPsi[i]! }
     g4ConnByDist.push(Math.abs(exp0R - exp0 * expR))
   }
-  return { maxBilinearCond: maxBil, g2ByDist, g4ConnByDist, cayleyPerSite: exp0 }
+  return { diagSymmetryCheck: maxDiagZ, g2ByDist, g4ConnByDist, cayleyPerSite: exp0 }
+}
+
+type KuboChannels = {
+  readonly chiStagZ: number
+  readonly chiUnifZ: number
+  readonly chiDimer: number
+  readonly chiOffFlavUnif: number
+  readonly chiOffFlavStag: number
+  readonly chiMaxAll: number
+}
+
+function measureSmgKuboSusceptibilities(
+  gsBlk: SmgBlock,
+  flavBlk: SmgBlock,
+  hGs: SparseSym,
+  hFlav: SparseSym,
+  bonds: readonly (readonly [number, number])[],
+  psi0: Float64Array,
+  e0: number,
+): KuboChannels {
+  // Exact multi-channel static Kubo susceptibilities:
+  //   chi_O = (2 / N) <psi_0 | O^dag (H - E_0)^(-1) P_perp O | psi_0>
+  // Every local probe operator o_x is Frobenius-normalized to Tr(o_x^2) / dim = 1:
+  //   (a) Staggered Z_0:     o_x = (-1)^x Z_{x,0}                               (in gsBlk; IDENTICAL to anom4M!)
+  //   (b) Uniform Z_0:       o_x = Z_{x,0}                                      (in gsBlk)
+  //   (c) Bond dimer (VBS):  o_b = (-1)^b sqrt(2) (c_{x,0}^dag c_{y,0} + h.c.)  (in gsBlk)
+  //   (d) Off-flavor unif:   o_x = sqrt(2) (c_{x,0}^dag c_{x,1} + h.c.)         (cross-block gsBlk -> flavBlk)
+  //   (e) Off-flavor stag:   o_x = (-1)^x sqrt(2) (c_{x,0}^dag c_{x,1} + h.c.)  (cross-block gsBlk -> flavBlk)
+  const n = gsBlk.states.length, nSites = gsBlk.nSites, nFlav = flavBlk.states.length
+  const shift = -e0
+
+  const solveInBlock = (rhs: Float64Array): number => {
+    const cg = solveShiftedCG(hGs, shift, rhs, psi0)
+    assert(cg.relRes < 1e-10, `Kubo in-block CG failed: relRes=${cg.relRes}`)
+    let dot = 0
+    for (let i = 0; i < n; i++) dot += rhs[i]! * cg.sol[i]!
+    return (2 * dot) / nSites
+  }
+
+  // (a) Staggered Z_0 and (b) Uniform Z_0
+  const rhsStag = new Float64Array(n), rhsUnif = new Float64Array(n)
+  for (let i = 0; i < n; i++) {
+    const s = gsBlk.states[i]!, c = psi0[i]!
+    let st = 0, un = 0
+    for (let x = 0; x < nSites; x++) {
+      const z0 = ((s >> (4 * x)) & 1) === 0 ? 1 : -1
+      st += ((x & 1) === 0 ? 1 : -1) * z0
+      un += z0
+    }
+    rhsStag[i] = st * c
+    rhsUnif[i] = un * c
+  }
+  const chiStagZ = solveInBlock(rhsStag)
+  const chiUnifZ = solveInBlock(rhsUnif)
+
+  // (c) Bond dimerization / VBS bilinear in gsBlk
+  const rhsDimer = new Float64Array(n)
+  const s2 = Math.SQRT2
+  for (let bi = 0; bi < bonds.length; bi++) {
+    const [x0, y0] = bonds[bi]!
+    const x = Math.min(x0, y0), y = Math.max(x0, y0)
+    const bSign = (bi & 1) === 0 ? 1 : -1
+    const bA = 4 * x, bB = 4 * y
+    const betweenMask = ((1 << bB) - 1) ^ ((1 << (bA + 1)) - 1)
+    for (let i = 0; i < n; i++) {
+      const s = gsBlk.states[i]!
+      if (((s >> bA) & 1) === ((s >> bB) & 1)) continue
+      const j = gsBlk.stateToIdx[s ^ (1 << bA) ^ (1 << bB)]!
+      if (j >= 0) {
+        const jw = (popcount(s & betweenMask) & 1) === 0 ? 1 : -1
+        rhsDimer[j] = rhsDimer[j]! + bSign * s2 * jw * psi0[i]!
+      }
+    }
+  }
+  const chiDimer = solveInBlock(rhsDimer)
+
+  // (d, e) Cross-block off-flavor bilinear A = sum_x s_x c_{x,0}^dag c_{x,1} mapping gsBlk (0,0,N) -> flavBlk (1,-1,N)
+  // Hermitian normalized O = sqrt(2)(A + A^dag) couples equally to (1,-1,N) and isomorphic (-1,1,N):
+  //   chi_O = (2/N) * (2 + 2) * <A psi_0 | (H_flav - E_0)^(-1) | A psi_0> = (8/N) * <rhs, sol>
+  const rhsFlavUnif = new Float64Array(nFlav), rhsFlavStag = new Float64Array(nFlav)
+  for (let i = 0; i < n; i++) {
+    const s = gsBlk.states[i]!, c = psi0[i]!
+    for (let x = 0; x < nSites; x++) {
+      const b0 = 4 * x, b1 = 4 * x + 1
+      // c_{x,0}^dag c_{x,1} requires n_{x,1}=1 and n_{x,0}=0; since b0 and b1 are adjacent, JW sign between them is +1
+      if (((s >> b0) & 1) === 0 && ((s >> b1) & 1) === 1) {
+        const sDst = s ^ (1 << b0) ^ (1 << b1)
+        const j = flavBlk.stateToIdx[sDst]!
+        assert(j >= 0, `Off-flavor c_0^dag c_1 left flavBlk!`)
+        rhsFlavUnif[j] = rhsFlavUnif[j]! + c
+        rhsFlavStag[j] = rhsFlavStag[j]! + ((x & 1) === 0 ? 1 : -1) * c
+      }
+    }
+  }
+  const cgFU = solveShiftedCG(hFlav, shift, rhsFlavUnif, null)
+  const cgFS = solveShiftedCG(hFlav, shift, rhsFlavStag, null)
+  assert(cgFU.relRes < 1e-10 && cgFS.relRes < 1e-10, `Kubo cross-block CG failed: ${cgFU.relRes}, ${cgFS.relRes}`)
+  let dotFU = 0, dotFS = 0
+  for (let j = 0; j < nFlav; j++) { dotFU += rhsFlavUnif[j]! * cgFU.sol[j]!; dotFS += rhsFlavStag[j]! * cgFS.sol[j]! }
+  const chiOffFlavUnif = (8 * dotFU) / nSites
+  const chiOffFlavStag = (8 * dotFS) / nSites
+  const chiMaxAll = Math.max(chiStagZ, chiUnifZ, chiDimer, chiOffFlavUnif, chiOffFlavStag)
+  return { chiStagZ, chiUnifZ, chiDimer, chiOffFlavUnif, chiOffFlavStag, chiMaxAll }
+}
+
+type TwoSite16MRow = {
+  readonly vOverT: number
+  readonly e0: number
+  readonly gsDeg: number
+  readonly gsDegLowerBound: boolean
+  readonly gapNeutral: number
+  readonly gap1p: number
+  readonly gapGlobal: number
+  readonly chiStagZ: number
+  readonly chiUnifZ: number
+  readonly diagSymmetryCheck: number
 }
 
 function runTwoSite16MajoranaSMG(
-  cayleyOp: OneSiteOp,
+  cayleyPlus: OneSiteOp,
+  cayleyMinus: OneSiteOp,
   vLadder: readonly number[],
-  vCross = 0.25,
+  vCrossRatio = -0.02,
 ): {
   readonly dimGsBlock: number
   readonly dimOddBlock: number
-  readonly rows: readonly { readonly vOverT: number; readonly e0: number; readonly gsDeg: number; readonly gapNeutral: number; readonly gap1p: number; readonly maxCond: number }[]
+  readonly globalBlocksScanned: number
+  readonly vCrossRatio: number
+  readonly rows: readonly TwoSite16MRow[]
 } {
-  const bankGs = buildSmgCartanBlock(2, 0, 0, 2)
-  const bankOdd = buildSmgCartanBlock(2, 1, 0, 3)
-  assert(bankGs.states.length === 18 && bankOdd.states.length === 10, 'Unexpected 2-site bank dims')
-  const nA = bankGs.states.length, nB = bankGs.states.length
-  const dimGs = nA * nB, dimOdd = bankOdd.states.length * nB
+  // Bank A (+Gamma_9, 8_s): Q = (N0-N3, N1-N2, N0+N1)
+  // Bank B (-Gamma_9, 8_c): Q = (N0+N3, N1-N2, N0-N1) (exact chiral mirror (2-Q1, Q2, 2-Q3))
+  // Inter-bank coupling: vCrossRatio * V * sum_x H_{C,A}^(+)(x) (x) H_{C,B}^(-)(x), strictly SU(4)_A x SU(4)_B
+  // and Spin(7)_A x Spin(7)_B invariant (both diagonal AND off-diagonal singlet coupling!).
+  const gsA = buildSmgCartanBlock(2, 0, 0, 2, 1)
+  const oddA = buildSmgCartanBlock(2, 1, 0, 3, 1)
+  const flavA = buildSmgCartanBlock(2, 1, -1, 2, 1)
+  const adjA = buildSmgCartanBlock(2, 2, 0, 3, 1)
+  const pairA = buildSmgCartanBlock(2, 0, 0, 3, 1)
+
+  const gsB = buildSmgCartanBlock(2, 2, 0, 0, -1)
+  const oddB = buildSmgCartanBlock(2, 1, 0, -1, -1)
+  const flavB = buildSmgCartanBlock(2, 1, -1, 0, -1)
+  const adjB = buildSmgCartanBlock(2, 0, 0, -1, -1)
+  const pairB = buildSmgCartanBlock(2, 2, 0, -1, -1)
+
+  assert(
+    gsA.states.length === 18 &&
+      gsB.states.length === 18 &&
+      oddA.states.length === 10 &&
+      oddB.states.length === 10 &&
+      adjA.states.length === 4 &&
+      adjB.states.length === 4,
+    'Unexpected 2-site opposite-chirality bank dims',
+  )
+  const nA = gsA.states.length, nB = gsB.states.length
+  const dimGs = nA * nB, dimOdd = oddA.states.length * nB
   const bonds2: readonly (readonly [number, number])[] = [[0, 1]]
 
   const buildCoupledTwoBankH = (blkA: SmgBlock, blkB: SmgBlock, tHop: number, vInt: number): SparseSym => {
-    const hA = buildSmgBlockHamiltonian(blkA, bonds2, cayleyOp, tHop, vInt)
-    const hB = buildSmgBlockHamiltonian(blkB, bonds2, cayleyOp, tHop, vInt)
+    const hA = buildSmgBlockHamiltonian(blkA, bonds2, cayleyPlus, tHop, vInt)
+    const hB = buildSmgBlockHamiltonian(blkB, bonds2, cayleyMinus, tHop, vInt)
     const na = blkA.states.length, nb = blkB.states.length, N = na * nb
     const rowPtr = new Int32Array(N + 1), cols: number[] = [], vals: number[] = []
     const rowMap = new Map<number, number>()
+    const gCross = vCrossRatio * vInt
     for (let ia = 0; ia < na; ia++) {
       const sA = blkA.states[ia]!
       for (let ib = 0; ib < nb; ib++) {
@@ -2886,17 +3081,20 @@ function runTwoSite16MajoranaSMG(
           const col = ia * nb + hB.colIdx[k]!
           rowMap.set(col, (rowMap.get(col) ?? 0) + hB.val[k]!)
         }
-        let crossDiag = 0
-        if (vInt !== 0 && vCross !== 0) {
+        if (gCross !== 0) {
           for (let x = 0; x < 2; x++) {
-            const nibA = (sA >> (4 * x)) & 0xf, nibB = (sB >> (4 * x)) & 0xf
-            for (let q = 0; q < 4; q++) {
-              const zA = ((nibA >> q) & 1) === 0 ? 1 : -1, zB = ((nibB >> q) & 1) === 0 ? 1 : -1
-              crossDiag += vCross * vInt * zA * zB
-            }
+            const sh = 4 * x
+            const nibA = (sA >> sh) & 0xf, nibB = (sB >> sh) & 0xf
+            const dA = cayleyPlus.diag[nibA]!, dstNibA = cayleyPlus.offDst[nibA]!, oA = cayleyPlus.offVal[nibA]!
+            const dB = cayleyMinus.diag[nibB]!, dstNibB = cayleyMinus.offDst[nibB]!, oB = cayleyMinus.offVal[nibB]!
+            const ja = dstNibA >= 0 ? blkA.stateToIdx[(sA & ~(0xf << sh)) | (dstNibA << sh)]! : -1
+            const jb = dstNibB >= 0 ? blkB.stateToIdx[(sB & ~(0xf << sh)) | (dstNibB << sh)]! : -1
+            if (dA !== 0 && dB !== 0) rowMap.set(row, (rowMap.get(row) ?? 0) + gCross * dA * dB)
+            if (ja >= 0 && dB !== 0) { const c = ja * nb + ib; rowMap.set(c, (rowMap.get(c) ?? 0) + gCross * oA * dB) }
+            if (jb >= 0 && dA !== 0) { const c = ia * nb + jb; rowMap.set(c, (rowMap.get(c) ?? 0) + gCross * dA * oB) }
+            if (ja >= 0 && jb >= 0) { const c = ja * nb + jb; rowMap.set(c, (rowMap.get(c) ?? 0) + gCross * oA * oB) }
           }
         }
-        rowMap.set(row, (rowMap.get(row) ?? 0) + crossDiag)
         for (const c of Array.from(rowMap.keys()).sort((a, b) => a - b)) {
           const v = rowMap.get(c)!
           if (Math.abs(v) > 1e-15 || c === row) { cols.push(c); vals.push(v) }
@@ -2907,35 +3105,80 @@ function runTwoSite16MajoranaSMG(
     return { n: N, rowPtr, colIdx: Int32Array.from(cols), val: Float64Array.from(vals) }
   }
 
-  const rows: { readonly vOverT: number; readonly e0: number; readonly gsDeg: number; readonly gapNeutral: number; readonly gap1p: number; readonly maxCond: number }[] = []
+  const sectorPairs: readonly (readonly [SmgBlock, SmgBlock])[] = [
+    [oddA, gsB], [gsA, oddB], [flavA, gsB], [gsA, flavB],
+    [adjA, gsB], [gsA, adjB], [pairA, gsB], [gsA, pairB], [oddA, oddB],
+  ]
+
+  const rows: TwoSite16MRow[] = []
   for (let vi = 0; vi < vLadder.length; vi++) {
     const V = vLadder[vi]!
-    const eGs = blockLanczosLowest(buildCoupledTwoBankH(bankGs, bankGs, 1.0, V), 4, 700100 + vi)
-    const eOdd = blockLanczosLowest(buildCoupledTwoBankH(bankOdd, bankGs, 1.0, V), 2, 700200 + vi)
-    assert(eGs.maxResidual < 1e-11 && eOdd.maxResidual < 1e-11, '2-site 16M Lanczos residual too high')
+    const nGsEigs = V === 0 ? 4 : 2
+    const hGs = buildCoupledTwoBankH(gsA, gsB, 1.0, V)
+    const eGs = blockLanczosLowest(hGs, nGsEigs, 700100 + vi)
+    const eOddA = blockLanczosLowest(buildCoupledTwoBankH(oddA, gsB, 1.0, V), 1, 700200 + vi)
+    const eOddB = blockLanczosLowest(buildCoupledTwoBankH(gsA, oddB, 1.0, V), 1, 700300 + vi)
+    assert(eGs.maxResidual < 1e-11 && eOddA.maxResidual < 1e-11 && eOddB.maxResidual < 1e-11, '2-site 16M Lanczos residual too high')
     const e0 = eGs.values[0]!
     let gsDeg = 0
     for (const ev of eGs.values) if (Math.abs(ev - e0) < 1e-8) gsDeg++
+    const gsDegLowerBound = gsDeg === nGsEigs
+    const gapNeutral = eGs.values[1]! - e0
+    const gap1p = Math.min(eOddA.values[0]! - e0, eOddB.values[0]! - e0)
+    let gapGlobal = Math.min(gapNeutral, gap1p)
+    if (V > 0) {
+      for (let si = 2; si < sectorPairs.length; si++) {
+        const [bA, bB] = sectorPairs[si]!
+        const ex = blockLanczosLowest(buildCoupledTwoBankH(bA, bB, 1.0, V), 1, 700400 + si * 20 + vi)
+        assert(ex.maxResidual < 1e-10, `2-site 16M extra sector ${si} residual too high`)
+        const g = ex.values[0]! - e0
+        if (g < gapGlobal) gapGlobal = g
+      }
+    }
     const psi = eGs.vectors[0]!
-    let maxCond = 0
+    let maxDiagZ = 0
     for (let x = 0; x < 2; x++) {
       for (let q = 0; q < 4; q++) {
         const bit = 4 * x + q
         let zA = 0, zB = 0
         for (let ia = 0; ia < nA; ia++) {
-          const sgnA = ((bankGs.states[ia]! >> bit) & 1) === 0 ? 1 : -1
+          const sgnA = ((gsA.states[ia]! >> bit) & 1) === 0 ? 1 : -1
           for (let ib = 0; ib < nB; ib++) {
             const p = psi[ia * nB + ib]! ** 2
-            const sgnB = ((bankGs.states[ib]! >> bit) & 1) === 0 ? 1 : -1
+            const sgnB = ((gsB.states[ib]! >> bit) & 1) === 0 ? 1 : -1
             zA += sgnA * p; zB += sgnB * p
           }
         }
-        maxCond = Math.max(maxCond, Math.abs(zA), Math.abs(zB))
+        maxDiagZ = Math.max(maxDiagZ, Math.abs(zA), Math.abs(zB))
       }
     }
-    rows.push({ vOverT: V, e0, gsDeg, gapNeutral: eGs.values[1]! - e0, gap1p: eOdd.values[0]! - e0, maxCond })
+    let chiStagZ = 0, chiUnifZ = 0
+    if (V > 0 && gapNeutral > 1e-6) {
+      const rhsStag = new Float64Array(dimGs), rhsUnif = new Float64Array(dimGs)
+      for (let ia = 0; ia < nA; ia++) {
+        const sA = gsA.states[ia]!
+        const z0 = (sA & 1) === 0 ? 1 : -1, z1 = ((sA >> 4) & 1) === 0 ? 1 : -1
+        const st = z0 - z1, un = z0 + z1
+        for (let ib = 0; ib < nB; ib++) {
+          const idx = ia * nB + ib
+          rhsStag[idx] = st * psi[idx]!
+          rhsUnif[idx] = un * psi[idx]!
+        }
+      }
+      const cgS = solveShiftedCG(hGs, -e0, rhsStag, psi)
+      const cgU = solveShiftedCG(hGs, -e0, rhsUnif, psi)
+      assert(cgS.relRes < 1e-10 && cgU.relRes < 1e-10, 'Model 2B Kubo CG failed')
+      let ds = 0, du = 0
+      for (let i = 0; i < dimGs; i++) { ds += rhsStag[i]! * cgS.sol[i]!; du += rhsUnif[i]! * cgU.sol[i]! }
+      chiStagZ = ds // (2 / nSites) * ds with nSites = 2
+      chiUnifZ = du
+    }
+    rows.push({
+      vOverT: V, e0, gsDeg, gsDegLowerBound, gapNeutral, gap1p, gapGlobal,
+      chiStagZ, chiUnifZ, diagSymmetryCheck: maxDiagZ,
+    })
   }
-  return { dimGsBlock: dimGs, dimOddBlock: dimOdd, rows }
+  return { dimGsBlock: dimGs, dimOddBlock: dimOdd, globalBlocksScanned: 1 + sectorPairs.length, vCrossRatio, rows }
 }
 
 function runAnomalous4MajoranaControl(
@@ -2950,11 +3193,15 @@ function runAnomalous4MajoranaControl(
     readonly vOverT: number
     readonly e0: number
     readonly gsDeg: number
+    readonly gsDegLowerBound: boolean
     readonly gapAll: number
-    readonly stagSusc: number
+    readonly chiStagZ: number
     readonly atomicGsDeg: number
   }[]
 } {
+  // 1+1D Fidkowski-Kitaev anomalous nu = 4 mod 8 half-multiplet control (4 Majoranas/site = 2 complex fermions/site).
+  // Uses the IDENTICAL staggered probe operator O_stag = sum_x (-1)^x Z_{x,0} (||o_x||^2_avg = 1) and exact Kubo CG
+  // chi_stag = (2/N) <psi_0 | O_stag (H - E_0)^(-1) P_perp O_stag | psi_0> as SMG Models 2A/2B/2C!
   const totalDim = 1 << (2 * nSites)
   const buildBlock4M = (N0: number, N1: number): { states: Int32Array; stateToIdx: Int32Array } => {
     const st: number[] = []
@@ -2967,7 +3214,7 @@ function runAnomalous4MajoranaControl(
     return { states: Int32Array.from(st), stateToIdx: s2i }
   }
 
-  const buildH4M = (blk: { states: Int32Array; stateToIdx: Int32Array }, tHop: number, vInt: number, epsStag: number): SparseSym => {
+  const buildH4M = (blk: { states: Int32Array; stateToIdx: Int32Array }, tHop: number, vInt: number): SparseSym => {
     const n = blk.states.length
     const rowPtr = new Int32Array(n + 1), cols: number[] = [], vals: number[] = []
     const rowMap = new Map<number, number>()
@@ -2978,7 +3225,6 @@ function runAnomalous4MajoranaControl(
       for (let x = 0; x < nSites; x++) {
         const z0 = ((s >> (2 * x)) & 1) === 0 ? 1 : -1, z1 = ((s >> (2 * x + 1)) & 1) === 0 ? 1 : -1
         diag += vInt * z0 * z1
-        if (epsStag !== 0) diag += ((x & 1) === 0 ? 1 : -1) * epsStag * (z0 - z1)
       }
       rowMap.set(r, diag)
       if (tHop !== 0) {
@@ -3008,32 +3254,54 @@ function runAnomalous4MajoranaControl(
   const spinBlk = buildBlock4M(halfN + 1, halfN - 1)
   const oddBlk = buildBlock4M(halfN + 1, halfN)
 
-  const rows: { readonly vOverT: number; readonly e0: number; readonly gsDeg: number; readonly gapAll: number; readonly stagSusc: number; readonly atomicGsDeg: number }[] = []
-  const epsProbe = 1e-4
+  const rows: {
+    readonly vOverT: number
+    readonly e0: number
+    readonly gsDeg: number
+    readonly gsDegLowerBound: boolean
+    readonly gapAll: number
+    readonly chiStagZ: number
+    readonly atomicGsDeg: number
+  }[] = []
   for (let vi = 0; vi < vLadder.length; vi++) {
     const V = vLadder[vi]!
-    const eHf = blockLanczosLowest(buildH4M(hfBlk, 1.0, V, 0), 4, 800100 + vi)
-    const eSp = spinBlk.states.length > 0 ? blockLanczosLowest(buildH4M(spinBlk, 1.0, V, 0), 2, 800200 + vi) : null
-    const eOdd = blockLanczosLowest(buildH4M(oddBlk, 1.0, V, 0), 2, 800300 + vi)
+    const hHf = buildH4M(hfBlk, 1.0, V)
+    const eHf = blockLanczosLowest(hHf, 4, 800100 + vi)
+    const eSp = spinBlk.states.length > 0 ? blockLanczosLowest(buildH4M(spinBlk, 1.0, V), 2, 800200 + vi) : null
+    const eOdd = blockLanczosLowest(buildH4M(oddBlk, 1.0, V), 2, 800300 + vi)
     const allLowest = [...eHf.values, ...(eSp ? eSp.values : []), ...eOdd.values].sort((a, b) => a - b)
     const e0 = allLowest[0]!
     let gsDeg = 0
     for (const ev of allLowest) if (Math.abs(ev - e0) < 1e-7) gsDeg++
+    let hfDeg = 0
+    for (const ev of eHf.values) if (Math.abs(ev - e0) < 1e-7) hfDeg++
+    const gsDegLowerBound = hfDeg === eHf.values.length
     const gapAll = allLowest[gsDeg]! - e0
 
-    const eProbe = blockLanczosLowest(buildH4M(hfBlk, 1.0, V, epsProbe), 1, 800400 + vi)
-    const psiP = eProbe.vectors[0]!
-    let stagExp = 0
-    for (let i = 0; i < hfBlk.states.length; i++) {
-      const s = hfBlk.states[i]!, p = psiP[i]! * psiP[i]!
-      let stVal = 0
-      for (let x = 0; x < nSites; x++) {
-        const z0 = ((s >> (2 * x)) & 1) === 0 ? 1 : -1, z1 = ((s >> (2 * x + 1)) & 1) === 0 ? 1 : -1
-        stVal += ((x & 1) === 0 ? 1 : -1) * (z0 - z1)
+    let chiStagZ = Number.POSITIVE_INFINITY
+    if (V > 0 && eHf.values[1]! - e0 > 1e-7) {
+      const psi0 = eHf.vectors[0]!
+      const rhs = new Float64Array(hfBlk.states.length)
+      for (let i = 0; i < hfBlk.states.length; i++) {
+        const s = hfBlk.states[i]!
+        let st = 0
+        for (let x = 0; x < nSites; x++) {
+          const z0 = ((s >> (2 * x)) & 1) === 0 ? 1 : -1
+          st += ((x & 1) === 0 ? 1 : -1) * z0
+        }
+        rhs[i] = st * psi0[i]!
       }
-      stagExp += stVal * p
+      const cg = solveShiftedCG(hHf, -e0, rhs, psi0)
+      assert(cg.relRes < 1e-10, `Anom 4M Kubo CG failed: relRes=${cg.relRes}`)
+      let dot = 0
+      for (let i = 0; i < hfBlk.states.length; i++) dot += rhs[i]! * cg.sol[i]!
+      chiStagZ = (2 * dot) / nSites
     }
-    rows.push({ vOverT: V, e0, gsDeg, gapAll, stagSusc: Math.abs(stagExp) / (nSites * epsProbe), atomicGsDeg: 1 << nSites })
+    rows.push({
+      vOverT: V, e0, gsDeg, gsDegLowerBound, gapAll,
+      chiStagZ: Number.isFinite(chiStagZ) ? chiStagZ : -1,
+      atomicGsDeg: 1 << nSites,
+    })
   }
   return { nSites, totalDim, halfFillDim: hfBlk.states.length, rows }
 }
@@ -3042,40 +3310,50 @@ type MultiSiteSmgPoint = {
   readonly vOverT: number
   readonly e0: number
   readonly gsDeg: number
+  readonly gsDegLowerBound: boolean
   readonly gapNeutral: number
   readonly gap1p: number
   readonly gapFlavor: number
+  readonly gapAdjoint: number
   readonly gapGlobal: number
-  readonly maxBilinearCond: number
+  readonly diagSymmetryCheck: number
   readonly g2Dist1: number
   readonly g2Dist2: number
   readonly g4ConnDist1: number
   readonly g4ConnDist2: number
   readonly cayleyPerSite: number
-  readonly stagSusc: number
+  readonly kubo: KuboChannels
   readonly maxResidual: number
 }
 
 type Part2Summary = {
   readonly mode: string
-  readonly oneSiteExactVerifyErr: number
+  readonly tier: string
+  readonly dimensionalityNote: string
+  readonly oneSitePlusVerifyErr: number
+  readonly oneSiteMinusVerifyErr: number
+  readonly kuboVsFdRelErr: number
   readonly twoSite8M: {
     readonly totalDim: number
     readonly gsBlockDim: number
     readonly oddBlockDim: number
+    readonly globalBlocksScanned: number
     readonly rows: readonly MultiSiteSmgPoint[]
   }
   readonly twoSite16M: {
     readonly totalDim: number
     readonly gsBlockDim: number
     readonly oddBlockDim: number
-    readonly rows: readonly { readonly vOverT: number; readonly e0: number; readonly gsDeg: number; readonly gapNeutral: number; readonly gap1p: number; readonly maxCond: number }[]
+    readonly globalBlocksScanned: number
+    readonly vCrossRatio: number
+    readonly rows: readonly TwoSite16MRow[]
   }
   readonly fourSite8M: {
     readonly totalDim: number
     readonly gsBlockDim: number
     readonly oddBlockDim: number
     readonly flavorBlockDim: number
+    readonly adjointBlockDim: number
     readonly globalBlocksScanned: number
     readonly rows: readonly MultiSiteSmgPoint[]
   }
@@ -3083,14 +3361,22 @@ type Part2Summary = {
     readonly nSites: number
     readonly totalDim: number
     readonly halfFillDim: number
-    readonly rows: readonly { readonly vOverT: number; readonly e0: number; readonly gsDeg: number; readonly gapAll: number; readonly stagSusc: number; readonly atomicGsDeg: number }[]
+    readonly rows: readonly {
+      readonly vOverT: number
+      readonly e0: number
+      readonly gsDeg: number
+      readonly gsDegLowerBound: boolean
+      readonly gapAll: number
+      readonly chiStagZ: number
+      readonly atomicGsDeg: number
+    }[]
   }
   readonly diagonalOnlyControl: {
     readonly nSites: number
     readonly vLarge: number
     readonly atomicGsDeg: number
     readonly gapAtVLarge: number
-    readonly stagSuscAtVLarge: number
+    readonly chiStagZAtVLarge: number
   }
   readonly elapsedSec: number
 }
@@ -3098,92 +3384,105 @@ type Part2Summary = {
 function runPart2MultiSiteSmg(): Part2Summary {
   const t0 = performance.now()
   console.log('\n=================================================================================')
-  console.log(`PART 2 (${MODE_LABEL}): INTERACTING MULTI-SITE 3+1D CHIRAL SMG (Spin(7) CAYLEY-4-FORM)`)
+  console.log(`PART 2 (${MODE_LABEL}, Tier B): 0+1D/1+1D MULTI-SITE SU(4) (~= Spin(6)) CAYLEY-4-FORM SMG BENCHMARK`)
+  console.log('  [Disclosure] Spinless bipartite hopping preserves SU(4) ~= Spin(6); NegCtrl 2D tests 1+1D')
+  console.log('               Fidkowski-Kitaev nu=4 mod 8. Full 3+1D/4D gauge-coupled chiral SMG is Tier C open.')
   console.log('=================================================================================')
 
-  const cayleyFull = buildOneSiteCayleyOp(false)
-  const cayleyDiag = buildOneSiteCayleyOp(true)
+  const cayleyPlus = buildOneSiteCayleyOp(false, 1)
+  const cayleyMinus = buildOneSiteCayleyOp(false, -1)
+  const cayleyDiag = buildOneSiteCayleyOp(true, 1)
 
-  let oneSiteErr = 0
+  let oneSitePlusErr = 0, oneSiteMinusErr = 0
   {
-    const blk1 = buildSmgCartanBlock(1, 0, 0, 1)
-    assert(blk1.states.length === 2, '1-site (0,0,1) block must have dim 2')
-    const e1 = blockLanczosLowest(buildSmgBlockHamiltonian(blk1, [], cayleyFull, 0, 1.0), 2, 1001)
-    oneSiteErr = Math.max(Math.abs(e1.values[0]! - -14), Math.abs(e1.values[1]! - 2))
-    assert(oneSiteErr < 1e-13, `1-site Cayley spectrum mismatch: ${e1.values.join(', ')}`)
+    const blk1P = buildSmgCartanBlock(1, 0, 0, 1, 1)
+    assert(blk1P.states.length === 2, '1-site +Gamma_9 (0,0,1) block must have dim 2')
+    const e1P = blockLanczosLowest(buildSmgBlockHamiltonian(blk1P, [], cayleyPlus, 0, 1.0), 2, 1001)
+    oneSitePlusErr = Math.max(Math.abs(e1P.values[0]! - -14), Math.abs(e1P.values[1]! - 2))
+    assert(oneSitePlusErr < 1e-13, `1-site +Gamma_9 Cayley mismatch: ${e1P.values.join(', ')}`)
+
+    const blk1M = buildSmgCartanBlock(1, 1, 0, 0, -1)
+    assert(blk1M.states.length === 2, '1-site -Gamma_9 (1,0,0) block must have dim 2')
+    const e1M = blockLanczosLowest(buildSmgBlockHamiltonian(blk1M, [], cayleyMinus, 0, 1.0), 2, 1002)
+    oneSiteMinusErr = Math.max(Math.abs(e1M.values[0]! - -14), Math.abs(e1M.values[1]! - 2))
+    assert(oneSiteMinusErr < 1e-13, `1-site -Gamma_9 Cayley mismatch: ${e1M.values.join(', ')}`)
   }
-  console.log(`  1-site Spin(7) Cayley 4-form verified: E0 = -14.000000 (unique), E1 = +2.000000 (err=${oneSiteErr.toExponential(1)})`)
+  console.log(
+    `  1-site Spin(7) Cayley 4-forms verified: +Gamma_9 (8_s) E0=-14, E1=+2 (err=${oneSitePlusErr.toExponential(1)}) | ` +
+      `-Gamma_9 (8_c) E0=-14, E1=+2 (err=${oneSiteMinusErr.toExponential(1)})`,
+  )
 
   const runMultiSite8M = (
     nSites: number,
     bonds: readonly (readonly [number, number])[],
     vLadder: readonly number[],
-    scanExtraBlocks: boolean,
   ) => {
-    const gsBlk = buildSmgCartanBlock(nSites, 0, 0, nSites)
-    const oddBlk = buildSmgCartanBlock(nSites, 1, 0, nSites + 1)
-    const flavBlk = buildSmgCartanBlock(nSites, 1, -1, nSites)
+    const gsBlk = buildSmgCartanBlock(nSites, 0, 0, nSites, 1)
+    const oddBlk = buildSmgCartanBlock(nSites, 1, 0, nSites + 1, 1)
+    const flavBlk = buildSmgCartanBlock(nSites, 1, -1, nSites, 1)
+    const adjBlk = buildSmgCartanBlock(nSites, 2, 0, nSites + 1, 1) // neutral SU(4) adjoint (n0-n3=2, n1=n2, N=2*nSites)
+    // Complete symmetry-inequivalent |Delta N| <= 2 sector list (scanned in BOTH smoke and full!)
+    const extraCoords: readonly (readonly [number, number, number])[] = [
+      [2, -2, nSites],       // neutral double off-flavor (Delta N = 0)
+      [0, 0, nSites + 1],    // 2-particle pair (Delta N = +2)
+      [0, 0, nSites - 1],    // 2-hole pair (Delta N = -2)
+      [1, 1, nSites + 2],    // 2-particle (n0+1, n1+1) (Delta N = +2)
+      [1, -1, nSites + 1],   // 2-particle (n0+1, n2+1) (Delta N = +2)
+      [2, 0, nSites + 2],    // 2-particle (n0+2) (Delta N = +2)
+    ]
     const extraBlocks: SmgBlock[] = []
-    if (scanExtraBlocks) {
-      for (const [q1, q2, q3] of [[0, 0, nSites - 1], [0, 0, nSites + 1], [1, 1, nSites], [2, 0, nSites], [1, 0, nSites - 1], [0, 1, nSites]] as const) {
-        const b = buildSmgCartanBlock(nSites, q1, q2, q3)
-        if (b.states.length > 0) extraBlocks.push(b)
-      }
+    for (const [q1, q2, q3] of extraCoords) {
+      const b = buildSmgCartanBlock(nSites, q1, q2, q3, 1)
+      if (b.states.length > 0) extraBlocks.push(b)
     }
 
     const rows: MultiSiteSmgPoint[] = []
-    const epsProbe = 1e-4
-
     for (let vi = 0; vi < vLadder.length; vi++) {
       const V = vLadder[vi]!
       const nGsEigs = V === 0 ? 4 : 2
-      const eGs = blockLanczosLowest(buildSmgBlockHamiltonian(gsBlk, bonds, cayleyFull, 1.0, V), nGsEigs, 910000 + nSites * 1000 + vi)
-      const eOdd = blockLanczosLowest(buildSmgBlockHamiltonian(oddBlk, bonds, cayleyFull, 1.0, V), 2, 920000 + nSites * 1000 + vi)
-      const eFlav = blockLanczosLowest(buildSmgBlockHamiltonian(flavBlk, bonds, cayleyFull, 1.0, V), 2, 930000 + nSites * 1000 + vi)
-      const maxRes = Math.max(eGs.maxResidual, eOdd.maxResidual, eFlav.maxResidual)
+      const hGs = buildSmgBlockHamiltonian(gsBlk, bonds, cayleyPlus, 1.0, V)
+      const hOdd = buildSmgBlockHamiltonian(oddBlk, bonds, cayleyPlus, 1.0, V)
+      const hFlav = buildSmgBlockHamiltonian(flavBlk, bonds, cayleyPlus, 1.0, V)
+      const hAdj = buildSmgBlockHamiltonian(adjBlk, bonds, cayleyPlus, 1.0, V)
+      const eGs = blockLanczosLowest(hGs, nGsEigs, 910000 + nSites * 1000 + vi)
+      const eOdd = blockLanczosLowest(hOdd, 2, 920000 + nSites * 1000 + vi)
+      const eFlav = blockLanczosLowest(hFlav, 2, 930000 + nSites * 1000 + vi)
+      const eAdj = blockLanczosLowest(hAdj, 1, 935000 + nSites * 1000 + vi)
+      let maxRes = Math.max(eGs.maxResidual, eOdd.maxResidual, eFlav.maxResidual, eAdj.maxResidual)
       assert(maxRes < 1e-10, `Lanczos residual too large at N=${nSites}, V=${V}: ${maxRes}`)
 
       const e0 = eGs.values[0]!
       let gsDeg = 0
       for (const ev of eGs.values) if (Math.abs(ev - e0) < 1e-7) gsDeg++
+      const gsDegLowerBound = gsDeg === nGsEigs
       const gapNeutral = eGs.values[1]! - e0
       const gap1p = eOdd.values[0]! - e0
       const gapFlavor = eFlav.values[0]! - e0
-      let gapGlobal = Math.min(gapNeutral, gap1p, gapFlavor)
+      const gapAdjoint = eAdj.values[0]! - e0
+      let gapGlobal = Math.min(gapNeutral, gap1p, gapFlavor, gapAdjoint)
 
-      if (scanExtraBlocks && V > 0) {
+      if (V > 0) {
         for (let bi = 0; bi < extraBlocks.length; bi++) {
-          const ex = blockLanczosLowest(buildSmgBlockHamiltonian(extraBlocks[bi]!, bonds, cayleyFull, 1.0, V), 1, 940000 + bi * 100 + vi)
+          const ex = blockLanczosLowest(buildSmgBlockHamiltonian(extraBlocks[bi]!, bonds, cayleyPlus, 1.0, V), 1, 940000 + bi * 100 + vi)
+          if (ex.maxResidual > maxRes) maxRes = ex.maxResidual
+          assert(ex.maxResidual < 1e-10, `Extra sector ${bi} Lanczos residual too large at N=${nSites}, V=${V}`)
           const g = ex.values[0]! - e0
           if (g < gapGlobal) gapGlobal = g
         }
       }
 
-      const obs = measureSmgObservables(gsBlk, eGs.vectors[0]!, cayleyFull)
-
-      let stagSusc = 0
-      if (V > 0) {
-        const ep = blockLanczosLowest(buildSmgBlockHamiltonian(gsBlk, bonds, cayleyFull, 1.0, V, epsProbe), 1, 950000 + nSites * 1000 + vi)
-        const psiP = ep.vectors[0]!
-        let stagZ0 = 0
-        for (let i = 0; i < gsBlk.states.length; i++) {
-          const s = gsBlk.states[i]!, p = psiP[i]! * psiP[i]!
-          let acc = 0
-          for (let x = 0; x < nSites; x++) {
-            const z0 = ((s >> (4 * x)) & 1) === 0 ? 1 : -1
-            acc += ((x & 1) === 0 ? 1 : -1) * z0
-          }
-          stagZ0 += acc * p
-        }
-        stagSusc = Math.abs(stagZ0) / (nSites * epsProbe)
-      }
+      const obs = measureSmgObservables(gsBlk, eGs.vectors[0]!, cayleyPlus)
+      const kubo: KuboChannels =
+        V > 0 && gapGlobal > 1e-6
+          ? measureSmgKuboSusceptibilities(gsBlk, flavBlk, hGs, hFlav, bonds, eGs.vectors[0]!, e0)
+          : { chiStagZ: 0, chiUnifZ: 0, chiDimer: 0, chiOffFlavUnif: 0, chiOffFlavStag: 0, chiMaxAll: 0 }
 
       rows.push({
-        vOverT: V, e0, gsDeg, gapNeutral, gap1p, gapFlavor, gapGlobal,
-        maxBilinearCond: obs.maxBilinearCond,
+        vOverT: V, e0, gsDeg, gsDegLowerBound, gapNeutral, gap1p, gapFlavor, gapAdjoint, gapGlobal,
+        diagSymmetryCheck: obs.diagSymmetryCheck,
         g2Dist1: obs.g2ByDist[0] ?? 0, g2Dist2: obs.g2ByDist[1] ?? 0,
         g4ConnDist1: obs.g4ConnByDist[0] ?? 0, g4ConnDist2: obs.g4ConnByDist[1] ?? 0,
-        cayleyPerSite: obs.cayleyPerSite, stagSusc, maxResidual: maxRes,
+        cayleyPerSite: obs.cayleyPerSite, kubo, maxResidual: maxRes,
       })
     }
     return {
@@ -3191,7 +3490,8 @@ function runPart2MultiSiteSmg(): Part2Summary {
       gsBlockDim: gsBlk.states.length,
       oddBlockDim: oddBlk.states.length,
       flavorBlockDim: flavBlk.states.length,
-      globalBlocksScanned: 3 + extraBlocks.length,
+      adjointBlockDim: adjBlk.states.length,
+      globalBlocksScanned: 4 + extraBlocks.length,
       rows,
     }
   }
@@ -3201,68 +3501,90 @@ function runPart2MultiSiteSmg(): Part2Summary {
   const vLadder16 = IS_FULL ? ([0, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0] as const) : ([0, 1.0, 2.0] as const)
   const vLadderAnom = IS_FULL ? ([0, 1.0, 2.0, 4.0, 8.0, 16.0] as const) : ([0, 4.0, 10.0] as const)
 
-  const twoSite8M = runMultiSite8M(2, [[0, 1]], vLadder2, true)
-  console.log(`\n  [Model 2A] 2-Site Coupled 8-Majorana/Site (16 Majoranas, dim=${twoSite8M.totalDim} -> GS block=${twoSite8M.gsBlockDim}, 1p block=${twoSite8M.oddBlockDim}):`)
+  const twoSite8M = runMultiSite8M(2, [[0, 1]], vLadder2)
+  console.log(`\n  [Model 2A] 2-Site 8-Majorana/Site (16 Majoranas, dim=${twoSite8M.totalDim} -> GS=${twoSite8M.gsBlockDim}, 1p=${twoSite8M.oddBlockDim}, adj=${twoSite8M.adjointBlockDim}, ${twoSite8M.globalBlocksScanned} blocks):`)
   for (const r of twoSite8M.rows) {
     console.log(
-      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg} | dE_glob=${r.gapGlobal.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | ` +
-        `|<bil>|=${r.maxBilinearCond.toExponential(1)} | G2(1)=${r.g2Dist1.toFixed(4)} G4c(1)=${r.g4ConnDist1.toFixed(4)} | chi_bil=${r.stagSusc.toFixed(4)}`,
+      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg}${r.gsDegLowerBound ? '+' : ''} | dE_glob=${r.gapGlobal.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | ` +
+        `G2(1)=${r.g2Dist1.toFixed(4)} G4c(1)=${r.g4ConnDist1.toFixed(4)} | chi(stagZ,unifZ,dim,offF)=(${r.kubo.chiStagZ.toFixed(4)},${r.kubo.chiUnifZ.toFixed(4)},${r.kubo.chiDimer.toFixed(4)},${r.kubo.chiOffFlavUnif.toFixed(4)})`,
     )
   }
 
-  const twoSite16M = runTwoSite16MajoranaSMG(cayleyFull, vLadder16, 0.25)
-  console.log(`\n  [Model 2B] 2-Site Coupled 16-Majorana/Site (32 Majoranas, 8_s(+)8_c + V_cross=0.25, dim=65,536 -> GS block=${twoSite16M.dimGsBlock}, 1p block=${twoSite16M.dimOddBlock}):`)
+  // Exact numerical parity check: Kubo CG chiStagZ vs finite-difference probe on 2-site SMG at V/t=1.0
+  let kuboVsFdRelErr = 0
+  {
+    const gs2 = buildSmgCartanBlock(2, 0, 0, 2, 1), eps = 1e-4
+    const ep = blockLanczosLowest(buildSmgBlockHamiltonian(gs2, [[0, 1]], cayleyPlus, 1.0, 1.0, eps), 1, 955001)
+    let stagZ0 = 0
+    for (let i = 0; i < gs2.states.length; i++) {
+      const s = gs2.states[i]!, p = ep.vectors[0]![i]! ** 2
+      const z0 = (s & 1) === 0 ? 1 : -1, z1 = ((s >> 4) & 1) === 0 ? 1 : -1
+      stagZ0 += (z0 - z1) * p
+    }
+    const fdChi = Math.abs(stagZ0) / (2 * eps)
+    const cgChi = twoSite8M.rows.find(r => Math.abs(r.vOverT - 1.0) < 1e-6)!.kubo.chiStagZ
+    kuboVsFdRelErr = Math.abs(fdChi - cgChi) / Math.max(1e-12, cgChi)
+    assert(kuboVsFdRelErr < 1e-4, `Kubo CG vs finite-diff mismatch: cg=${cgChi}, fd=${fdChi}`)
+    console.log(`  [Kubo Parity Check] 2-site V/t=1.0: Kubo_CG=${cgChi.toFixed(8)} vs FD=${fdChi.toFixed(8)} (relErr=${kuboVsFdRelErr.toExponential(2)})`)
+  }
+
+  const twoSite16M = runTwoSite16MajoranaSMG(cayleyPlus, cayleyMinus, vLadder16, -0.02)
+  console.log(
+    `\n  [Model 2B] 2-Site Opposite-Chirality 16-Majorana/Site (32 Majoranas, +Gamma_9 8_s (+) -Gamma_9 8_c, SU(4)_A x SU(4)_B quartic vCross=${twoSite16M.vCrossRatio}*V, dim=65,536 -> GS=${twoSite16M.dimGsBlock}, ${twoSite16M.globalBlocksScanned} sectors):`,
+  )
   for (const r of twoSite16M.rows) {
     console.log(
-      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg} | dE_neut=${r.gapNeutral.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | |<bil>|=${r.maxCond.toExponential(1)}`,
+      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg}${r.gsDegLowerBound ? '+' : ''} | dE_glob=${r.gapGlobal.toFixed(5)} dE_neut=${r.gapNeutral.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | chi(stagZ,unifZ)=(${r.chiStagZ.toFixed(4)},${r.chiUnifZ.toFixed(4)})`,
     )
   }
 
   const bonds4Ring: readonly (readonly [number, number])[] = [[0, 1], [1, 2], [2, 3], [0, 3]]
-  const fourSite8M = runMultiSite8M(4, bonds4Ring, vLadder4, IS_FULL)
+  const fourSite8M = runMultiSite8M(4, bonds4Ring, vLadder4)
   console.log(
-    `\n  [Model 2C] 4-Site Periodic Chiral Ring 8-Majorana/Site (32 Majoranas, dim=${fourSite8M.totalDim} -> GS block=${fourSite8M.gsBlockDim}, 1p=${fourSite8M.oddBlockDim}, flav=${fourSite8M.flavorBlockDim}):`,
+    `\n  [Model 2C] 4-Site 1+1D Periodic Chiral Ring 8-Majorana/Site (32 Majoranas, dim=${fourSite8M.totalDim} -> GS=${fourSite8M.gsBlockDim}, 1p=${fourSite8M.oddBlockDim}, flav=${fourSite8M.flavorBlockDim}, adj=${fourSite8M.adjointBlockDim}, ${fourSite8M.globalBlocksScanned} blocks):`,
   )
   for (const r of fourSite8M.rows) {
     console.log(
-      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg} | dE_glob=${r.gapGlobal.toFixed(5)} dE_neut=${r.gapNeutral.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | ` +
-        `|<bil>|=${r.maxBilinearCond.toExponential(1)} | G2(1,2)=(${r.g2Dist1.toFixed(4)},${r.g2Dist2.toFixed(4)}) G4c(1,2)=(${r.g4ConnDist1.toFixed(3)},${r.g4ConnDist2.toFixed(3)}) | chi=${r.stagSusc.toFixed(4)}`,
+      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg}${r.gsDegLowerBound ? '+' : ''} | dE_glob=${r.gapGlobal.toFixed(5)} dE_adj=${r.gapAdjoint.toFixed(5)} dE_1p=${r.gap1p.toFixed(5)} | ` +
+        `G2(1,2)=(${r.g2Dist1.toFixed(4)},${r.g2Dist2.toFixed(4)}) G4c(1,2)=(${r.g4ConnDist1.toFixed(3)},${r.g4ConnDist2.toFixed(3)}) | chiMax=${r.kubo.chiMaxAll.toFixed(4)} (stagZ=${r.kubo.chiStagZ.toFixed(4)}, dim=${r.kubo.chiDimer.toFixed(4)}, offF=${r.kubo.chiOffFlavUnif.toFixed(4)})`,
     )
   }
 
   const anom4M = runAnomalous4MajoranaControl(4, bonds4Ring, vLadderAnom)
-  console.log(`\n  [NegCtrl 2D] Anomalous 4-Majorana/Site (nu=4 mod 8 half-multiplet) on 4-Site Ring (dim=${anom4M.totalDim}, HF block=${anom4M.halfFillDim}):`)
+  console.log(`\n  [NegCtrl 2D] 1+1D Fidkowski-Kitaev Anomalous 4-Majorana/Site (nu=4 mod 8) on 4-Site Ring (dim=${anom4M.totalDim}, HF block=${anom4M.halfFillDim}, identical Z_0 Kubo norm):`)
   for (const r of anom4M.rows) {
     console.log(
-      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg} (atomicDeg=${r.atomicGsDeg}) | gap=${r.gapAll.toFixed(5)} (collapses O(t^2/V)!) | chi_stag=${r.stagSusc.toFixed(3)} (diverges!)`,
+      `    V/t=${r.vOverT.toFixed(2)}: E0=${r.e0.toFixed(5)} gsDeg=${r.gsDeg}${r.gsDegLowerBound ? '+' : ''} (atomicDeg=${r.atomicGsDeg}) | gap=${r.gapAll.toFixed(5)} | chi_stagZ=${r.chiStagZ >= 0 ? r.chiStagZ.toFixed(3) : 'INF (gapless)'}`,
     )
   }
 
-  const diagBlk2 = buildSmgCartanBlock(2, 0, 0, 2)
+  const diagBlk2 = buildSmgCartanBlock(2, 0, 0, 2, 1)
   const vDiagTest = 4.0
   const eDiagAtom = blockLanczosLowest(buildSmgBlockHamiltonian(diagBlk2, [[0, 1]], cayleyDiag, 0, vDiagTest), 4, 960001)
   let atomicDegDiag = 0
   for (const ev of eDiagAtom.values) if (Math.abs(ev - eDiagAtom.values[0]!) < 1e-7) atomicDegDiag++
-  const eDiagCoupled = blockLanczosLowest(buildSmgBlockHamiltonian(diagBlk2, [[0, 1]], cayleyDiag, 1.0, vDiagTest), 4, 960002)
+  const hDiagCoupled = buildSmgBlockHamiltonian(diagBlk2, [[0, 1]], cayleyDiag, 1.0, vDiagTest)
+  const eDiagCoupled = blockLanczosLowest(hDiagCoupled, 4, 960002)
   const gapDiagV4 = eDiagCoupled.values[1]! - eDiagCoupled.values[0]!
-  const eDiagProbe = blockLanczosLowest(buildSmgBlockHamiltonian(diagBlk2, [[0, 1]], cayleyDiag, 1.0, vDiagTest, 1e-4), 1, 960003)
-  let diagStagZ0 = 0
+  const rhsDiag = new Float64Array(diagBlk2.states.length)
   for (let i = 0; i < diagBlk2.states.length; i++) {
-    const s = diagBlk2.states[i]!, p = eDiagProbe.vectors[0]![i]! ** 2
-    const z00 = (s & 1) === 0 ? 1 : -1, z10 = ((s >> 4) & 1) === 0 ? 1 : -1
-    diagStagZ0 += (z00 - z10) * p
+    const s = diagBlk2.states[i]!
+    const z0 = (s & 1) === 0 ? 1 : -1, z1 = ((s >> 4) & 1) === 0 ? 1 : -1
+    rhsDiag[i] = (z0 - z1) * eDiagCoupled.vectors[0]![i]!
   }
-  const diagSuscV4 = Math.abs(diagStagZ0) / (2 * 1e-4)
+  const cgDiag = solveShiftedCG(hDiagCoupled, -eDiagCoupled.values[0]!, rhsDiag, eDiagCoupled.vectors[0]!)
+  assert(cgDiag.relRes < 1e-10, `Diag-only Kubo CG failed: ${cgDiag.relRes}`)
+  let diagDot = 0
+  for (let i = 0; i < diagBlk2.states.length; i++) diagDot += rhsDiag[i]! * cgDiag.sol[i]!
+  const diagChiStagZ = diagDot // (2 / nSites) * diagDot with nSites = 2
   console.log(
     `\n  [NegCtrl 2E] Diagonal-only 8-Majorana/Site on 2 sites (V/t=${vDiagTest}): atomicGsDeg=${atomicDegDiag} (DEGENERATE!), ` +
-      `coupled gap=${gapDiagV4.toFixed(5)} (vs full SMG ${twoSite8M.rows[twoSite8M.rows.length - 1]!.gapGlobal.toFixed(3)}), chi_stag=${diagSuscV4.toFixed(3)}`,
+      `coupled gap=${gapDiagV4.toFixed(5)} (vs full SMG ${twoSite8M.rows[twoSite8M.rows.length - 1]!.gapGlobal.toFixed(3)}), chi_stagZ=${diagChiStagZ.toFixed(3)}`,
   )
 
   const r4Free = fourSite8M.rows[0]!
   const r4Strong = fourSite8M.rows[fourSite8M.rows.length - 1]!
   const r4Mid = fourSite8M.rows[Math.min(2, fourSite8M.rows.length - 1)]!
-  const maxCondAll4 = Math.max(...fourSite8M.rows.filter(r => r.vOverT > 0).map(r => r.maxBilinearCond))
-  const maxCondAll16 = Math.max(...twoSite16M.rows.filter(r => r.vOverT > 0).map(r => r.maxCond))
   const r16Strong = twoSite16M.rows[twoSite16M.rows.length - 1]!
   const anomMid = anom4M.rows.find(r => Math.abs(r.vOverT - 4.0) < 1e-6)!
   const anomStrong = anom4M.rows[anom4M.rows.length - 1]!
@@ -3270,47 +3592,61 @@ function runPart2MultiSiteSmg(): Part2Summary {
   recordGate(
     'G2.1',
     'Part 2',
-    '4-site 32-Majorana chiral ring: exact V=0 gapless zero-mode phase -> unique gapped SMG phase',
+    '4-site 1+1D chiral ring: V=0 gapless zero-mode phase -> unique gapped SU(4) SMG across all |Delta N|<=2 sectors',
     r4Free.gapNeutral < 1e-9 &&
-      r4Free.gsDeg >= 2 &&
+      r4Free.gsDeg >= 4 &&
+      r4Free.gsDegLowerBound &&
       r4Strong.gsDeg === 1 &&
+      !r4Strong.gsDegLowerBound &&
       r4Strong.gapGlobal > 10 &&
+      r4Strong.gapAdjoint > 10 &&
       r4Strong.gap1p > r4Mid.gap1p &&
       r4Strong.maxResidual < 1e-11,
-    `V=0: gap=${r4Free.gapNeutral.toExponential(1)}, gsDeg=${r4Free.gsDeg}; V/t=${r4Strong.vOverT}: gsDeg=${r4Strong.gsDeg}, dE_glob=${r4Strong.gapGlobal.toFixed(3)}, dE_1p=${r4Strong.gap1p.toFixed(3)}, res=${r4Strong.maxResidual.toExponential(1)}`,
+    `V=0: gap=${r4Free.gapNeutral.toExponential(1)}, gsDeg>=${r4Free.gsDeg}; V/t=${r4Strong.vOverT}: gsDeg=${r4Strong.gsDeg}, dE_glob=${r4Strong.gapGlobal.toFixed(3)} (adj=${r4Strong.gapAdjoint.toFixed(3)}, ${fourSite8M.globalBlocksScanned} sectors), res=${r4Strong.maxResidual.toExponential(1)}`,
   )
   recordGate(
     'G2.2',
     'Part 2',
-    'Zero bilinear mass condensate (< 1e-12) & 2-point suppression vs 4-point SMG singlet lock',
-    maxCondAll4 < 1e-12 &&
-      maxCondAll16 < 1e-12 &&
+    'Multi-channel Kubo susceptibilities bounded O(1/V) (stagZ, unifZ, VBS dimer, cross-block off-flavor) & Model 2B 8_s(+)8_c global SMG gap',
+    kuboVsFdRelErr < 1e-4 &&
+      r4Strong.kubo.chiMaxAll < r4Mid.kubo.chiMaxAll &&
+      r4Strong.kubo.chiMaxAll < 0.5 &&
       r4Strong.g2Dist1 < r4Mid.g2Dist1 &&
       r4Strong.cayleyPerSite < -13.0 &&
       r16Strong.gsDeg === 1 &&
-      r16Strong.gap1p > 15,
-    `max|<bil>|(4-site)=${maxCondAll4.toExponential(1)}, (2x16M)=${maxCondAll16.toExponential(1)}; G2(1): ${r4Mid.g2Dist1.toFixed(4)}->${r4Strong.g2Dist1.toFixed(4)}, <H_C>/site=${r4Strong.cayleyPerSite.toFixed(3)}`,
+      r16Strong.gapGlobal > 15 &&
+      r16Strong.chiStagZ < 0.5 &&
+      r16Strong.chiUnifZ < 0.5,
+    `4-site chiMax: ${r4Mid.kubo.chiMaxAll.toFixed(4)}->${r4Strong.kubo.chiMaxAll.toFixed(4)} (Kubo/FD err=${kuboVsFdRelErr.toExponential(1)}); G2(1): ${r4Mid.g2Dist1.toFixed(4)}->${r4Strong.g2Dist1.toFixed(4)}; 2x16M 8_s(+)8_c dE_glob=${r16Strong.gapGlobal.toFixed(3)} (${twoSite16M.globalBlocksScanned} sectors)`,
   )
   recordGate(
     'G2.3',
     'Part 2',
-    'Anomalous 4-Majorana/site & diagonal-only negative controls CANNOT open symmetric mass gap',
+    'Identically-normalized 1+1D Fidkowski-Kitaev 4M/site (nu=4 mod 8) & diagonal-only controls CANNOT open symmetric gap',
     anomStrong.gapAll < anomMid.gapAll &&
-      anomStrong.stagSusc > anomMid.stagSusc &&
-      anomStrong.stagSusc > 5 * r4Strong.stagSusc &&
+      anomStrong.chiStagZ > anomMid.chiStagZ &&
+      anomStrong.chiStagZ > 5 * r4Strong.kubo.chiMaxAll &&
       atomicDegDiag >= 2 &&
-      gapDiagV4 < 2.0,
-    `Anom 4M gap collapses ${anomMid.gapAll.toFixed(4)}->${anomStrong.gapAll.toFixed(4)}, chi_stag surges ${anomMid.stagSusc.toFixed(2)}->${anomStrong.stagSusc.toFixed(2)} vs SMG chi=${r4Strong.stagSusc.toFixed(4)}; diagOnly atomicDeg=${atomicDegDiag}`,
+      gapDiagV4 < 2.0 &&
+      diagChiStagZ > 50 * r4Strong.kubo.chiMaxAll,
+    `Anom 4M gap collapses ${anomMid.gapAll.toFixed(4)}->${anomStrong.gapAll.toFixed(4)}, equal-norm chi_stagZ surges ${anomMid.chiStagZ.toFixed(2)}->${anomStrong.chiStagZ.toFixed(2)} vs SMG chiMax=${r4Strong.kubo.chiMaxAll.toFixed(4)}; diagOnly atomicDeg=${atomicDegDiag}, chi=${diagChiStagZ.toFixed(1)}`,
   )
 
   return {
     mode: MODE_LABEL,
-    oneSiteExactVerifyErr: oneSiteErr,
+    tier: 'Tier B (0+1D/1+1D multi-site SU(4) ~= Spin(6) bipartite Cayley-4-form SMG benchmark)',
+    dimensionalityNote: 'Spinless complex hopping preserves SU(4) ~= Spin(6); NegCtrl 2D tests 1+1D Fidkowski-Kitaev nu=4 mod 8; full dynamical 3+1D/4D gauge-coupled chiral SMG remains Tier C open.',
+    oneSitePlusVerifyErr: oneSitePlusErr,
+    oneSiteMinusVerifyErr: oneSiteMinusErr,
+    kuboVsFdRelErr,
     twoSite8M,
-    twoSite16M: { totalDim: 65536, gsBlockDim: twoSite16M.dimGsBlock, oddBlockDim: twoSite16M.dimOddBlock, rows: twoSite16M.rows },
+    twoSite16M: {
+      totalDim: 65536, gsBlockDim: twoSite16M.dimGsBlock, oddBlockDim: twoSite16M.dimOddBlock,
+      globalBlocksScanned: twoSite16M.globalBlocksScanned, vCrossRatio: twoSite16M.vCrossRatio, rows: twoSite16M.rows,
+    },
     fourSite8M,
     anomalous4MControl: anom4M,
-    diagonalOnlyControl: { nSites: 2, vLarge: vDiagTest, atomicGsDeg: atomicDegDiag, gapAtVLarge: gapDiagV4, stagSuscAtVLarge: diagSuscV4 },
+    diagonalOnlyControl: { nSites: 2, vLarge: vDiagTest, atomicGsDeg: atomicDegDiag, gapAtVLarge: gapDiagV4, chiStagZAtVLarge: diagChiStagZ },
     elapsedSec: (performance.now() - t0) / 1000,
   }
 }
@@ -3321,7 +3657,7 @@ function runPart2MultiSiteSmg(): Part2Summary {
 
 async function main(): Promise<void> {
   console.log('=================================================================================')
-  console.log(`4D D_4 LATTICE QCD + INTERACTING MULTI-SITE CHIRAL SMG [${MODE_LABEL}]`)
+  console.log(`4D D_4 LATTICE QCD (Tier B/C) + MULTI-SITE SU(4) CAYLEY-4-FORM SMG (Tier B) [${MODE_LABEL}]`)
   console.log(`Workers: ${N_WORKERS} | Node ${process.version} | CPUs: ${os.cpus().length}`)
   console.log('=================================================================================')
 

@@ -480,8 +480,8 @@ theorem thm_fock_inner_sesquilinear [DecidableEq α]
       apply sumList_zero_of_all_zero
       intro c hc
       have hne := ((mem_eraseOne_iff a c hnd).mp hc).2
-      rw [if_neg hne, star_conj_zero, StarCommRing.zero_mul]
-    rw [hRest, StarCommRing.add_zero, if_pos rfl, StarCommRing.conj_one, StarCommRing.one_mul]
+      rw [ite_eq_right hne, star_conj_zero, StarCommRing.zero_mul]
+    rw [hRest, StarCommRing.add_zero, ite_eq_left rfl, StarCommRing.conj_one, StarCommRing.one_mul]
 
 /-- Exact unitary operator on finite-support Fock space `FockVec R α`. -/
 structure FockUnitary (R α : Type) [StarCommRing R] where
@@ -618,7 +618,9 @@ theorem block2_expand (a b u v x y : R) :
                           (StarCommRing.mul (StarCommRing.mul (StarCommRing.conj b) a) (StarCommRing.mul (StarCommRing.conj v) x))) := by
   let _ : CommRing R := StarCommRing.toCommRing R
   rw [StarCommRing.conj_add, StarCommRing.conj_mul, StarCommRing.conj_mul]
-  change (StarCommRing.conj a * StarCommRing.conj u + StarCommRing.conj b * StarCommRing.conj v) * (a * x + b * y) = _
+  change (StarCommRing.conj a * StarCommRing.conj u + StarCommRing.conj b * StarCommRing.conj v) * (a * x + b * y) =
+    ((StarCommRing.conj a * a) * (StarCommRing.conj u * x) + (StarCommRing.conj b * b) * (StarCommRing.conj v * y)) +
+    ((StarCommRing.conj a * b) * (StarCommRing.conj u * y) + (StarCommRing.conj b * a) * (StarCommRing.conj v * x))
   ring
 
 /-- Exact Fock unitarity of ANY involutive `2 × 2` symmetric block operator. -/
@@ -725,7 +727,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
                                 (StarCommRing.mul (StarCommRing.mul (StarCommRing.conj b) a) (StarCommRing.mul (StarCommRing.conj (ψ (flip c))) (φ c))))) := by
         refine sumList_congr ua _ _ fun c hc => ?_
         have hca : act c = true := (List.mem_filter.mp hc).2
-        unfold block2Op; simp only [if_pos hca]
+        unfold block2Op; simp only [ite_eq_left hca]
         exact block2_expand a b (ψ c) (ψ (flip c)) (φ c) (φ (flip c))
       rw [hStep, sumList_add, sumList_add, sumList_add,
           sumList_mul_left, sumList_mul_left, sumList_mul_left, sumList_mul_left]
@@ -853,7 +855,7 @@ theorem block12_comp
       rw [sumFin12_congr _ (fun m => StarCommRing.add (ψ (moveTo m c))
             (StarCommRing.mul (StarCommRing.mul (StarCommRing.sub v₁ StarCommRing.one) inv12)
               (sumFin12 (fun m' => ψ (moveTo m' c))))) (fun m => by
-            rw [if_pos (hActMove m c ha)]
+            rw [ite_eq_left (hActMove m c ha)]
             congr 2; exact sumFin12_congr _ _ (fun m' => by rw [hMoveMove m' m c ha])),
           sumFin12_add, sumFin12_const]
       let S := sumFin12 (fun m => ψ (moveTo m c))
@@ -897,7 +899,7 @@ theorem block12_expand_supp [DecidableEq α]
       have hInFM : c ∈ flatMapList (fun x => (List.finRange 12).map (fun k => if act x then moveTo k x else x)) s :=
         (mem_flatMapList_iff _ s c).mpr ⟨moveTo m c, hmS,
           List.mem_map.mpr ⟨curLine c, mem_finRange12 (curLine c),
-            by rw [if_pos (hActMove m c ha), hMoveMove _ _ c ha, hMoveCur c ha]⟩⟩
+            by rw [ite_eq_left (hActMove m c ha), hMoveMove _ _ c ha, hMoveCur c ha]⟩⟩
       exact hc ((mem_dedupList _ c).mpr (List.mem_append.mpr (Or.inr hInFM)))
     rw [hS0, StarCommRing.mul_zero]
 
@@ -936,13 +938,13 @@ def block12Unitary [DecidableEq α]
       cases ha : act c with
       | false => simp [ha]
       | true =>
-        rw [if_pos rfl, if_pos (hActMove _ c ha), hCurMove _ c ha, hAddSub, hMoveMove _ _ c ha, hMoveCur c ha]
+        rw [ite_eq_left rfl, ite_eq_left (hActMove _ c ha), hCurMove _ c ha, hAddSub, hMoveMove _ _ c ha, hMoveCur c ha]
     have hRotInv2 : ∀ (k : Fin 12) (c : α), rot k (rotInv k c) = c := by
       intro k c; dsimp only [rot, rotInv]
       cases ha : act c with
       | false => simp [ha]
       | true =>
-        rw [if_pos rfl, if_pos (hActMove _ c ha), hCurMove _ c ha, hSubAdd, hMoveMove _ _ c ha, hMoveCur c ha]
+        rw [ite_eq_left rfl, ite_eq_left (hActMove _ c ha), hCurMove _ c ha, hSubAdd, hMoveMove _ _ c ha, hMoveCur c ha]
     let uL := dedupList (s ++ flatMapList (fun c => (List.finRange 12).map (fun m => if act c then moveTo m c else c)) s)
     have huNd : IsNodup uL := isNodup_dedupList _
     have huClosedMove : ∀ (c : α) (m : Fin 12), c ∈ uL → act c = true → moveTo m c ∈ uL := by
@@ -950,15 +952,15 @@ def block12Unitary [DecidableEq α]
       have hMem := List.mem_append.mp ((mem_dedupList _ c).mp hc)
       refine (mem_dedupList _ _).mpr (List.mem_append.mpr (Or.inr ?_))
       rcases hMem with hS | hFM
-      · exact (mem_flatMapList_iff _ s _).mpr ⟨c, hS, List.mem_map.mpr ⟨m, mem_finRange12 m, if_pos hca⟩⟩
+      · exact (mem_flatMapList_iff _ s _).mpr ⟨c, hS, List.mem_map.mpr ⟨m, mem_finRange12 m, ite_eq_left hca⟩⟩
       · obtain ⟨x, hxS, hmx⟩ := (mem_flatMapList_iff _ s c).mp hFM
         obtain ⟨k, _, hkx⟩ := List.mem_map.mp hmx
         cases hxa : act x with
         | false => rw [hxa, ite_bool_false] at hkx; rw [← hkx, hxa] at hca; exact Bool.noConfusion hca
         | true =>
-          rw [if_pos hxa] at hkx
+          rw [ite_eq_left hxa] at hkx
           exact (mem_flatMapList_iff _ s _).mpr ⟨x, hxS, List.mem_map.mpr ⟨m, mem_finRange12 m,
-            by rw [if_pos hxa, ← hkx, hMoveMove m k x hxa]⟩⟩
+            by rw [ite_eq_left hxa, ← hkx, hMoveMove m k x hxa]⟩⟩
     have huψ : SuppIn uL ψ :=
       ⟨huNd, fun c hc => hsψ.2 c (fun h => hc ((mem_dedupList _ c).mpr (List.mem_append.mpr (Or.inl h))))⟩
     have huOpψ : SuppIn uL (block12Op act moveTo u inv12 ψ) := by
@@ -987,14 +989,14 @@ def block12Unitary [DecidableEq α]
         intro k c hc
         have ⟨hcu, hca⟩ := List.mem_filter.mp hc
         exact List.mem_filter.mpr
-          ⟨by dsimp only [rot]; rw [if_pos hca]; exact huClosedMove c _ hcu hca,
-           by dsimp only [rot]; rw [if_pos hca]; exact hActMove _ c hca⟩
+          ⟨by dsimp only [rot]; rw [ite_eq_left hca]; exact huClosedMove c _ hcu hca,
+           by dsimp only [rot]; rw [ite_eq_left hca]; exact hActMove _ c hca⟩
       have huaRotInvCl : ∀ (k : Fin 12) (c : α), c ∈ ua → rotInv k c ∈ ua := by
         intro k c hc
         have ⟨hcu, hca⟩ := List.mem_filter.mp hc
         exact List.mem_filter.mpr
-          ⟨by dsimp only [rotInv]; rw [if_pos hca]; exact huClosedMove c _ hcu hca,
-           by dsimp only [rotInv]; rw [if_pos hca]; exact hActMove _ c hca⟩
+          ⟨by dsimp only [rotInv]; rw [ite_eq_left hca]; exact huClosedMove c _ hcu hca,
+           by dsimp only [rotInv]; rw [ite_eq_left hca]; exact hActMove _ c hca⟩
       let hop := StarCommRing.mul (StarCommRing.sub u StarCommRing.one) inv12
       let Sψ : α → R := fun c => sumFin12 (fun m => ψ (moveTo m c))
       let Sφ : α → R := fun c => sumFin12 (fun m => φ (moveTo m c))
@@ -1002,7 +1004,7 @@ def block12Unitary [DecidableEq α]
           sumFin12 (fun k => χ (rot k c)) = sumFin12 (fun m => χ (moveTo m c)) := by
         intro χ c hca
         rw [sumFin12_congr _ (fun k => χ (moveTo (addMod12 (curLine c) k) c))
-              (fun k => by dsimp only [rot]; rw [if_pos hca])]
+              (fun k => by dsimp only [rot]; rw [ite_eq_left hca])]
         exact sumFin12_bijection (R := R) (addMod12 (curLine c)) (fun m => subMod12 m (curLine c))
           (fun m => χ (moveTo m c))
           (fun k => (by decide : ∀ a b : Fin 12, subMod12 (addMod12 a b) a = b) (curLine c) k)
@@ -1010,7 +1012,7 @@ def block12Unitary [DecidableEq α]
       have hSInv : ∀ (χ : FockVec R α) (k : Fin 12) (c : α), act c = true →
           sumFin12 (fun m => χ (moveTo m (rot k c))) = sumFin12 (fun m => χ (moveTo m c)) := by
         intro χ k c hca
-        exact sumFin12_congr _ _ (fun m => by dsimp only [rot]; rw [if_pos hca, hMoveMove m _ c hca])
+        exact sumFin12_congr _ _ (fun m => by dsimp only [rot]; rw [ite_eq_left hca, hMoveMove m _ c hca])
       have hCross1 : sumList ua (fun c => StarCommRing.mul (StarCommRing.conj (Sψ c)) (Sφ c)) =
           StarCommRing.mul (StarCommRing.ofNatR 12) (sumList ua (fun c => StarCommRing.mul (StarCommRing.conj (ψ c)) (Sφ c))) := by
         have h1 : sumList ua (fun c => StarCommRing.mul (StarCommRing.conj (Sψ c)) (Sφ c)) =
@@ -1019,7 +1021,9 @@ def block12Unitary [DecidableEq α]
           have hca := (List.mem_filter.mp hc).2
           rw [show Sψ c = sumFin12 (fun k => ψ (rot k c)) from (hRotS ψ c hca).symm, sumFin12_conj,
               StarCommRing.mul_comm, ← sumFin12_mul_left]
-          exact sumFin12_congr _ _ (fun k => by rw [StarCommRing.mul_comm, hSInv φ k c hca])
+          exact sumFin12_congr _ _ (fun k => by
+            rw [StarCommRing.mul_comm]
+            exact congrArg (StarCommRing.mul _) (hSInv φ k c hca).symm)
         rw [h1, sumList_sumFin12_comm,
             sumFin12_congr _ (fun _ => sumList ua (fun c => StarCommRing.mul (StarCommRing.conj (ψ c)) (Sφ c)))
               (fun k => sumList_bijection ua (rot k) (rotInv k) _ (hRotInv1 k) (hRotInv2 k) huaNd (huaRotCl k) (huaRotInvCl k)),
@@ -1031,7 +1035,7 @@ def block12Unitary [DecidableEq α]
           refine sumList_congr ua _ _ fun c hc => ?_
           have hca := (List.mem_filter.mp hc).2
           rw [show Sφ c = sumFin12 (fun k => φ (rot k c)) from (hRotS φ c hca).symm, ← sumFin12_mul_left]
-          exact sumFin12_congr _ _ (fun k => by rw [hSInv ψ k c hca])
+          exact sumFin12_congr _ _ (fun k => congrArg (fun x => StarCommRing.mul (StarCommRing.conj x) _) (hSInv ψ k c hca).symm)
         rw [h1, sumList_sumFin12_comm,
             sumFin12_congr _ (fun _ => sumList ua (fun c => StarCommRing.mul (StarCommRing.conj (Sψ c)) (φ c)))
               (fun k => sumList_bijection ua (rot k) (rotInv k) _ (hRotInv1 k) (hRotInv2 k) huaNd (huaRotCl k) (huaRotInvCl k)),
@@ -1051,11 +1055,15 @@ def block12Unitary [DecidableEq α]
                   (StarCommRing.mul (StarCommRing.mul (StarCommRing.conj hop) hop) (StarCommRing.mul (StarCommRing.conj (Sψ c)) (Sφ c)))))) := by
         refine sumList_congr ua _ _ fun c hc => ?_
         have hca := (List.mem_filter.mp hc).2
-        unfold block12Op; simp only [if_pos hca]
+        unfold block12Op; simp only [ite_eq_left hca]
         change StarCommRing.mul (StarCommRing.conj (StarCommRing.add (ψ c) (StarCommRing.mul hop (Sψ c))))
           (StarCommRing.add (φ c) (StarCommRing.mul hop (Sφ c))) = _
         rw [StarCommRing.conj_add, StarCommRing.conj_mul]
-        change (StarCommRing.conj (ψ c) + StarCommRing.conj hop * StarCommRing.conj (Sψ c)) * (φ c + hop * Sφ c) = _
+        change (StarCommRing.conj (ψ c) + StarCommRing.conj hop * StarCommRing.conj (Sψ c)) * (φ c + hop * Sφ c) =
+          StarCommRing.conj (ψ c) * φ c +
+            (hop * (StarCommRing.conj (ψ c) * Sφ c) +
+              (StarCommRing.conj hop * (StarCommRing.conj (Sψ c) * φ c) +
+                (StarCommRing.conj hop * hop) * (StarCommRing.conj (Sψ c) * Sφ c)))
         ring
       rw [hTerm, sumList_add, sumList_add, sumList_add,
           sumList_mul_left, sumList_mul_left, sumList_mul_left, hC1, hC2]
@@ -1406,7 +1414,7 @@ private theorem listIntLt_irrefl (xs : List Int) : listIntLt xs xs = false := by
   | nil => rfl
   | cons x rest ih =>
     simp only [listIntLt]
-    rw [if_neg (by omega), if_neg (by omega)]
+    rw [ite_eq_right (by omega), ite_eq_right (by omega)]
     exact ih
 
 private theorem listIntLt_trans (xs ys zs : List Int)
@@ -1422,7 +1430,8 @@ private theorem listIntLt_trans (xs ys zs : List Int)
       | nil => simp [listIntLt] at h2
       | cons z zr =>
         simp only [listIntLt] at h1 h2 ⊢
-        split_ifs at h1 h2 ⊢ <;> first | omega | exact Bool.noConfusion h1 | exact Bool.noConfusion h2 | exact ih yr zr h1 h2
+        split_ifs at h1 h2 ⊢
+        all_goals first | omega | exact ih yr zr h1 h2
 
 private theorem listIntLt_trichotomy (xs ys : List Int) (hlen : xs.length = ys.length) :
     listIntLt xs ys = true ∨ xs = ys ∨ listIntLt ys xs = true := by
@@ -1539,7 +1548,7 @@ private theorem lookupEntries_not_lt (g : Mat5) (es : List (Mat5 × FullDock))
     simp only [lookupEntries]
     have hlt := hgt (k, d) (List.Mem.head rest)
     have hne : k ≠ g := fun heq => by rw [heq, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-    rw [if_neg hne]
+    rw [ite_eq_right hne]
     exact ih (fun q hq => hgt q (List.Mem.tail _ hq))
 
 private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
@@ -1566,7 +1575,7 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
       rcases mat5Lt_trichotomy k₁ k₂ with hlt | heq | hgt
       · have h0 := hlk k₁
         have hne12 : k₂ ≠ k₁ := fun h => by rw [h, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-        simp only [lookupEntries, if_pos rfl, if_neg hne12] at h0
+        simp only [lookupEntries, ite_true, ite_eq_right hne12] at h0
         rw [lookupEntries_not_lt k₁ r₂ (fun q hq => mat5Lt_trans k₁ k₂ q.1 hlt (hs₂.1 q hq))] at h0
         exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
       · subst heq
@@ -1581,7 +1590,7 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
         rw [hd, hr]
       · have h0 := hlk k₂
         have hne21 : k₁ ≠ k₂ := fun h => by rw [h, mat5Lt_irrefl] at hgt; exact Bool.noConfusion hgt
-        simp only [lookupEntries, if_pos rfl, if_neg hne21] at h0
+        simp only [lookupEntries, ite_true, ite_eq_right hne21] at h0
         rw [lookupEntries_not_lt k₂ r₁ (fun q hq => mat5Lt_trans k₂ k₁ q.1 hgt (hs₁.1 q hq))] at h0
         exact absurd h0.symm (hne₂ (k₂, d₂) (List.Mem.head r₂))
 
@@ -1664,9 +1673,10 @@ theorem setEntries_sorted (g : Mat5) (d : FullDock) (es : List (Mat5 × FullDock
     (hs : SortedEntries es) : SortedEntries (setEntries g d es) := by
   induction es with
   | nil =>
-    simp only [setEntries]; split_ifs
-    · trivial
-    · exact ⟨fun _ h => nomatch h, trivial⟩
+    simp only [setEntries]
+    by_cases hd : d = v1FullDock
+    · simp [hd, SortedEntries]
+    · simp [hd, SortedEntries]
   | cons q rest ih =>
     cases q with | mk k dk =>
     simp only [setEntries]
@@ -1714,38 +1724,45 @@ private theorem lookupEntries_setEntries (g h : Mat5) (d : FullDock) (es : List 
   induction es with
   | nil =>
     simp only [setEntries]
-    split_ifs with hd hhg hgh <;> simp_all [lookupEntries]
+    by_cases hd : d = v1FullDock <;> by_cases hhg : h = g
+    · simp [hd, hhg, lookupEntries]
+    · simp [hd, hhg, lookupEntries]
+    · subst hhg; simp [hd, lookupEntries]
+    · simp [hd, hhg, Ne.symm hhg, lookupEntries]
   | cons q rest ih =>
     cases q with | mk k dk =>
     simp only [setEntries]
-    split_ifs with hlt hd hkg hd'
-    · split_ifs with hhg
-      · subst hhg hd
-        have hne : k ≠ h := fun e => by rw [e, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-        simp only [lookupEntries, if_neg hne]
-        exact lookupEntries_not_lt h rest (fun p hp => mat5Lt_trans h k p.1 hlt (hs.1 p hp))
-      · rfl
-    · simp only [lookupEntries]
-      split_ifs with hgh hhg
-      · rfl
-      · exact absurd hgh.symm hhg
-      · exact absurd hhg.symm hgh
-      · rfl
-    · subst hkg hd
-      split_ifs with hhg
-      · subst hhg; exact lookupEntries_not_lt h rest hs.1
-      · simp [lookupEntries, Ne.symm hhg]
-    · subst hkg
-      simp only [lookupEntries]
-      split_ifs with hhg
-      · subst hhg; simp
-      · simp [Ne.symm hhg]
-    · simp only [lookupEntries]
-      split_ifs with hkh hhg
-      · subst hkh hhg; exact absurd rfl hkg
-      · rfl
-      · exact ih hs.2 ▸ if_pos hhg
-      · exact ih hs.2 ▸ if_neg hhg
+    by_cases hlt : mat5Lt g k = true
+    · simp only [hlt, ↓reduceIte]
+      by_cases hd : d = v1FullDock
+      · simp only [hd, ↓reduceIte]
+        by_cases hhg : h = g
+        · subst hhg
+          have hne : k ≠ h := fun e => by rw [e, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
+          simp only [lookupEntries, ite_true, ite_eq_right hne]
+          exact lookupEntries_not_lt h rest (fun p hp => mat5Lt_trans h k p.1 hlt (hs.1 p hp))
+        · simp [hhg]
+      · simp only [hd, ↓reduceIte, lookupEntries]
+        by_cases hhg : h = g
+        · subst hhg; simp
+        · simp [hhg, Ne.symm hhg]
+    · simp only [hlt, ↓reduceIte]
+      by_cases hkg : k = g
+      · subst hkg
+        simp only [↓reduceIte]
+        by_cases hd : d = v1FullDock
+        · simp only [hd, ↓reduceIte]
+          by_cases hhg : h = k
+          · subst hhg; simp only [↓reduceIte]; exact lookupEntries_not_lt h rest hs.1
+          · simp [hhg, Ne.symm hhg, lookupEntries]
+        · simp only [hd, ↓reduceIte, lookupEntries]
+          by_cases hhg : h = k
+          · subst hhg; simp
+          · simp [hhg, Ne.symm hhg]
+      · simp only [hkg, ↓reduceIte, lookupEntries]
+        by_cases hkh : k = h
+        · subst hkh; simp [Ne.symm hkg]
+        · simp only [hkh, ↓reduceIte]; exact ih hs.2
 
 /-- Update dock `g` of `c` to `d` (deleting `g` if `d = v1FullDock`). -/
 def HoneycombConfig.setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) : HoneycombConfig :=
@@ -1842,10 +1859,10 @@ private theorem lookup_ofSites_foldl (cand : List Mat5) (f : Mat5 → FullDock)
   | nil => rfl
   | cons k rest ih =>
     simp only [List.foldl, ih, memBool]
-    split_ifs with hkg
+    by_cases hkg : k = g
     · subst hkg
       cases hm : memBool k rest <;> simp [lookup_setDock]
-    · cases hm : memBool g rest <;> simp [lookup_setDock, Ne.symm hkg]
+    · cases hm : memBool g rest <;> simp [hkg, lookup_setDock, Ne.symm hkg]
 
 -- [helper]
 theorem lookup_ofSites (cand : List Mat5) (f : Mat5 → FullDock)
@@ -2184,7 +2201,7 @@ theorem thm_fock_honeycomb_config_symmetries (c : HoneycombConfig) :
           (fun g _ => fullDockCharge_eq_fockSumInt _),
         fockSumInt_congr c.activeDocks _ (fun g => fockSumInt (List.finRange 24) (fun a => (c.lookup g a).charge))
           (fun g _ => fullDockCharge_eq_fockSumInt _),
-        fockSumInt_swap, fockSumInt_swap]
+        fockSumInt_swap (streamConfig c).activeDocks, fockSumInt_swap c.activeDocks]
     refine fockSumInt_congr _ _ _ fun a _ => ?_
     let shifted := c.activeDocks.map (fun g => mat5Mul g (transport a))
     have hShNd : IsNodup shifted :=

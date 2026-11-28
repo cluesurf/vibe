@@ -295,7 +295,7 @@ private theorem cg_step1_and_step2_exact (a b : Fin 24) :
     unfold step1Center
     rw [cg_twiceForm_add_right, cg_twiceForm_scale_right,
         thm_24_facets_geometry.2.2.2.1 a, thm_facet_gram_right_angled.1 a b]
-    ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale] <;> ring
+    ext <;> (dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale]; ring)
   rw [hPair]
   funext i; unfold step1Center step2Center
   simp only [z2_scale_eq_mul]
@@ -306,8 +306,14 @@ private theorem cg_step1_and_step2_exact (a b : Fin 24) :
   have hNeg : ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
       -ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) := by
     change ZSqrt2.ofInt _ = ZSqrt2.neg (ZSqrt2.ofInt _)
-    ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.neg] <;> ring
+    ext <;> (dsimp [ZSqrt2.ofInt, ZSqrt2.neg]; ring)
   rw [hNeg]; ring
+
+private theorem cg_rec_coord (kv xa xa' xb xb' : Int) (hkv : kv ≥ 6)
+    (h5 : -1 ≤ xb) (h6 : xb ≤ 1) (h7 : -1 ≤ xb') (h8 : xb' ≤ 1)
+    (hE : 2 * xb + kv * xa = 2 * xb' + kv * xa') : xa = xa' ∧ xb = xb' := by
+  have hxa : xa = xa' := by nlinarith
+  exact ⟨hxa, by nlinarith⟩
 
 private theorem cg_d4_coord_bounds (a : Fin 24) :
     -1 ≤ (d4RootOf a).1 ∧ (d4RootOf a).1 ≤ 1 ∧
@@ -515,15 +521,10 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
       have hkGe6 : k ≥ 6 := by change 6 - 4 * dot4 (d4RootOf a) (d4RootOf b) ≥ 6; omega
       obtain ⟨bb0L, bb0U, bb1L, bb1U, bb2L, bb2U, bb3L, bb3U⟩ := cg_d4_coord_bounds b
       obtain ⟨bb0L', bb0U', bb1L', bb1U', bb2L', bb2U', bb3L', bb3U'⟩ := cg_d4_coord_bounds b'
-      have hRecCoord : ∀ (kv xa xa' xb xb' : Int), kv ≥ 6 →
-          -1 ≤ xb → xb ≤ 1 → -1 ≤ xb' → xb' ≤ 1 →
-          2 * xb + kv * xa = 2 * xb' + kv * xa' → xa = xa' ∧ xb = xb' := fun kv xa xa' xb xb' hkv h5 h6 h7 h8 hE => by
-        have hxa : xa = xa' := by nlinarith
-        exact ⟨hxa, by nlinarith⟩
-      have c0 := hRecCoord k _ _ _ _ hkGe6 bb0L bb0U bb0L' bb0U' hCoordEq.1
-      have c1 := hRecCoord k _ _ _ _ hkGe6 bb1L bb1U bb1L' bb1U' hCoordEq.2.1
-      have c2 := hRecCoord k _ _ _ _ hkGe6 bb2L bb2U bb2L' bb2U' hCoordEq.2.2.1
-      have c3 := hRecCoord k _ _ _ _ hkGe6 bb3L bb3U bb3L' bb3U' hCoordEq.2.2.2
+      have c0 := cg_rec_coord k _ _ _ _ hkGe6 bb0L bb0U bb0L' bb0U' hCoordEq.1
+      have c1 := cg_rec_coord k _ _ _ _ hkGe6 bb1L bb1U bb1L' bb1U' hCoordEq.2.1
+      have c2 := cg_rec_coord k _ _ _ _ hkGe6 bb2L bb2U bb2L' bb2U' hCoordEq.2.2.1
+      have c3 := cg_rec_coord k _ _ _ _ hkGe6 bb3L bb3U bb3L' bb3U' hCoordEq.2.2.2
       have hRootInj : ∀ x y : Fin 24, d4RootOf x = d4RootOf y → x = y := by decide
       exact ⟨hRootInj a a' (Prod.ext c0.1 (Prod.ext c1.1 (Prod.ext c2.1 c3.1))),
              hRootInj b b' (Prod.ext c0.2 (Prod.ext c1.2 (Prod.ext c2.2 c3.2)))⟩
@@ -764,6 +765,21 @@ private theorem foata_shift_eqs (r : Nat) :
     foataA3 (r + 3) = foataA0 r + 21 * foataA1 r + 75 * foataA2 r + 68 * foataA3 r :=
   ⟨rfl, rfl, rfl, rfl⟩
 
+private theorem cg_lin3 (c1 c2 c3 a7 a6 a5 a4 b6 b5 b4 b3 k6 k5 k4 k3 d6 d5 d4 d3 : Nat)
+    (s7 : a7 = 0 + c1 * b6 + c2 * k6 + c3 * d6)
+    (s6 : a6 = 0 + c1 * b5 + c2 * k5 + c3 * d5)
+    (s5 : a5 = 0 + c1 * b4 + c2 * k4 + c3 * d4)
+    (s4 : a4 = 0 + c1 * b3 + c2 * k3 + c3 * d3)
+    (hb : b6 + 51 * b4 = 21 * b5 + 23 * b3)
+    (hk : k6 + 51 * k4 = 21 * k5 + 23 * k3)
+    (hd : d6 + 51 * d4 = 21 * d5 + 23 * d3) :
+    a7 + 51 * a5 = 21 * a6 + 23 * a4 := by
+  rw [s7, s6, s5, s4]
+  calc 0 + c1 * b6 + c2 * k6 + c3 * d6 + 51 * (0 + c1 * b4 + c2 * k4 + c3 * d4)
+      = c1 * (b6 + 51 * b4) + c2 * (k6 + 51 * k4) + c3 * (d6 + 51 * d4) := by ring
+    _ = c1 * (21 * b5 + 23 * b3) + c2 * (21 * k5 + 23 * k3) + c3 * (21 * d5 + 23 * d3) := by rw [hb, hk, hd]
+    _ = 21 * (0 + c1 * b5 + c2 * k5 + c3 * d5) + 23 * (0 + c1 * b3 + c2 * k3 + c3 * d3) := by ring
+
 private theorem foata_cubic_step_bundle :
     ∀ n : Nat,
       (foataA1 (n + 4) + 51 * foataA1 (n + 2) = 21 * foataA1 (n + 3) + 23 * foataA1 (n + 1) ∧
@@ -781,36 +797,9 @@ private theorem foata_cubic_step_bundle :
   | succ m ih =>
     obtain ⟨⟨h0a, h0b, h0c⟩, ⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩⟩ := ih
     refine ⟨⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩, ⟨?_, ?_, ?_⟩⟩
-    · have s7 : foataA1 (m + 7) = 15 * foataA1 (m + 6) + 44 * foataA2 (m + 6) + 36 * foataA3 (m + 6) := by
-        simpa only [(foata_shift_eqs (m + 5)).1, Nat.zero_add] using (foata_shift_eqs (m + 6)).2.1
-      have s6 : foataA1 (m + 6) = 15 * foataA1 (m + 5) + 44 * foataA2 (m + 5) + 36 * foataA3 (m + 5) := by
-        simpa only [(foata_shift_eqs (m + 4)).1, Nat.zero_add] using (foata_shift_eqs (m + 5)).2.1
-      have s5 : foataA1 (m + 5) = 15 * foataA1 (m + 4) + 44 * foataA2 (m + 4) + 36 * foataA3 (m + 4) := by
-        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.1
-      have s4 : foataA1 (m + 4) = 15 * foataA1 (m + 3) + 44 * foataA2 (m + 3) + 36 * foataA3 (m + 3) := by
-        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.1
-      change foataA1 (m + 7) + 51 * foataA1 (m + 5) = 21 * foataA1 (m + 6) + 23 * foataA1 (m + 4)
-      omega
-    · have s7 : foataA2 (m + 7) = 19 * foataA1 (m + 5) + 63 * foataA2 (m + 5) + 54 * foataA3 (m + 5) := by
-        simpa only [(foata_shift_eqs (m + 4)).1, Nat.zero_add] using (foata_shift_eqs (m + 5)).2.2.1
-      have s6 : foataA2 (m + 6) = 19 * foataA1 (m + 4) + 63 * foataA2 (m + 4) + 54 * foataA3 (m + 4) := by
-        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.2.1
-      have s5 : foataA2 (m + 5) = 19 * foataA1 (m + 3) + 63 * foataA2 (m + 3) + 54 * foataA3 (m + 3) := by
-        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.2.1
-      have s4 : foataA2 (m + 4) = 19 * foataA1 (m + 2) + 63 * foataA2 (m + 2) + 54 * foataA3 (m + 2) := by
-        simpa only [(foata_shift_eqs (m + 1)).1, Nat.zero_add] using (foata_shift_eqs (m + 2)).2.2.1
-      change foataA2 (m + 7) + 51 * foataA2 (m + 5) = 21 * foataA2 (m + 6) + 23 * foataA2 (m + 4)
-      omega
-    · have s7 : foataA3 (m + 7) = 21 * foataA1 (m + 4) + 75 * foataA2 (m + 4) + 68 * foataA3 (m + 4) := by
-        simpa only [(foata_shift_eqs (m + 3)).1, Nat.zero_add] using (foata_shift_eqs (m + 4)).2.2.2
-      have s6 : foataA3 (m + 6) = 21 * foataA1 (m + 3) + 75 * foataA2 (m + 3) + 68 * foataA3 (m + 3) := by
-        simpa only [(foata_shift_eqs (m + 2)).1, Nat.zero_add] using (foata_shift_eqs (m + 3)).2.2.2
-      have s5 : foataA3 (m + 5) = 21 * foataA1 (m + 2) + 75 * foataA2 (m + 2) + 68 * foataA3 (m + 2) := by
-        simpa only [(foata_shift_eqs (m + 1)).1, Nat.zero_add] using (foata_shift_eqs (m + 2)).2.2.2
-      have s4 : foataA3 (m + 4) = 21 * foataA1 (m + 1) + 75 * foataA2 (m + 1) + 68 * foataA3 (m + 1) := by
-        simpa only [(foata_shift_eqs m).1, Nat.zero_add] using (foata_shift_eqs (m + 1)).2.2.2
-      change foataA3 (m + 7) + 51 * foataA3 (m + 5) = 21 * foataA3 (m + 6) + 23 * foataA3 (m + 4)
-      omega
+    · exact cg_lin3 15 44 36 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rfl rfl rfl rfl h2a h2b h2c
+    · exact cg_lin3 19 63 54 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rfl rfl rfl rfl h1a h1b h1c
+    · exact cg_lin3 21 75 68 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rfl rfl rfl rfl h0a h0b h0c
 
 /-- Headline Theorem 9 (Exact Steinberg Cubic Recurrence & Inclusion-Exclusion Identities for ALL `n : Nat`). -/
 theorem thm_foata_cubic_recurrence :
