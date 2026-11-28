@@ -360,7 +360,7 @@ private theorem globalOp_cp_of_site_cp (F : LocalSiteFamily)
     | nil => intro _; rfl
     | cons g rest ih => intro ψ; simp only [List.map, applySites]; rw [hSite g, ih]
   intro ψ; funext c
-  change applySites F (cpConfig c).activeDocks ψ (cpConfig c) = applySites F c.activeDocks (fockCP ψ) c
+  change fockCP (applySites F (cpConfig c).activeDocks ψ) c = applySites F c.activeDocks (fockCP ψ) c
   rw [congrFun (hMap (cpConfig c).activeDocks ψ) c]
   have hMapNd : IsNodup ((cpConfig c).activeDocks.map conjMatP) :=
     isNodup_map_inj conjMatP (fun x y h => by have := congrArg conjMatP h; rw [conjMatP_involutive, conjMatP_involutive] at this; exact this)
@@ -484,8 +484,15 @@ private theorem lineHalfCoin_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
       unfold swapLineSlotsConfig
       simp only [lookup_setDock, ite_true, setDock_setDock_same]
       apply congrArg (c.setDock g); funext s; unfold swapLineSlotsDock
-      split_ifs <;> simp_all [hDisj.1, hDisj.2.1, hDisj.2.2.1, hDisj.2.2.2,
-        hDisj.1.symm, hDisj.2.1.symm, hDisj.2.2.1.symm, hDisj.2.2.2.symm]
+      by_cases h1A : s = lineA l₁
+      · subst h1A; simp only [ite_true, ite_eq_right hDisj.1, ite_eq_right hDisj.2.1, ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]
+      · by_cases h1B : s = lineB l₁
+        · subst h1B; simp only [ite_true, ite_eq_right h1A, ite_eq_right hDisj.1, ite_eq_right hDisj.2.1, ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]
+        · by_cases h2A : s = lineA l₂
+          · subst h2A; simp only [ite_true, ite_eq_right h1A, ite_eq_right h1B, ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]
+          · by_cases h2B : s = lineB l₂
+            · subst h2B; simp only [ite_true, ite_eq_right h1A, ite_eq_right h1B, ite_eq_right h2A, ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm]
+            · simp only [ite_eq_right h1A, ite_eq_right h1B, ite_eq_right h2A, ite_eq_right h2B]
     rw [hF1, hF2, hL1, hL2, hSw]
     generalize (if isFullLine (c.lookup g) l₁ = true then NinthLoc6.zeta6 else NinthLoc6.one) = p1
     generalize (if isFullLine (c.lookup g) l₂ = true then NinthLoc6.zeta6 else NinthLoc6.one) = p2
@@ -695,11 +702,9 @@ private theorem cp_preserves_solePair (d : FullDock) :
        fun h => by rcases h with h1 | h2
                    · exact Or.inl (by rw [h1, hMA])
                    · exact Or.inr (by rw [h2, hMB])⟩
-    split_ifs with hP hs
-    · rfl
-    · exact absurd (hIff.mp hP) hs
-    · exact absurd (hIff.mpr hs) hP
-    · rfl
+    by_cases hP : paritySlot s = lineA m ∨ paritySlot s = lineB m
+    · rw [ite_eq_left hP, ite_eq_left (hIff.mp hP)]
+    · rw [ite_eq_right hP, ite_eq_right (fun hs => hP (hIff.mpr hs))]; rfl
 
 /-- Headline Theorem 17 (Concrete Quantum Fock-Space Instantiation of `CoxeterTransport.thm_palindromic_beat_T_CP_CPT`). -/
 theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
@@ -1041,7 +1046,6 @@ def witnessChiralInvariant : ChiralInvariant where
   chi := witnessChiFn
   chi_v1 := by unfold witnessChiFn; rw [witness_orb_disjoint.1, witness_orb_disjoint.2.1]; rfl
   chi_rev := fun d => by
-    change witnessChiFn (revFullDock d) = witnessChiFn d
     have hT : toneSig (revFullDock d) = revSig (toneSig d) := rfl
     unfold witnessChiFn; rw [hT]
     have hPos : isPosWitnessOrb (revSig (toneSig d)) = isPosWitnessOrb (toneSig d) := by

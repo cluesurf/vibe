@@ -780,7 +780,9 @@ private theorem pu_jDock_preserves_solePair (d : FullDock) :
         · exact Or.inr (Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, hA, hAB]))
         · exact Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, hB, hBA])
         · exact Or.inr (Or.inr ((hEm _).mpr hE))
-    rw [h1, h2]
+    have hAnd : ∀ a b c d : Bool, a = b → c = d → (a && c) = (b && d) := by
+      intro a b c d ha hb; rw [ha, hb]
+    exact hAnd _ _ _ _ h1 h2
   have hFind : findSolePairLine (conjFullDock (revFullDock d)) = findSolePairLine d := by
     unfold findSolePairLine; have hF : (fun l => isSoleIdentPairAt (conjFullDock (revFullDock d)) l) = (fun l => isSoleIdentPairAt d l) := funext hAt; rw [hF]
   have hFindSpec : ∀ (p : Fin 12 → Bool) (xs : List (Fin 12)) (l : Fin 12), xs.find? p = some l → p l = true := by
@@ -1230,7 +1232,9 @@ theorem pu_hurwitz2T_mul_assoc (x y z : Quat2) (hx : x ∈ hurwitz2T) (hy : y �
   have hEven : ∀ r : Quat2, Quat2.isEven r = true →
       r = ⟨2 * (r.a / 2), 2 * (r.b / 2), 2 * (r.c / 2), 2 * (r.d / 2)⟩ := fun r hr => by
     cases r with | mk ra rb rc rd =>
+    unfold Quat2.isEven at hr
     have ⟨h1, h2, h3, h4⟩ := of_decide_eq_true hr
+    dsimp only at h1 h2 h3 h4 ⊢
     simp only [Quat2.mk.injEq]
     exact ⟨by omega, by omega, by omega, by omega⟩
   have hD1 : Quat2.rawMul x y = ⟨2 * (Quat2.mul x y).a, 2 * (Quat2.mul x y).b, 2 * (Quat2.mul x y).c, 2 * (Quat2.mul x y).d⟩ :=

@@ -87,6 +87,7 @@ const SUITE_REGISTRY: readonly SuiteSpec[] = [
   { group: 'gravity', relPath: 'test/verify/null-cone-bf-holography-hardware.ts', strictStandalone: true },
   { group: 'gravity', relPath: 'test/verify/condensate-flux-dark-sector.ts', strictStandalone: true },
   { group: 'gravity', relPath: 'test/verify/hardware-qasm-noise-sweep.ts', strictStandalone: true },
+  { group: 'gravity', relPath: 'test/verify/unified-d4-gauge-gravity-flux.ts', strictStandalone: true },
   // Agency, valence geometry, discrete synergy & empirical protocols
   { group: 'agency', relPath: 'test/verify/agency-valence-synergy-protocol.ts', strictStandalone: true },
   { group: 'agency', relPath: 'test/verify/empirical-affect-tms-power-pipeline.ts', strictStandalone: true },

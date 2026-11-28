@@ -1639,7 +1639,6 @@ private theorem siteMeet_on_soleIdentPair (g : Mat5) (ψ : FockVec NinthLoc6 Hon
       if hll : l = l0 then
         subst hll; unfold isSameSignEqRoleLine at hEqL0; unfold isSameSignDiffRoleLine
         cases hA : c.lookup g (lineA l) <;> cases hB : c.lookup g (lineB l) <;> rw [hA, hB] at hEqL0
-        all_goals try rfl
         exact decide_eq_false (fun ⟨_, hne⟩ => hne (of_decide_eq_true hEqL0).2)
       else
         have hAll := (list_all_eq_true_iff _ _).mp ((Bool.and_eq_true _ _).mp hl0).2 (lineA l) (mem_finRange24 _)
