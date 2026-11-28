@@ -19,7 +19,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { registerRun, splitCell } from '@/code/compute/lab/counter'
-import { KLEENE_TARGETS, gateRule, occupancyBlind, tableKey as gateTableKey } from '@/code/compute/lab/gates'
+import { KLEENE_TARGETS, gateRule, lineBrickRun, occupancyBlind, tableKey as gateTableKey } from '@/code/compute/lab/gates'
+import { wordIndex } from '@/code/intelligence/solver/develop/develop-router'
 import { rayLayoutToLine, searchRays, wireSide } from '@/code/compute/lab/ray-search'
 import {
   type LineLayout,
@@ -66,6 +67,19 @@ import {
   windowRadius,
 } from '@/code/compute/lab/coarse-block'
 import { encodeState, globalPermutation } from '@/code/rule/partitioned-pair'
+import {
+  RationalSpan,
+  type LieElement,
+  lieBracket,
+  lieClosureDimension,
+  spinSector,
+  transpositionImage,
+  tripleGenerators,
+} from '@/code/compute/quantum/gate-set'
+import { applyShiftedAdjacency, evaluatePolynomialOn, shiftedAdjacencyMinimalPolynomial } from '@/code/measure/z3-resonance'
+import { closedQuotients, findRotaryMap, referenceTiling, squareTorus, triangleTorus } from '@/code/substrate/tiling-quotient'
+import { DECLARED_TONE_MAPS } from '@/code/compute/quantum/classical-boundary'
+import { type Vibe as BeatVibe } from '@/code/rule/bare-beat'
 import {
   BEAT_LAYERS,
   BEAT_LAYER_NAMES,
@@ -1237,6 +1251,570 @@ export function exportKleene(): string {
   })
 }
 
+// I03 (intelligence-0047): level 7's identity census (D3), run by the code. The rule id.ABC.id of pair-rule.ts as a
+// gate rule (gates.ts), the word index of develop-router.ts on the six words [t, d], and the preference functions the
+// identity device realizes: every window of width 2 and 3 on every background at both parities, every ordered pair of
+// distinct input cells, every read round 1 to R_READ and read cell in the light cone, and the 6 nonempty proper tone
+// sets, each run by lineBrickRun exactly as develop.ts's census probes a window (mask bit w set when the read of word w
+// lies in the set, words in develop.ts's WORDS order, which must equal wordIndex).
+const DEVICES_SOURCES = [
+  'code/rule/pair-rule.ts',
+  'code/compute/lab/gates.ts',
+  'code/intelligence/solver/develop/develop-router.ts',
+  'test/experiment/intelligence/develop.ts',
+] as const
+const DEVICES_IDENTITY_RULE = 'id.ABC.id'
+const DEVICES_R_READ = 6
+const DEVICES_TONE_SETS = [1, 2, 4, 3, 5, 6] as const
+const DEVICES_WIDTHS = [2, 3] as const
+
+export function exportDevices(): string {
+  const rule = pairRulesFromFibers().find(r => r.name === DEVICES_IDENTITY_RULE)
+
+  if (!rule) {
+    throw new Error(`${DEVICES_IDENTITY_RULE} is not among pairRulesFromFibers()`)
+  }
+
+  const gate = gateRule(rule.name, rule.table)
+  const words = Array.from({ length: 6 }, (_, w) => [w & 1, (w >> 1) - 1] as const)
+  const wordRows: string[] = []
+
+  words.forEach(([t, d], w) => {
+    if (wordIndex(t, d) !== w) {
+      throw new Error(`wordIndex(${t}, ${d}) is ${wordIndex(t, d)}, the census's word order says ${w}`)
+    }
+
+    wordRows.push(`(${t}, ${d}, ${wordIndex(t, d)})`)
+  })
+
+  const realized = new Set<number>()
+  const reads = new Int8Array(6)
+  let runs = 0
+
+  for (const background of [-1, 0, 1]) {
+    for (const width of DEVICES_WIDTHS) {
+      for (let code = 0; code < 3 ** width; code++) {
+        const window = Array.from({ length: width }, (_, i) => (Math.floor(code / 3 ** (width - 1 - i)) % 3) - 1)
+
+        for (const lo of [2, 3]) {
+          for (let i = 0; i < width; i++) {
+            for (let j = 0; j < width; j++) {
+              if (i === j) {
+                continue
+              }
+
+              const lines = words.map(([t, d]) => {
+                const x = window.slice()
+
+                x[i] = t
+                x[j] = d
+                runs++
+
+                return lineBrickRun({ rule: gate, background, start: lo, window: x, rounds: DEVICES_R_READ })
+              })
+              const pad = lines[0]!.pad
+
+              for (let round = 1; round <= DEVICES_R_READ; round++) {
+                for (let p = lo - 2 * round; p <= lo + width - 1 + 2 * round; p++) {
+                  for (let w = 0; w < 6; w++) {
+                    reads[w] = lines[w]!.frames[round]![p + pad]!
+                  }
+
+                  for (const set of DEVICES_TONE_SETS) {
+                    let g = 0
+
+                    for (let w = 0; w < 6; w++) {
+                      if (((set >> (reads[w]! + 1)) & 1) === 1) {
+                        g |= 1 << w
+                      }
+                    }
+
+                    realized.add(g)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const census = [...realized].sort((a, c) => a - c)
+  const body = [
+    `/-- The table of \`${DEVICES_IDENTITY_RULE}\` in pairRulesFromFibers() (pair-rule.ts): entry \`p\` is the index of the`,
+    '    image of pair `p`. The census runs it as a gate rule (gates.ts). -/',
+    `def devicesIdentityRule : List Nat :=\n  [${Array.from(rule.table, v => String(v)).join(', ')}]`,
+    '',
+    '/-- `(t, d, wordIndex(t, d))` of develop-router.ts for the six words in mask order: bit `w` of a',
+    '    preference mask is the decision on the word with index `w`. -/',
+    `def devicesWordIndex : List (Nat × Int × Nat) :=\n  ${leanList(wordRows, '  ')}`,
+    '',
+    `/-- The preference masks the identity device realizes over the census family (${runs} runs of`,
+    '    lineBrickRun), in increasing order. -/',
+    `def devicesIdentityCensus : List Nat :=\n  [${census.join(', ')}]`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: DEVICES_SOURCES,
+      lines: [
+        `Exports ${DEVICES_IDENTITY_RULE}'s table, wordIndex on the six words, and the identity census of level 7 (D3):`,
+        `windows of width ${DEVICES_WIDTHS.join(' and ')} on backgrounds -1, 0, +1 at both parities, every input pair,`,
+        `read rounds 1 to ${DEVICES_R_READ}, every read cell in the light cone, the 6 nonempty proper tone sets.`,
+        'Bridge: Vibe.Compute.Devices (gen_devices_rule_eq, gen_devices_word_index_eq, gen_devices_identity_census_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
+// L16 (models-0091): the four declared tone maps of classical-boundary.ts (DECLARED_TONE_MAPS, q-ladder Q6) on every
+// one- and two-excitation dock state of role 0, in the order Vibe.Compute.QuantumCoarse rebuilds (qcMapFamily): one
+// excitation by slot, then tone +1, -1; two by slot pair in lexicographic order, then tones ++, +-, -+, --. Each entry
+// is the base-3 code (netSign + 1) + 3 (netResidue + 1) + 9 (pairedSign + 1) + 27 (lowestSlotTone + 1).
+const QUANTUM_COARSE_SOURCES = ['code/compute/quantum/classical-boundary.ts'] as const
+const QUANTUM_COARSE_MAPS = ['netSign', 'netResidue', 'pairedSign', 'lowestSlotTone'] as const
+const QUANTUM_COARSE_TONE_PAIRS = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+] as const
+
+export function exportQuantumCoarse(): string {
+  if (DECLARED_TONE_MAPS.length !== QUANTUM_COARSE_MAPS.length) {
+    throw new Error(`lean-export: ${DECLARED_TONE_MAPS.length} declared tone maps, expected ${QUANTUM_COARSE_MAPS.length}`)
+  }
+
+  const maps = QUANTUM_COARSE_MAPS.map(name => {
+    const map = DECLARED_TONE_MAPS.find(m => m.name === name)
+
+    if (!map) {
+      throw new Error(`lean-export: no declared tone map ${name}`)
+    }
+
+    return map
+  })
+  const family: BeatVibe[][] = []
+
+  for (let slot = 0; slot < 24; slot++) {
+    for (const tone of [1, -1] as const) {
+      family.push([[0, slot, tone, 0]])
+    }
+  }
+
+  for (let a = 0; a < 24; a++) {
+    for (let b = a + 1; b < 24; b++) {
+      for (const [ta, tb] of QUANTUM_COARSE_TONE_PAIRS) {
+        family.push([
+          [0, a, ta, 0],
+          [0, b, tb, 0],
+        ])
+      }
+    }
+  }
+
+  const codes = family.map(vibes => maps.reduce((code, map, k) => code + 3 ** k * (map.ofDock(vibes) + 1), 0))
+  const lines: string[] = []
+
+  for (let i = 0; i < codes.length; i += 24) {
+    lines.push(codes.slice(i, i + 24).join(', '))
+  }
+
+  const body = [
+    '/-- The declared tone maps of classical-boundary.ts on every one- and two-excitation dock state of role 0',
+    '    (one excitation by slot, then tone `+1, -1`; two by slot pair in lexicographic order, then tones',
+    '    `++, +-, -+, --`): each entry is `(netSign + 1) + 3 (netResidue + 1) + 9 (pairedSign + 1) +',
+    '    27 (lowestSlotTone + 1)`. -/',
+    `def quantumCoarseMapCodes : List Nat :=\n  [ ${lines.join(',\n    ')} ]`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: QUANTUM_COARSE_SOURCES,
+      lines: [
+        `Exports DECLARED_TONE_MAPS (${QUANTUM_COARSE_MAPS.join(', ')}) on ${family.length} dock states.`,
+        'Bridge: Vibe.Compute.QuantumCoarse (gen_quantum_coarse_maps_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
+// L21 (models-0093): the large certificates of Vibe.Compute.GateSetRank. Rows are packed into one Nat per row so the
+// generated lists stay short (traps.md, L07): a digit string lowest first, `CERT_BASE` per digit, signed entries
+// shifted by `CERT_OFFSET`, F3 entries in base 4.
+const CERT_BASE = 2n ** 32n
+const CERT_OFFSET = 2n ** 31n
+
+function packSigned(entries: readonly bigint[]): string {
+  let code = 0n
+
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const e = entries[i]!
+
+    if (e >= CERT_OFFSET || e < -CERT_OFFSET) {
+      throw new Error(`certificate entry ${e} outside the packed range`)
+    }
+
+    code = code * CERT_BASE + (e + CERT_OFFSET)
+  }
+
+  return code.toString()
+}
+
+// a long list of naturals as defs of 100 entries joined by `++` (a single long literal passes maxRecDepth)
+function chunkedNats(name: string, doc: string, items: readonly string[]): string[] {
+  const parts: string[] = []
+  const names: string[] = []
+
+  for (let start = 0; start < Math.max(items.length, 1); start += 100) {
+    const part = `${name}_${String(start / 100).padStart(2, '0')}`
+
+    names.push(part)
+    parts.push(`def ${part} : List Nat :=\n  [${items.slice(start, start + 100).join(',\n   ')}]`, '')
+  }
+
+  return [...parts, doc, `def ${name} : List Nat :=\n  ${names.join(' ++ ')}`, '']
+}
+
+function packDigits(digits: readonly number[], base: number): string {
+  let code = 0n
+
+  for (let i = digits.length - 1; i >= 0; i--) {
+    const d = digits[i]!
+
+    if (d < 0 || d >= base) {
+      throw new Error(`certificate digit ${d} outside base ${base}`)
+    }
+
+    code = code * BigInt(base) + BigInt(d)
+  }
+
+  return code.toString()
+}
+
+// B7: Q1's Lie closure on the S = 1 sector of six excitations with two in role 1 (gate-set.ts). The generators are
+// tripleGenerators (i P_ab Pi_std(abc) Pi_S, integer-scaled, real part zero); the rows are lieClosureDimension's
+// echelon basis in insertion order, each with the generator or bracket it was reduced from.
+const GATE_SET_SOURCES = ['code/compute/quantum/gate-set.ts', 'code/algebra/ninth-field.ts'] as const
+const GATE_SET_EXCITATIONS = 6
+const GATE_SET_ROLE_ONE = 2
+const GATE_SET_TWICE_SPIN = 2
+
+export function exportCertificatesGateSet(): string {
+  const sector = spinSector(GATE_SET_EXCITATIONS, GATE_SET_ROLE_ONE)
+  const gens = tripleGenerators(sector, GATE_SET_TWICE_SPIN)
+  const n = sector.words.length
+  const flatten = (x: LieElement): bigint[] => [...x.re.flat(), ...x.im.flat()]
+  const unflatten = (v: readonly bigint[]): LieElement => ({
+    re: Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => v[i * n + j]!)),
+    im: Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => v[n * n + i * n + j]!)),
+  })
+  // lieClosureDimension's loop, keeping each new row's parent: (0, k) for generator k, (j + 1, k) for [row j, g_k]
+  const span = new RationalSpan()
+  const queue: LieElement[] = []
+  const parents: [number, number][] = []
+
+  for (const [k, g] of gens.entries()) {
+    const row = span.insert(flatten(g))
+
+    if (row) {
+      queue.push(unflatten(row))
+      parents.push([0, k])
+    }
+  }
+
+  for (const [j, element] of queue.entries()) {
+    for (const [k, g] of gens.entries()) {
+      const row = span.insert(flatten(lieBracket(element, g)))
+
+      if (row) {
+        queue.push(unflatten(row))
+        parents.push([j + 1, k])
+      }
+    }
+  }
+
+  const closure = lieClosureDimension(gens, 4 * n * n)
+
+  if (!closure.closed || closure.dimension !== span.dimension) {
+    throw new Error(`gate set: the replayed closure (${span.dimension}) is not lieClosureDimension's (${closure.dimension})`)
+  }
+
+  const rowsOf = (m: readonly (readonly bigint[])[]): string => `[${m.map(r => packSigned(r)).join(', ')}]`
+  const genRows = gens.map(g => {
+    if (g.re.some(r => r.some(x => x !== 0n))) {
+      throw new Error('gate set: a generator with a real part')
+    }
+
+    return rowsOf(g.im)
+  })
+  const basisRows = queue.map(e => rowsOf([...e.re, ...e.im]))
+  // the sector itself, so the Lean side rebuilds the generators: the words and every transposition image
+  const words = sector.words.map(w => `[${w.join(', ')}]`)
+  const images: string[] = []
+
+  for (let p = 0; p < sector.n; p++) {
+    for (let q = p + 1; q < sector.n; q++) {
+      images.push(`(${p}, ${q}, [${transpositionImage(sector, p, q).join(', ')}])`)
+    }
+  }
+
+  const body = [
+    `/-- The spin sector of gate-set.ts: ${GATE_SET_EXCITATIONS} excitations, ${GATE_SET_ROLE_ONE} in role 1, the positions in`,
+    '    role 1 of each basis word in the order of \`spinSector\`. -/',
+    `def gateSetWords : List (List Nat) :=\n  ${leanList(words, '  ')}`,
+    '',
+    '/-- `transpositionImage` of every transposition `(p q)`, `p < q`: the word index each word goes to. -/',
+    `def gateSetImages : List (Nat × Nat × List Nat) :=\n  ${leanList(images, '  ')}`,
+    '',
+    `/-- \`tripleGenerators(spinSector(${GATE_SET_EXCITATIONS}, ${GATE_SET_ROLE_ONE}), ${GATE_SET_TWICE_SPIN})\`: the imaginary part of each`,
+    `    generator (the real part is zero), one packed Nat per row (base 2^32, entries shifted by 2^31). -/`,
+    `def gateSetGens : List (List Nat) :=\n  ${leanList(genRows, '  ')}`,
+    '',
+    `/-- The ${queue.length} echelon rows of \`lieClosureDimension\` in insertion order: the real part's ${n} rows, then the`,
+    '    imaginary part\'s, packed as in `gateSetGens`. -/',
+    `def gateSetBasis : List (List Nat) :=\n  ${leanList(basisRows, '  ')}`,
+    '',
+    '/-- The pivot of each echelon row (`RationalSpan`): the flat index (real part first, row-major) of its first',
+    '    nonzero entry. -/',
+    `def gateSetPivots : List Nat :=\n  [${span.rows.map(r => r.pivot).join(', ')}]`,
+    '',
+    '/-- What each row was reduced from: `(0, k)` generator `k`, `(j + 1, k)` the bracket of row `j` with',
+    '    generator `k`. -/',
+    `def gateSetParents : List (Nat × Nat) :=\n  [${parents.map(([a, b]) => `(${a}, ${b})`).join(', ')}]`,
+    '',
+    '/-- `lieClosureDimension(gens, cap).dimension`, with the closure complete. -/',
+    `def gateSetDimension : Nat := ${closure.dimension}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: GATE_SET_SOURCES,
+      lines: [
+        `Exports Q1's spin sector, its ${gens.length} triple generators and the ${queue.length}-row echelon basis of their Lie closure.`,
+        'Bridge: Vibe.Compute.GateSetRank (gen_gsr_generators_eq, gen_gsr_dimension_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
+// B10: M8's excited-mode counts (E-CMP-0046, test/experiment/computation/z3-resonance.ts pairSpecs): every
+// hyperbolic closed quotient with its flat partner, and the two larger M2-B pairs, under both laws (self 0, self 1).
+// Per graph and law the code's minimal polynomial of A' = A + sigma I on delta_0 over F3, the pivot cells of the
+// Krylov vectors K_0 .. K_(k-1) and the inverse Y of their pivot block b[c][t] = K_t[pivot c], so that
+// sum_c Y[i][c] K_t[pivot c] = [i = t] over F3.
+const KRYLOV_SOURCES = [
+  'code/measure/z3-resonance.ts',
+  'code/substrate/tiling-quotient.ts',
+  'test/experiment/computation/z3-resonance.ts',
+] as const
+const KRYLOV_NEIGHBOR_BASE = 4096
+
+function krylovGraphList(): { name: string; neighbors: number[][] }[] {
+  const entries = closedQuotients()
+  const byName = new Map(entries.map(e => [e.quotient.name, e.quotient]))
+  const out: { name: string; neighbors: number[][] }[] = []
+
+  for (const e of entries) {
+    const q = e.quotient
+
+    if (q.curvature !== 'hyperbolic' || q.partner === null) {
+      continue
+    }
+
+    const partner = byName.get(q.partner)!
+
+    out.push({ name: q.name, neighbors: q.neighbors }, { name: partner.name, neighbors: partner.neighbors })
+  }
+
+  for (const [p, qq, modulus, torus, torusName] of [
+    [4, 5, 11, squareTorus(15, 22), 'square-15x22'],
+    [3, 7, 13, triangleTorus(13, 14), 'triangle-13x14'],
+  ] as const) {
+    const rotary = findRotaryMap({ p, q: qq, moduli: [modulus], reference: referenceTiling([p, qq], 6000), minSystole: 1 })
+
+    if (!rotary) {
+      throw new Error(`krylov: no {${p},${qq}} map in PGL(2,${modulus})`)
+    }
+
+    out.push(
+      { name: `surface-${p}-${qq}-pgl2-${modulus}-${rotary.analysis.faces}`, neighbors: rotary.analysis.neighbors },
+      { name: torusName, neighbors: torus.analysis.neighbors },
+    )
+  }
+
+  return out
+}
+
+// the pivot cells of the rows of m (k x n over F3) and Y = b^-1 for b[c][t] = m[t][pivot c]
+function krylovDual(m: readonly Uint8Array[]): { pivots: number[]; y: number[][] } {
+  const k = m.length
+  const rows = m.map(r => Uint8Array.from(r))
+  const pivots: number[] = []
+
+  for (let r = 0; r < k; r++) {
+    const row = rows[r]!
+    const pivot = row.findIndex(v => v !== 0)
+
+    if (pivot < 0) {
+      throw new Error('krylov: dependent Krylov vectors')
+    }
+
+    pivots.push(pivot)
+
+    const inv = row[pivot] === 1 ? 1 : 2
+
+    for (let i = 0; i < row.length; i++) {
+      row[i] = (row[i]! * inv) % 3
+    }
+
+    for (let s = r + 1; s < k; s++) {
+      const c = rows[s]![pivot]!
+
+      if (c !== 0) {
+        for (let i = 0; i < row.length; i++) {
+          rows[s]![i] = (rows[s]![i]! + (3 - c) * row[i]!) % 3
+        }
+      }
+    }
+  }
+
+  // b[c][t] = m[t][pivot c]; invert b by Gauss-Jordan
+  const b = pivots.map(p => m.map(r => r[p]!))
+  const aug = b.map((row, i) => [...row, ...Array.from({ length: k }, (_, j) => (i === j ? 1 : 0))])
+
+  for (let col = 0; col < k; col++) {
+    const r = aug.findIndex((row, i) => i >= col && row[col] !== 0)
+
+    if (r < 0) {
+      throw new Error('krylov: singular pivot block')
+    }
+
+    ;[aug[col], aug[r]] = [aug[r]!, aug[col]!]
+
+    const inv = aug[col]![col] === 1 ? 1 : 2
+
+    aug[col] = aug[col]!.map(v => (v * inv) % 3)
+
+    for (let i = 0; i < k; i++) {
+      const c = aug[i]![col]!
+
+      if (i !== col && c !== 0) {
+        aug[i] = aug[i]!.map((v, j) => (v + (3 - c) * aug[col]![j]!) % 3)
+      }
+    }
+  }
+
+  // sum_c Y[i][c] b[c][t] = [i = t]: Y = b^-1
+  const y = aug.map(row => row.slice(k))
+
+  for (let i = 0; i < k; i++) {
+    for (let t = 0; t < k; t++) {
+      let s = 0
+
+      for (let c = 0; c < k; c++) {
+        s += y[i]![c]! * m[t]![pivots[c]!]!
+      }
+
+      if (s % 3 !== (i === t ? 1 : 0)) {
+        throw new Error('krylov: the dual certificate fails')
+      }
+    }
+  }
+
+  return { pivots, y }
+}
+
+export function exportCertificatesKrylov(): string {
+  const graphs = krylovGraphList()
+  const graphRows: string[] = []
+  const certRows: string[] = []
+  const degreeRows: string[] = []
+  const tables: string[] = []
+
+  for (const [gi, g] of graphs.entries()) {
+    const n = g.neighbors.length
+    const degree = g.neighbors[0]!.length
+
+    if (n > KRYLOV_NEIGHBOR_BASE || g.neighbors.some(r => r.length !== degree)) {
+      throw new Error(`krylov: ${g.name} is not regular or too large to pack`)
+    }
+
+    tables.push(
+      ...chunkedNats(
+        `krylovNb${gi}`,
+        `/-- The neighbours of every cell of ${g.name}, packed base ${KRYLOV_NEIGHBOR_BASE} lowest first. -/`,
+        g.neighbors.map(r => packDigits(r, KRYLOV_NEIGHBOR_BASE)),
+      ),
+    )
+    graphRows.push(`("${g.name}", ${n}, ${degree}, krylovNb${gi})`)
+
+    for (const sigma of [0, 1]) {
+      const delta = new Uint8Array(n)
+
+      delta[0] = 1
+
+      const poly = shiftedAdjacencyMinimalPolynomial({ neighbors: g.neighbors, sigma, seed: delta })
+      const k = poly.length - 1
+
+      if (poly[k] !== 1 || !evaluatePolynomialOn(g.neighbors, sigma, poly, delta).every(v => v === 0)) {
+        throw new Error(`krylov: ${g.name} sigma ${sigma}: the code's polynomial is not monic or does not kill delta_0`)
+      }
+
+      const krylov: Uint8Array[] = [delta]
+
+      for (let t = 1; t < k; t++) {
+        krylov.push(applyShiftedAdjacency(g.neighbors, sigma, krylov[t - 1]!))
+      }
+
+      const { pivots, y } = krylovDual(krylov)
+      const ci = certRows.length
+
+      tables.push(
+        ...chunkedNats(`krylovPiv${ci}`, `/-- The pivot cells of ${g.name} under sigma ${sigma}. -/`, pivots.map(String)),
+        ...chunkedNats(
+          `krylovY${ci}`,
+          `/-- The rows of Y for ${g.name} under sigma ${sigma}, packed base 4 lowest first. -/`,
+          y.map(r => packDigits(r, 4)),
+        ),
+      )
+      certRows.push(`(${gi}, ${sigma}, ${k}, ${packDigits(poly, 4)}, krylovPiv${ci}, krylovY${ci})`)
+      degreeRows.push(`("${g.name}", ${sigma}, ${k})`)
+    }
+  }
+
+  const body = [
+    ...tables,
+    '/-- Per graph: name, cell count, degree, and per cell its neighbours in the code\'s order, packed base',
+    `    ${KRYLOV_NEIGHBOR_BASE} lowest first. -/`,
+    `def krylovGraphs : List (String × Nat × Nat × List Nat) :=\n  ${leanList(graphRows, '  ')}`,
+    '',
+    '/-- Per graph and law: graph index, sigma, the degree k of `shiftedAdjacencyMinimalPolynomial` on delta_0, its',
+    '    coefficients packed base 4 lowest first (k + 1 digits), the pivot cells of K_0 .. K_(k-1), and the rows of',
+    '    Y packed base 4 (k digits each). -/',
+    `def krylovCerts : List (Nat × Nat × Nat × Nat × List Nat × List Nat) :=\n  ${leanList(certRows, '  ')}`,
+    '',
+    '/-- The code\'s Krylov degree per graph and law: (graph name, sigma, degree). -/',
+    `def krylovDegrees : List (String × Nat × Nat) :=\n  ${leanList(degreeRows, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: KRYLOV_SOURCES,
+      lines: [
+        `Exports the ${graphs.length} graphs of M8's mode table (E-CMP-0046) and, per law, the minimal polynomial of A' on`,
+        'delta_0 with a dual certificate that K_0 .. K_(k-1) are independent over F3.',
+        'Bridge: Vibe.Compute.GateSetRank (gen_gsr_krylov_degrees_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -1309,6 +1887,13 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridgeModule: 'Vibe.Compute.KleeneCertificates',
     bridges: ['gen_kleene_layouts_eq', 'gen_kleene_counter_eq'],
     render: exportKleene,
+  },
+  {
+    name: 'Devices',
+    sources: DEVICES_SOURCES,
+    bridgeModule: 'Vibe.Compute.Devices',
+    bridges: ['gen_devices_rule_eq', 'gen_devices_word_index_eq', 'gen_devices_identity_census_eq'],
+    render: exportDevices,
   },
 ]
 

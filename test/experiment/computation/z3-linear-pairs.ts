@@ -11,12 +11,13 @@
 //     spin-one rules (conserve Q)
 //   - exhaustive rings of 4, 6 and 8 cells, both color orders, every rule: the round is a permutation of all 3^n
 //     configurations; the inverse matrix's round restores every configuration; the sum mod 3 is conserved on every
-//     configuration exactly for the 6 column-sum-1 rules and broken on some configuration for each of the other 42;
-//     step(-x) = -step(x) on every configuration (live C commutation); step(x + y) = step(x) + step(y) mod 3 on every
-//     pair (ring 4) and on every (x, shifted x) pair (rings 6, 8) (live linearity); reversing the orientation changes
-//     nothing for the 4 P-symmetric rules and something for each other one, and the P-conjugate rule equals the rule
-//     under the reversed orientation (live P commutation); the uniform +1 configuration is fixed exactly by the 6
-//     row-sum-1 rules
+//     configuration by the 6 column-sum-1 rules (and broken by some other rule: the test can fail); step(-x) = -step(x)
+//     on every configuration (live C commutation); step(x + y) = step(x) + step(y) mod 3 on every pair (ring 4) and on
+//     every (x, shifted x) pair (rings 6, 8) (live linearity); reversing the orientation changes nothing for the 4
+//     P-symmetric rules (and something for some other rule), and the P-conjugate rule equals the rule under the
+//     reversed orientation (live P commutation); the uniform +1 configuration is fixed by the 6 row-sum-1 rules. A pair
+//     property implies its round property; the converse fails for some rules on the ring, where every cell is first in
+//     one matching and second in the other, and those round-level coincidences are counted and reported, not gated
 //   - negative controls: a spin-one rule that is not Z3-linear fails additivity and live linearity; the singular
 //     matrix [1 1; 1 1] is no bijection and its round is no permutation; the transpose of a non-orthogonal matrix,
 //     used as its inverse, fails to restore
@@ -249,6 +250,9 @@ export type Z3Run = {
   }
   ringFailures: string[]
   ringChecks: number
+  ringCoincidences: string[]
+  ringSumBreaks: number
+  ringOrientationMatters: number
   negativeControls: { name: string; failedAsExpected: boolean }[]
   classes: Z3ClassResult[]
   readableRules: string[]
@@ -301,8 +305,21 @@ function shiftCode(x: number, n: number): number {
   return encodeState(a.map((_, i) => a[(i + 1) % n]!))
 }
 
-function ringGates(rules: readonly Z3LinearRule[]): { failures: string[]; checks: number } {
+type RingResult = {
+  failures: string[]
+  checks: number
+  // round-level properties no pair map has (see ringGates)
+  coincidences: string[]
+  // rules whose round breaks the sum mod 3, or changes with the orientation, on some ring and order
+  sumBreaks: number
+  orientationMatters: number
+}
+
+export function ringGates(rules: readonly Z3LinearRule[]): RingResult {
   const failures: string[] = []
+  const coincidences: string[] = []
+  const sumBreaks = new Set<string>()
+  const orientationMatters = new Set<string>()
 
   let checks = 0
 
@@ -344,7 +361,7 @@ function ringGates(rules: readonly Z3LinearRule[]): { failures: string[]; checks
         }
 
         expect(restores, `${where}:inverse-matrix`)
-        expect(sumKept === z3ConservesSum(rule.matrix), `${where}:sum-mod-3`)
+        expect(!z3ConservesSum(rule.matrix) || sumKept, `${where}:sum-mod-3`)
 
         // live C commutation
         let negation = true
@@ -392,14 +409,33 @@ function ringGates(rules: readonly Z3LinearRule[]): { failures: string[]; checks
           conjugateIsReversal &&= conjugateImage[x] === reversedImage[x]
         }
 
-        expect(same === z3CommutesWithSwap(rule.matrix), `${where}:orientation`)
+        // a pair property implies its round property; the converse can fail on the ring, where every cell is first
+        // in one matching and second in the other, so the round can keep what no single pair map keeps (a coincidence,
+        // counted, not a failure)
+        expect(!z3CommutesWithSwap(rule.matrix) || same, `${where}:orientation`)
         expect(conjugateIsReversal, `${where}:swap-is-reversal`)
-        expect((image[plusOne] === plusOne) === z3FixesUniform(rule.matrix), `${where}:uniform`)
+        expect(!z3FixesUniform(rule.matrix) || image[plusOne] === plusOne, `${where}:uniform`)
+
+        if (sumKept && !z3ConservesSum(rule.matrix)) {
+          coincidences.push(`${where}:sum-mod-3`)
+        } else if (!sumKept) {
+          sumBreaks.add(rule.name)
+        }
+
+        if (same && !z3CommutesWithSwap(rule.matrix)) {
+          coincidences.push(`${where}:orientation`)
+        } else if (!same) {
+          orientationMatters.add(rule.name)
+        }
+
+        if (image[plusOne] === plusOne && !z3FixesUniform(rule.matrix)) {
+          coincidences.push(`${where}:uniform`)
+        }
       }
     }
   }
 
-  return { failures, checks }
+  return { failures, checks, coincidences, sumBreaks: sumBreaks.size, orientationMatters: orientationMatters.size }
 }
 
 function negativeControls(): { name: string; failedAsExpected: boolean }[] {
@@ -518,7 +554,9 @@ function z3InstanceGates(rule: Z3LinearRule, hr: HarnessRule, inst: LabInstance)
       out.push(`${where}:inverse-matrix`)
     }
 
-    if (sumKept !== z3ConservesSum(rule.matrix)) {
+    // the pair property implies the round property, not the converse (the ring's round keeps the sum for some rules
+    // whose pair maps do not)
+    if (z3ConservesSum(rule.matrix) && !sumKept) {
       out.push(`${where}:sum-mod-3`)
     }
 
@@ -679,8 +717,8 @@ export function z3LinearPairs(input: { rerunSubset: boolean }): Z3Run {
     spinOneOverlap,
   }
 
-  const ringResult: { failures: string[]; checks: number } = input.rerunSubset
-    ? { failures: [], checks: 0 }
+  const ringResult: RingResult = input.rerunSubset
+    ? { failures: [], checks: 0, coincidences: [], sumBreaks: 0, orientationMatters: 0 }
     : ringGates(rules)
   const controls = input.rerunSubset ? [] : negativeControls()
 
@@ -1019,6 +1057,9 @@ export function z3LinearPairs(input: { rerunSubset: boolean }): Z3Run {
     census: censusResult,
     ringFailures: ringResult.failures,
     ringChecks: ringResult.checks,
+    ringCoincidences: ringResult.coincidences,
+    ringSumBreaks: ringResult.sumBreaks,
+    ringOrientationMatters: ringResult.orientationMatters,
     negativeControls: controls,
     classes: classResults,
     readableRules: readable.map(r => r.name),
@@ -1192,6 +1233,8 @@ export default experiment({
       structural &&
       controlsHold &&
       r.ringFailures.length === 0 &&
+      r.ringSumBreaks > 0 &&
+      r.ringOrientationMatters > 0 &&
       r.gateFailures.length === 0 &&
       r.readingFailures.length === 0 &&
       r.gateProofFailures.length === 0 &&
@@ -1212,7 +1255,7 @@ export default experiment({
     return verdict({
       status,
       claim:
-        'the 48 Z3-linear reversible pair rules are GL(2,3) by brute force (26 classes, C trivial, sum mod 3 conserved by 6, all three uniform backgrounds fixed by 6, Q only by the identity and the swap), every algebraic property is gated live on rings and lab instances, and the 6 rules the unchanged M1 harness can read get labels on every lab geometry; the other 42 move the +-1 backgrounds, which the harness cannot read (dense refuses, lazy would silently freeze them)',
+        'the 48 Z3-linear reversible pair rules are GL(2,3) by brute force (26 classes, C trivial, sum mod 3 conserved by 6, all three uniform backgrounds fixed by 6, Q only by the identity and the swap), every algebraic property is gated live on rings and lab instances, and the 6 rules the unchanged M1 harness can read get labels on a bounded laptop slice (2D open windows, the ring and the hyperbolic regular maps below 48 cells); the other 42 move the +-1 backgrounds, which the harness cannot read (dense refuses, lazy would silently freeze them)',
       metrics: {
         permutationsChecked: c.permutationsChecked,
         rules: c.invertible,
@@ -1223,6 +1266,9 @@ export default experiment({
         monomial: c.monomial,
         ringChecks: r.ringChecks,
         ringFailures: r.ringFailures.length,
+        ringCoincidences: r.ringCoincidences.length,
+        ringSumBreakingRules: r.ringSumBreaks,
+        ringOrientationSensitiveRules: r.ringOrientationMatters,
         readableRules: r.readableRules.length,
         unreadableRules: c.invertible - r.readableRules.length,
         instances: r.instances,
@@ -1265,6 +1311,7 @@ export default experiment({
         `Schedules and boundaries as E-CMP-0027 (both color orders, every variant). Curvature verdicts over same-family schedules: ${verdictCount('null')} null, ${verdictCount('differs')} differ, ${verdictCount('schedule_dependent')} schedule-dependent, ${verdictCount('unmatched')} unmatched. ` +
         `The harness's collision test is integer superposition and its entropy ceiling the spin-one Q sector's; a Z3-linear rule superposes exactly mod 3 (gated), so its ${r.scatter.scattered} scattered collisions are mod-3 wraps read as interaction. ` +
         `Refusal probe ${z3MatrixName(PROBE)}: dense ${r.refusal.denseThrew ? `threw (${r.refusal.denseMessage})` : 'did not throw'}; lazy froze the moving +1 background ${r.refusal.lazyFrozeMovingBackground}. ` +
+        `Round-level coincidences on the rings (a round keeps what no pair map keeps: every ring cell is first in one matching and second in the other): ${r.ringCoincidences.length} (${[...new Set(r.ringCoincidences.map(x => `${x.split('@')[0]}:${x.split(':').pop()}`))].join(', ') || 'none'}); ${r.ringSumBreaks} rules break the sum mod 3 and ${r.ringOrientationMatters} see the orientation somewhere. ` +
         `Harness failures (runs the unchanged harness could not finish, no label): ${r.harnessFailures.length}${r.harnessFailures.length > 0 ? ` (${r.harnessFailures.slice(0, 12).join('; ')})` : ''}. ` +
         `Unresolved readings: ${r.unresolvedReadings.length}${r.unresolvedReadings.length > 0 ? ` (${r.unresolvedReadings.slice(0, 12).map(u => `${u.reading}${u.refused ? ` [${u.refused}]` : ''}`).join('; ')})` : ''}. ` +
         `Failures: ${[...r.ringFailures, ...r.gateFailures, ...r.readingFailures, ...r.gateProofFailures, ...r.negativeControls.filter(x => !x.failedAsExpected).map(x => `control:${x.name}`)].slice(0, 40).join(', ') || 'none'}. ` +
