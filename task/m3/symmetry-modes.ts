@@ -475,6 +475,7 @@ function surfaceQuotients(): GraphSpec[] {
     checks.push({ name: `R {${p},${q}} PGL(2,${modulus}): the rebuilt regular map equals findRotaryMap's dart for dart`, ok: sameMap })
 
     const classes = subgroupClasses(rotation, maxSubgroup)
+
     let valid = 0
 
     for (const c of classes) {
@@ -801,7 +802,7 @@ function readingJson(g: GraphReading): unknown {
           period: g.laws[l].period,
           exactPeriod: g.laws[l].exactPeriod,
           largestFactorDegree: g.laws[l].largestFactorDegree,
-          phaseOrder: g.laws[l].phaseOrder === null ? null : `${g.laws[l].phaseOrder!.n}/${g.laws[l].phaseOrder!.d}`,
+          phaseOrder: g.laws[l].phaseOrder === null ? null : `${g.laws[l].phaseOrder.n}/${g.laws[l].phaseOrder.d}`,
         },
       ]),
     ),

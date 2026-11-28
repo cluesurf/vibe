@@ -23,12 +23,10 @@ import Vibe.D4MassGap
 import Vibe.D4MassGapExt
 import Vibe.SpectralSharpExt
 import Vibe.CompositeTrion
-<<<<<<< Updated upstream
 import Vibe.DynamicalHolography
 import Vibe.UniversalityObstructions
 import Vibe.StandardModelCore
 import Vibe.StandardModelMathlib
-=======
 import Vibe.NoContraction
 import Vibe.PairRules
 import Vibe.PartitionedStep
@@ -38,7 +36,6 @@ import Vibe.QuantumMemory
 import Vibe.LineScattering
 import Vibe.WireInvariant
 import Vibe.SimulationContract
->>>>>>> Stashed changes
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
@@ -69,12 +66,10 @@ Root aggregator (0 theorems) re-exporting all zero-dependency Lean 4 proof modul
 - `Vibe.D4MassGapExt`: Sharp 4D `D_4` mass-gap extensions (`Alt-x0+planes` 4-direction alternating-plane forest RP/acyclicity, `88 × 88` quotient `M88` & Collatz-Wielandt `Λ_Alt < 145685/10000 < 4 + 4√7` past the 1D-axial chordal ceiling, unconstrained `ℤ`-factorized `SU(3)` staple convex-hull & Cardano deltoid invariants, `K ≤ 2` Weyl-dimension/Casimir/Pieri branching, and `SU(2)` chordal & 2-link wedge Dobrushin contraction)
 - `Vibe.SpectralSharpExt`: `W(F_4)` `216`-clique transitivity, exact `19`-state Depth-2 Cartier-Foata automaton & `23`-flag reciprocity, Depth-2 Nagnibeda Schur upper bound `ρ ≤ 387141227/33670000 < 11.5` (`λ_gap > 13/25 > 1/2`) with finite-subgraph bridge, `Q_3 = Adj(0)` 3-cube zero-cascade algebra, `57` pair-orbit symbolic word-sum reduction, and concrete CF 1-step lower bound `ρ > 913/80 = 11.4125`, collapsing Lean's kernel spectral bracket `10.2×` to `[913/80, 387141227/33670000]` (width `< 0.086`)
 - `Vibe.CompositeTrion`: Exact `ℤ[ω][1/7]` `P = 0` collinear `k = 3` `Sym^3` trion (`|r|^2 = 1/7`, `p_pair = 6/7`, `IPR = 9/32`), exact `∀ N` finite-box norm sums, `ℤ[ζ_9]` `cot^2(π/18)` cubic & Parseval margin, flat-`D_4` hyperbolic excision pocket (`335/672 < 1/2 < 7/13 < 7/10`), and Steinberg-to-depressed-cubic holographic rate `u^3 - 12 u + 12 = 0` (`r_∞ ∈ (0.0464895, 0.0464896)`)
-<<<<<<< Updated upstream
 - `Vibe.DynamicalHolography`: Exact `W11` dynamical holography bridge & `W10` `B_1`/`B_2` IR distance amplification (`M_pair(ζ_18)` code-subspace triviality & `(u, v)` decoupling, `0/1,128` weight-1 affine lines & `27/243` `[9,9,9]` Bose-Mesner + twisted `{I, R}` collapse, `0/81` single-edge entangling intertwiners & `0/24` Bell-pair `P`-commutators, `Sp(50, 3)` `U_star(1)`, `U_NN`, `U_Floq` & universal symbolic `U_bdy` lift with `G`-covariance mod `H`, `2/48` uniform dock rigidity, `d^(0)(B_1) = 40` & `M_8=17, M_9=21, M_10=24 ⇒ d^(0)(B_2) ≥ 98`, `W(B_3)` `r=3` `0/165` zero-loss / `21/165` wt-6 & `r=4` `56/330` coupling threshold, `D=0` cusp Gauss-law uniqueness & `D≥1` cliques, and `24`-cone `144`-leg shield)
 - `Vibe.UniversalityObstructions`: All-time `ℤ_2^{48}` (`r : Bool`, lifting to `ℤ_2^{216}` on 9 roles) line-parity & per-(tone, role) multiset conservation on `fockBeat χ`, universal `k`-string dispersion floor & rapidity-velocity 2-to-1 / `W_0` no-go, `M_pair(ζ_18)` `837/10^6 < P_hop < 838/10^6` ceiling / Grover `1/36` cap / 9-role pigeonhole, straight-worldline `N(N-1)/2` crossing ceiling + symbolic `6 × 6` `ℤ[i]` Yang-Baxter + `3n-1 < 4^n-1`, Linden-Popescu unitary halting no-go + Casimir-certified `6 × 6` `ℤ[ω]` `4 W_0` Racah clearance `⟨L|4 W_0|L⟩ = 0`, hyperbolic geodesic 2-plane uniqueness + 4-line `Φ_odd` junction cap `J ≤ D(D-1)/12`, and exact mod-2 `ℤ_2 × ℤ_2` `D_4` triality quotient + `5/8` omnidirectional `L_7` Bragg gap + minimal period-12 `ℤ[ω]` 1-dock cavity compacton (`2 ω D` and `2 D`)
 - `Vibe.StandardModelCore`: Exact Wave-5 Standard Model algebraic pillars on `{3,4,3,4}` (`16`-Weyl `6/6` + Witten anomaly cancellation & Tong `ℤ_6` / `ℤ_18` separation, unconstrained homogenized `5 × 5` `so(5)` custodial `ρ = 1` vs `3 × 3` `ℤ[ω]` `SU(3)_W` `ρ^2 = 4/3` & `sin^2 θ_W = 3/4` no-go, `4 × 4` pure-`ℤ[ω][1/2]` slab `8 U_depth(1)` unitarity/chiral/`ℤ[√5]` mass & `1/3` evanescent decay, `216`-element `ASL(2,3)` 2-transitivity / irreducible `1 ⊕ 8` & `48`-element `O_h` `3_frame = A_{1g} ⊕ E_g`, 3-qubit Levin–Wen T-junction `-I` vs `+I` + 8-dim `ℤ[i]` 6-step physical exchange & `3 × 3 × 3` `{4,3,4}` CKR 3D bosonization with exact cube Bianchi `+I`, and `{3,4,3,4}` cusp-shell recurrence `N_13 = 25123449085462194` + `ℤ_6` color-singlet baryon charge quantization)
 - `Vibe.StandardModelMathlib`: Canonical Mathlib `v4.35.0` proofs over `ℝ`, `ℂ`, `Matrix`, `Matrix.unitaryGroup`, `Matrix.det`, and `ZMod 6` (odd-dimension `3^k` pure-ternary parity obstruction via `Matrix.det`, continuous `SO(5)` custodial `ρ = 1` over `ℝ`, continuous `SU(3)_W` in `Matrix.unitaryGroup (Fin 3) ℂ` + `ρ^2(π/3) = 4/3` + `ζ_18^18 = 1`, `ZMod 6` SM center quotient & charge quantization, real Steinberg cubic bracket + `4 sin^2(θ/2)` gap identity, and exact `D_4` outer triality `M_{D_4}^3 = 1, det(M_{D_4}-1) = 9, M_{D_4}ᵀ F_prim M_{D_4} = F_prim, det(F_prim) = 36`)
-=======
 - `Vibe.NoContraction`: No bijection of a finite metric space with at least 2 points is a strict contraction (maximal-pair argument, any strict partial order on distances, surjectivity only), so memory in a closed reversible box cannot be an attractor
 - `Vibe.PairRules`: The `432` sum-preserving maps of `Tone × Tone` and exactly `24` injective ones (the conservative reversible pair rules), `12` classes under cell swap and negation (Burnside `24, 8, 4, 12`), vacuum-fixing ⇔ `D`-conserving ⇔ swap-symmetric (`8` rules, `6` classes), chiral vacuum creation, and explicit inverses among the 24
 - `Vibe.PartitionedStep`: For any disjoint block of pairs on `Fin n` and any bijective sum-preserving pair map, the global step is a bijection with the same block of the inverse map as its explicit inverse, conserves `Q` (and `D` when the map does), and commutes with global negation for a negation-symmetric map
@@ -84,7 +79,6 @@ Root aggregator (0 theorems) re-exporting all zero-dependency Lean 4 proof modul
 - `Vibe.LineScattering`: For every momentum (an identity over any commutative ring with `ω`, `i` and a half), each line mode is an exact coin eigenvector, the like-tone one-line S-matrix of bare U is Yang's `R(θ₁ - θ₂)` with `θ = (cos p / 2 + sin W / √3) / sin p`, opposite tones give `S = -1`, the spectator-stopped identical pair `(w - i) / (w + i)`; Yang-Baxter holds for one tone, and a like pair beside an opposite tone misses it by exactly `-x y (x + y) (I + P)` (numerators)
 - `Vibe.WireInvariant`: The passenger laws of the 3-cycle wire rules: `swap.BCA.swap` and `swap.CAB.swap` keep one tone along every right-moving ray and the opposite tone along every left-moving ray of the brick line, whatever crosses them, so no ray started at an input or a constant computes Kleene `neg`, `min` or `max`; `id.CAB.swap` keeps `+1` along left rays only and no tone forward, which leaves its wire side free
 - `Vibe.SimulationContract`: Exact simulation contracts (a section `σ`, a block map `F` with `F ∘ σ = id`, a coarse rule `G`, and `φ^τ ∘ σ = σ ∘ G` on the image of `σ`) for any types and rules compose (`σ₁ ∘ σ₂` at `τ₁ τ₂` with `G₂`), lift to powers (`τ n` with `G^n`), keep their declared subset forever, and fix their coarse rule uniquely; the full swap under `brick2` with section `t ↦ (t, 0)` and decimation is a contract whose coarse rule is the shift by one block
->>>>>>> Stashed changes
 
 Zero `sorry`, zero `axiom`, zero `native_decide`, machine-checked by Lean `4.35.0` with Mathlib `v4.35.0`.
 -/

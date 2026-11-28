@@ -395,7 +395,6 @@ const REQUIRED_THEOREMS = [
   'thm_ct_mpair_gap_margin',
   'thm_ct_hyperbolic_excision_pocket',
   'thm_ct_holographic_rate_depressed_cubic',
-<<<<<<< Updated upstream
   // Vibe.D4MassGapExt (11 headline: Alt-x0+planes forest RP/M88/Lambda_Alt < 4+4sqrt(7), SU(3) convex-hull/Cardano/K<=2 Pieri, SU(2) chordal & 2-link wedge contraction)
   'thm_mge_alt_x0_planes_forest_rp_and_acyclic',
   'thm_mge_alt_x0_planes_quotient_M88_structure',
@@ -443,7 +442,6 @@ const REQUIRED_THEOREMS = [
   'thm_ml_z6_sm_quotient_and_baryon_quantization',
   'thm_ml_steinberg_cubic_and_zeta18_gap_real',
   'thm_ml_d4_outer_triality_fprim_det',
-=======
   // Vibe.NoContraction (3 headline: no bijection of a finite metric space is a strict contraction)
   'thm_ms_no_strict_contraction_of_surjective',
   'thm_ms_reversible_no_global_contraction',
@@ -490,7 +488,6 @@ const REQUIRED_THEOREMS = [
   'thm_cf_simulation_contract_rule_unique',
   'thm_cf_full_swap_brick2_contract',
   'thm_cf_full_swap_brick2_contract_two_rounds',
->>>>>>> Stashed changes
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

@@ -7,7 +7,7 @@
 // beside every reading.
 //
 //   pnpm call task/m3/q2r-size-series.ts [--set reference|series] [--pairs 4.5,6.4,3.7,3.4.3.4] [--cells 1710,364]
-//                                        [--max-cells 140000] [--levels 4,5,6]
+//                                        [--max-cells 1100000] [--levels 4,5,6]
 //
 // --set reference (the default) runs exactly E-CMP-0044's six matched pairs (30, 330, 220, 56, 364 and 2048 cells),
 // built by the same calls, and prints its geometry and curvature rows byte for byte. --set series adds every regular
