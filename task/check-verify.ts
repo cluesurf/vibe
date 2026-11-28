@@ -70,6 +70,7 @@ const SUITE_REGISTRY: readonly SuiteSpec[] = [
   { group: 'universality', relPath: 'test/verify/bare-u-periodic-mirrors-and-bounds.ts', strictStandalone: false },
   { group: 'universality', relPath: 'test/verify/bare-u-arbitrary-n-and-zero-w0.ts', strictStandalone: false },
   { group: 'universality', relPath: 'test/verify/autonomous-bare-u-computability.ts', strictStandalone: false },
+  { group: 'universality', relPath: 'test/verify/homogeneous-chiral-universality-3434.ts', strictStandalone: true },
   // Standard Model gauge, chirality, Higgs/EWSB, generations, flavor, QCD & leptogenesis
   { group: 'standard-model', relPath: 'test/verify/sm-unified-gauge-chiral-fermions.ts', strictStandalone: false },
   { group: 'standard-model', relPath: 'test/verify/ewsb-higgs-hosotani-fms-qca.ts', strictStandalone: false },
@@ -544,7 +545,7 @@ function runStage2Suites(
 }
 
 // =================================================================================================
-// STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (M1..M8, 0/8 SURVIVORS REQUIRED)
+// STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (M1..M9, 0/9 SURVIVORS REQUIRED)
 // =================================================================================================
 
 type C2 = readonly [number, number]
@@ -1126,6 +1127,61 @@ function buildMutantCases(tsxBin: ToolCommand, timeoutMs: number): MutantCase[] 
         )
       },
     },
+
+    // ---------------------------------------------------------------------------------------------
+    // M9: Live in-memory source-mutation probe on homogeneous-chiral-universality-3434.ts (ZERO disk writes)
+    // ---------------------------------------------------------------------------------------------
+    {
+      id: 'M9',
+      name: 'Live in-memory source mutation (H2 & H3)',
+      description: 'In-memory RE bar-freeze mutation piped to tsx stdin kills >= 2 distinct gates (H2 & H3) in homogeneous-chiral-universality-3434.ts',
+      run: () => {
+        const targetRel = 'test/verify/homogeneous-chiral-universality-3434.ts'
+        const targetAbs = join(ROOT_DIR, targetRel)
+        const originalSrc = readFileSync(targetAbs, 'utf8')
+
+        const needle = 'const pNew = info.jp[pBar]! // RE bar rotation (L_univ5)'
+        const replacement = 'const pNew = pBar // RE bar rotation (L_univ5)'
+        const firstIdx = originalSrc.indexOf(needle)
+        if (firstIdx === -1) {
+          throw new Error(`M9 anchor not found in ${targetRel}: "${needle}"`)
+        }
+        if (originalSrc.indexOf(needle, firstIdx + 1) !== -1) {
+          throw new Error(`M9 anchor is not unique in ${targetRel}: "${needle}"`)
+        }
+
+        const mutatedSrc =
+          originalSrc.slice(0, firstIdx) + replacement + originalSrc.slice(firstIdx + needle.length)
+
+        const res = spawnSync(
+          tsxBin.cmd,
+          [...tsxBin.prefixArgs, '--no-warnings=ExperimentalWarning', '-'],
+          {
+            cwd: ROOT_DIR,
+            input: mutatedSrc,
+            encoding: 'utf8',
+            timeout: timeoutMs,
+            maxBuffer: 16 * 1024 * 1024,
+          },
+        )
+
+        if (res.error) {
+          throw new Error(`M9 live probe execution error: ${res.error.message}`)
+        }
+
+        const combinedOutput = `${res.stdout ?? ''}\n${res.stderr ?? ''}`
+        if (res.status !== 0) {
+          const hitH2 = combinedOutput.includes('[FAIL] H2.')
+          const hitH3 = combinedOutput.includes('[FAIL] H3.')
+          if (!hitH2 || !hitH3) {
+            throw new Error(
+              `M9 exited ${String(res.status)} without killing >= 2 distinct gates H2 & H3 (hitH2=${String(hitH2)}, hitH3=${String(hitH3)}):\n${tailLines(combinedOutput, 15)}`,
+            )
+          }
+        }
+        assertMutantRejected(() => res.status === 0, 'M9 live in-memory RE bar-freeze mutation (H2 & H3)')
+      },
+    },
   ]
 }
 
@@ -1134,7 +1190,7 @@ async function runStage3Mutants(
   timeoutMs: number,
 ): Promise<{ readonly ok: boolean; readonly killed: number; readonly total: number }> {
   console.log('\n=================================================================================')
-  console.log('STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (8/8 KILL REQUIRED)')
+  console.log('STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (9/9 KILL REQUIRED)')
   console.log('=================================================================================')
 
   const cases = buildMutantCases(tsxBin, timeoutMs)
