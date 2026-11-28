@@ -553,6 +553,13 @@ const REQUIRED_THEOREMS = [
   'thm_cmp_d_no_repair_of_erase',
   'thm_cmp_z3_linear_additive',
   'thm_cmp_z3_superposition',
+  // Vibe.Compute.Association (6 headline, L06: M7 A18 the completion bound D(c) - D(p) >= |Q(c) - Q(p)| with equal parity and the erase/flip no-go for the 8 vacuum-fixing rules, A19 closed-box coincidences are transient)
+  'thm_cmp_completion_charges',
+  'thm_cmp_vacuum_rule_completion_bound',
+  'thm_cmp_no_erase_flip_completion',
+  'thm_cmp_vacuum_rule_no_erase_flip',
+  'thm_cmp_closed_coincidence_transient',
+  'thm_cmp_closed_box_completion_transient',
   // Vibe.Compute.RuleCensus (12 headline, L03: B1 coincidences and time reversal, B2 passenger laws and sided closures, B3 the 72 M6 cells, WireInvariant.T and Tone, with bridges of Generated/RuleCensus)
   'gen_rule_census_meta_eq',
   'gen_rule_census_passengers_eq',
@@ -587,6 +594,14 @@ const REQUIRED_THEOREMS = [
   'thm_qw_sector_bound',
   'thm_qw_line_confined_search_bound',
   'thm_qw_bare_u_search_bound',
+  // Vibe.Compute.LinesMeetOnce (7 headline, L12: Q3c point 1 / A13, two lines of the whole mesh meet at most once, from make's lines through c_0, with bridges of Generated/BeatSlots)
+  'thm_lines_meet_once_at_dock',
+  'thm_lines_meet_once_lorentz',
+  'thm_lines_meet_once',
+  'gen_beat_roots_eq',
+  'gen_beat_opposite_eq',
+  'gen_beat_lines_eq',
+  'gen_beat_line_centers_eq',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -906,22 +921,28 @@ function auditPrintAxioms(
     return { passed: false, summary: 'lean #print axioms failed', errors }
   }
 
-  const outputLines = res.stdout
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0)
+  // Lean wraps a long `#print axioms` result over several lines. Each record starts with a quoted name, so a
+  // line that does not start with a quote continues the previous record and is joined to it with a space.
+  const outputLines: string[] = []
+  for (const raw of res.stdout.split('\n')) {
+    const l = raw.trim()
+    if (l.length === 0) continue
+    if (l.startsWith("'") || outputLines.length === 0) outputLines.push(l)
+    else outputLines[outputLines.length - 1] = `${outputLines[outputLines.length - 1]} ${l}`
+  }
 
   const seenNames = new Set<string>()
   const axiomUsage = new Map<string, number>()
 
   for (const line of outputLines) {
-    const noneMatch = /^'([^']+)' does not depend on any axioms$/.exec(line)
+    // Names may contain an apostrophe (primed names), so match up to the fixed phrase, not the first quote.
+    const noneMatch = /^'(.+)' does not depend on any axioms$/.exec(line)
     if (noneMatch) {
       seenNames.add(noneMatch[1]!)
       continue
     }
 
-    const depMatch = /^'([^']+)' depends on axioms: \[([^\]]*)\]$/.exec(line)
+    const depMatch = /^'(.+)' depends on axioms: \[([^\]]*)\]$/.exec(line)
     if (depMatch) {
       const name = depMatch[1]!
       seenNames.add(name)

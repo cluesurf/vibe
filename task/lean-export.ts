@@ -39,6 +39,16 @@ import {
   pairTones,
   tableKey,
 } from '@/code/rule/pair-rule'
+import { lineChain } from '@/code/compute/quantum/particles'
+import {
+  LINES,
+  LINE_OF_SLOT,
+  OPPOSITE_SLOT,
+  ROOTS,
+  dockCenterKey,
+  inconsistentStepCount,
+  withGeometry,
+} from '@/code/rule/bare-beat'
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 
@@ -274,6 +284,95 @@ export function exportRuleCensus(): string {
   })
 }
 
+// bare-beat.ts and particles.ts (L12, lines meet once): the slot tables ROOTS, OPPOSITE_SLOT, LINES and
+// LINE_OF_SLOT, and the exact centers of the docks lineChain visits from dock 0 of a fresh {3,4,3,4} mesh at line
+// coordinates -2..2 along every slot, each as five (a, b) pairs of a + b sqrt 2 in Coxeter root coordinates. The
+// export refuses when the mesh counted an inconsistent frame step.
+const BEAT_SLOT_SOURCES = ['code/rule/bare-beat.ts', 'code/compute/quantum/particles.ts'] as const
+const BEAT_LINE_REACH = 2
+
+function beatCenterPairs(key: string): string {
+  const pairs = key.split(';').map(entry => {
+    const [a, b] = entry.split(',')
+
+    return `(${a}, ${b})`
+  })
+
+  if (pairs.length !== 5) {
+    throw new Error(`dock center ${key} does not have 5 coordinates`)
+  }
+
+  return `[${pairs.join(', ')}]`
+}
+
+export function exportBeatSlots(): string {
+  const roots = ROOTS.map(r => `(${r[0]}, ${r[1]}, ${r[2]}, ${r[3]})`)
+  const lines = LINES.map(([a, b]) => `(${a}, ${b})`)
+
+  const centers = withGeometry('3434', () => {
+    const rows = ROOTS.map((_, slot) => {
+      const chain = lineChain(0, slot, BEAT_LINE_REACH)
+      const dockAt = new Map<number, number>()
+
+      for (const [dock, k] of chain) {
+        dockAt.set(k, dock)
+      }
+
+      const row: string[] = []
+
+      for (let k = -BEAT_LINE_REACH; k <= BEAT_LINE_REACH; k++) {
+        const dock = dockAt.get(k)
+
+        if (dock === undefined) {
+          throw new Error(`lineChain(0, ${slot}) has no dock at coordinate ${k}`)
+        }
+
+        row.push(beatCenterPairs(dockCenterKey(dock)))
+      }
+
+      return `[${row.join(',\n    ')}]`
+    })
+
+    if (inconsistentStepCount() !== 0) {
+      throw new Error('the {3,4,3,4} mesh counted an inconsistent frame step')
+    }
+
+    return rows
+  })
+
+  const body = [
+    '/-- `ROOTS` of bare-beat.ts: the D_4 root of every slot `0 .. 23`. -/',
+    `def beatRoots : List (Int × Int × Int × Int) :=\n  ${leanList(roots, '  ')}`,
+    '',
+    '/-- `OPPOSITE_SLOT` of bare-beat.ts: the slot of the negated root. -/',
+    `def beatOppositeSlot : List Nat :=\n  [${OPPOSITE_SLOT.join(', ')}]`,
+    '',
+    '/-- `LINES` of bare-beat.ts: the 12 antipodal slot pairs `(a, b)`, `a < b`. -/',
+    `def beatLines : List (Nat × Nat) :=\n  [${lines.join(', ')}]`,
+    '',
+    '/-- `LINE_OF_SLOT` of bare-beat.ts: the line of every slot. -/',
+    `def beatLineOfSlot : List Nat :=\n  [${LINE_OF_SLOT.join(', ')}]`,
+    '',
+    '/-- For every slot `s`, the centers of the docks at coordinates `-2 .. 2` of',
+    '    `lineChain(0, s, 2)` (particles.ts) on a fresh `{3,4,3,4}` mesh, by `dockCenterKey`',
+    '    (bare-beat.ts): five `(a, b)` pairs of `a + b √2` per dock. -/',
+    `def beatLineCenters : List (List (List (Int × Int))) :=\n  ${leanList(centers, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: BEAT_SLOT_SOURCES,
+      lines: [
+        'Exports ROOTS, OPPOSITE_SLOT, LINES, LINE_OF_SLOT, and the centers of the docks lineChain visits',
+        `from dock 0 of a fresh {3,4,3,4} mesh at line coordinates -${BEAT_LINE_REACH}..${BEAT_LINE_REACH} on every slot.`,
+        'Bridge: Vibe.Compute.LinesMeetOnce (gen_beat_roots_eq, gen_beat_opposite_eq, gen_beat_lines_eq,',
+        'gen_beat_line_centers_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -293,6 +392,18 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
       'gen_rule_census_closures_eq',
     ],
     render: exportRuleCensus,
+  },
+  {
+    name: 'BeatSlots',
+    sources: BEAT_SLOT_SOURCES,
+    bridgeModule: 'Vibe.Compute.LinesMeetOnce',
+    bridges: [
+      'gen_beat_roots_eq',
+      'gen_beat_opposite_eq',
+      'gen_beat_lines_eq',
+      'gen_beat_line_centers_eq',
+    ],
+    render: exportBeatSlots,
   },
 ]
 

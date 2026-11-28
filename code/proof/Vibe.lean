@@ -44,6 +44,8 @@ import Vibe.Compute.RuleCensus
 import Vibe.Compute.Boundary
 import Vibe.Compute.LineScatteringExt
 import Vibe.Compute.QuantumWalk
+import Vibe.Compute.LinesMeetOnce
+import Vibe.Compute.Association
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
