@@ -13,12 +13,12 @@ On $\{3,4,3,4\}$, boundary dominance is far sharper: by Theorem~\ref{thm:cubic-g
 \subsection{Spectral Bounds}
 \label{subsec:spectral-bounds}
 
-Let $A$ be the $24$-regular adjacency operator on $\ell^2(W(\Gamma_{24}))$, with spectral radius $\rho = \|A\|_{2 \to 2}$ and normalized random-walk gap
+A normalized random-walk spectral gap above $13/25$ means that every vector in $\ell^2(W(\Gamma_{24}))$ shrinks in norm by more than a factor of $25/12$ on every step. Let $A$ be the $24$-regular adjacency operator on $\ell^2(W(\Gamma_{24}))$, with spectral radius $\rho = \|A\|_{2 \to 2}$ and normalized random-walk gap
 \begin{equation}
 \label{eq:gap-def}
 \lambda_{\mathrm{gap}} = 1 - \frac{\rho}{24}.
 \end{equation}
-By Kesten's criterion~\cite{kesten1959} (a finitely generated group is non-amenable iff its simple random walk has spectral radius strictly below $1$), non-amenability implies $\rho < 24$. Using reciprocal edge weights on Cartier--Foata suffix automata and product-measure Rayleigh--Ritz test vectors, we collapse $\rho$ progressively from a Depth-1 bracket of width $0.876$ to a Lean~4-certified Depth-2 bracket of width below $0.086$ ($10.2\times$ tighter, $\lambda_{\mathrm{gap}} > 13/25$) and an exact big-integer Depth-5 bracket of width below $0.0047$ ($188\times$ tighter)~\cite{pollard2026repo}.
+By Kesten's criterion~\cite{kesten1959} (a finitely generated group is non-amenable iff its simple random walk has spectral radius strictly below $1$), non-amenability implies $\rho < 24$. Using reciprocal edge weights on Cartier--Foata suffix automata and Markov Rayleigh--Ritz test vectors, we collapse $\rho$ from a Depth-1 bracket of width below $0.8764$ to a Lean~4-certified Depth-2 bracket of width below $0.086$ (over $10.2\times$ tighter, certifying $\lambda_{\mathrm{gap}} > 13/25$) and an exact big-integer Depth-5 bracket of width below $0.0047$ (over $187\times$ tighter)~\cite{pollard2026repo}.
 
 \paragraph{Upper bounds via reciprocal edge weights.}
 Following the Gabber--Galil--Nagnibeda Schur test~\cite{nagnibeda1997}, assign a positive weight $w(u \to v) > 0$ to each directed edge of a symmetric finite graph $(V, A)$ subject to the reciprocal condition
@@ -26,7 +26,12 @@ Following the Gabber--Galil--Nagnibeda Schur test~\cite{nagnibeda1997}, assign a
 \label{eq:reciprocal-schur}
 w(u \to v)\,w(v \to u) = 1 \qquad \text{for every edge } u \sim v.
 \end{equation}
-By the arithmetic--geometric mean inequality $2\,|x_u x_v| \le w(u \to v)\,x_u^2 + w(v \to u)\,x_v^2$, summing over all edges bounds the operator norm without requiring any curl-free vertex potential:
+Because the arithmetic--geometric mean inequality gives
+\begin{equation}
+\label{eq:ag-mean}
+2\,|x_u x_v| \le w(u \to v)\,x_u^2 + w(v \to u)\,x_v^2,
+\end{equation}
+summing over all edges bounds the operator norm without requiring any curl-free vertex potential:
 \begin{equation}
 \label{eq:schur-quad}
 |\langle x, A x \rangle| \le \Bigl(\max_{u \in V} \sum_{v \sim u} w(u \to v)\Bigr)\,\langle x, x \rangle.
@@ -36,34 +41,43 @@ At Depth~1 on the four Cartier--Foata strata $(C_0, C_1, C_2, C_3)$, assigning t
 S_0 &= 24\,p_1, & S_1 &= p_1^{-1} + 15\,p_1 + 8\,p_2, \label{eq:schur-s01}\\
 S_2 &= 2\,p_2^{-1} + 11\,p_1 + 8\,p_2 + 3\,p_3, & S_3 &= 3\,p_3^{-1} + 9\,p_1 + 6\,p_2 + 6\,p_3. \label{eq:schur-s23}
 \end{align}
-To sharpen beyond the Depth-1 ceiling, we refine each vertex's state from its last clique $D_R(w)$ to its $W(F_4)$-orbit of Depth-$L$ Cartier--Foata suffixes $\mathrm{St}_L(w)$ ($4$, $19$, $169$, $2{,}197$, and $34{,}523$ states for $L = 1,\dots,5$). Labeling every upward edge $u \to v$ by its $W(F_4)$-orbit upward-end flag $[\mathrm{St}_L(v), b]_{W(F_4)}$ ($23$ distinct flags at $L=2$, rising to $43{,}312$ at $L=5$) enforces exact edge reciprocity automatically across every finite subgraph while equalizing all $19$ (resp.\ $34{,}523$) Schur row sums.
+To sharpen past the Depth-1 ceiling, refine each vertex state from its single rightmost clique $D_R(w)$ to the $W(F_4)$-orbit of its last $d_{\mathrm{suf}}$ Cartier--Foata commuting blocks $\mathrm{St}_{d_{\mathrm{suf}}}(w)$. Tracking these multi-block suffixes expands the finite quotient automaton from $4$ states at $d_{\mathrm{suf}} = 1$ to $19$ states at $d_{\mathrm{suf}} = 2$ and $34{,}523$ states at $d_{\mathrm{suf}} = 5$ (through $169$ and $2{,}197$ at depths $3$ and $4$). Labeling every upward edge $u \to v$ by the $W(F_4)$-orbit upward-end flag $[\mathrm{St}_{d_{\mathrm{suf}}}(v), b]_{W(F_4)}$ of the entering generator $b \in D_R(v)$ ($23$ flags at $d_{\mathrm{suf}} = 2$, rising to $43{,}312$ at $d_{\mathrm{suf}} = 5$) fixes both directions of every edge from the child suffix alone, enforcing exact reciprocity automatically across all finite subgraphs while equalizing every row sum using quantized rational weights with denominator scale $q_{\mathrm{den}}$.
 
 \paragraph{Lower bounds via Cartier--Foata Markov Rayleigh--Ritz.}
-At Depth~1, finite-support stratum vectors $\phi(r, k) = a_k\,r\,(R + 1 - r)\,11^{r-1}\,47^{R-r}$ compress $\langle x, A x \rangle$ identically onto the $3R$-dimensional stratum space, yielding $\rho > 11{,}049/1{,}000$. Because spherical stratum weights ignore local two-clique correlations, we lift the Rayleigh ansatz to a $W(F_4)$-invariant Cartier--Foata Markov product measure weighting each adjacent clique transition $(C_t, C_{t+1})$ by its $57$-orbit inner-product signature (and at $2$-step depth by $4{,}440$ clique triples). Exploiting the exact $3$-cube $Q_3 = \mathrm{Adj}(0)$ ($20$-clique) upward-insertion cascade reduces the full infinite-depth quadratic form without dropping a single edge, producing concrete finite-support integer test vectors certified over exact big integers and in Lean~4.
+At Depth~1, finite-support stratum vectors
+\begin{equation}
+\label{eq:rr-ansatz}
+\phi(r, k) = a_k\,r\,(R + 1 - r)\,11^{r-1}\,47^{R-r}
+\end{equation}
+use the rational scaling $(11/47)^r \approx \lambda_{3434}^{-r/2}$ to balance exponential shell growth and compress $\langle x, A x \rangle$ identically onto the $3R$-dimensional stratum space, yielding $\rho > 11{,}049/1{,}000$. Because spherical stratum weights average over local two-clique correlations, we lift the Rayleigh ansatz to a $W(F_4)$-invariant Cartier--Foata Markov product measure that weights each adjacent clique transition $(C_t, C_{t+1})$ by its $57$-orbit inner-product class (and at $2$-step depth by $4{,}440$ clique triples). Right-multiplying a Cartier--Foata word by a facet generator $b$ slides $b$ leftward only through generators commuting with $b$ inside the $3$-cube $\mathrm{Adj}(b)$ ($20$ nonempty cliques), reducing the Rayleigh numerator over Cartier--Foata block heights $h \le H_{\max}$ with zero dropped negative terms (safely truncating slide depth at $M = 11$ in Lean~4) and certifying exact integer-vector lower bounds.
 
 \begin{theorem}[Certified Depth-2 Spectral Bracket and Depth-5 Collapse]
 \label{thm:spectral-bracket}
 Let $A$ be the adjacency operator on a finite bipartite subgraph matching the $W(F_4)$-orbit Cartier--Foata suffix counts and upward-end flag multiplicities of $\{3,4,3,4\}$, and let $\rho = \|A\|_{2\to 2}$ be the infinite-graph spectral radius obtained by density of finitely supported vectors in $\ell^2(W(\Gamma_{24}))$.
 \begin{enumerate}
-\item \textbf{Depth-1 baseline (Lean~4):} Substituting $(p_1, p_2, p_3) = (1/7,\, 1/3,\, 4/7)$ into~\eqref{eq:schur-s01}--\eqref{eq:schur-s23} gives $\rho \le 335/28 < 12$ and $\lambda_{\mathrm{gap}} \ge 337/672 > 1/2$, tightened at Depth~1 to $11{,}049/1{,}000 < \rho \le 3{,}325{,}977{,}059/278{,}900{,}000$ (width $0.8764$).
-\item \textbf{Depth-2 kernel collapse (Lean~4):} Over the $19$-state Depth-2 suffix automaton ($23$ reciprocal flags, $Q = 10^4$) and the $57$-orbit $1$-step Cartier--Foata Markov lower bound on shells up to $K = 120$, Lean~4 certifies
+\item \textbf{Depth-1 baseline (Lean~4):} Substituting $(p_1, p_2, p_3) = (1/7,\, 1/3,\, 4/7)$ into~\eqref{eq:schur-s01}--\eqref{eq:schur-s23} gives $\rho \le 335/28 < 12$ and $\lambda_{\mathrm{gap}} \ge 337/672 > 1/2$, refined at Depth~1 (width $< 0.8764$) to
+\begin{equation}
+\label{eq:rho-depth1}
+\frac{11{,}049}{1{,}000} < \rho\bigl(\{3,4,3,4\}\bigr) \le \frac{3{,}325{,}977{,}059}{278{,}900{,}000}.
+\end{equation}
+\item \textbf{Depth-2 kernel collapse (Lean~4):} Over the $19$-state Depth-2 suffix automaton ($23$ reciprocal flags, denominator scale $q_{\mathrm{den}} = 10^4$) and the $57$-orbit $1$-step Cartier--Foata Markov witness over block heights $h \le H_{\max} = 120$, Lean~4 certifies
 \begin{equation}
 \label{eq:rho-bracket}
 \frac{913}{80} < \rho\bigl(\{3,4,3,4\}\bigr) \le \frac{387{,}141{,}227}{33{,}670{,}000} < \frac{115}{10},
 \qquad
 \lambda_{\mathrm{gap}} \ge \frac{420{,}938{,}773}{808{,}080{,}000} > \frac{25}{48} > \frac{13}{25} = 0.52,
 \end{equation}
-narrowing the kernel-certified interval width to $57{,}647{,}040/673{,}400{,}000 < 0.086$ (more than $10.2\times$ tighter than Depth~1).
-\item \textbf{Depth-5 exact big-integer collapse (companion):} At Depth~5 ($34{,}523$ states, $43{,}312$ reciprocal flags at $Q = 10^6$) paired with a concrete finite-support $2$-step ($4{,}440$-triple) Cartier--Foata Markov witness on shells $k \in \{10,\dots,420\}$, exact big-integer arithmetic certifies
+shrinking the kernel-certified interval width to $57{,}647{,}040/673{,}400{,}000 < 0.086$ (more than $10.2\times$ tighter than Depth~1).
+\item \textbf{Depth-5 exact big-integer collapse (companion):} At Depth~5 ($34{,}523$ states, $43{,}312$ reciprocal flags at $q_{\mathrm{den}} = 10^6$) paired with a concrete finite-support $2$-step ($4{,}440$-triple) Cartier--Foata Markov witness over block heights $h \in \{10,\dots,420\}$, exact big-integer arithmetic certifies
 \begin{equation}
 \label{eq:rho-depth5}
 11.439047 \le \rho\bigl(\{3,4,3,4\}\bigr) \le 11.443713, \qquad \lambda_{\mathrm{gap}} \ge 0.5231,
 \end{equation}
-shrinking the certified interval width to $0.004666$ ($188\times$ tighter than Depth~1).
+narrowing the certified interval width to $0.004666$ (over $187\times$ tighter than Depth~1).
 \end{enumerate}
 \end{theorem}
 
-Table~\ref{tab:spectral-summary} and Figure~\ref{fig:spectral-growth} display all three nested certificates beside the multi-dimensional capacity curve. In Lean~4, the $19$-state Depth-2 automaton, all $23$-flag reciprocities, the finite-subgraph Schur theorem, the $57$-orbit $Q_3$ cascade reduction, and every rational inequality in~\eqref{eq:rho-bracket} are verified unconditionally~\cite{pollard2026repo}. Passing from arbitrary finite subgraphs to the infinite operator norm on $\ell^2(W(\Gamma_{24}))$ uses standard density of finitely supported vectors together with the Coxeter exchange condition on $W(\Gamma_{24})$.
+Table~\ref{tab:spectral-summary} and Figure~\ref{fig:spectral-growth} display all three nested certificates beside the multi-dimensional capacity curve. In Lean~4, the $19$-state Depth-2 automaton, all $23$-flag reciprocities, the finite-subgraph Schur theorem, the $57$-orbit $Q_3$ cascade reduction, and every rational inequality in~\eqref{eq:rho-bracket} are verified unconditionally~\cite{pollard2026repo}. Passing from finite subgraphs and Cartier--Foata words to the infinite operator norm on $\ell^2(W(\Gamma_{24}))$ uses Tits's Cartier--Foata normal-form bijection on right-angled Coxeter groups together with standard density of finitely supported vectors.
 
 \begin{table}[tb]
 \centering
@@ -77,11 +91,11 @@ Level & Automaton / witness & Exact bound & Safe decimal & Verification \\
 \midrule
 Depth~1 lower & $R \ge 36$, $(17,26,45)$ & $> 11{,}049/1{,}000$ & $> 11.0490$ & Lean~4 \\
 Depth~1 upper & $4$ states, $3$ flags & $\le 3{,}325{,}977{,}059/278{,}900{,}000$ & $\le 11.9254$ & Lean~4 \\
-Depth~2 lower & $57$-orbit CF Markov ($K=120$) & $> 913/80$ & $> 11.4125$ & Lean~4 \\
-Depth~2 upper & $19$ states, $23$ flags ($Q=10^4$) & $\le 387{,}141{,}227/33{,}670{,}000$ & $< 11.4982$ & Lean~4 \\
+Depth~2 lower & $57$-orbit CF ($H_{\max}=120$) & $> 913/80$ & $> 11.4125$ & Lean~4 \\
+Depth~2 upper & $19$ states, $23$ flags ($q_{\mathrm{den}}=10^4$) & $\le 387{,}141{,}227/33{,}670{,}000$ & $< 11.4982$ & Lean~4 \\
 Depth~2 gap & $\lambda_{\mathrm{gap}} = 1 - \rho/24$ & $\ge 420{,}938{,}773/808{,}080{,}000$ & $> 0.5209$ & Lean~4 \\
-Depth~5 lower & $4{,}440$-triple CF ($k \le 420$) & Exact $\mathbb{Z}$ Rayleigh ratio & $\ge 11.439047$ & BigInt comp. \\
-Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $Q=10^6$ Schur max & $\le 11.443713$ & BigInt comp. \\
+Depth~5 lower & $4{,}440$-triple CF ($h \le 420$) & Exact $\mathbb{Z}$ Rayleigh ratio & $\ge 11.439047$ & BigInt comp. \\
+Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $q_{\mathrm{den}}=10^6$ Schur & $\le 11.443713$ & BigInt comp. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -90,7 +104,7 @@ Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $Q=10^6$ Schur max &
 \centering
 \begin{tikzpicture}[scale=0.95, every node/.style={font=\small}]
   % Subtle center divider only (pure white background, zero gray fill)
-  \draw[twZincRule, thin] (7.68,-0.52) -- (7.68,4.42);
+  \draw[twZincRule, thin] (7.68,-0.62) -- (7.68,4.42);
 
   % Left panel: log10 cumulative capacity vs depth d=0..5 (x = 0.0 .. 7.45)
   \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.0,4.26) {Cumulative capacity $\log_{10} V(d)$};
@@ -99,7 +113,7 @@ Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $Q=10^6$ Schur max &
   \draw[-{Stealth[length=4pt]}, twZincInk, thin] (0.80,0.45) -- (5.16,0.45);
   \draw[-{Stealth[length=4pt]}, twZincInk, thin] (0.80,0.45) -- (0.80,3.45);
   \node[anchor=south, font=\scriptsize, text=twZincInk] at (0.80,3.48) {$\log_{10} V$};
-  \node[font=\scriptsize, text=twZincInk] at (2.90,-0.32) {graph depth $d$};
+  \node[font=\scriptsize, text=twZincInk] at (2.90,-0.44) {graph depth $d$};
 
   % Ticks x: d = 0..5
   \foreach \d in {0,1,2,3,4,5} {
@@ -144,29 +158,29 @@ Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $Q=10^6$ Schur max &
   % Right panel: Nested Spectral Collapse on [0, 24] and Zoom on [11.0, 12.0] (x = 7.95 .. 15.25)
   \node[anchor=west, font=\small\bfseries, text=twZincInk] at (8.05,4.26) {Nested $\{3,4,3,4\}$ spectral collapse};
 
-  % Top number line for rho in [0, 24] at y = 2.65 (x = 8.25 to 14.95, 6.70 cm)
-  \draw[twZincInk, thick] (8.25,2.65) -- (14.95,2.65);
+  % Top number line for rho in [0, 24] at y = 2.78 (x = 8.25 to 14.95, 6.70 cm)
+  \draw[twZincInk, thick] (8.25,2.78) -- (14.95,2.78);
   \foreach \v in {0,6,12,18,24} {
     \pgfmathsetmacro{\xv}{8.25 + \v*6.70/24}
-    \draw[twZincInk, thin] (\xv,2.55) -- (\xv,2.75);
-    \node[below, font=\scriptsize, text=twZinc] at (\xv,2.49) {$\v$};
+    \draw[twZincInk, thin] (\xv,2.68) -- (\xv,2.88);
+    \node[below, font=\scriptsize, text=twZinc] at (\xv,2.62) {$\v$};
   }
 
   % Bracket highlight on top bar: D1 11.049..11.9254 -> 11.334..11.579; D2 11.4125..11.4982 -> 11.436..11.460
-  \draw[twZincRule, line width=3.2pt] (11.334,2.65) -- (11.579,2.65);
-  \draw[twViolet, line width=4.2pt] (11.432,2.65) -- (11.465,2.65);
+  \draw[twZincRule, line width=3.2pt] (11.334,2.78) -- (11.579,2.78);
+  \draw[twViolet, line width=4.2pt] (11.432,2.78) -- (11.465,2.78);
 
   % Midpoint 12 dashed vertical line and left-aligned label cleanly separated from gap label
-  \draw[twPink, dashed, thin] (11.60,2.55) -- (11.60,3.62);
-  \node[anchor=east, font=\scriptsize, text=twPink] at (11.48,3.52) {$\rho = 12$};
+  \draw[twPink, dashed, thin] (11.60,2.68) -- (11.60,3.70);
+  \node[anchor=east, font=\scriptsize, text=twPink] at (11.48,3.60) {$\rho = 12$};
 
-  % Gap span arrow cleanly above top bar (y = 3.06), label right of pink line
-  \draw[{Stealth[length=4pt]}-{Stealth[length=4pt]}, twEmerald, thick] (11.66,3.06) -- (14.95,3.06);
-  \node[above, font=\scriptsize\bfseries, text=twEmerald] at (13.35,3.12) {$\lambda_{\mathrm{gap}} > 0.5209$};
+  % Gap span arrow cleanly above top bar (y = 3.18), label right of pink line
+  \draw[{Stealth[length=4pt]}-{Stealth[length=4pt]}, twEmerald, thick] (11.66,3.18) -- (14.95,3.18);
+  \node[above, font=\scriptsize\bfseries, text=twEmerald] at (13.35,3.24) {$\lambda_{\mathrm{gap}} > 0.5209$};
 
-  % Zoom callout lines starting strictly BELOW top tick labels (y=2.12) and ending ABOVE zoomed D1 row (y=1.72)
-  \draw[twZincRule, thin, dashed] (11.32,2.12) -- (8.45,1.72);
-  \draw[twZincRule, thin, dashed] (11.60,2.12) -- (14.75,1.72);
+  % Zoom callout lines terminating strictly ABOVE the Depth-1 text label (y=2.24 -> y=1.88, ZERO text crossings)
+  \draw[twZincRule, thin, dashed] (11.32,2.24) -- (8.45,1.88);
+  \draw[twZincRule, thin, dashed] (11.60,2.24) -- (14.75,1.88);
 
   % Zoomed inset below on rho in [11.0, 12.0] (x = 8.45 to 14.75, 6.30 cm per unit)
   % Axis at y = 0.34
@@ -177,25 +191,25 @@ Depth~5 upper & $34{,}523$ states, $43{,}312$ flags & Exact $Q=10^6$ Schur max &
     \node[below, font=\scriptsize, text=twZinc] at (\xz,0.20) {$\lbl$};
   }
 
-  % Row 1 (y=1.44): Depth-1 [11.049, 11.9254] -> x = 8.759 .. 14.280
-  \draw[twBlue, line width=2.8pt] (8.76,1.44) -- (14.28,1.44);
-  \fill[twBlue] (8.76,1.44) circle (2.0pt);
-  \fill[twBlue] (14.28,1.44) circle (2.0pt);
-  \node[above, font=\scriptsize, text=twBlue] at (11.52,1.50) {Depth~1 (Lean~4): $(11.049,\, 11.9254)$, width $0.876$};
+  % Row 1 (y=1.42): Depth-1 [11.049, 11.9254] -> x = 8.759 .. 14.280
+  \draw[twBlue, line width=2.8pt] (8.76,1.42) -- (14.28,1.42);
+  \fill[twBlue] (8.76,1.42) circle (2.0pt);
+  \fill[twBlue] (14.28,1.42) circle (2.0pt);
+  \node[above, font=\scriptsize, text=twBlue, fill=white, inner sep=1.2pt] at (11.52,1.48) {Depth~1 (Lean~4): $(11.049,\, 11.9254)$, width $< 0.8764$};
 
-  % Row 2 (y=1.02): Depth-2 [11.4125, 11.4982] -> x = 11.049 .. 11.589
-  \draw[twViolet, line width=3.4pt] (11.05,1.02) -- (11.59,1.02);
-  \fill[twViolet] (11.05,1.02) circle (2.2pt);
-  \fill[twViolet] (11.59,1.02) circle (2.2pt);
-  \node[anchor=west, font=\scriptsize\bfseries, text=twViolet] at (11.72,1.02) {Depth~2 (Lean~4): width $< 0.086$};
+  % Row 2 (y=1.00): Depth-2 (11.4125, 11.4982] -> x = 11.049 .. 11.589
+  \draw[twViolet, line width=3.4pt] (11.05,1.00) -- (11.59,1.00);
+  \fill[twViolet] (11.05,1.00) circle (2.2pt);
+  \fill[twViolet] (11.59,1.00) circle (2.2pt);
+  \node[anchor=west, font=\scriptsize\bfseries, text=twViolet] at (11.72,1.00) {Depth~2 (Lean~4): width $< 0.086$};
 
-  % Row 3 (y=0.64): Depth-5 [11.439047, 11.443713] -> x = 11.216 .. 11.245
-  \draw[twEmerald, line width=4.0pt] (11.21,0.64) -- (11.26,0.64);
-  \node[anchor=west, font=\scriptsize\bfseries, text=twEmerald] at (11.40,0.64) {Depth~5 (BigInt): $[11.4390,\, 11.4437]$};
+  % Row 3 (y=0.62): Depth-5 [11.439047, 11.443713] (outward [11.4390, 11.4438]) -> x = 11.216 .. 11.245
+  \draw[twEmerald, line width=4.0pt] (11.21,0.62) -- (11.26,0.62);
+  \node[anchor=west, font=\scriptsize\bfseries, text=twEmerald] at (11.40,0.62) {Depth~5 (BigInt): $[11.4390,\, 11.4438]$};
 
-  \node[font=\scriptsize, text=twZinc] at (11.60,-0.32) {Zoomed interval $\rho \in [11.0,\, 12.0]$ ($188\times$ collapse)};
+  \node[font=\scriptsize, text=twZinc] at (11.60,-0.44) {Zoomed interval $\rho \in [11.0,\, 12.0]$ ($> 187\times$ collapse)};
 \end{tikzpicture}
-\caption{Quantitative expansion on $\{3,4,3,4\}$. Left: exact logarithmic cumulative capacity $\log_{10} V(d)$ through depth $d = 5$, comparing $\{3,4,3,4\}$ cusp balls against exact 3D $\{5,3,4\}$ RACG balls, 2D $\{7,3\}$ balls, and flat $\mathbb{Z}^4$ $\ell_1$-balls. Right: nested spectral collapse from Depth~1 (width $0.876$) to Lean~4-certified Depth~2 ($[913/80,\, 387{,}141{,}227/33{,}670{,}000]$, width $< 0.086$, $\lambda_{\mathrm{gap}} > 13/25$) and exact big-integer Depth~5 ($[11.439047,\, 11.443713]$, width $< 0.0047$).}
+\caption{Quantitative expansion on $\{3,4,3,4\}$. Left: exact logarithmic cumulative capacity $\log_{10} V(d)$ through depth $d = 5$, comparing $\{3,4,3,4\}$ cusp balls against exact 3D $\{5,3,4\}$ RACG balls, 2D $\{7,3\}$ balls, and flat $\mathbb{Z}^4$ $\ell_1$-balls. Right: nested spectral collapse from Depth~1 (width $< 0.8764$) to Lean~4-certified Depth~2 ($(913/80,\, 387{,}141{,}227/33{,}670{,}000]$, width $< 0.086$, $\lambda_{\mathrm{gap}} > 13/25$) and exact big-integer Depth~5 ($[11.439047,\, 11.443713]$, width $< 0.0047$).}
 \label{fig:spectral-growth}
 \end{figure}
 
