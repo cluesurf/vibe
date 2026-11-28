@@ -17,17 +17,21 @@
 //       M_pair(zeta_18) Bethe-cavity radial transfer on Z^{*12} (|t_1(0)| = 0.002098 -> m_eff,lat^2 = 433.67).
 //     - Exact 13x14 {3,4,3,4} warped cusp domain-wall operator Q(c) zero modes f(c_i) for 2T 24-cell
 //       Cayley Laplacian spectrum c_16 = [3/8, 5/12, 1/2] (||Q u||_inf < 1e-14).
-//     - Exact 4D D_4 2-skeleton self-duality (32 === 96 / 3), continuum kinetic weight c_kin(D_4) = 2.0,
-//       U(1) Villain self-dual stiffness alpha_sd^-1 = 4.000, ideal 24-cell orbifold Vol_H4 = 4 pi^2 / 3,
-//       and exact cusp shell series resistance R_edge = sum_{d=0}^{12} 1 / (N_d * k_dn(d)) = 0.058261.
+//     - Exact 4D D_4 primal/dual honeycomb normalization ({3,3,4,3} <-> {3,4,3,3}, 32 === 96 / 3 tris/site,
+//       c_kin(K) = 2.0, c_kin(K^*) = 0.5, c_kin(K) * c_kin(K^*) = 1.0), true continuum U(1) Villain
+//       self-dual stiffness 1/g_sd^2 = 1/(2 pi) (alpha_sd^-1 = 2.000, distinct from the lattice geometric
+//       mean alpha_K^-1 = 4.000 vs alpha_{K^*}^-1 = 1.000), sparse half-BZ Cholesky c_L(D_4) = -19.5471,
+//       ideal 24-cell orbifold Vol_H4 = 4 pi^2 / 3, and cusp resistance R_edge = 0.058261.
 //
 //   [Tier B/C - Explicitly Disclosed EFT & UV Boundary Inputs]
 //     (1) Bulk scalar radion condensate and Goldberger-Wise action remain a Tier-B EFT extension:
 //         empty-vacuum bare U cannot supply a static light bulk scalar condensate.
-//     (2) The k = 13 zero-continuous-phase Z[zeta_9] + SO(10) + 2T TM_1 flavor fit uses 0 continuous phases
-//         and 13 continuous real UV moduli (dof = 6 over 19 SM observables at strict 0.1% PDG lepton floor).
-//         Those 13 real moduli remain external UV inputs, though {3,4,3,4} cusp wavefunctions collapse
-//         the 1.79e5x fermion mass hierarchy into an O(1) [0.80, 14.92] anarchy band.
+//     (2) The k = 13 zero-continuous-phase Z[zeta_9] + SO(10) + 2T TM_1 flavor fit uses 0 continuous phases,
+//         11 discrete Z_18 phase integers from Z[zeta_9] (5 in F, 2 in G, 1 in s, 1 psi, 2 in P_L; 10 at k = 12),
+//         and 13 continuous real UV moduli (dof = 6 over 19 SM observables at strict 0.1% PDG lepton floor,
+//         under ONE unified Dirac PDG CP convention for both quarks and leptons). Those 13 real moduli remain
+//         external UV inputs, though {3,4,3,4} cusp wavefunctions collapse the 1.79e5x fermion mass hierarchy
+//         into an O(1) [0.80, 14.90] anarchy band.
 //     (3) Bare UV gauge stiffness 1/g_0^2 is an irreducible 1-parameter UV boundary constant: 21.7%
 //         gauge-invariant lattice action dependence (Wilson/Villain/Manton), +5.344 matching scale shift,
 //         diverging dense-ring beta_0(L) freezing ceiling, and 0/74 Look-Elsewhere hits within 1%.
@@ -251,7 +255,9 @@ function herm3Eig(M: Mat3): { readonly vals: readonly [number, number, number]; 
   }
 }
 
-// Weyl left diagonalization: leftEig(Y) = herm3Eig((Y Y^dag)^*)
+// Unified standard Dirac left diagonalization: leftEig(Y) = herm3Eig(Y Y^dag)
+// Satisfies U_L^dag (Y Y^dag) U_L = diag(y_1^2, y_2^2, y_3^2) with V_CKM = U_{uL}^dag U_{dL}
+// and U_PMNS = U_{eL}^dag U_nu sharing the exact same PDG Jarlskog sign J = +Im(W_01 W_12 W_02^* W_11^*).
 function leftEig(Y: Mat3): { readonly sv: readonly [number, number, number]; readonly U: Mat3 } {
   const row0: [C2, C2, C2] = [[0, 0], [0, 0], [0, 0]]
   const row1: [C2, C2, C2] = [[0, 0], [0, 0], [0, 0]]
@@ -267,7 +273,31 @@ function leftEig(Y: Mat3): { readonly sv: readonly [number, number, number]; rea
         sr += a[0] * b[0] - a[1] * b[1]
         si += a[0] * b[1] + a[1] * b[0]
       }
-      rows[i]![j] = [sr, -si]
+      rows[i]![j] = [sr, si]
+    }
+  }
+  const { vals, U } = herm3Eig([row0, row1, row2])
+  return { sv: [Math.sqrt(vals[0]), Math.sqrt(vals[1]), Math.sqrt(vals[2])], U }
+}
+
+// Unified Dirac-convention Takagi diagonalization for symmetric Majorana mass M_nu:
+//   U_nu^T M_nu U_nu = D  =>  U_nu^dag (M_nu^dag M_nu) U_nu = D^2,  so U_nu = herm3Eig(M_nu^dag M_nu).U
+function leftEigMajorana(M: Mat3): { readonly sv: readonly [number, number, number]; readonly U: Mat3 } {
+  const row0: [C2, C2, C2] = [[0, 0], [0, 0], [0, 0]]
+  const row1: [C2, C2, C2] = [[0, 0], [0, 0], [0, 0]]
+  const row2: [C2, C2, C2] = [[0, 0], [0, 0], [0, 0]]
+  const rows = [row0, row1, row2] as const
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      let sr = 0
+      let si = 0
+      for (let k = 0; k < 3; k++) {
+        const a = cConj(M[k]![i]!)
+        const b = M[k]![j]!
+        sr += a[0] * b[0] - a[1] * b[1]
+        si += a[0] * b[1] + a[1] * b[0]
+      }
+      rows[i]![j] = [sr, si]
     }
   }
   const { vals, U } = herm3Eig([row0, row1, row2])
@@ -744,17 +774,13 @@ function runR11(): { readonly gammaFeshFwhm: number } {
   )
 
   // 1. Exact unweighted graph-Laplacian identity: m_lat^2 = lambda_1 * mu^2
-  //    In (I - P + mu^2) phi = 0 on asymptotic shells (d >= 2):
-  //      P_IN * (phi_d - phi_{d-1}) + P_OUT * (phi_d - phi_{d+1}) + mu^2 * phi_d = 0.
-  //    Multiplying by LAMBDA_1 = P_OUT / P_IN gives:
-  //      P_OUT * (phi_d - phi_{d-1}) + (P_OUT / LAMBDA_1) * ... wait:
-  //      In fixed-UV GW: w_{d-1}(phi_d - phi_{d-1}) + w_d(phi_d - phi_{d+1}) + (m_lat^2 / N_d) phi_d = 0
-  //      Divide by w_d = P_OUT / N_d:
-  //      LAMBDA_1 * (phi_d - phi_{d-1}) + (phi_d - phi_{d+1}) + (m_lat^2 / P_OUT) phi_d = 0.
-  //      Divide by (1 + LAMBDA_1):
-  //      P_OUT * (phi_d - phi_{d-1}) + P_IN * (phi_d - phi_{d+1}) + (m_lat^2 / LAMBDA_1) phi_d = 0!
-  //    Comparing the unweighted graph Laplacian (p_in = 1/(1+lam), p_out = lam/(1+lam)) in reverse direction
-  //    gives the exact algebraic identity: m_lat^2 = (P_OUT / P_IN) * mu^2 = LAMBDA_1 * mu^2!
+  //    In the fixed-UV discrete GW equation on asymptotic shells (d >= 2), with w_d = P_OUT / N_d:
+  //      w_{d-1} (phi_d - phi_{d-1}) + w_d (phi_d - phi_{d+1}) + (m_lat^2 / N_d) phi_d = 0.
+  //    Dividing by w_d = P_OUT / N_d yields:
+  //      LAMBDA_1 (phi_d - phi_{d-1}) + (phi_d - phi_{d+1}) + (m_lat^2 / P_OUT) phi_d = 0.
+  //    Dividing by (1 + LAMBDA_1) gives the exact unweighted graph-Laplacian equation:
+  //      P_OUT (phi_d - phi_{d-1}) + P_IN (phi_d - phi_{d+1}) + (m_lat^2 / LAMBDA_1) phi_d = 0,
+  //    establishing the exact algebraic identity m_lat^2 = (P_OUT / P_IN) * mu^2 = LAMBDA_1 * mu^2.
   const muTest = 1 - Math.cos(PI / 9)
   const mLatFromIdentity = LAMBDA_1 * muTest
   // Verify decaying mode ratio rho satisfies BOTH the fixed-UV GW EL equation and the graph-Laplacian equation!
@@ -883,7 +909,12 @@ function runR12(): void {
   console.log('GATE R1.2 (Tier A): EMPTY-VACUUM BARE-U MICROSCOPIC NO-GO')
   console.log('=================================================================================')
 
-  // 1. Exact (N_+, N_-) conservation & exact crossLineLeak === 0 for single-line M_meet doublon/trion
+  // 1. Explicit 24-slot (12 antipodal lines) 2-particle bare-U dock step:
+  //    Directly step 2-particle states in the full 2304-dim Hilbert space |(s_1, t_1), (s_2, t_2)>
+  //    (s_1, s_2 in 0..23 across 12 antipodal lines l = s >> 1, tones t_1, t_2 in {+, -})
+  //    under U_dock = (C_24 (x) C_24) * M_2body, where M_2body applies M_meet on opposite-tone
+  //    antipodal pairs inside line l and M_pair(zeta_18) = I_12 + ((zeta_18 - 1)/12) J_12 on
+  //    same-tone antipodal pairs across all 12 lines, and C_24 = direct_sum_{l=0}^{11} C_2.
   const cDiag: C2 = [0.25, Math.sqrt(3) * 0.25]
   const cOff: C2 = [0.75, -Math.sqrt(3) * 0.25]
   const meetSwap: C2 = [-1.5, Math.sqrt(3) * 0.5]
@@ -892,8 +923,152 @@ function runR12(): void {
   const uni00 = cAbs2(lMeet00) + cAbs2(lMeet01)
   const uni01 = cAbs(cAdd(cMul(lMeet00, cConj(lMeet01)), cMul(lMeet01, cConj(lMeet00))))
   const coinUni = cAbs2(cDiag) + cAbs2(cOff)
-  const crossLineLeak = 0.0
   assert(Math.abs(uni00 - 1) < 1e-14 && uni01 < 1e-14 && Math.abs(coinUni - 1) < 1e-14, 'M_meet unitarity failed')
+
+  const idx2P = (s1: number, t1: number, s2: number, t2: number): number => (((t1 * 2 + t2) * 24 + s1) * 24 + s2)
+  const stepTwoParticleDock = (
+    inRe: Float64Array,
+    inIm: Float64Array,
+  ): {
+    readonly outRe: Float64Array
+    readonly outIm: Float64Array
+    readonly totalNorm: number
+    readonly crossLineLeak: number
+    readonly sectorNorm: readonly [number, number, number, number]
+  } => {
+    const dim = 4 * 24 * 24
+    const midRe = new Float64Array(inRe)
+    const midIm = new Float64Array(inIm)
+
+    // (a) Opposite-tone antipodal M_meet inside each line l = 0..11
+    for (const [t1, t2] of [
+      [0, 1],
+      [1, 0],
+    ] as const) {
+      for (let l = 0; l < 12; l++) {
+        const iA = idx2P(2 * l, t1, 2 * l + 1, t2)
+        const iB = idx2P(2 * l + 1, t1, 2 * l, t2)
+        const a: C2 = [inRe[iA]!, inIm[iA]!]
+        const b: C2 = [inRe[iB]!, inIm[iB]!]
+        const nA = cAdd(cMul(lMeet00, a), cMul(lMeet01, b))
+        const nB = cAdd(cMul(lMeet01, a), cMul(lMeet00, b))
+        midRe[iA] = nA[0]
+        midIm[iA] = nA[1]
+        midRe[iB] = nB[0]
+        midIm[iB] = nB[1]
+      }
+    }
+
+    // (b) Same-tone antipodal M_pair(zeta_18) = I_12 + ((zeta_18 - 1)/12) J_12 across all 12 lines
+    const pairCoef: C2 = [Z18_M1[0] / 12, Z18_M1[1] / 12]
+    for (const t of [0, 1] as const) {
+      let sumSymR = 0
+      let sumSymI = 0
+      for (let l = 0; l < 12; l++) {
+        const iA = idx2P(2 * l, t, 2 * l + 1, t)
+        const iB = idx2P(2 * l + 1, t, 2 * l, t)
+        sumSymR += 0.5 * (inRe[iA]! + inRe[iB]!)
+        sumSymI += 0.5 * (inIm[iA]! + inIm[iB]!)
+      }
+      const shift = cMul(pairCoef, [sumSymR, sumSymI])
+      for (let l = 0; l < 12; l++) {
+        const iA = idx2P(2 * l, t, 2 * l + 1, t)
+        const iB = idx2P(2 * l + 1, t, 2 * l, t)
+        midRe[iA] = inRe[iA]! + shift[0]
+        midIm[iA] = inIm[iA]! + shift[1]
+        midRe[iB] = inRe[iB]! + shift[0]
+        midIm[iB] = inIm[iB]! + shift[1]
+      }
+    }
+
+    // (c) Single-particle 24-slot coin tensor product C_24 (x) C_24
+    const tmpRe = new Float64Array(dim)
+    const tmpIm = new Float64Array(dim)
+    for (let sec = 0; sec < 4; sec++) {
+      const t1 = sec >> 1
+      const t2 = sec & 1
+      for (let s2 = 0; s2 < 24; s2++) {
+        for (let l = 0; l < 12; l++) {
+          const i0 = idx2P(2 * l, t1, s2, t2)
+          const i1 = idx2P(2 * l + 1, t1, s2, t2)
+          const a: C2 = [midRe[i0]!, midIm[i0]!]
+          const b: C2 = [midRe[i1]!, midIm[i1]!]
+          const o0 = cAdd(cMul(cDiag, a), cMul(cOff, b))
+          const o1 = cAdd(cMul(cOff, a), cMul(cDiag, b))
+          tmpRe[i0] = o0[0]
+          tmpIm[i0] = o0[1]
+          tmpRe[i1] = o1[0]
+          tmpIm[i1] = o1[1]
+        }
+      }
+    }
+    const outRe = new Float64Array(dim)
+    const outIm = new Float64Array(dim)
+    for (let sec = 0; sec < 4; sec++) {
+      const t1 = sec >> 1
+      const t2 = sec & 1
+      for (let s1 = 0; s1 < 24; s1++) {
+        for (let l = 0; l < 12; l++) {
+          const i0 = idx2P(s1, t1, 2 * l, t2)
+          const i1 = idx2P(s1, t1, 2 * l + 1, t2)
+          const a: C2 = [tmpRe[i0]!, tmpIm[i0]!]
+          const b: C2 = [tmpRe[i1]!, tmpIm[i1]!]
+          const o0 = cAdd(cMul(cDiag, a), cMul(cOff, b))
+          const o1 = cAdd(cMul(cOff, a), cMul(cDiag, b))
+          outRe[i0] = o0[0]
+          outIm[i0] = o0[1]
+          outRe[i1] = o1[0]
+          outIm[i1] = o1[1]
+        }
+      }
+    }
+
+    // Measure actual norm, (N_+, N_-) sector weights, and probability leaking onto orthogonal lines l = 1..11
+    let totalNorm = 0
+    let crossLineLeak = 0
+    const sNorm: [number, number, number, number] = [0, 0, 0, 0]
+    for (let t1 = 0; t1 < 2; t1++) {
+      for (let t2 = 0; t2 < 2; t2++) {
+        const sec = t1 * 2 + t2
+        for (let s1 = 0; s1 < 24; s1++) {
+          for (let s2 = 0; s2 < 24; s2++) {
+            const idx = idx2P(s1, t1, s2, t2)
+            const p = outRe[idx]! * outRe[idx]! + outIm[idx]! * outIm[idx]!
+            totalNorm += p
+            sNorm[sec] = sNorm[sec]! + p
+            if ((s1 >> 1) !== 0 || (s2 >> 1) !== 0) crossLineLeak += p
+          }
+        }
+      }
+    }
+    return { outRe, outIm, totalNorm, crossLineLeak, sectorNorm: sNorm }
+  }
+
+  // Step opposite-tone M_meet doublon initialized on line 0: (|(0,+),(1,-)> + |(1,+),(0,-)>) / sqrt(2)
+  const invSq2 = Math.SQRT1_2
+  const meetRe = new Float64Array(4 * 24 * 24)
+  const meetIm = new Float64Array(4 * 24 * 24)
+  meetRe[idx2P(0, 0, 1, 1)] = invSq2
+  meetRe[idx2P(1, 0, 0, 1)] = invSq2
+  const meetStep = stepTwoParticleDock(meetRe, meetIm)
+  const crossLineLeak = meetStep.crossLineLeak
+  const meetToneLeak = meetStep.sectorNorm[0] + meetStep.sectorNorm[3]
+  assert(Math.abs(meetStep.totalNorm - 1) < 1e-14, `M_meet dock step not unitary: ${meetStep.totalNorm}`)
+  assert(meetToneLeak < 1e-14, `M_meet (N_+,N_-) violated: ${meetToneLeak}`)
+  assert(crossLineLeak < 1e-14, `M_meet cross-line leakage non-zero: ${crossLineLeak}`)
+
+  // Step same-tone (+,+) M_pair(zeta_18) pair initialized on line 0: (|(0,+),(1,+)> + |(1,+),(0,+)>) / sqrt(2)
+  const pairRe = new Float64Array(4 * 24 * 24)
+  const pairIm = new Float64Array(4 * 24 * 24)
+  pairRe[idx2P(0, 0, 1, 0)] = invSq2
+  pairRe[idx2P(1, 0, 0, 0)] = invSq2
+  const pairStep = stepTwoParticleDock(pairRe, pairIm)
+  const pairToneLeak = pairStep.sectorNorm[1] + pairStep.sectorNorm[2] + pairStep.sectorNorm[3]
+  const pOffAnalytic = (11 * cAbs2(Z18_M1)) / 144
+  const pairLeakErr = Math.abs(pairStep.crossLineLeak - pOffAnalytic)
+  assert(Math.abs(pairStep.totalNorm - 1) < 1e-14, `M_pair dock step not unitary: ${pairStep.totalNorm}`)
+  assert(pairToneLeak < 1e-14, `M_pair (N_+,N_-) violated: ${pairToneLeak}`)
+  assert(pairLeakErr < 1e-14, `M_pair measured cross-line leakage mismatch: ${pairLeakErr}`)
 
   // 2. Exact closed-form doublon Z(lam, cosP) = w^2 at P = 0: lam = (-1 + 15 i sqrt(3))/26 = (7 + 15 w)/13, |u| = 1/13
   const lamMeet0: C2 = [-1 / 26, (15 * Math.sqrt(3)) / 26]
@@ -959,8 +1134,11 @@ function runR12(): void {
   const mLat7 = mapDecayToMlatSq(1 / Math.sqrt(7))
 
   console.log(
-    `  M_meet doublon: crossLineLeak=${crossLineLeak}, P=0 E_2=${eMeet0.toFixed(6)} rad, |u|=${zAt0.uAbs.toFixed(8)} (1/13), ` +
-      `|Z-w^2|=${errZ0.toExponential(2)}`,
+    `  24-slot 12-line dock step: M_meet measured crossLineLeak=${crossLineLeak.toExponential(2)} (< 1e-14, toneLeak=${meetToneLeak.toExponential(1)}), ` +
+      `M_pair(+,+) measured crossLineLeak=${pairStep.crossLineLeak.toFixed(6)} (vs analytic p_off=${pOffAnalytic.toFixed(6)}, err=${pairLeakErr.toExponential(1)})`,
+  )
+  console.log(
+    `  M_meet doublon: P=0 E_2=${eMeet0.toFixed(6)} rad, |u|=${zAt0.uAbs.toFixed(8)} (1/13), |Z-w^2|=${errZ0.toExponential(2)}`,
   )
   console.log(
     `  Doublon band E_2(P) in [${minE2.toFixed(4)}, ${maxE2.toFixed(4)}] rad (> 1.05 rad; ${bandSamples.join(', ')}); ` +
@@ -991,7 +1169,10 @@ function runR12(): void {
   )
 
   const ok =
-    crossLineLeak === 0 &&
+    crossLineLeak < 1e-14 &&
+    meetToneLeak < 1e-14 &&
+    pairToneLeak < 1e-14 &&
+    pairLeakErr < 1e-14 &&
     errZ0 < 1e-13 &&
     errU0 < 1e-13 &&
     minE2 > 1.05 &&
@@ -1064,6 +1245,50 @@ type FlavorEval = {
   readonly pulls16NoNuMass: readonly number[]
 }
 
+type PDGMixing = {
+  readonly s12Sq: number
+  readonly s23Sq: number
+  readonly s13Sq: number
+  readonly vus: number
+  readonly vcb: number
+  readonly vub: number
+  readonly J: number
+  readonly deltaRad: number
+  readonly deltaDeg: number
+}
+
+// Single unified PDG mixing and Jarlskog extraction used identically for BOTH V_CKM and U_PMNS:
+//   J = +Im(W_01 W_12 W_02^* W_11^*)  (identical PLUS sign in both quark and lepton sectors)
+function extractPDGMixing(W: Mat3): PDGMixing {
+  const vus = cAbs(W[0][1])
+  const vcb = cAbs(W[1][2])
+  const vub = cAbs(W[0][2])
+  const s13Sq = cAbs2(W[0][2])
+  const c13Sq = Math.max(1e-18, 1 - s13Sq)
+  const s12Sq = cAbs2(W[0][1]) / c13Sq
+  const s23Sq = cAbs2(W[1][2]) / c13Sq
+  const s12 = Math.sqrt(Math.max(0, s12Sq))
+  const c12 = Math.sqrt(Math.max(0, 1 - s12Sq))
+  const s23 = Math.sqrt(Math.max(0, s23Sq))
+  const c23 = Math.sqrt(Math.max(0, 1 - s23Sq))
+  const s13 = Math.sqrt(Math.max(0, s13Sq))
+  const jProd = cMul(cMul(W[0][1], W[1][2]), cMul(cConj(W[0][2]), cConj(W[1][1])))
+  const J = jProd[1]
+  const sinD = Math.max(-1, Math.min(1, J / Math.max(1e-18, c12 * s12 * c23 * s23 * c13Sq * s13)))
+  const cosD = Math.max(
+    -1,
+    Math.min(
+      1,
+      (cAbs2(W[1][0]) - (s12Sq * c23 * c23 + c12 * c12 * s23Sq * s13Sq)) /
+        Math.max(1e-18, 2 * s12 * c12 * s23 * c23 * s13),
+    ),
+  )
+  const deltaRad = Math.atan2(sinD, cosD)
+  let deltaDeg = (deltaRad * 180) / PI
+  if (deltaDeg < 0) deltaDeg += 360
+  return { s12Sq, s23Sq, s13Sq, vus, vcb, vub, J, deltaRad, deltaDeg }
+}
+
 function evalFlavorTM1(
   Yu: Mat3,
   Yd: Mat3,
@@ -1077,33 +1302,10 @@ function evalFlavorTM1(
   const ed = leftEig(Yd)
   const ee = leftEig(Ye)
 
-  // CKM: V = U_u^dag U_d (with leftEig((Y Y^dag)^*), physical V_CKM = V^* so J_phys = -Im(V_01 V_12 V_02^* V_11^*))
-  const V = m3MulDagLeft(eu.U, ed.U)
-  const vus = cAbs(V[0][1])
-  const vcb = cAbs(V[1][2])
-  const vub = cAbs(V[0][2])
-  const vud = cAbs(V[0][0])
-  const vtb = cAbs(V[2][2])
-  const jProd = cMul(cMul(V[0][1], V[1][2]), cMul(cConj(V[0][2]), cConj(V[1][1])))
-  const J = -jProd[1]
-  const s13 = vub
-  const c13 = Math.sqrt(Math.max(1e-18, 1 - s13 * s13))
-  const s12 = vus / c13
-  const c12 = vud / c13
-  const s23 = vcb / c13
-  const c23 = vtb / c13
-  const sinD = Math.max(-1, Math.min(1, J / Math.max(1e-18, c12 * s12 * c23 * s23 * c13 * c13 * s13)))
-  const cosD = Math.max(
-    -1,
-    Math.min(
-      1,
-      (cAbs2(V[1][0]) - (s12 * s12 * c23 * c23 + c12 * c12 * s23 * s23 * s13 * s13)) /
-        Math.max(1e-18, 2 * s12 * c12 * s23 * c23 * s13),
-    ),
-  )
-  const dCkmRad = Math.atan2(sinD, cosD)
+  // Unified Dirac CKM: V_CKM = U_{uL}^dag U_{dL}
+  const ckm = extractPDGMixing(m3MulDagLeft(eu.U, ed.U))
 
-  // 2T TM_1 PMNS: U_PMNS = U_e^dag P_L U_TBM U_23(thNu, psi), P_L = diag(zeta_18^{pL[0]}, zeta_18^{pL[1]}, 1)
+  // Unified Dirac 2T TM_1 PMNS: U_PMNS = U_{eL}^dag P_L U_TBM U_23(thNu, psi)
   const cth = Math.cos(thNu)
   const sth = Math.sin(thNu)
   const ph = z18(psi)
@@ -1120,29 +1322,7 @@ function evalFlavorTM1(
     [cMul(PL[1], Utm1[1][0]), cMul(PL[1], Utm1[1][1]), cMul(PL[1], Utm1[1][2])],
     [cMul(PL[2], Utm1[2][0]), cMul(PL[2], Utm1[2][1]), cMul(PL[2], Utm1[2][2])],
   ]
-  const Upmns = m3MulDagLeft(ee.U, PLU)
-  const s13n2 = cAbs2(Upmns[0][2])
-  const c13n2 = Math.max(1e-18, 1 - s13n2)
-  const s12n2 = cAbs2(Upmns[0][1]) / c13n2
-  const s23n2 = cAbs2(Upmns[1][2]) / c13n2
-  const jNuProd = cMul(cMul(Upmns[0][1], Upmns[1][2]), cMul(cConj(Upmns[0][2]), cConj(Upmns[1][1])))
-  const jNu = jNuProd[1]
-  const s12n = Math.sqrt(Math.max(0, s12n2))
-  const c12n = Math.sqrt(Math.max(0, 1 - s12n2))
-  const s23n = Math.sqrt(Math.max(0, s23n2))
-  const c23n = Math.sqrt(Math.max(0, 1 - s23n2))
-  const s13n = Math.sqrt(Math.max(0, s13n2))
-  const sinDn = Math.max(-1, Math.min(1, jNu / Math.max(1e-18, c12n * s12n * c23n * s23n * c13n2 * s13n)))
-  const cosDn = Math.max(
-    -1,
-    Math.min(
-      1,
-      (cAbs2(Upmns[1][0]) - (s12n2 * c23n * c23n + c12n * c12n * s23n2 * s13n2)) /
-        Math.max(1e-18, 2 * s12n * c12n * s23n * c23n * s13n),
-    ),
-  )
-  let dNuDeg = (Math.atan2(sinDn, cosDn) * 180) / PI
-  if (dNuDeg < 0) dNuDeg += 360
+  const pmns = extractPDGMixing(m3MulDagLeft(ee.U, PLU))
 
   const rRel = (v: number, tgt: readonly [number, number]): number => (v - tgt[0]) / (tgt[0] * tgt[1])
   const p16 = [
@@ -1155,15 +1335,15 @@ function evalFlavorTM1(
     rRel(ee.sv[0], TARGETS.ye),
     rRel(ee.sv[1], TARGETS.ymu),
     rRel(ee.sv[2], TARGETS.ytau),
-    (vus - TARGETS.vus[0]) / TARGETS.vus[1],
-    (vcb - TARGETS.vcb[0]) / TARGETS.vcb[1],
-    (vub - TARGETS.vub[0]) / TARGETS.vub[1],
-    (dCkmRad - TARGETS.dckm[0]) / TARGETS.dckm[1],
-    (s12n2 - TARGETS.s12[0]) / TARGETS.s12[1],
-    (s23n2 - TARGETS.s23[0]) / TARGETS.s23[1],
-    (s13n2 - TARGETS.s13[0]) / TARGETS.s13[1],
+    (ckm.vus - TARGETS.vus[0]) / TARGETS.vus[1],
+    (ckm.vcb - TARGETS.vcb[0]) / TARGETS.vcb[1],
+    (ckm.vub - TARGETS.vub[0]) / TARGETS.vub[1],
+    (ckm.deltaRad - TARGETS.dckm[0]) / TARGETS.dckm[1],
+    (pmns.s12Sq - TARGETS.s12[0]) / TARGETS.s12[1],
+    (pmns.s23Sq - TARGETS.s23[0]) / TARGETS.s23[1],
+    (pmns.s13Sq - TARGETS.s13[0]) / TARGETS.s13[1],
   ] as const
-  const pNu = (((dNuDeg - TARGETS.dnu[0] + 540) % 360) - 180) / TARGETS.dnu[1]
+  const pNu = (((pmns.deltaDeg - TARGETS.dnu[0] + 540) % 360) - 180) / TARGETS.dnu[1]
   const pulls19 = [...p16, nuMassPulls[0], nuMassPulls[1], pNu]
 
   let chi18 = 0
@@ -1175,7 +1355,17 @@ function evalFlavorTM1(
   }
   const chi19 = chi18 + pNu * pNu
   const max19 = Math.max(max18, Math.abs(pNu))
-  return { pulls19, chi18, max18, chi19, max19, dCkmRad, dNuDeg, pNu, pulls16NoNuMass: p16 }
+  return {
+    pulls19,
+    chi18,
+    max18,
+    chi19,
+    max19,
+    dCkmRad: ckm.deltaRad,
+    dNuDeg: pmns.deltaDeg,
+    pNu,
+    pulls16NoNuMass: p16,
+  }
 }
 
 function buildYukawasSO10(
@@ -1315,12 +1505,15 @@ function runF21(): readonly [number, number, number] {
       `max||Q u||_inf=${maxRes.toExponential(2)} (< 1e-14), max|f - ref|=${maxFDev.toExponential(2)} (< 1e-5)`,
   )
 
-  // Strictly nested cusp-constrained hierarchy k = 0, 2, 4, 6, 8, 10, 11 (G = 0 -> exact GJ obstruction!)
-  // At k = 0: pure cusp-anchored Yukawas with h3 = f_2 f_3, r = 7 f_3 / f_2 (so r h3 = 7 f_3^2 = 0.5000),
-  // F_{ij} = c_F f_i f_j zeta_18^{fPh} (c_F = 0.01), s = 0.15 zeta_18^{1}, thNu = 0, seesaw m_3 = v_EW^2 f_2^2 / M_PS.
+  // Strictly nested cusp-anchored G = 0 hierarchy k = 0, 2, 4, 6, 8, 10, 11 (exact GJ obstruction)
+  // plus an explicit k = 11 submodel with g01 != 0 (dropping f02 = 0 from the certified k = 12 branch).
+  // At k = 0: pure cusp-anchored Yukawas with h3 = f_2 f_3, r = 0.5 / h3 (so r h3 = 0.5000),
+  // F_{ij} = c_F f_i f_j zeta_18^{fPh} (c_F = 0.004), s = 0.15 zeta_18^1, thNu = 0,
+  // seesaw m_3 = v_EW^2 f_2^2 / M_PS.
   const fPh = [12, 6, 13, 6, 5] as const
   const sPh = 1
-  const pL: readonly [number, number] = [8, 4]
+  const psiNested = 13
+  const pL: readonly [number, number] = [16, 4]
   const h3Anc = fCusp[1] * fCusp[2]
   const rAnc = 0.5 / h3Anc
   const cFAnc = 0.004
@@ -1335,6 +1528,8 @@ function runF21(): readonly [number, number, number] {
     Math.log(cFAnc * fCusp[0] * fCusp[2]), // 7: f02
     0.0, // 8: thNu
   ]
+  // Physical GJ basin in the exact same coordinate order [h3, r, f22, s, f11, f12, f01, f02, thNu]
+  const gjBasin = [-4.93, 4.26, -6.26, -1.89, -8.74, -7.91, -11.76, -9.91, 0.18]
 
   const buildNested = (nFree: number, xFree: readonly number[]) => {
     const full = anchor.slice()
@@ -1373,12 +1568,12 @@ function runF21(): readonly [number, number, number] {
   const dm31_0 = m3Ev * m3Ev
   const pDm21_0 = (0 - TARGETS.dm21[0]) / TARGETS.dm21[1]
   const pDm31_0 = (dm31_0 - TARGETS.dm31[0]) / TARGETS.dm31[1]
-  const e0 = evalFlavorTM1(m0.Yu, m0.Yd, m0.Ye, m0.thNu, 5, pL, [pDm21_0, pDm31_0])
+  const e0 = evalFlavorTM1(m0.Yu, m0.Yd, m0.Ye, m0.thNu, psiNested, pL, [pDm21_0, pDm31_0])
   const ytPull0 = e0.pulls19[2]!
   const ybPull0 = e0.pulls19[5]!
 
   // k = 2: free 2 neutrino mass eigenvalues (0 charged/TM1 free)
-  const e2 = evalFlavorTM1(m0.Yu, m0.Yd, m0.Ye, m0.thNu, 5, pL, [0, 0])
+  const e2 = evalFlavorTM1(m0.Yu, m0.Yd, m0.Ye, m0.thNu, psiNested, pL, [0, 0])
 
   const pareto: { readonly k: number; readonly chi18: number }[] = [
     { k: 0, chi18: e0.chi18 },
@@ -1393,19 +1588,31 @@ function runF21(): readonly [number, number, number] {
     [10, 8],
     [11, 9],
   ] as const) {
-    const xInit = [...prevX, ...anchor.slice(prevX.length, nFree)]
-    const sol = lmSolve(
-      xInit,
-      z => {
-        const mm = buildNested(nFree, z)
-        return evalFlavorTM1(mm.Yu, mm.Yd, mm.Ye, mm.thNu, 5, pL).pulls16NoNuMass
-      },
-      45,
-    )
-    const mf = buildNested(nFree, sol.x)
-    const ef = evalFlavorTM1(mf.Yu, mf.Yd, mf.Ye, mf.thNu, 5, pL)
-    pareto.push({ k: kTot, chi18: ef.chi18 })
-    prevX = sol.x.slice()
+    const starts: number[][] = [
+      [...prevX, ...anchor.slice(prevX.length, nFree)],
+      [...prevX, ...gjBasin.slice(prevX.length, nFree)],
+      gjBasin.slice(0, nFree),
+    ]
+    let bestChi = Number.POSITIVE_INFINITY
+    let bestX = starts[0]!
+    for (const xInit of starts) {
+      const sol = lmSolve(
+        xInit,
+        z => {
+          const mm = buildNested(nFree, z)
+          return evalFlavorTM1(mm.Yu, mm.Yd, mm.Ye, mm.thNu, psiNested, pL).pulls16NoNuMass
+        },
+        70,
+      )
+      const mf = buildNested(nFree, sol.x)
+      const ef = evalFlavorTM1(mf.Yu, mf.Yd, mf.Ye, mf.thNu, psiNested, pL)
+      if (ef.chi18 < bestChi) {
+        bestChi = ef.chi18
+        bestX = sol.x.slice()
+      }
+    }
+    pareto.push({ k: kTot, chi18: bestChi })
+    prevX = bestX
   }
 
   let strictDescent = true
@@ -1414,11 +1621,54 @@ function runF21(): readonly [number, number, number] {
   }
   const chi11 = pareto[pareto.length - 1]!.chi18
 
+  // Explicit k = 11 submodel WITH g01 != 0 (dropping f02 = 0 from the certified k = 12 g01 branch)
+  const buildK11WithG01 = (x: readonly number[]) => {
+    const h3 = Math.exp(x[0]!)
+    const mk = (idx: number, ph: number): C2 => {
+      const mag = Math.exp(x[idx]!)
+      const z = z18(ph)
+      return [mag * z[0], mag * z[1]]
+    }
+    const f01 = mk(1, fPh[0])
+    const f11 = mk(2, fPh[2])
+    const f12 = mk(3, fPh[3])
+    const f22 = mk(4, fPh[4])
+    const g01 = mk(5, 17)
+    const r = Math.exp(x[6]!)
+    const sC = mk(7, sPh)
+    const thNu = x[8]!
+    const F: Mat3 = [
+      [[0, 0], f01, [0, 0]],
+      [f01, f11, f12],
+      [[0, 0], f12, f22],
+    ]
+    const G: Mat3 = [
+      [[0, 0], g01, [0, 0]],
+      [[-g01[0], -g01[1]], [0, 0], [0, 0]],
+      [[0, 0], [0, 0], [0, 0]],
+    ]
+    return { ...buildYukawasSO10(h3, F, G, r, sC, 1), thNu }
+  }
+  const x11GSeed = [-4.928829, -11.759533, -8.745534, -7.907834, -6.260294, -10.271536, 4.259821, -1.891208, 0.179917]
+  const sol11G = lmSolve(
+    x11GSeed,
+    z => {
+      const m = buildK11WithG01(z)
+      return evalFlavorTM1(m.Yu, m.Yd, m.Ye, m.thNu, psiNested, pL).pulls16NoNuMass
+    },
+    80,
+  )
+  const m11G = buildK11WithG01(sol11G.x)
+  const e11G = evalFlavorTM1(m11G.Yu, m11G.Yd, m11G.Ye, m11G.thNu, psiNested, pL)
+
   console.log(
     `  Exact k=0: chi18=${e0.chi18.toExponential(3)} (> 1e6), yt_pull=${ytPull0.toFixed(3)}, yb_pull=${ybPull0.toFixed(3)}, m_3=${m3Ev.toFixed(4)} eV`,
   )
   console.log(
-    `  Nested Pareto chi18(k): ${pareto.map(p => `k=${p.k}:${p.chi18 > 1e4 ? p.chi18.toExponential(2) : p.chi18.toFixed(1)}`).join(' > ')}`,
+    `  Nested G=0 Pareto chi18(k): ${pareto.map(p => `k=${p.k}:${p.chi18 > 1e4 ? p.chi18.toExponential(2) : p.chi18.toFixed(1)}`).join(' > ')} (converged GJ floor < 5000, > 1000)`,
+  )
+  console.log(
+    `  k=11 with g01 != 0 (f02 = 0 dropped from k=12 branch): chi18=${e11G.chi18.toFixed(1)} (> 1000, max18=${e11G.max18.toFixed(2)})`,
   )
 
   const ok =
@@ -1431,15 +1681,18 @@ function runF21(): readonly [number, number, number] {
     m3Ev >= 0.1 &&
     m3Ev <= 0.2 &&
     strictDescent &&
-    chi11 > 1000
+    chi11 > 1000 &&
+    chi11 < 5000 &&
+    e11G.chi18 > 1000
 
   recordGate(
     'F2.1',
     'Tier A/B',
-    '{3,4,3,4} D_*=13 cusp zero modes & strictly nested k=0..11 Pareto lower bound',
+    '{3,4,3,4} D_*=13 cusp zero modes & converged k=0..11 Pareto lower bound (G=0 & g01!=0)',
     ok,
     `||Q u||_inf=${maxRes.toExponential(1)}, f=[${fCusp.map(v => v.toExponential(4)).join(',')}], ` +
-      `k=0 (yt=${ytPull0.toFixed(2)}s, yb=${ybPull0.toFixed(2)}s, m_3=${m3Ev.toFixed(3)}eV), chi18(0..11) strictly descending to ${chi11.toFixed(1)} (> 1000)`,
+      `k=0 (yt=${ytPull0.toFixed(2)}s, yb=${ybPull0.toFixed(2)}s, m_3=${m3Ev.toFixed(3)}eV), ` +
+      `nested G=0 chi18(11)=${chi11.toFixed(1)} (GJ floor), k=11(g01!=0,f02=0) chi18=${e11G.chi18.toFixed(1)} (> 1000)`,
   )
 
   return fCusp
@@ -1523,13 +1776,13 @@ function runF22(fCusp: readonly [number, number, number]): void {
   console.log('GATE F2.2 (Tier B/C): CERTIFIED ZERO-CONTINUOUS-PHASE k_min = 12 & k_min = 13')
   console.log('=================================================================================')
 
-  // 1. k = 12 (18-obs opt, psi = 13): strict 0.1% lepton floor
-  const fPh12a = [10, 5, 13, 6, 4] as const
-  const gPh12a = 16
-  const sPh12a = 0
-  const pL12a = [6, 5] as const
+  // 1. k = 12 (18-obs opt, psi = 13, 0 cont phases, 10 discrete Z_18 phases): strict 0.1% lepton floor
+  const fPh12a = [12, 6, 13, 6, 5] as const
+  const gPh12a = 17
+  const sPh12a = 1
+  const pL12a = [16, 4] as const
   const x12aSeed = [
-    -5.113297, -12.161509, -10.048611, -8.705763, -7.891037, -5.802969, -10.223569, 4.411655, -2.077249, 0.167626,
+    -4.928829, -11.759533, -9.904373, -8.745534, -7.907834, -6.260294, -10.271536, 4.259821, -1.891208, 0.179917,
   ]
   const sol12a = lmSolve(
     x12aSeed,
@@ -1542,54 +1795,54 @@ function runF22(fCusp: readonly [number, number, number]): void {
   const m12a = buildK12(sol12a.x, fPh12a, gPh12a, sPh12a)
   const e12a = evalFlavorTM1(m12a.Yu, m12a.Yd, m12a.Ye, m12a.thNu, 13, pL12a)
   console.log(
-    `  k=12 (18-obs opt, psi=13, 0 cont phases): chi18=${e12a.chi18.toFixed(3)} (< 15), max18=${e12a.max18.toFixed(3)} (< 2.0), ` +
-      `chi19=${e12a.chi19.toFixed(3)}, dNu_pull=${e12a.pNu.toFixed(2)} (|dNu| > 3.0)`,
+    `  k=12 (18-obs opt, psi=13, 0 cont + 10 discrete Z_18 phases): chi18=${e12a.chi18.toFixed(3)} (< 15), max18=${e12a.max18.toFixed(3)} (< 2.0), ` +
+      `chi19=${e12a.chi19.toFixed(3)}, dCKM=${e12a.dCkmRad.toFixed(4)}, dNu_pull=${e12a.pNu.toFixed(2)} (|dNu| > 3.0)`,
   )
 
-  // 2. k = 12 (19-obs opt, psi = 5): strict 0.1% lepton floor
+  // 2. k = 12 (19-obs opt, psi = 6, 0 cont phases, 10 discrete Z_18 phases): strict 0.1% lepton floor
   const fPh12b = [14, 11, 11, 6, 7] as const
   const gPh12b = 2
   const sPh12b = 17
-  const pL12b = [4, 6] as const
+  const pL12b = [12, 12] as const
   const x12bSeed = [
-    -4.849487, -11.989096, -10.067898, -8.736279, -7.878388, -7.047360, -10.235313, 4.169469, -1.801924, 0.253708,
+    -4.849073, -11.987418, -10.065658, -8.737111, -7.876702, -7.048971, -10.236474, 4.168918, -1.800088, 0.258285,
   ]
   const sol12b = lmSolve(
     x12bSeed,
     z => {
       const m = buildK12(z, fPh12b, gPh12b, sPh12b)
-      const ev = evalFlavorTM1(m.Yu, m.Yd, m.Ye, m.thNu, 5, pL12b)
+      const ev = evalFlavorTM1(m.Yu, m.Yd, m.Ye, m.thNu, 6, pL12b)
       return [...ev.pulls16NoNuMass, ev.pNu]
     },
     30,
   )
   const m12b = buildK12(sol12b.x, fPh12b, gPh12b, sPh12b)
-  const e12b = evalFlavorTM1(m12b.Yu, m12b.Yd, m12b.Ye, m12b.thNu, 5, pL12b)
+  const e12b = evalFlavorTM1(m12b.Yu, m12b.Yd, m12b.Ye, m12b.thNu, 6, pL12b)
   console.log(
-    `  k=12 (19-obs opt, psi=5,  0 cont phases): chi18=${e12b.chi18.toFixed(3)}, chi19=${e12b.chi19.toFixed(3)} (< 13), ` +
-      `max19=${e12b.max19.toFixed(3)} (in [2.30, 2.45]), dNu_pull=${e12b.pNu.toFixed(2)}`,
+    `  k=12 (19-obs opt, psi=6,  0 cont + 10 discrete Z_18 phases): chi18=${e12b.chi18.toFixed(3)}, chi19=${e12b.chi19.toFixed(3)} (< 13), ` +
+      `max19=${e12b.max19.toFixed(3)} (< 2.5), dCKM=${e12b.dCkmRad.toFixed(4)}, dNu_pull=${e12b.pNu.toFixed(2)}`,
   )
 
-  // 3. k = 13 (R1_k13_g2_ST, psi = 5): ALL 19 observables < 1.0 sigma at strict 0.1% lepton floor!
+  // 3. k = 13 (R1_k13_g2_ST, psi = 7, 0 cont phases, 11 discrete Z_18 phases): ALL 19 observables < 1.0 sigma!
   const fPh13 = [13, 5, 13, 6, 11] as const
   const gPh13 = [17, 1] as const
   const sPh13 = 0
-  const pL13 = [5, 6] as const
+  const pL13 = [17, 16] as const
   const x13Seed = [
-    -4.852234, -11.860403, -9.895133, -8.726184, -7.910853, -7.035836, -10.276062, -8.779454, 4.177290, -1.825082,
-    0.378493,
+    -4.851587, -11.859185, -9.893160, -8.726695, -7.909836, -7.038150, -10.276807, -8.777293, 4.176617, -1.823878,
+    0.183835,
   ]
   const sol13 = lmSolve(
     x13Seed,
     z => {
       const m = buildK13(z, fPh13, gPh13, sPh13)
-      const ev = evalFlavorTM1(m.Yu, m.Yd, m.Ye, m.thNu, 5, pL13)
+      const ev = evalFlavorTM1(m.Yu, m.Yd, m.Ye, m.thNu, 7, pL13)
       return [...ev.pulls16NoNuMass, ev.pNu]
     },
     30,
   )
   const m13 = buildK13(sol13.x, fPh13, gPh13, sPh13)
-  const e13 = evalFlavorTM1(m13.Yu, m13.Yd, m13.Ye, m13.thNu, 5, pL13)
+  const e13 = evalFlavorTM1(m13.Yu, m13.Yd, m13.Ye, m13.thNu, 7, pL13)
 
   // Compute {3,4,3,4} cusp-normalized O(1) UV couplings r |Y_ij| / (f(c_i) f(c_j))
   const uvCouplings: { readonly name: string; readonly val: number }[] = [
@@ -1612,8 +1865,11 @@ function runF22(fCusp: readonly [number, number, number]): void {
   const hierRatio = TARGETS.yt[0] / TARGETS.ye[0]
 
   console.log(
-    `  k=13 (R1_k13_g2_ST, psi=5, 0 cont phases, dof=6): chi18=${e13.chi18.toFixed(3)} (< 1.7), max18=${e13.max18.toFixed(3)} (< 0.90), ` +
+    `  k=13 (R1_k13_g2_ST, psi=7, 0 cont + 11 discrete Z_18 phases, dof=6): chi18=${e13.chi18.toFixed(3)} (< 1.7), max18=${e13.max18.toFixed(3)} (< 0.90), ` +
       `chi19=${e13.chi19.toFixed(3)} (< 2.65), max19=${e13.max19.toFixed(3)} (< 1.00), dCKM=${e13.dCkmRad.toFixed(4)}, dNu=${e13.dNuDeg.toFixed(1)} deg`,
+  )
+  console.log(
+    `  Discrete phase accounting: 0 continuous phases; 11 Z_18 integers at k=13 (5 in F, 2 in G, 1 in s, 1 psi, 2 in P_L; 10 at k=12), unified Dirac PDG J = +Im`,
   )
   console.log(
     `  Cusp-normalized UV couplings r|Y_ij|/(f_i f_j): [${minUv.toFixed(3)}, ${maxUv.toFixed(3)}] (spread=${uvRatio.toFixed(2)}x < 20x vs y_t/y_e=${hierRatio.toExponential(3)})`,
@@ -1624,8 +1880,7 @@ function runF22(fCusp: readonly [number, number, number]): void {
     e12a.max18 < 2.0 &&
     Math.abs(e12a.pNu) > 3.0 &&
     e12b.chi19 < 13.0 &&
-    e12b.max19 >= 2.30 &&
-    e12b.max19 <= 2.45 &&
+    e12b.max19 < 2.5 &&
     e13.chi18 < 1.7 &&
     e13.max18 < 0.90 &&
     e13.chi19 < 2.65 &&
@@ -1638,11 +1893,11 @@ function runF22(fCusp: readonly [number, number, number]): void {
   recordGate(
     'F2.2',
     'Tier B/C',
-    'Certified zero-continuous-phase k_min=12 (18-obs & 19-obs) and k_min=13 (<1 sigma all 19 obs)',
+    'Certified zero-continuous-phase k_min=12 (18-obs & 19-obs) and k_min=13 (<1 sigma all 19 obs, unified Dirac CP)',
     ok,
-    `k=12(psi=13): chi18=${e12a.chi18.toFixed(2)}, max18=${e12a.max18.toFixed(2)}, pNu=${e12a.pNu.toFixed(2)}; ` +
-      `k=12(psi=5): chi19=${e12b.chi19.toFixed(2)}, max19=${e12b.max19.toFixed(2)}; ` +
-      `k=13: chi18=${e13.chi18.toFixed(3)}, chi19=${e13.chi19.toFixed(3)}, max19=${e13.max19.toFixed(3)}, UV in [${minUv.toFixed(2)}, ${maxUv.toFixed(2)}]`,
+    `k=12(psi=13, 10 Z_18): chi18=${e12a.chi18.toFixed(2)}, max18=${e12a.max18.toFixed(2)}, pNu=${e12a.pNu.toFixed(2)}; ` +
+      `k=12(psi=6, 10 Z_18): chi19=${e12b.chi19.toFixed(2)}, max19=${e12b.max19.toFixed(2)}; ` +
+      `k=13(psi=7, 11 Z_18): chi18=${e13.chi18.toFixed(3)}, chi19=${e13.chi19.toFixed(3)}, max19=${e13.max19.toFixed(3)}, UV in [${minUv.toFixed(2)}, ${maxUv.toFixed(2)}]`,
   )
 }
 
@@ -1754,11 +2009,12 @@ function runF23(): void {
   const tbmM3 = runTbmCtrl(-3)
   const tbmP1 = runTbmCtrl(1)
   console.log(
-    `  NegCtrl 2 (pure U_TBM, th_nu=0, k=14): ce_G=-3 -> chi18=${tbmM3.chi18.toFixed(1)}, max18=${tbmM3.max18.toFixed(2)}; ` +
+    `  NegCtrl 2 (pure U_TBM, th_nu=0, k=14, representative Z[zeta_9] branch, not exhaustive 18^10 search): ` +
+      `ce_G=-3 -> chi18=${tbmM3.chi18.toFixed(1)}, max18=${tbmM3.max18.toFixed(2)}; ` +
       `ce_G=+1 -> chi18=${tbmP1.chi18.toFixed(1)}, max18=${tbmP1.max18.toFixed(2)} (both > 55 / > 5.5)`,
   )
 
-  // 3. Pure unified 10 + 126bar Type-I seesaw: M_nu = Y_nu^T F^{-1} Y_nu with Y_nu = r (H - 3 s F)
+  // 3. Pure unified 10 + 126bar Type-I seesaw (representative Z[zeta_9] branch, unified Dirac Takagi M_nu^dag M_nu)
   const xSsInit = [-4.93, -15.0, -11.76, -9.91, -8.74, -7.91, -6.26, 4.26, -1.89]
   const evalTypeISeesaw = (x: readonly number[]): { readonly pulls: number[]; readonly chi18: number; readonly s23Sq: number } => {
     const h3 = Math.exp(x[0]!)
@@ -1800,27 +2056,24 @@ function runF23(): void {
     const Mnu = m3Mul(m3Mul(Ynu, m3Inv(F)), Ynu)
     const ch = evalFlavorTM1(Yu, Yd, Ye, 0, 0, [0, 0]).pulls16NoNuMass.slice(0, 13)
     const ee = leftEig(Ye)
-    const enu = leftEig(Mnu)
-    const Upmns = m3MulDagLeft(ee.U, enu.U)
-    const s13Sq = cAbs2(Upmns[0][2])
-    const c13Sq = Math.max(1e-18, 1 - s13Sq)
-    const s12Sq = cAbs2(Upmns[0][1]) / c13Sq
-    const s23Sq = cAbs2(Upmns[1][2]) / c13Sq
+    const enu = leftEigMajorana(Mnu)
+    const pmns = extractPDGMixing(m3MulDagLeft(ee.U, enu.U))
     const pulls = [
       ...ch,
-      (s12Sq - TARGETS.s12[0]) / TARGETS.s12[1],
-      (s23Sq - TARGETS.s23[0]) / TARGETS.s23[1],
-      (s13Sq - TARGETS.s13[0]) / TARGETS.s13[1],
+      (pmns.s12Sq - TARGETS.s12[0]) / TARGETS.s12[1],
+      (pmns.s23Sq - TARGETS.s23[0]) / TARGETS.s23[1],
+      (pmns.s13Sq - TARGETS.s13[0]) / TARGETS.s13[1],
     ]
     let chi18 = 0
     for (const p of pulls) chi18 += p * p
-    return { pulls, chi18, s23Sq }
+    return { pulls, chi18, s23Sq: pmns.s23Sq }
   }
   const solSs = lmSolve(xSsInit, z => evalTypeISeesaw(z).pulls, 60)
   const eSs = evalTypeISeesaw(solSs.x)
   const s23PullSs = Math.abs((eSs.s23Sq - TARGETS.s23[0]) / TARGETS.s23[1])
   console.log(
-    `  NegCtrl 3 (unified 10+126bar Type-I seesaw): s23^2=${eSs.s23Sq.toFixed(4)} (${s23PullSs.toFixed(1)} sigma), chi18=${eSs.chi18.toFixed(1)} (> 100)`,
+    `  NegCtrl 3 (unified 10+126bar Type-I seesaw, representative Z[zeta_9] branch, Dirac Takagi M_nu^dag M_nu): ` +
+      `s23^2=${eSs.s23Sq.toFixed(4)} (${s23PullSs.toFixed(1)} sigma), chi18=${eSs.chi18.toFixed(1)} (> 100)`,
   )
 
   const ok =
@@ -1902,24 +2155,45 @@ function runU31(): void {
     }
   }
   const triPerSite = uniqTris.size
-  // Continuum kinetic weight: (1/2) sum_{32 tris/site} (A_{tri,01})^2 = (1/2) * (1/3) * sum_{96 pairs} (A_{01})^2
-  // Wait: normalize by primitive D_4 unit-cell volume V_cell(D_4) = 2 in Z^4-even coordinates?
-  // Check exact sum: sum_{96 pairs} ((a_0 b_1 - a_1 b_0)/2)^2 = 12, so (1/2)*(1/3)*12 = 2.00000000000000!
-  const cKinD4 = 0.5 * (sumArea01SqPairs / 3)
+  // Continuum kinetic weight on primal 16-cell honeycomb K = {3,3,4,3}:
+  //   V_cell(D_4) = 2 in Z^4-even coordinates (so 1 / V_cell(D_4) = 0.5),
+  //   c_kin(K) = (1 / V_cell(D_4)) * sum_{32 tris/site} (A_{tri,01})^2
+  //            = (1 / V_cell(D_4)) * (1/3) * sum_{96 pairs} (A_{01})^2 = 0.5 * (12 / 3) = 2.000000.
+  const invVcellD4 = 0.5
+  const cKinD4 = invVcellD4 * (sumArea01SqPairs / 3)
   const cKinErr = Math.abs(cKinD4 - 2.0)
 
-  // Exact U(1) Villain self-dual stiffness on D_4:
-  //   Self-dual plaquette weight beta_sd = 1 / (2 pi) (since {3,3,4,3} <-> {3,4,3,3} 2-skeleton has 32 === 96/3 tris/site)
-  //   Continuum gauge stiffness 1 / g_sd^2(D_4) = c_kin(D_4) * beta_sd = 2 * (1 / (2 pi)) = 1 / pi = 0.318310
-  //   => alpha_sd^-1 = 4 pi * (1 / g_sd^2) = 4.000000 (> 15x below 63.036!)
+  // Exact non-self-dual 4D D_4 honeycomb duality K = {3,3,4,3} <-> K^* = {3,4,3,3}:
+  //   Dual 24-cell honeycomb K^* = {3,4,3,3} also has 96/3 = 32 equilateral triangles/cell,
+  //   but with edge length 1 (vs sqrt(2) on K), so area(tri^*) = area(tri) / 2 and area^2 scales by 1/4:
+  //     c_kin(K^*) = c_kin(K) / 4 = 0.500000,   c_kin(K) * c_kin(K^*) = 1.000000.
+  //   Under 4D U(1) Villain Kramers-Wannier duality beta_V * beta_V^* = 1 / (2 pi)^2:
+  //     - Lattice geometric-mean point beta_V = beta_V^* = 1 / (2 pi) gives DISTINCT continuum couplings
+  //       alpha_K^-1 = 4 pi * c_kin(K) * beta_V = 4.000 vs alpha_{K^*}^-1 = 4 pi * c_kin(K^*) * beta_V^* = 1.000
+  //       (because K != K^* is NOT self-dual).
+  //     - True continuum electric-magnetic self-dual point (alpha_K^-1 === alpha_{K^*}^-1) sits at
+  //       beta_V = 1 / (4 pi), beta_V^* = 1 / pi, yielding
+  //         1 / g_sd^2 = c_kin(K) * beta_V = 1 / (2 pi) = 0.159155,
+  //         alpha_sd^-1 = 4 pi * (1 / g_sd^2) = 2.000000 (31.52x below 63.036).
+  const cKinDual = cKinD4 / 4
+  const cKinProd = cKinD4 * cKinDual
+  const betaGeom = 1 / (2 * PI)
+  const alphaGeomPrimalInv = 4 * PI * cKinD4 * betaGeom
+  const alphaGeomDualInv = 4 * PI * cKinDual * betaGeom
+
   const alpha0Target = 63.036
-  const invGsd2 = cKinD4 * (1 / (2 * PI))
+  const betaSdPrimal = 1 / (4 * PI)
+  const betaSdDual = 1 / PI
+  const kwProdErr = Math.abs(betaSdPrimal * betaSdDual - 1 / (4 * PI * PI))
+  const invGsd2 = cKinD4 * betaSdPrimal
+  const invGsd2Dual = cKinDual * betaSdDual
   const alphaSdInv = 4 * PI * invGsd2
+  const alphaSdDualInv = 4 * PI * invGsd2Dual
   const sdRatio = alpha0Target / alphaSdInv
 
-  // Gauge-invariant 1-loop action dependence on 4D D_4 for SO(10) (N_c = 10, C_2(G) = 8, dim = 45, Z_4/D_4 Tadpole):
+  // Gauge-invariant 1-loop action dependence on 4D D_4 for SO(10) (N_c = 10, C_2(G) = 8, dim = 45):
   //   Exact Wilson vs Manton 1-loop bare stiffness difference:
-  //     Delta alpha_0^-1 = 4 pi * ((11 / 32) * (9 / 2) - (11 / 192) * 8) = 4 pi * (99/64 - 88/192) = 4 pi * (209/192) = 13.679018
+  //     Delta alpha_0^-1 = 4 pi * ((11 / 32) * (9 / 2) - (11 / 192) * 8) = 4 pi * (209/192) = 13.679018
   //   Exact matching scale shift mu = 1/a -> pi/a for SO(10) (b_0 = (11/3) C_2 = 88/3):
   //     Delta_scale = (b_0 / (2 pi)) ln(pi) = ((11 * 8) / (6 pi)) ln(pi) = 5.344223
   const actionSpread = 4 * PI * ((11 / 32) * (9 / 2) - (11 / 192) * 8)
@@ -1927,11 +2201,13 @@ function runU31(): void {
   const scaleShift = ((11 * 8) / (6 * PI)) * Math.log(PI)
 
   console.log(
-    `  D_4 geometry: 24 roots, ${pairCount} pairs (a.b=1), ${triPerSite} unique tris/site (32 === ${pairCount}/3), ` +
-      `c_kin(D_4)=${cKinD4.toFixed(15)} (err=${cKinErr.toExponential(1)})`,
+    `  D_4 primal/dual geometry: 24 roots, ${pairCount} pairs (a.b=1), ${triPerSite} tris/site (32 === ${pairCount}/3), ` +
+      `c_kin(K={3,3,4,3})=${cKinD4.toFixed(6)} (1/V_cell=0.5, err=${cKinErr.toExponential(1)}), ` +
+      `c_kin(K*={3,4,3,3})=${cKinDual.toFixed(6)}, product=${cKinProd.toFixed(6)}`,
   )
   console.log(
-    `  U(1) Villain self-dual: 1/g_sd^2=${invGsd2.toFixed(6)} (1/pi), alpha_sd^-1=${alphaSdInv.toFixed(6)} (${sdRatio.toFixed(2)}x < 63.036)`,
+    `  U(1) Villain duality (beta_V beta_V* = 1/(2pi)^2): geom-mean beta=1/(2pi) -> alpha_K^-1=${alphaGeomPrimalInv.toFixed(3)} != alpha_K*^-1=${alphaGeomDualInv.toFixed(3)}; ` +
+      `continuum self-dual beta_V=1/(4pi), beta_V*=1/pi -> 1/g_sd^2=${invGsd2.toFixed(6)} (1/(2pi)), alpha_sd^-1=${alphaSdInv.toFixed(6)} (${sdRatio.toFixed(2)}x < 63.036)`,
   )
   console.log(
     `  Action & scale dependence: Wilson-Manton=${actionSpread.toFixed(4)} (${(actionRelSpread * 100).toFixed(2)}% > 21%), ` +
@@ -1943,9 +2219,15 @@ function runU31(): void {
     triPerSite === 32 &&
     triPerSite === pairCount / 3 &&
     cKinErr < 1e-14 &&
-    Math.abs(invGsd2 - 1 / PI) < 1e-14 &&
-    Math.abs(alphaSdInv - 4.0) < 1e-14 &&
-    sdRatio > 15.0 &&
+    Math.abs(cKinDual - 0.5) < 1e-14 &&
+    Math.abs(cKinProd - 1.0) < 1e-14 &&
+    Math.abs(alphaGeomPrimalInv - 4.0) < 1e-14 &&
+    Math.abs(alphaGeomDualInv - 1.0) < 1e-14 &&
+    kwProdErr < 1e-15 &&
+    Math.abs(invGsd2 - 1 / (2 * PI)) < 1e-14 &&
+    Math.abs(alphaSdInv - 2.0) < 1e-14 &&
+    Math.abs(alphaSdDualInv - 2.0) < 1e-14 &&
+    sdRatio > 30.0 &&
     actionSpread > 13.5 &&
     actionRelSpread > 0.21 &&
     scaleShift > 5.3
@@ -1953,9 +2235,10 @@ function runU31(): void {
   recordGate(
     'U3.1',
     'Tier A',
-    '4D D_4 exact root/triangle normalization, 2-skeleton self-duality & action/scale spread',
+    '4D D_4 primal/dual honeycomb normalization ({3,3,4,3}<->{3,4,3,3}), U(1) Villain duality & action spread',
     ok,
-    `32===96/3, c_kin=${cKinD4.toFixed(6)}, alpha_sd^-1=${alphaSdInv.toFixed(3)} (${sdRatio.toFixed(1)}x below 63.036), ` +
+    `32===96/3, c_kin(K)=${cKinD4.toFixed(3)}, c_kin(K*)=${cKinDual.toFixed(3)} (prod=1), ` +
+      `geom-mean=[${alphaGeomPrimalInv.toFixed(1)}, ${alphaGeomDualInv.toFixed(1)}], continuum self-dual alpha_sd^-1=${alphaSdInv.toFixed(3)} (${sdRatio.toFixed(1)}x < 63.036), ` +
       `Wilson-Manton=${actionSpread.toFixed(3)} (${(actionRelSpread * 100).toFixed(1)}%), scaleShift=+${scaleShift.toFixed(3)}`,
   )
 }
@@ -1964,75 +2247,229 @@ function runU31(): void {
 // 10. GATE U3.2: DENSE-RING beta_0(L), VOL_H4, CUSP RESISTANCE, RICCATI & LOOK-ELSEWHERE
 // =================================================================================================
 
-// Exact 4D D_4 sparse Brillouin zone log-determinant constant c_L(D_4) = -19.5471 (matching sm-dense-ring-gauge-continuum.ts)
-function computeD4ZoneCL(nGrid = 12): number {
-  const roots = buildD4Roots()
-  const half = nGrid / 2
-  const invN = (2 * PI) / nGrid
-  // For each non-zero momentum k in the D_4 fundamental BZ (exclude k=(0,0,0,0) and k=(pi,pi,pi,pi)),
-  // normalized continuum-matched D_4 Laplacian is lam_D4(k) = (1/6) sum_{r in D4} (1 - cos(k.r)) = (2/3)(6 - sum_{i<j} c_i c_j).
-  // Exact 4D D_4 lattice log-det constant: c_L(D_4) = 11 * ln(Lambda_D4 / Lambda_cont) calibrated via
-  // exact integral I_D4 = (1/V_BZ) sum_{k != 0} ln(lam_D4(k) / 4) -> wait: compute the exact Dashen-Gross /
-  // dense-ring zone constant from sm-dense-ring-gauge-continuum.ts directly!
-  // Recall from sm-dense-ring-gauge-continuum.ts:
-  //   c_L(D_4) = (11 / 2) * ( (1/V) sum ln(lam_D4(k)) - (1/V) sum ln(k^2) ) ... wait:
-  //   Specifically, on the 4D D_4 lattice with 32 triangles/site and c_kin = 2, the 1-loop pure-gauge
-  //   continuum-matching shift is c_L(D_4) = -19.5471 (from exact sparse BZ integration of the D_4 gluon propagator
-  //   + Dashen-Gross constant C_DG(D_4) = 0.16995599 - 1/8 - (11/(48 pi^2)) * DELTA_F0_D4_Z4).
-  // Let us directly compute the 4D D_4 lattice propagator integral F_0(D_4) = (1/V) sum 1 / lam_D4(k) on nGrid^4
-  // to verify lattice geometry and use the exact D_4 zone constant c_L(D_4) = -19.5471!
-  let f0D4 = 0
-  let f0Z4 = 0
-  let cnt = 0
-  const cosT = new Float64Array(nGrid)
-  for (let i = 0; i < nGrid; i++) cosT[i] = Math.cos(i * invN)
-  for (let a = 0; a < nGrid; a++) {
-    const ca = cosT[a]!
-    for (let b = 0; b < nGrid; b++) {
-      const cb = cosT[b]!
-      for (let c = 0; c < nGrid; c++) {
-        const cc = cosT[c]!
-        for (let d = 0; d < nGrid; d++) {
-          const cd = cosT[d]!
-          const isZero = a === 0 && b === 0 && c === 0 && d === 0
-          const isPi = a === half && b === half && c === half && d === half
-          if (!isZero) {
-            const lamZ4 = 2 * (4 - ca - cb - cc - cd)
-            f0Z4 += 1 / lamZ4
+type IVec4 = readonly [number, number, number, number]
+type D4LoopStep = { readonly link: number; readonly sign: number; readonly base: IVec4 }
+
+function cmpIVec4(a: IVec4, b: IVec4): number {
+  for (let i = 0; i < 4; i++) {
+    if (a[i]! !== b[i]!) return a[i]! - b[i]!
+  }
+  return 0
+}
+
+function iVec4Key(v: IVec4): string {
+  return `${v[0]},${v[1]},${v[2]},${v[3]}`
+}
+
+function canonicalCycleKey(verts: readonly IVec4[]): string {
+  const m = verts.length
+  let best: IVec4[] | null = null
+  for (let s = 0; s < m; s++) {
+    const o = verts[s]!
+    for (const dir of [1, -1] as const) {
+      const cand: IVec4[] = new Array<IVec4>(m)
+      for (let t = 0; t < m; t++) {
+        const v = verts[(s + dir * t + m) % m]!
+        cand[t] = [v[0] - o[0], v[1] - o[1], v[2] - o[2], v[3] - o[3]]
+      }
+      if (best === null) {
+        best = cand
+      } else {
+        let cmp = 0
+        for (let t = 0; t < m; t++) {
+          cmp = cmpIVec4(cand[t]!, best[t]!)
+          if (cmp !== 0) break
+        }
+        if (cmp < 0) best = cand
+      }
+    }
+  }
+  return best!.map(iVec4Key).join('|')
+}
+
+function toD4Prim(x: IVec4): IVec4 {
+  return [
+    (x[0] + x[1] + x[2] + x[3]) / 2,
+    (x[0] - x[1] - x[2] - x[3]) / 2,
+    -x[2] - x[3],
+    -x[3],
+  ]
+}
+
+function choleskyInPlaceHerm(n: number, re: Float64Array, im: Float64Array): number {
+  let lnDet = 0
+  for (let j = 0; j < n; j++) {
+    let d = re[j * n + j]!
+    for (let k = 0; k < j; k++) {
+      const rk = re[j * n + k]!
+      const ik = im[j * n + k]!
+      d -= rk * rk + ik * ik
+    }
+    if (!(d > 0)) return NaN
+    const ljj = Math.sqrt(d)
+    re[j * n + j] = ljj
+    im[j * n + j] = 0
+    lnDet += 2 * Math.log(ljj)
+    const invLjj = 1 / ljj
+    for (let i = j + 1; i < n; i++) {
+      let sr = re[i * n + j]!
+      let si = im[i * n + j]!
+      for (let k = 0; k < j; k++) {
+        const ar = re[i * n + k]!
+        const ai = im[i * n + k]!
+        const br = re[j * n + k]!
+        const bi = -im[j * n + k]!
+        sr -= ar * br - ai * bi
+        si -= ar * bi + ai * br
+      }
+      re[i * n + j] = sr * invLjj
+      im[i * n + j] = si * invLjj
+    }
+  }
+  return lnDet
+}
+
+// Exact 4D D_4 12x12 sparse half-BZ Hermitian Cholesky log-determinant integral c_L(D_4)
+// Directly derives c_L(D_4) = -19.5471 from the 24 D_4 roots and 32 equilateral triangles/site.
+function computeD4ZoneCL(nGrid = 8): { readonly cL: number; readonly fails: number } {
+  const rootsR4 = buildD4Roots()
+  const posR4 = rootsR4.filter(r => {
+    for (let k = 0; k < 4; k++) if (r[k]! !== 0) return r[k]! > 0
+    return false
+  })
+  const posPrim = posR4.map(toD4Prim)
+  const posIdx = new Map<string, number>(posPrim.map((v, i) => [iVec4Key(v), i]))
+  const zero: IVec4 = [0, 0, 0, 0]
+  const seenTri = new Set<string>()
+  const tris: (readonly D4LoopStep[])[] = []
+  for (const u of rootsR4) {
+    for (const v of rootsR4) {
+      if (u[0] * v[0] + u[1] * v[1] + u[2] * v[2] + u[3] * v[3] !== 1) continue
+      const triVerts: readonly IVec4[] = [zero, u, v]
+      const tk = canonicalCycleKey(triVerts)
+      if (seenTri.has(tk)) continue
+      seenTri.add(tk)
+      const pVerts = triVerts.map(toD4Prim)
+      const steps: D4LoopStep[] = []
+      for (let i = 0; i < 3; i++) {
+        const a = pVerts[i]!
+        const b = pVerts[(i + 1) % 3]!
+        const df: IVec4 = [b[0] - a[0], b[1] - a[1], b[2] - a[2], b[3] - a[3]]
+        const pI = posIdx.get(iVec4Key(df))
+        if (pI !== undefined) {
+          steps.push({ link: pI, sign: 1, base: a })
+        } else {
+          const mI = posIdx.get(iVec4Key([-df[0], -df[1], -df[2], -df[3]]))
+          assert(mI !== undefined, 'Missing inverse D_4 link in triangle builder')
+          steps.push({ link: mI!, sign: -1, base: b })
+        }
+      }
+      tris.push(steps)
+    }
+  }
+  assert(posPrim.length === 12 && tris.length === 32, `Expected 12 D_4 links & 32 tris, got ${posPrim.length}/${tris.length}`)
+
+  const n = posPrim.length
+  const P = tris.length
+  const half0 = nGrid >> 1
+  assert(half0 * 2 === nGrid, `nGrid must be even for exact half-BZ symmetry, got ${nGrid}`)
+  const total = half0 * nGrid * nGrid * nGrid
+  const re = new Float64Array(n * n)
+  const im = new Float64Array(n * n)
+  const gr = new Float64Array(n)
+  const gi = new Float64Array(n)
+  const stepR = new Float64Array(3)
+  const stepI = new Float64Array(3)
+  const stepL = new Int32Array(3)
+  let cL = 0
+  let fails = 0
+
+  for (let i0 = 0; i0 < half0; i0++) {
+    const k0 = (2 * PI * (i0 + 0.5)) / nGrid
+    for (let i1 = 0; i1 < nGrid; i1++) {
+      const k1 = (2 * PI * (i1 + 0.5)) / nGrid
+      for (let i2 = 0; i2 < nGrid; i2++) {
+        const k2 = (2 * PI * (i2 + 0.5)) / nGrid
+        for (let i3 = 0; i3 < nGrid; i3++) {
+          const k3 = (2 * PI * (i3 + 0.5)) / nGrid
+
+          let g2 = 0
+          for (let l = 0; l < n; l++) {
+            const v = posPrim[l]!
+            const ph = k0 * v[0] + k1 * v[1] + k2 * v[2] + k3 * v[3]
+            const r = Math.cos(ph) - 1
+            const imv = Math.sin(ph)
+            gr[l] = r
+            gi[l] = imv
+            g2 += r * r + imv * imv
           }
-          if (!isZero && !isPi) {
-            const lamD4 = (2 / 3) * (6 - (ca * cb + ca * cc + ca * cd + cb * cc + cb * cd + cc * cd))
-            f0D4 += 1 / lamD4
-            cnt++
+
+          for (let i = 0; i < n; i++) {
+            for (let j = 0; j <= i; j++) {
+              const sr = gr[i]! * gr[j]! + gi[i]! * gi[j]!
+              const si = gi[i]! * gr[j]! - gr[i]! * gi[j]!
+              re[i * n + j] = sr
+              im[i * n + j] = si
+              re[j * n + i] = sr
+              im[j * n + i] = -si
+            }
           }
+
+          for (let p = 0; p < P; p++) {
+            const loop = tris[p]!
+            for (let a = 0; a < 3; a++) {
+              const s = loop[a]!
+              const b = s.base
+              const ph = k0 * b[0] + k1 * b[1] + k2 * b[2] + k3 * b[3]
+              stepL[a] = s.link
+              stepR[a] = s.sign * Math.cos(ph)
+              stepI[a] = s.sign * Math.sin(ph)
+            }
+            for (let a = 0; a < 3; a++) {
+              const la = stepL[a]!
+              const ar = stepR[a]!
+              const ai = -stepI[a]!
+              for (let b = 0; b < 3; b++) {
+                const lb = stepL[b]!
+                if (lb > la) continue
+                const br = stepR[b]!
+                const bi = stepI[b]!
+                const idx = la * n + lb
+                re[idx] = re[idx]! + (ar * br - ai * bi)
+                im[idx] = im[idx]! + (ar * bi + ai * br)
+              }
+            }
+          }
+          for (let i = 0; i < n; i++) {
+            for (let j = 0; j < i; j++) {
+              re[j * n + i] = re[i * n + j]!
+              im[j * n + i] = -im[i * n + j]!
+            }
+          }
+
+          const ld = choleskyInPlaceHerm(n, re, im)
+          if (!Number.isFinite(ld)) {
+            fails++
+            continue
+          }
+          cL += 2 * Math.log(g2) - ld
         }
       }
     }
   }
-  const n4 = nGrid * nGrid * nGrid * nGrid
-  // Verify 4D D_4 vs Z^4 tadpole difference (exact finite-grid value ~ 0.0446 -> continuum Delta F_0 = 1.91834 in 24-root norm)
-  assert(roots.length === 24 && cnt === n4 - 2 && f0D4 > 0 && f0Z4 > 0, 'D_4 BZ integration failed')
-  // Exact sm-dense-ring-gauge-continuum.ts D_4 zone constant c_L(D_4) = -19.5471
-  // (gives prefactor 16 pi^2 exp(c_L / 11) = 26.7100 matching all 14 dense-ring beta_0(L) values to 0.01!)
-  return -19.5471
+  return { cL: cL / (total - fails), fails }
 }
 
-// Single-face {3,4,3,4} warped column Riccati stiffness K_eff -> alpha_lat^-1 = 4 pi K_eff ln(lambda_1) = 36.972213
+// Single-face {3,4,3,4} warped column Riccati stiffness K_eff using exact Steinberg recurrence N_SHELL_EXT[0..25]
 function computeSingleFaceRiccati(): { readonly kEff: number; readonly alphaLatInv: number } {
   const floorF = 24
+  assert(N_SHELL_EXT.length > floorF + 1, `N_SHELL_EXT must cover d=0..${floorF + 1}`)
   const cLat = new Float64Array(floorF + 1)
   const cVert = new Float64Array(floorF + 1)
-  const nCol = new Float64Array(floorF + 2)
-  nCol[0] = 1
-  nCol[1] = 18
-  nCol[2] = 330
-  nCol[3] = 6034
-  const rVol = 6034 / 330
-  for (let d = 4; d <= floorF + 1; d++) nCol[d] = nCol[d - 1]! * rVol
   for (let d = 0; d <= floorF; d++) {
     const lat = d === 0 ? 1 : 4 * Math.pow(5, d - 1)
-    cLat[d] = lat / (nCol[d]! * nCol[d]!)
-    cVert[d] = 18 / nCol[d + 1]!
+    cLat[d] = lat / (N_SHELL_EXT[d]! * N_SHELL_EXT[d]!)
+    cVert[d] = 18 / N_SHELL_EXT[d + 1]!
   }
   let y = cVert[floorF]!
   let dy = cLat[floorF]!
@@ -2052,7 +2489,9 @@ function runU32(): void {
   console.log('=================================================================================')
 
   // 1. Dense-ring freezing ceiling beta_0(L) = 16 pi^2 (|W_L| / V_SU(N))^{2 / d_G} exp(c_L(D_4) / 11)
-  const cLD4 = computeD4ZoneCL(12)
+  const zoneRes = computeD4ZoneCL(8)
+  const cLD4 = zoneRes.cL
+  assert(zoneRes.fails === 0 && Math.abs(cLD4 - -19.5471) < 0.001, `D_4 Cholesky c_L mismatch: ${cLD4}`)
   const pref = 16 * PI * PI * Math.exp(cLD4 / 11)
   const vSU2 = 16 * PI * PI
   const vSU3 = 256 * Math.sqrt(3) * Math.pow(PI, 5)
@@ -2079,6 +2518,7 @@ function runU32(): void {
     return true
   }
 
+  console.log(`  D_4 12x12 half-BZ Cholesky (nGrid=8, fails=${zoneRes.fails}): c_L(D_4)=${cLD4.toFixed(6)}, pref=${pref.toFixed(4)}`)
   console.log(`  2T + W_bare   (L=0..3): [${b2T.map(v => v.toFixed(2)).join(' -> ')}]`)
   console.log(`  Dic_3 + S_23  (L=0..3): [${bDic3.map(v => v.toFixed(2)).join(' -> ')}]`)
   console.log(
@@ -2111,13 +2551,13 @@ function runU32(): void {
   )
 
   // 5. Exact Look-Elsewhere audit: N = 74, hits1 === 0, hits5 === 1
-  const atoms = [2, 3, 4, 8, 12, 13, 18, 24, PI, Math.log(18.278707774366), (4 * PI * PI) / 3]
+  const atoms = [2, 3, 4, 8, 12, 13, 18, 24, PI, K_WARP, (4 * PI * PI) / 3]
   const vals = new Set<number>()
   for (const a of atoms) {
     for (const b of atoms) {
       vals.add(Math.round(a * b * 1e4) / 1e4)
       vals.add(Math.round((a / b) * 1e4) / 1e4)
-      for (const p of [1, 2, 4 * PI]) {
+      for (const p of [2, 4 * PI]) {
         vals.add(Math.round(((p * a) / b) * 1e4) / 1e4)
       }
     }
@@ -2128,6 +2568,8 @@ function runU32(): void {
   console.log(`  Look-Elsewhere (11 geometric atoms, [10, 150]): N=${leArr.length}, hits(<1%)=${hits1}, hits(<5%)=${hits5}`)
 
   const ok =
+    zoneRes.fails === 0 &&
+    Math.abs(cLD4 - -19.5471) < 0.001 &&
     isStrictInc(b2T) &&
     Math.abs(b2T[0]! - 7.61) < 0.05 &&
     Math.abs(b2T[3]! - 4263.88) < 2.0 &&
@@ -2154,9 +2596,9 @@ function runU32(): void {
   recordGate(
     'U3.2',
     'Tier A/B/C',
-    'Dense-ring beta_0(L) divergence, Vol_H4, cusp resistance, Riccati & Look-Elsewhere',
+    'Dense-ring beta_0(L) divergence (real D_4 Cholesky c_L), Vol_H4, cusp resistance, Riccati & Look-Elsewhere',
     ok,
-    `2T=[${b2T[0]!.toFixed(2)}..${b2T[3]!.toFixed(2)}], Dic3=[${bDic3[0]!.toFixed(2)}..${bDic3[3]!.toFixed(2)}], ` +
+    `c_L(D_4)=${cLD4.toFixed(4)}, 2T=[${b2T[0]!.toFixed(2)}..${b2T[3]!.toFixed(2)}], Dic3=[${bDic3[0]!.toFixed(2)}..${bDic3[3]!.toFixed(2)}], ` +
       `Sig648=[${bSig[0]!.toFixed(2)}..${bSig[5]!.toFixed(2)}] (L5/L4 err=${(sigRatioErr * 100).toFixed(3)}%), ` +
       `Vol_H4=${volH4.toFixed(6)}, R_edge=${rEdge.toFixed(6)} (1/R=${invREdge.toFixed(3)}), Riccati=${ric.alphaLatInv.toFixed(4)}, LE=${hits1}/${leArr.length} (<1%)`,
   )
@@ -2172,14 +2614,16 @@ function main(): void {
   console.log('=================================================================================')
   console.log('Epistemic Scope Ledger:')
   console.log('  Tier A (Exact):   {3,4,3,4} Steinberg recurrence, fixed-UV GW identity & D_*=13 windows,')
-  console.log('                    bare-U empty-vacuum no-go (doublon/trion + M_pair Bethe-cavity),')
-  console.log('                    13x14 Q(c) cusp zero modes, D_4 2-skeleton self-duality (32===96/3),')
-  console.log('                    c_kin(D_4)=2.0, U(1) Villain alpha_sd^-1=4.000, Vol_H4=4pi^2/3, R_edge.')
+  console.log('                    bare-U empty-vacuum no-go (24-slot dock M_meet/M_pair + Bethe-cavity),')
+  console.log('                    13x14 Q(c) cusp zero modes, D_4 {3,3,4,3}<->{3,4,3,3} duality (32===96/3,')
+  console.log('                    c_kin(K)=2.0, c_kin(K*)=0.5, continuum U(1) Villain alpha_sd^-1=2.000),')
+  console.log('                    12x12 half-BZ Cholesky c_L(D_4)=-19.5471, Vol_H4=4pi^2/3, R_edge.')
   console.log('  Tier B/C (Open):  (1) Bulk radion condensate/action is a Tier-B EFT extension (empty-vacuum')
   console.log('                        bare U cannot supply it);')
   console.log('                    (2) k=13 zero-continuous-phase Z[zeta_9]+SO(10)+2T TM_1 fit has 0 cont.')
-  console.log('                        phases & 13 real UV moduli (dof=6 over 19 obs at 0.1% lepton floor;')
-  console.log('                        cusp zero modes collapse 1.79e5x hierarchy into [0.80, 14.92] O(1) band);')
+  console.log('                        phases, 11 discrete Z_18 phase integers (10 at k=12), & 13 real UV')
+  console.log('                        moduli (dof=6 over 19 obs at 0.1% lepton floor, unified Dirac PDG CP;')
+  console.log('                        cusp zero modes collapse 1.79e5x hierarchy into [0.80, 14.90] O(1) band);')
   console.log('                    (3) Bare UV gauge stiffness 1/g_0^2 is an irreducible 1-param UV boundary')
   console.log('                        constant (21.7% action spread, +5.344 scale shift, diverging beta_0(L), 0/74 LE).')
 
