@@ -1613,6 +1613,7 @@ const KRYLOV_SOURCES = [
   'test/experiment/computation/z3-resonance.ts',
 ] as const
 const KRYLOV_NEIGHBOR_BASE = 4096
+const KRYLOV_VECTOR_BASE = 1024
 
 function krylovGraphList(): { name: string; neighbors: number[][] }[] {
   const entries = closedQuotients()
@@ -1773,16 +1774,23 @@ export function exportCertificatesKrylov(): string {
 
       const { pivots, y } = krylovDual(krylov)
       const ci = certRows.length
+      const vectors = [...krylov, applyShiftedAdjacency(g.neighbors, sigma, krylov[k - 1]!)]
 
       tables.push(
+        ...chunkedNats(`krylovM${ci}`, `/-- The minimal polynomial of ${g.name} under sigma ${sigma}, lowest degree first. -/`, poly.map(String)),
         ...chunkedNats(`krylovPiv${ci}`, `/-- The pivot cells of ${g.name} under sigma ${sigma}. -/`, pivots.map(String)),
         ...chunkedNats(
           `krylovY${ci}`,
           `/-- The rows of Y for ${g.name} under sigma ${sigma}, packed base 4 lowest first. -/`,
           y.map(r => packDigits(r, 4)),
         ),
+        ...chunkedNats(
+          `krylovK${ci}`,
+          `/-- K_0 .. K_${k} of ${g.name} under sigma ${sigma} (applyShiftedAdjacency from delta_0), packed base ${KRYLOV_VECTOR_BASE}. -/`,
+          vectors.map(v => packDigits(Array.from(v), KRYLOV_VECTOR_BASE)),
+        ),
       )
-      certRows.push(`(${gi}, ${sigma}, ${k}, ${packDigits(poly, 4)}, krylovPiv${ci}, krylovY${ci})`)
+      certRows.push(`(${gi}, ${sigma}, ${k}, krylovM${ci}, krylovPiv${ci}, krylovY${ci}, krylovK${ci})`)
       degreeRows.push(`("${g.name}", ${sigma}, ${k})`)
     }
   }
@@ -1794,9 +1802,9 @@ export function exportCertificatesKrylov(): string {
     `def krylovGraphs : List (String × Nat × Nat × List Nat) :=\n  ${leanList(graphRows, '  ')}`,
     '',
     '/-- Per graph and law: graph index, sigma, the degree k of `shiftedAdjacencyMinimalPolynomial` on delta_0, its',
-    '    coefficients packed base 4 lowest first (k + 1 digits), the pivot cells of K_0 .. K_(k-1), and the rows of',
-    '    Y packed base 4 (k digits each). -/',
-    `def krylovCerts : List (Nat × Nat × Nat × Nat × List Nat × List Nat) :=\n  ${leanList(certRows, '  ')}`,
+    '    coefficients lowest first (k + 1 of them), the pivot cells of K_0 .. K_(k-1), the rows of Y packed base 4',
+    `    (k digits each), and K_0 .. K_k packed base ${KRYLOV_VECTOR_BASE}. -/`,
+    `def krylovCerts : List (Nat × Nat × Nat × List Nat × List Nat × List Nat × List Nat) :=\n  ${leanList(certRows, '  ')}`,
     '',
     '/-- The code\'s Krylov degree per graph and law: (graph name, sigma, degree). -/',
     `def krylovDegrees : List (String × Nat × Nat) :=\n  ${leanList(degreeRows, '  ')}`,
