@@ -1,4 +1,4 @@
-// THE CROSS-LINE PIECES ON A SPARSE BALL (item vibe-roadmap-grounding-0021, board proposal 012's instrument). A dense
+// THE CROSS-LINE PIECES ON A SPARSE BALL (the board proposal's instrument). A dense
 // branch of the exact R = 4 ball is 17.5 MB (162,049 docks x 108 bytes), so the ball arms store a configuration as its
 // occupied slots alone, beside its link register and one exact amplitude per clock count. The beat is
 // code/rule/cross-line-pieces' 'split' beat (the working beat with the optional sign and S1 cost) written on that store,
@@ -492,7 +492,7 @@ export function sparseNorm(s: SparseState): { total: bigint; unit: bigint } {
   return { total, unit: 1n << BigInt(2 * K) }
 }
 
-// ---- E-SLF-0190's locked mixer on the sparse store (item vibe-roadmap-grounding-0032, additive) ----
+// ---- E-SLF-0190's locked mixer on the sparse store (additive) ----
 
 // the opened locks of a term: every (dock, frame) holding exactly one vibe (open, the store's scope) whose dock has an
 // occupied facet neighbour (read on all 24 facets through the stream's targets; a reflecting frontier slot has none)

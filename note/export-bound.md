@@ -1,12 +1,11 @@
 # How fast a pattern can export its errors through its surface
 
-Depth **L1** (proof, with exact and numeric probes). Written 2026-11-12 for board item `vibe-roadmap-board-0031`,
-gaps B-38, B-35, B-19 and B-59, objections G2-2, S2-5, M2-5 (round 02) and G3-2, G3-3, S3-4 (round 03). Records:
-`note/project/vibe/roadmap/board/` in the ClueSurf repo. It makes
-[`reversible-lean-and-the-open-mesh.md`](reversible-lean-and-the-open-mesh.md) §5.3 exact and gives board proposal 003
+Depth **L1** (proof, with exact and numeric probes). Written 2026-11-12 for
+the board's gaps, objections G2-2, S2-5, M2-5 (round 02) and G3-2, G3-3, S3-4 (round 03). It makes
+[`reversible-lean-and-the-open-mesh.md`](reversible-lean-and-the-open-mesh.md) §5.3 exact and gives the board proposal
 a falsifier that no long run has to reach.
 
-Probe: [`tmp/board-0031-export-bound-probe.ts`](../tmp/board-0031-export-bound-probe.ts) (seconds, laptop).
+Probe: [`tmp/export-bound-probe.ts`](../tmp/export-bound-probe.ts) (seconds, one CPU).
 
 **The result.** Keeping a pattern costs a per-dock error rate that must stay below a threshold set by how many links
 the errors can leave through. Under the working rule (lines only) the threshold falls as 1/λ with the pattern's length
@@ -17,7 +16,7 @@ bound is an upper bound on export, so it can only falsify keeping, never show it
 ## 1. The export cap
 
 **Setting.** One beat is a dock-local layer (every piece of the working rule, K, and every mixer proposed so far,
-proposal 004's included, acts inside one dock) followed by the stream, a permutation that moves slot a of each dock to
+the board proposal's included, acts inside one dock) followed by the stream, a permutation that moves slot a of each dock to
 slot a of the next dock along a. The store trits and words never stream. In the working rule a link holds a fixed
 element and no state. A finite set B of docks has n_c(B) **crossing links**, links with one end in B. Each beat each
 crossing link takes one slot value out of B and brings one in. Let d be the number of states a slot can hold.
@@ -38,7 +37,7 @@ S(B) = S(B_r O) = S(B_r) + S(O | B_r) and S(B after) = S(B_r I) = S(B_r) + S(I |
 <= n_c ln d. Araki-Lieb gives S(I | B_r) >= -S(I), and when I is independent of B_r, S(I | B_r) = S(I). ∎
 
 **The slot alphabet.** A working-rule slot is calm or holds a love or a fear with a point (9) and an open bit (2), so
-d = 1 + 2 * 9 * 2 = 37 (ln d = 3.61). The tone alone, what the husk reads, has d = 3. Proposal 008's link states add a
+d = 1 + 2 * 9 * 2 = 37 (ln d = 3.61). The tone alone, what the husk reads, has d = 3. The board proposal's link states add a
 channel of their own per crossing link.
 
 ## 2. The keeping threshold
@@ -63,7 +62,7 @@ With the hard cap, C(X) <= 2 n_c(X) ln d. A pattern above threshold survives at 
 
 *Proof.* Theorem 1 summed over T beats, with the churn's increase added each beat, and S(X) <= |X| ln d_dock. ∎
 
-Under proposals 001 and 007 the churn is the pattern's coupling to whatever lies beyond the repair's reach, read in a
+Under the board proposals the churn is the pattern's coupling to whatever lies beyond the repair's reach, read in a
 short run as the pattern region's coarse entropy production with repair off (note 1 §4, the conditional form). That
 identification is argued, not proved.
 
@@ -112,7 +111,7 @@ shell and the links leaving the ball of radius R number E_R = 24 N_R - E_(R-1). 
 The sampled minimum of L is 8 ln 7 + 3 ln 9 = 22.159, at a root direction (200,000 directions and descent), which would
 give h >= 12.57. The certified bound is 12.33.
 
-**What physics reads, under proposal 005 (G3-2).** A conserved quantity kept dock by dock (charge, line tone) changes
+**What physics reads, under the board proposal (G3-2).** A conserved quantity kept dock by dock (charge, line tone) changes
 a column sum only through links that join two columns: a link inside a column keeps the column's sum, and the
 dock-local layer keeps each dock's. So a husk-visible error, which is charge that must be moved and cannot be erased,
 leaves a set A of columns only through its lateral links, at most q_max per crossing slot a beat. Over a cube of side
@@ -122,7 +121,7 @@ a on the cusp layer {4,3,4}, the lateral faces number 6 a^2 against a^3 columns,
 
 with m_D the lateral links joining two adjacent columns within the pattern's depth D. It falls as 1/a: a flat budget.
 The constant m_D is a count on the cusp neighborhood that this note did not make. The Cheeger gain applies only to
-errors whose column sum is zero, which key 1 calls experience, not physics (B-59).
+errors whose column sum is zero, which key 1 calls experience, not physics.
 
 ### Summary
 
@@ -150,7 +149,7 @@ S2-5 asked for the bound from the one-vibe spectrum. S3-4 is right that the hard
 which gives h >= 7.98, weaker than Theorem 3's 12.33. The majorant is checked on a grid
   of 1,000 points, not certified.
 
-## 4. The falsifier for proposal 003
+## 4. The falsifier for the board proposal
 
 Each input is read without a long run:
 
@@ -166,7 +165,7 @@ most the Theorem 2 time. If eta <= eta*(F), nothing is shown.
 **What already follows.** Under the working rule every kept pattern lives on lines, and its threshold falls as 1/λ on
 both meshes: the honeycomb gives the working rule no keeping advantage over the box. The only line mixer the working
 rule has, K, melts the vacuum (E-SPN-0157), which drives s_in up and Delta toward 0. So the cold channel needs a mixer
-the author adopts (proposal 004) and a vacuum stationary and locally cold under it (B-38).
+the author adopts and a vacuum stationary and locally cold under it.
 
 ## 5. Status
 
@@ -177,9 +176,9 @@ husk-visible bound's form.
 **Argued, not proved.** That a short run's coarse entropy production with repair off is the eta of Theorem 2 under one
 pure present. The spectral radius bound (majorant grid-checked). The sampled minimum of L.
 
-**Landed (2026-11-24, item `vibe-roadmap-board-0047`, `E-RLT-0122`, pass):**
+**Landed (2026-11-24, `E-RLT-0122`, pass):**
 
-- **E1 (`V1` under `F-G` and `ODD`)**: `V1` (the empty mesh, `E-RLT-0121`) is an exact fixed point of `F-G`, `ODD`, and the working rule on both coin placements (`R = 2` and `R = 3` exact balls, 0 branches split, 0 occupied slots). Every incoming slot outside a finite lump's light cone is deterministically calm (`s_in = 0` exact, 0 exceptions), giving `Delta = ln 37 = 3.610918` (slot) and `ln 3 = 1.098612` (tone), and a honeycomb Cheeger export floor `h * Delta >= 12.33 * ln 37 = 44.5226` nats/dock/beat. Proposals 003 and 004 share one vacuum `V1` (gap `B-43` closed).
+- **E1 (`V1` under `F-G` and `ODD`)**: `V1` (the empty mesh, `E-RLT-0121`) is an exact fixed point of `F-G`, `ODD`, and the working rule on both coin placements (`R = 2` and `R = 3` exact balls, 0 branches split, 0 occupied slots). Every incoming slot outside a finite lump's light cone is deterministically calm (`s_in = 0` exact, 0 exceptions), giving `Delta = ln 37 = 3.610918` (slot) and `ln 3 = 1.098612` (tone), and a honeycomb Cheeger export floor `h * Delta >= 12.33 * ln 37 = 44.5226` nats/dock/beat. The two board proposals share one vacuum `V1` (that gap is closed).
 - **E2 (`m_D` on `buildExactCusp`, period 2, floors 1 to 3)**: Symmetric across all 6 cubic neighbors of the base cusp column, lateral links between adjacent columns obey `m_D = 10, 50, 250` (`= 2 * 5^D`) against column docks `19, 349, 6383` (`m_D / colDocks = 0.5263, 0.1433, 0.0392`, decaying as `(5 / 18.28)^D`).
 
 **Still open:**

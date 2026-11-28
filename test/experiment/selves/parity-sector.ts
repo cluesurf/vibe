@@ -1,5 +1,5 @@
-// THE PARITY SECTOR (item vibe-roadmap-grounding-0032). E-SLF-0190 (item 0026) found the any-neighbour locked F-G mixer
-// leaves B1's line self exactly bare, and item 0030 (T-0030a) found why on the line engine: every love moves one dock a
+// THE PARITY SECTOR. E-SLF-0190 found the any-neighbour locked F-G mixer
+// leaves B1's line self exactly bare, and an earlier step found why on the line engine: every love moves one dock a
 // beat, so every pairwise separation keeps its parity, B1's lone cluster has only even separations, and the lock needs
 // a love at separation 1. Is that protection a property of the working rule on the {3,4,3,4} honeycomb, or an artifact
 // of the one-dimensional line engine, where K cannot move a vibe onto another line?
@@ -26,7 +26,7 @@
 // 4; DENSE1 differs from beat 1.
 //
 // SETTINGS. Default SMOKE (box 8, the R = 3 ball, beats R - r0, no quotient; seconds; open by rule). PARITY_SWEEP=full
-// for the M3 (box 12, the R = 4 ball, the quotient).
+// for a large machine (box 12, the R = 4 ball, the quotient).
 //
 // Depth L2: the ball runs exact in Z[w][1/2] per start configuration; the level vector and the summed P2 reads in
 // floats.

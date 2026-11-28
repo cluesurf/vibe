@@ -1,5 +1,5 @@
 // DOES THE BOUND REGISTER PAIR HAVE ONE BAND CURVATURE IN EVERY HUSK DIRECTION, READ LINE BY LINE AT SMALL K (E-RLT-0119)?
-// For vibe-roadmap-moving-matter-0003: bound matter moves off every line with less than 2% leading-order anisotropy, on
+// The goal: bound matter moves off every line with less than 2% leading-order anisotropy, on
 // the candidate rule's swap coin and register.
 //
 // THE ARGUMENT. The pair's cycle commutes with the 48 signed permutations of the husk coordinates (O_h): code/measure/

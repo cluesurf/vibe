@@ -1,4 +1,4 @@
-// THE SLAB LEAK AS A TWO-PATH EVANESCENT SUM (E-SPN-0198, moving-matter item 0050, key 2 of research/mass-inputs.md).
+// THE SLAB LEAK AS A TWO-PATH EVANESCENT SUM (E-SPN-0198, key 2 of research/mass-inputs.md).
 // E-FRC-0267's chiral slab is periodic in the depth x3, so wall A (the plain/Wilson boundary at class 0) and wall B (the
 // Wilson/plain boundary at class nW) are joined through BOTH domains: nW Wilson classes one way, nP plain classes the
 // other. Each domain is a bulk gapped at quasienergy pi, so a state at pi decays into it as z^c with |z| < 1, and the leak

@@ -21,7 +21,8 @@ export TSX="$TOOLS/node_modules/.bin/tsx"
 export CORES=$(nproc)
 export THREADS=$(cat "$DIR/threads")
 date -u +%FT%TZ >"$DIR/started"
-echo "== burst job $(basename "$DIR") started on $(hostname) at $(date -u +%FT%TZ), $THREADS of $CORES threads"
+# no host name in the log: a job log can end up in a committed record
+echo "== burst job $(basename "$DIR") started at $(date -u +%FT%TZ), $THREADS of $CORES threads"
 bash "$DIR/command.sh" </dev/null
 code=$?
 echo "$code" >"$DIR/command.exit"

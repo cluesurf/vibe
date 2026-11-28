@@ -118,4 +118,4 @@ is tested. Use it when you know the idea but not the arena. The master map is
   rigidity test and the anti-fooling gates), and the "controls and negatives" section in each arena.
 - **Bridges to other theories.** Where the suite connects to the physics and
   consciousness census. See [selves](selves/readme.md) (bridges to consciousness
-  and mind theories) and the census in `note/research/vibe/`.
+  and mind theories) and the census in the research notes.

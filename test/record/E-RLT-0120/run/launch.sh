@@ -1,5 +1,5 @@
 #!/bin/sh
-# Launch E-RLT-0120 on the work droplet, through mesh/work only. It packs the package the way task/kernel/droplet-run.ts
+# Launch E-RLT-0120 on the work droplet, through the $WORK command only. It packs the package the way task/kernel/droplet-run.ts
 # does (droplet-shell.ts PACKAGE_PATHS: never node_modules, code/kernel/crate/host or tmp; of test/record only this experiment's
 # folder and index.csv, since no other record is read, which takes the pack from 115 MB to a few) with a one-line
 # job-steps.tsv, and with
@@ -13,7 +13,7 @@
 #   sh test/record/E-RLT-0120/run/launch.sh [--commit]
 W=$(cd "$(dirname "$0")/../../../.." && pwd) || exit 2
 cd "$W" || exit 2
-WORK=/Users/lancepollard/base/crew/cluesurf/mesh/work
+WORK="${WORK:?set WORK to the command that runs a shell line on the work droplet}"
 RUN=/root/vibe-runs/rlt120
 STAGE="$W/tmp/rlt120-stage"
 CAP=$(( ${CAP_HOURS:-120} * 3600 ))

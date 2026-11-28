@@ -266,12 +266,12 @@ yourself you expected it. The frozen note is the receipt that says whether you d
 
 ## Pre-registration of board experiments
 
-A board experiment is a checklist item under `note/project/vibe/roadmap/`. The
+A board experiment is a checklist item in the research roadmap. The
 rule is that no gate is ever set after a probe. Every gate, each number and each
 tolerance, goes into the item's `what` before any code is written, with
 
 ```
-pnpm --silent --dir <cluesurf> checklist set vibe/roadmap/<project> <id> --set what="..." --commit
+pnpm checklist set <project> <id> --set what="..." --commit
 ```
 
 The checklist tool appends a line to the `checklist.ledger.jsonl` beside the

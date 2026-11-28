@@ -24,7 +24,7 @@
 //           - Strict deterministic uniform-base null controls across 2,801 bases b in [2, 30]
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, strict TypeScript
-// (noUncheckedIndexedAccess-safe), laptop-safe (< 10 s, < 300 MB RAM).
+// (noUncheckedIndexedAccess-safe), fast (< 10 s, < 300 MB RAM).
 
 export {}
 

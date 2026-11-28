@@ -1,5 +1,5 @@
-// INTERFERENCE INSIDE THE PROVEN HONEYCOMB WINDOW & B-PIECE CALM-SLOT CHECK (item vibe-roadmap-board-0038, gap B-12).
-// Checks two findings from note/line-transfer.md (board-0021):
+// INTERFERENCE INSIDE THE PROVEN HONEYCOMB WINDOW & B-PIECE CALM-SLOT CHECK.
+// Checks two findings from note/line-transfer.md:
 //   (1) E-QTM-0157 read lone-love interference past its proven honeycomb transfer window m + 2t <= L. Here we run a
 //       lone love strictly inside the window (t = 1, 2, 3 on side-8 flat D4 box AND exact R = 4 {3,4,3,4} ball),
 //       verifying exact occupation equality (diff = 0) between box and honeycomb ball and exact L1 = 0.5625 > 0.25

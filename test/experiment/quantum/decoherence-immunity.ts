@@ -24,11 +24,11 @@
 // privileged hardware (no microtubule) is needed, the immunity is substrate scale
 // independent.
 //
-// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab is not growth
+// UNDER REVIEW (a recorded decision of the one-present roadmap). The open slab is not growth
 // and not part of the rule: zeroing it destroys information every beat. There is one
 // present, the whole state at this beat, and a record is a correlation inside it,
 // never information destroyed. So the persisting outcome here is the erasure's
-// pointer, and the rerun with a bath that stays in the present (item 0011, X4 in the
+// pointer, and the rerun with a bath that stays in the present (X4 in the
 // review) decides the verdict. The gates and verdict below are unchanged until then.
 //
 // The control is the CLOSED bulk: its echo is exactly zero (fully coherent, no record),

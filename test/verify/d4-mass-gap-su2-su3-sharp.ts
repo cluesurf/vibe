@@ -39,7 +39,7 @@
 //      48x48 Weyl quadrature vs Chebyshev-Schur to < 1e-13, MAX_Q=13 vs 18 Schur tail < 1e-24,
 //      ultra Q_{m,l} vs reference buildMeff < 1e-14, SU(2) GL32 coupling cross-check.
 //
-// 100% deterministic (zero Math.random()), zero external imports, laptop-safe (< 15 s).
+// 100% deterministic (zero Math.random()), zero external imports, fast (< 15 s).
 
 const t0Global = performance.now()
 

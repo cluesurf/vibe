@@ -1,4 +1,4 @@
-// THE FERMI HALF OF OPEN-CSM-14 ON A THIN LEVEL (item 0031 of moving-matter, decision 001). E-FND-0165 read a Gibbs
+// THE FERMI HALF OF OPEN-CSM-14 ON A THIN LEVEL. E-FND-0165 read a Gibbs
 // form for three holes on the L = 6 torus, but at a filling of 1.2e-3 a mode Fermi-Dirac and Gibbs agree to O(f). The
 // decision: make the level thin, not the holes many. A level of ONE momentum class holds 4 up-band modes, so three
 // holes can fill it to 0.75. This module looks for such a level (stage 0). The fixed-N, fixed-P laws a run would be
@@ -200,7 +200,7 @@ export function probeBoxes(limit: number, most = 24): number[][] {
   return out
 }
 
-// stage 0 of decision 001: the one-hole levels on every candidate box, the extreme levels' class counts and gaps, and
+// stage 0 of the decision: the one-hole levels on every candidate box, the extreme levels' class counts and gaps, and
 // the 3-hole store at P = 3 k0 (k0 the level's first class)
 export function thinLevelProbe(
   Ps: readonly CMatrix[],

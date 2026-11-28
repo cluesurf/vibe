@@ -1,4 +1,4 @@
-// CAN A COMPOSITE'S HUB WALK BY RECRUITING VACUUM PAIRS (E-SPN-0119)? note/project/vibe/roadmap/research/remaining-pieces.md,
+// CAN A COMPOSITE'S HUB WALK BY RECRUITING VACUUM PAIRS (E-SPN-0119)? the remaining-pieces notes,
 // "A composite held by bounce meetings" (E-SPN-0118): K on two singles only keeps or swaps them, K on three changes
 // lines only through that dock, so a composite of five or fewer lines has hubs that never move. The 32 of 44 line
 // changes of E-SPN-0117 were VACUUM PAIRS that K carries onto new lines. The idea tested here: at a hub, K moves a

@@ -36,7 +36,7 @@
 //
 // Strict scientific integrity:
 //   - ZERO external imports, ZERO Math.random(), deterministic exact BigInt Z[zeta_9][1/6] + Float64 only.
-//   - Laptop-safe (< 12 s runtime, < 500 MB RAM), zero truncation, zero vacuous Kubo tests (all jNormSq > 0.1).
+//   - Fast (< 12 s runtime, < 500 MB RAM), zero truncation, zero vacuous Kubo tests (all jNormSq > 0.1).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS & DETERMINISTIC COMPLEX / SPARSE SPECTRAL PRIMITIVES

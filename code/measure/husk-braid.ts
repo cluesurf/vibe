@@ -1,4 +1,4 @@
-// THE DOUBLE-EXCHANGE PHASE OF TWO HOLES OF THE FULL SEA ON R*, READ AS A WILSON LOOP (item 0023, decision 005). Two
+// THE DOUBLE-EXCHANGE PHASE OF TWO HOLES OF THE FULL SEA ON R*, READ AS A WILSON LOOP. Two
 // holes of the register sea, run exactly on E-FND-0161's reduced engine (code/measure/register-holes) at total momentum
 // 0, so the state is a function of the relative dock y = x_1 - x_2 and the two fibers (8 each, half +). No hole is held
 // and nothing is carried: the read is algebraic, on the rule's own one-cycle transfer.
@@ -1133,11 +1133,11 @@ export function regaugeFrame(fr: HoleFrame): HoleFrame {
   }
 }
 
-// ---- the Chern number of the determinant part (item 0045) ----
+// ---- the Chern number of the determinant part ----
 //
 // The sector-pair connection is U(16); its U(1) part is det U. On a closed lattice plane of the slice (a 2-torus inside
 // the 3-torus) C = (1 / 2 pi) sum over the plane's oriented plaquettes of the principal det-phase of each plaquette's
-// holonomy, the free hop's det-phase of the same steps divided out (decision of item 0045; the forward convention of
+// holonomy, the free hop's det-phase of the same steps divided out (the forward convention of
 // E-FND-0176). A plaquette whose phase reaches pi - margin is not admissible and leaves its plane unread.
 //
 // PLANES. The slice is the fcc mesh (x + y + z even, w = 0). A coordinate plane r_k = c holds a checkerboard square
@@ -1579,7 +1579,7 @@ export function referencedPhase(
   }
 }
 
-// ---- the reciprocal connection (decision 010, item 0045) ----
+// ---- the reciprocal connection ----
 //
 // A one-cycle hop block is not a parallel transport: with U_f the polar part of B(y, e) and U_r that of B(y + e, -e),
 // each divided by the free rule's own (a scalar), the there-and-back X = U_r U_f carries the endpoints' dynamical phase.
@@ -1758,7 +1758,7 @@ export type ReciprocalLinks = {
   L: number
   // the midpoint connection V (its singular values carried from the rule's block)
   V: Connection
-  // the forward polar parts with the free scalar divided out (the 0023 convention, referenced)
+  // the forward polar parts with the free scalar divided out (the double-exchange convention above, referenced)
   forward: Connection
   // per dock key, per root: X's eigenphases, and whether the link is admissible (none within `margin` of pi)
   xPhases: Map<string, number[][]>

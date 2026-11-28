@@ -1,5 +1,5 @@
-// THE SUBGROUP SEARCH for a long-run quotient of the {3,4,3,4} honeycomb (item vibe-roadmap-honeycomb-0016, decision
-// 002, gates pre-registered in the item's `what` before any probe). Code: code/substrate/coxeter/congruence-3434.ts.
+// THE SUBGROUP SEARCH for a long-run quotient of the {3,4,3,4} honeycomb (
+// a recorded decision, gates pre-registered in the item's `what` before any probe). Code: code/substrate/coxeter/congruence-3434.ts.
 //
 // Stage 1, congruence kernels N = K cap G(I) at the ideals I = (sqrt 2)^m (n), coarsest first. A level is skipped
 // when a coarser one (dividing it) did not fit, since K_I maps onto K_I' for I inside I'. Levels at a prime over 7,
@@ -268,7 +268,7 @@ export function honeycombSubgroupSearch(options: SearchOptions): Verdict {
       seconds: seconds(),
     },
     notes:
-      'L1 (an instrument, exact). Gates pre-registered in vibe-roadmap-honeycomb-0016 before any probe. Every quotient is enumerated exactly over Z[sqrt 2] / (sqrt 2)^k; a candidate over 2,000,000 docks is refused after 2,000,000 expansions. Status open = every gate holds but the best systole is under 4.',
+      'L1 (an instrument, exact). Gates pre-registered before any probe. Every quotient is enumerated exactly over Z[sqrt 2] / (sqrt 2)^k; a candidate over 2,000,000 docks is refused after 2,000,000 expansions. Status open = every gate holds but the best systole is under 4.',
   })
 }
 

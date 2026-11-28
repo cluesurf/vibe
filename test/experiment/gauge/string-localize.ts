@@ -1,9 +1,9 @@
-// A STRING PHASE AT R*'S OWN ANGLE: DOES IT LOCALIZE TWO WALKERS' SEPARATION? (note/project/vibe/roadmap/moving-matter
-// item 0093, E-FRC-0307, decision 020 point 5, research/one-walker-costs.md section 2b rank 1). Explores whether a pair phase linear in
+// A STRING PHASE AT R*'S OWN ANGLE: DOES IT LOCALIZE TWO WALKERS' SEPARATION? (the moving-matter
+// roadmap, E-FRC-0307, point 5 of a recorded decision, research/one-walker-costs.md section 2b rank 1). Explores whether a pair phase linear in
 // separation, at R*'s own irrational angle mu = arg u (u = ringUnit(-1, 4), cos mu = -13/14), could bound two walkers'
-// separation while their centre of mass moves. The front lemma (decision 019 point 3) forbids cages, not localization,
+// separation while their centre of mass moves. The front lemma (point 3 of a recorded decision) forbids cages, not localization,
 // so the target is a pure-point relative spectrum with exponential tails. At a Z3 angle the phase is periodic in the
-// separation and Bloch makes the relative walk ballistic (decision 019 point 5, Cedzich et al. PRL 111 160601 (2013)).
+// separation and Bloch makes the relative walk ballistic (point 5 of a recorded decision, Cedzich et al. PRL 111 160601 (2013)).
 //
 // THE WALK (STEP 1, the instrument on a line). Two distinguishable walkers on a line, each with a two-state coin whose
 // state is its direction of motion (+1 or -1). One beat: the coin on each walker, both move one site along their state,

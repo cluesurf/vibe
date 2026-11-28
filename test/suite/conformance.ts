@@ -1998,7 +1998,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       detail: `${caTable.size} configurations`,
     })
 
-    // the other transcribed Margenstern CAs (from the arXiv papers in land/text/papers/more-5): pentagrid
+    // the other transcribed Margenstern CAs (from their arXiv papers): pentagrid
     // 3-state and 2-state, the heptagrid 4-state, and the dodecagrid 5-state (3D). Each loads with its exact
     // state alphabet; the planar ones are conflict-free, the 3D dodecagrid has the one documented snapshot
     // collision it needs out-of-snapshot context to resolve.

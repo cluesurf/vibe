@@ -1,5 +1,5 @@
 // RELATIVISTIC DISPERSION E^2 = m^2 + c_eff^2 k^2, TIME DILATION gamma(v), AND BOOST COVARIANCE
-// ON THE 3D CUSP HUSK UNDER M_pair (E-RLT-0124, gaps B-10, B-41).
+// ON THE 3D CUSP HUSK UNDER M_pair (E-RLT-0124).
 //
 // Reuses the exact 24x24 3D cusp-husk Bloch unitary U(k; u) from E-RLT-0123 (mpair-cusp-dispersion.ts)
 // for M_pair(-1) (theta = pi), M_pair(zeta_18) (theta = pi/9), and the bare line-law control (theta = 0):

@@ -1,6 +1,6 @@
-// A STATIC Z3 CAGE ON LARGER CELLS OR FROM THE GRID MOVES? (moving-matter item 0082, research/outside-the-box.md 3.2,
-// candidates B and G of 0062). 0058's uniform centre fields live on the one-dock cell, and their one all-non-flat class
-// cf0 only slows a lone third (0074, C_inf 0.883). This file reads two families 0058 never enumerated, with 0074's cage
+// A STATIC Z3 CAGE ON LARGER CELLS OR FROM THE GRID MOVES? (research/outside-the-box.md 3.2,
+// candidates B and G). The earlier uniform centre fields live on the one-dock cell, and their one all-non-flat class
+// cf0 only slows a lone third (C_inf 0.883). This file reads two families those never enumerated, with the earlier cage
 // engine and velocity definitions carried over to any cell and to 3 x 3 links.
 //
 // THE CELL. An index-p sublattice L of D4 (p = 1, 2, 3; p prime, so L = ker lambda for lambda: D4 -> Z_p, one per line
@@ -9,7 +9,7 @@
 // so dH / dk_a = sum_j metric[a][j] dH / dtheta_j as in cage-velocity. p = 1 is cage-velocity's own cell.
 //
 // THE FIELD. link(i, d) is an nc x nc unitary (nc 1: a centre phase omega^c, the three colours equal; nc 3: a 3 x 3
-// matrix), and link(j, -d) = link(i, d)^-1, so the stream still squares to 1 and 0074's reduction holds unchanged:
+// matrix), and link(j, -d) = link(i, d)^-1, so the stream still squares to 1 and the uniform-field reduction holds unchanged:
 // the cycle B = T P_D T P_S is 1 off the span of S (slot-uniform register vectors, 8 p nc) and F = T E, and on it the
 // bands are +-eps(x), cos eps = cos mu + x (1 - cos mu), over the eigenvalues x of H = X X^dag, X = S^dag T E, with
 //   X[(i, a, c), (j, e, c')] = (1 / sqrt 24) sum over d with next(i, d) = j of link(i, d)[c][c'] e^(-i theta . l) E[(-d, a), e]

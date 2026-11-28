@@ -1,5 +1,5 @@
-// A SPACETIME Z3 CAGE: CENTRE PHASES THAT DEPEND ON THE HALF-BEAT (moving-matter item 0081, research/outside-the-box.md
-// 3.1). A uniform centre field puts omega^(c(d)) times 1 on slot d at every dock. Decision 017's cf0 used one pattern for
+// A SPACETIME Z3 CAGE: CENTRE PHASES THAT DEPEND ON THE HALF-BEAT (research/outside-the-box.md
+// 3.1). A uniform centre field puts omega^(c(d)) times 1 on slot d at every dock. The decision's cf0 used one pattern for
 // both hops of the cycle, so a link and the hop that undoes it are inverse and the out-and-back loops (slot d, then -d on
 // the next half-beat) are flat. Here every half-beat h of a period carries its own odd pattern c_h, so the out-and-back
 // loop of slot d between half-beats h and h + 1 carries omega^(c_(h+1)(d) - c_h(d)): a Z3 "electric" flux the static
@@ -7,8 +7,8 @@
 //
 // THE CYCLE. A half-beat h is a piece then the stream: v -> T'_h G_(h mod 2) v, with G = 1 + E (g - 1) E^T (E real, the
 // piece's range, g its r x r unit) and T'_h = T_h X (slot d of dock x - r_d, slot -d, carried to slot d of dock x with
-// the link omega^(c_h(d))). A period of 2P half-beats is one supercycle; P = 1 is item 0074's cycle B = T P_D T P_S when
-// c_0 = c_1. Each c_h is odd (c(-d) = -c(d)), so every T'_h is a Hermitian involution, as in 0074.
+// the link omega^(c_h(d))). A period of 2P half-beats is one supercycle; P = 1 is the uniform-field cycle B = T P_D T P_S when
+// c_0 = c_1. Each c_h is odd (c(-d) = -c(d)), so every T'_h is a Hermitian involution, as in the uniform-field cage.
 //
 // THE BLOCK. Uniform fields keep the one-dock translation symmetry, so the supercycle is block diagonal in the box
 // momentum theta (basis coordinates, as cage-velocity): T'_h(theta) on slot d is ph_(h,d) = omega^(c_h(d)) e^(-i theta .
@@ -72,7 +72,7 @@ function gaxOf(geo: CageGeometry): Float64Array {
   return gax
 }
 
-// item 0074's engine: 192 modes, P_S = 1 + (u - 1) S S^T then P_D = 1 + (conj u - 1) E E^T, start S e_0 (dockStart)
+// the uniform-field cage's engine: 192 modes, P_S = 1 + (u - 1) S S^T then P_D = 1 + (conj u - 1) E E^T, start S e_0 (dockStart)
 export function cageEngine(geo: CageGeometry): Engine {
   const reg = 8
   const modes = SLOTS * reg

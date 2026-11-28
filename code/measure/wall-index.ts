@@ -1,4 +1,4 @@
-// CAN A SIGMA(648) COLOUR FIELD CARRY A WALL INDEX (E-FRC-0291, moving-matter item 0029, decision 003)? The pieces of
+// CAN A SIGMA(648) COLOUR FIELD CARRY A WALL INDEX (E-FRC-0291)? The pieces of
 // the instrument: the colour group's conjugacy classes with their eigenphases, the bulk-window check at a uniform U(1)
 // flux, and the per-component wall flow of a field built from one element's powers. The flow itself is E-SPN-0168's
 // wallFlow and levelsNearPi (code/measure/wall-face), reused unchanged.

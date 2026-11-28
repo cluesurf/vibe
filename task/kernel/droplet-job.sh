@@ -1,6 +1,6 @@
 #!/bin/bash
-# THE DROPLET JOB: what task/kernel/droplet-run.ts runs on a CPU machine (a rented CPU droplet, or an existing host such
-# as a work droplet), once, after copying this package to <run dir>/pkg. task/kernel/
+# THE DROPLET JOB: what task/kernel/droplet-run.ts runs on a CPU machine (a rented CPU droplet, or an existing shared
+# host), once, after copying this package to <run dir>/pkg. task/kernel/
 #   1. the machine: CPU, memory, load
 #   2. the toolchain, all of it under <run dir>/tools unless the machine already has it: node 24 (the system's if it is
 #      24, else the official tarball), rust (the system's cargo, else rustup into tools/ with --no-modify-path), tsx (the
@@ -25,7 +25,8 @@ TOOLS="$RUN/tools"
 mkdir -p "$LOG" "$TOOLS"
 # the sentinels droplet-run.ts reads: started here, finished on the last line. A run without both did not happen
 date -u +%FT%TZ >"$LOG/started"
-echo "== job started on $(hostname) as $(id -un), in $PKG"
+# no host, user or absolute path in the log: a job log can end up in a committed record
+echo "== job started, in the package directory"
 export PATH="$TOOLS/node/bin:$TOOLS/cargo/bin:$TOOLS/node_modules/.bin:$PATH"
 # when the host has no cargo of its own, every step uses our toolchain under tools/. Exported here, globally, because
 # each step runs in its own subshell, and an export inside install_rust never reached build_native (which then looked
@@ -59,7 +60,8 @@ step() {
 }
 
 machine() {
-  uname -a
+  # -srm, never -a: -a prints the host name
+  uname -srm
   echo "cores $CORES, threads for the job $THREADS"
   free -g
   lscpu | grep -E 'Model name|Thread|Core|Socket|NUMA node|L3|Flags' | cut -c 1-200

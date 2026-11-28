@@ -66,18 +66,17 @@ sets. Recorded as `foundations/rule-has-no-amplitudes` (E-FND-0080).
 
 L3: 50 (43 paper-grade), down from 92. L2: 554. L1: 207. L0: 14. Every
 remaining L3 builds a substrate and measures against a computed
-control. The full post-fix run is recorded in the roadmap's `state.md`
-(`note/research/vibe/roadmap/` in the monorepo).
+control. The full post-fix run is recorded in the research roadmap,
+outside this package.
 
 ## What is left
 
-Tracked as checklist items in the monorepo roadmap
-(`note/project/vibe/roadmap/experiment-audit/checklist.json`):
+Tracked as checklist items in the research roadmap:
 consolidating the six walk copies onto the shared stepper with
-bit-identical proof (0007), the arena readmes (0009), the post-fix run
-record (0010), size perturbation of the 50 L3s (0012), the
-pseudo-random fills (0013), the holography controls (0014), and the
-inline helpers in `test/` (0015).
+bit-identical proof, the arena readmes, the post-fix run
+record, size perturbation of the 50 L3s, the
+pseudo-random fills, the holography controls, and the
+inline helpers in `test/`.
 
 ## How to rerun the audit
 

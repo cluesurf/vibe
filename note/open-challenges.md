@@ -99,7 +99,7 @@ Zero-dependency Lean 4.35.0 modules (zero `sorry`, zero `axiom`, zero `native_de
 
 **Object.** Pure lattice Yang-Mills theory for gauge group `G = SU(N)` (`N = 2, 3`) with Wilson triangular-plaquette action on the 4D `D_4` lattice (24 nearest neighbors per site, 8 equilateral triangles per link, 32 unoriented / 64 oriented triangles per site, 16 neighboring links per link, exact `O(a^4)` rotational isotropy, and zero-straddling-triangle site-hyperplane reflection positivity proved in [Geometry.lean](../code/proof/Vibe/Geometry.lean)).
 
-**Status: Broken Past `beta_BE^{24c}` Unconditionally with Zero Migdal-Kadanoff Truncation (Audited Wave-2 Track W6).** Certified in [d4-mass-gap-beyond-be.ts](../test/verify/d4-mass-gap-beyond-be.ts) (documented in `note/project/vibe/research/wave2/06-d4-mass-gap-beyond-bakry-emery.md`) with every threshold and mass gap lower bound strictly outward-floored (`Math.floor(x * 1e6) / 1e6`):
+**Status: Broken Past `beta_BE^{24c}` Unconditionally with Zero Migdal-Kadanoff Truncation (Audited Wave-2 Track W6).** Certified in [d4-mass-gap-beyond-be.ts](../test/verify/d4-mass-gap-beyond-be.ts) (documented in the d4 mass gap beyond bakry emery notes) with every threshold and mass gap lower bound strictly outward-floored (`Math.floor(x * 1e6) / 1e6`):
 
 - **Prior baselines (`C2` and [combes-thomas-d4-mass-gap.ts](../test/verify/combes-thomas-d4-mass-gap.ts)):**
   - 24-cell adjacency spectrum: `lambda_min(A_24) = -4`, `lambda_max(A_24) = +8`.

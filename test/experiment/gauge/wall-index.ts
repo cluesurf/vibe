@@ -1,6 +1,6 @@
-// CAN A SIGMA(648) COLOUR FIELD BREAK THE ONE-WALL NUMBER N_A (E-FRC-0291, note/project/vibe/roadmap/moving-matter item
-// 0029, decision 003)? RULE: the register rule R*, with the spinor lift as the member's rotation (decision 0006). The
-// one-wall number N_A has Tr N_A C^2 = 2, the hinge of route 1 (research/charge-one-after-anomaly.md). Decision 003:
+// CAN A SIGMA(648) COLOUR FIELD BREAK THE ONE-WALL NUMBER N_A (E-FRC-0291, the moving-matter
+// roadmap)? RULE: the register rule R*, with the spinor lift as the member's rotation. The
+// one-wall number N_A has Tr N_A C^2 = 2, the hinge of route 1 (research/charge-one-after-anomaly.md). A recorded decision:
 // smooth Sigma(648) fields are flat (every g != 1 sits level >= 1 from the identity), so colour can break N_A only through
 // a rough transverse flux that keeps the Wilson bulk gap open, read as E-SPN-0168's wall flow along a closed k2 loop.
 //
@@ -27,7 +27,7 @@
 //  links h^m read from the product table for every hop and class, each a group element, its complex trace equal to the
 //  sum of the U(1) component phases (1e-9); the bulk window at every loop step's k2 where the 4-value read is open; and
 //  wallFlow per distinct nonzero component flux (window 0.2, 24 steps, Lanczos 80) at L 12 and L 16.
-// STEP 4 (decision 008, replacing the non-abelian sample, which is not built: a colour-blind k2 loop reads Tr p = 0). The
+// STEP 4 (replacing the non-abelian sample, which is not built: a colour-blind k2 loop reads Tr p = 0). The
 //  least-rough abelian fields: links h^(r1 G(a + r0 / 2)), G an integer function on integer and half-integer x0
 //  (code/measure/wall-stream), h in class 8 and in class 22 (the least largest |eigenphase|). Lumpy (s 1): G(a + 1/2) =
 //  G(a) + 1, G(a + 1) = G(a + 1/2), cell holonomy h in every cell, Q 9; dilute sheets s 2, 3, 4: h on one strip of every
@@ -40,9 +40,9 @@
 //  7): a closed component whose nearest bulk level lies in (0.04, 0.2) also flows at half that distance, L 12.
 //
 // CONTROLS, any misread makes the verdict OPEN (instrument):
-//  G   the gap threshold as decision 003 cites it: 1/15 and 1/9 open, 1/3 closed.
+//  G   the gap threshold as a recorded decision cites it: 1/15 and 1/9 open, 1/3 closed.
 //  C1  SU(3): the Cartan field H = diag(1, -1, 0) at flux 1/15 per cell (Q 15): component +1 reads A +4 B -4, component
-//      -1 A -4 B +4, component 0 A 0 B 0 (REGATED after the first run by decision 008 point 6 to the clause 003 point 5
+//      -1 A -4 B +4, component 0 A 0 B 0 (REGATED after the first run by point 6 of a recorded decision to the clause 003 point 5
 //      fixed before it; its wall Weyl cone levels in the window are not gated); along H sum_c H_c A_c = Tr H^2 x 4 = 8.
 //  E   the stream-parameterized Lanczos copy (wall-stream) fed slabStream's own stream at flux 1/15, L 12 reproduces
 //      wall-face wallFlow exactly: A and B up and down, ambiguous counts equal, every level offset and wall weight within
@@ -53,10 +53,10 @@
 //  I   every gap search and every flow step complete, every eigen residual at most 1e-8, every link a group element with
 //      trace deviation at most 1e-9, eigenphase projections integer to 1e-9.
 //
-// GATES, fixed 2026-10-08 before any run (item 0029):
+// GATES, fixed 2026-10-08 before any run:
 //  PASS (route 1's hinge holds, colour breaks N_A): some Sigma(648) field keeps the bulk window empty at every loop step
 //   and flows a nonzero integer on wall A, equal and opposite on wall B, the same at L 12 and L 16.
-//  KILL (amended by decision 008 point 2, which only removes the clause "or flows 0"): every STEP 3 and STEP 4 field
+//  KILL (amended by point 2 of a recorded decision, which only removes the clause "or flows 0"): every STEP 3 and STEP 4 field
 //   with a nonzero component flux puts bulk levels in the window.
 //  PARTIAL: a gapped nonzero flow that differs between L 12 and 16 or is not opposite on B, or a gapped field with
 //   nonzero component flux that flows 0 (suspect the instrument).
@@ -81,7 +81,7 @@
 //    true. With C1 false and STEP 4 not run the verdict is OPEN; STEP 3 alone reads the KILL side (no abelian field
 //    keeps the gap).
 //
-// SECOND RUN 2026-10-08 (decision 008's STEP 4 and C1 regate, test/record/E-FRC-0291/wstream.log, sh tmp/wstream.sh run, 14774 s): PASS.
+// SECOND RUN 2026-10-08 (a recorded decision's STEP 4 and C1 regate, test/record/E-FRC-0291/wstream.log, sh tmp/wstream.sh run, 14774 s): PASS.
 //  - STEP 4: the lumpy fields (s 1, Q 9) are closed (class 8 component 2/9: 16 levels, nearest 0.0872; class 22
 //    component -2/9: nearest 0.0865), their half-distance diagnostic flows A 0 B 0. Every dilute sheet (s 2, 3, 4, both
 //    classes, Q 18, 27, 36) keeps the bulk window empty at 4 k2 and at all 24 loop k2, and every component flows the
@@ -89,7 +89,7 @@
 //    A -8 B +8; 1/9: A +4 B -4). 6 passing fields; links all group elements closing over the period (trace dev 2.5e-15).
 //  - Controls: G, C1 (regated: +1 A +4 B -4, -1 A -4 B +4, 0 A 0 B 0, along H 8), C2, C3, E (copy equals wall-face:
 //    A 4 B -4, ambiguous 0, worst level offset 0), I and I4 true.
-//  - The colour-blind sum over a field's components is 0 (class 8: -4 - 4 + 8), as decision 008 point 5 says it must be.
+//  - The colour-blind sum over a field's components is 0 (class 8: -4 - 4 + 8), as point 5 of a recorded decision says it must be.
 //  - The first STEP 4 attempt read class-8 s 2 and s 3 component 2/9 at L 16 as A 0: Lanczos 80 stalled on the
 //    near-degenerate wall pairs at pi and returned no levels there. Stalled steps are now rerun at 160, then 320.
 //
@@ -139,7 +139,7 @@ export type IndexPlan = {
   depths: readonly number[]
   minSide: number
   controlFlux: Frac
-  // STEP 4: the sheet spacings s (s 1 lumpy, 2 to 4 dilute) and the diagnostic's lower edge (decision 008 point 7)
+  // STEP 4: the sheet spacings s (s 1 lumpy, 2 to 4 dilute) and the diagnostic's lower edge (point 7 of a recorded decision)
   sheets: readonly number[]
   diagnosticFloor: number
   // STEP 4 flows: longer Krylov sizes for a loop step whose search stalled at lanczosSteps (rerun only then)
@@ -366,7 +366,7 @@ export function wallIndexRun(plan: IndexPlan): Verdict {
     }
   })
 
-  // ---------------- STEP 4: the least-rough abelian fields (decision 008) ----------------
+  // ---------------- STEP 4: the least-rough abelian fields ----------------
   type ComponentGap = { theta: Frac; p: number; bulk: GBulkRead }
   type Diagnostic = { theta: Frac; nearest: number; flow: GComponentFlow }
   type SheetRead = {
@@ -591,7 +591,7 @@ export function wallIndexRun(plan: IndexPlan): Verdict {
 
   log('E')
 
-  // C1 regated on flow after the data (decision 008 point 6, the clause 003 point 5 fixed before the run): component 0
+  // C1 regated on flow after the data (point 6 of a recorded decision, the clause 003 point 5 fixed before the run): component 0
   // flows A 0 B 0; its wall Weyl cone levels in the window are not gated
   const C1 =
     c1[0]!.flow.netA === 4 &&
@@ -691,7 +691,7 @@ export function wallIndexRun(plan: IndexPlan): Verdict {
       (f.flows.some(r => r.flow.netA !== 0 || r.flow.netB !== 0) ||
         f.flows.every(r => r.flow.netA === 0 && r.flow.netB === 0)),
   )
-  // KILL (decision 008 point 2): every STEP 3 and STEP 4 field with a nonzero component flux puts bulk levels in the
+  // KILL (point 2 of a recorded decision): every STEP 3 and STEP 4 field with a nonzero component flux puts bulk levels in the
   // window
   const kill =
     fields.every(f => !f.gapped) &&

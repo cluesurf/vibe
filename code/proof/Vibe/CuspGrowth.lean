@@ -7,7 +7,7 @@ import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 
 /-!
-# Vibe Theory: Unconditional `{3,4,3,4}` Cusp Growth & Wall-Link Discharge (`board-0053`, Lean P4)
+# Vibe Theory: Unconditional `{3,4,3,4}` Cusp Growth & Wall-Link Discharge (Lean P4)
 
 Lean 4 + Mathlib derivation of the exact spherical ball-shell counts `|∂B_r|` (`1, 24, 456, 8376, ...`),
 parabolic cusp-shell counts `N_D` (`1, 18, 330, 6034, ...`, matching `exact-cusp.ts` and `E-GMT-0041`), and
@@ -870,7 +870,7 @@ theorem thm_wall_cusp_eq_cuspLateralLinks :
 
 /-! ## Section 6: Unconditional `18×` Cusp Growth, Sharp Rate Brackets & `Vibe.Geometry` Discharge -/
 
-/-- Headline Theorem 11 (Unconditional `≥ 18×` Cusp Shell Growth Theorem — Closes `board-0053`):
+/-- Headline Theorem 11 (Unconditional `≥ 18×` Cusp Shell Growth Theorem):
     `cuspShell 0 = 1` AND `cuspShell (D + 1) ≥ 18 * cuspShell D` for EVERY depth `D : Nat`! -/
 theorem thm_cusp_growth_ge_18 :
     cuspShell 0 = 1 ∧ ∀ D : Nat, cuspShell (D + 1) ≥ 18 * cuspShell D := by

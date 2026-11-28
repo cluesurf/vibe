@@ -1,5 +1,5 @@
 // Exact discrete-time split-step unitary cusp domain wall in Vibe Theory's cyclotomic ring Z[zeta_9][1/6]
-// (E-SPN-0222, gaps B-23 and B-55).
+// (E-SPN-0222).
 //
 // Lifts E-SPN-0221's Hermitian Kaplan/Shamir domain wall to a true discrete-time unitary quantum walk U(k) on a
 // one-sided depth column D = 0 .. N-1 (matching the {3,4,3,4} cusp boundary's 18-down / 0-up geometry):

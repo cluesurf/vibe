@@ -1,5 +1,5 @@
 // UNIVERSAL LIMITING SPEED c_light = c_matter = c_grav ON THE WARPED {3,4,3,4} CUSP COLUMN
-// VS GW170817 (6e-15 BOUND) (E-RLT-0125, gaps B-41, m-29).
+// VS GW170817 (6e-15 BOUND) (E-RLT-0125).
 //
 // Depth L2: exact {3,4,3,4} pair-density warped column (N_D = 1, 18, 330, 6034; w(D) = 1/N_D^2;
 // canonical single-face [1, 4, 20, 100]: K_eff = 1.0125321220 from E-GRV-0157; M_eff = sum 1/N_D = 1.0587611742...), explicit multi-component

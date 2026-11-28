@@ -7,7 +7,7 @@
 // {3,4,3,4} honeycomb and verbatim 8-layer bare QCA beat U in Z[zeta_9][1/6].
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports),
-// strict TypeScript (--strict --noUncheckedIndexedAccess clean), laptop-safe (< 10 s, < 300 MB RAM).
+// strict TypeScript (--strict --noUncheckedIndexedAccess clean), fast (< 10 s, < 300 MB RAM).
 
 export {}
 

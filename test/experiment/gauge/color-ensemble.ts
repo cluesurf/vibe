@@ -1,7 +1,7 @@
-// WHERE DOES SIGMA(648) COLOUR FREEZE ON R*'S OWN LATTICE? (E-FRC-0297, moving-matter item 0056, decision 012 candidate
+// WHERE DOES SIGMA(648) COLOUR FREEZE ON R*'S OWN LATTICE? (E-FRC-0297, a recorded decision candidate
 // b). The pure-gauge Sigma(648) ensemble with the Wilson form S = beta sum_t (1 - Re Tr U_t / 3) over the fcc triangles of
 // R*'s 24 D4 links (code/measure/color-ensemble), on the side-8 bulk box and the coloured slab boxes 8^3 x L (L 8, 12).
-// Decision 012 point 2: the coupling may enter only where the rule fixes it, and candidate (b) is the first-order point
+// Point 2 of a recorded decision: the coupling may enter only where the rule fixes it, and candidate (b) is the first-order point
 // beta_f, where a reversible demon rule with its energy anywhere in the latent-heat band sits.
 //
 // STEPS
@@ -721,7 +721,7 @@ export default experiment({
   id: 'gauge/color-ensemble',
   code: 'E-FRC-0297',
   title:
-    "explores whether Sigma(648) colour with the Wilson triangle action on R*'s own D4 lattice has a first-order freezing point beta_f, the coupling decision 012 candidate (b) lets the rule fix, and stores the ensemble on both branches for the colour gates",
+    "explores whether Sigma(648) colour with the Wilson triangle action on R*'s own D4 lattice has a first-order freezing point beta_f, the coupling a recorded decision candidate (b) lets the rule fix, and stores the ensemble on both branches for the colour gates",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

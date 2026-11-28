@@ -1,4 +1,4 @@
-// EXACT C, P, CP, T AND CPT VERTEX TABLE (E-FND-0181, item vibe-roadmap-board-0020, gaps B-23, B-44).
+// EXACT C, P, CP, T AND CPT VERTEX TABLE (E-FND-0181).
 // Compares bare, adopted ODD (k* = 4), linear dipole (k = 1/2), and EVEN control on the exact R = 2 {3,4,3,4} ball
 // under split coin, exact in Z[w][1/2], zero floats, zero random numbers.
 //

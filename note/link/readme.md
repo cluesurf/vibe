@@ -4,7 +4,7 @@ One file per theory, each a cheatsheet of how Vibe maps onto that theory, mappin
 mapping, with the experiment behind each and a grade. The direction is always **Vibe to the other author's theory**. We do not adopt their framework, we ask what part of it Vibe derives.
 
 These are the curated, experiment-backed correspondences. The broader by-author research
-notes live elsewhere in the monorepo. This folder holds only the theories Vibe has
+notes live outside this package. This folder holds only the theories Vibe has
 actually run experiments against, starting with the most complete.
 
 For the cross-theory picture, the structures that recur across several of these theories

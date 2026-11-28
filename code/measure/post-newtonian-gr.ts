@@ -1,5 +1,5 @@
 // POST-NEWTONIAN GENERAL RELATIVITY ON THE {3,4,3,4} 1/N_D^2 WARPED CUSP COLUMN
-// (E-GRV-0159, gap B-52; Frontier 6).
+// (E-GRV-0159; Frontier 6).
 //
 // Parameter-free {3,4,3,4} foundation:
 //   - E-GRV-0157 (pair-density-gravity-slope.ts): exact shell counts N_D = [1, 18, 330, 6034]

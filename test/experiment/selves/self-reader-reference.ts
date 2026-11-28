@@ -1,4 +1,4 @@
-// THE SELF READER AGAINST A REFERENCE RULE (item vibe-roadmap-grounding-0035, trap T-0027a; note/self-reader.md
+// THE SELF READER AGAINST A REFERENCE RULE (a recorded trap; note/self-reader.md
 // section 7; code/measure/self-reference.ts). E-SLF-0194 read every keel-and-flame arm as a self (c 0.77 to 0.92 at beat
 // 80) though the twisted arms broke B1's bound level (L 0.13). The diagnosis: the reader's parts formula is the
 // definition's closure only when the state ran under the rule that runs it back, and 0194 applied it to runs under the
@@ -155,7 +155,7 @@ export default experiment({
   id: 'selves/self-reader-reference',
   code: 'E-SLF-0197',
   title:
-    "the self reader read against a reference rule (trap T-0027a): the closure's run back made with the rule the reading names, so a state run under an opt-in piece is read against the start's own run without it; every gate of E-SLF-0191 rerun under the amended reader, and E-SLF-0194's keel-and-flame arms read again, the old reader printed beside",
+    "the self reader read against a reference rule (a recorded trap): the closure's run back made with the rule the reading names, so a state run under an opt-in piece is read against the start's own run without it; every gate of E-SLF-0191 rerun under the amended reader, and E-SLF-0194's keel-and-flame arms read again, the old reader printed beside",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

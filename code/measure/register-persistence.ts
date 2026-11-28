@@ -1,4 +1,4 @@
-// DOES A MOVING BOUND THREE-MEMBER STATE KEEP ITS IDENTITY (moving-matter item 0025, E-SLF-0181, OPEN-MND-02). The bound
+// DOES A MOVING BOUND THREE-MEMBER STATE KEEP ITS IDENTITY (E-SLF-0181, OPEN-MND-02). The bound
 // triple of E-SPN-0193 (code/measure/three-member-motion) is started as a packet over total momenta K, every K carrying
 // the same internal state, and its internal (relative-coordinate) part is compared with its start while the packet moves.
 //

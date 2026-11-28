@@ -1,4 +1,4 @@
-// THE REMAINDER TEST OF A SELF (item vibe-roadmap-grounding-0053, refiled from 0046 by decision 015, E-SLF-0199). A second definition of a self, beside
+// THE REMAINDER TEST OF A SELF (refiled by a later decision, E-SLF-0199). A second definition of a self, beside
 // the closure reader (code/measure/self-reader.ts, self-reference.ts): a region is a self when its surroundings cannot
 // rebuild its next state. The idea is @OhWellMike's Rem(lambda) = U_lambda - U_field and his signs N1 to N3, Z1 to Z3;
 // every definition below is ours, made exact on B1's line engine (code/measure/cone-line.ts).
@@ -23,7 +23,7 @@
 //
 // THE SERIES (each exact, one pure start, no ensemble, no random number):
 //   G(t)   = ||e_t||^2 with context from beat 0 (the whole field history): the blind remainder, which reads
-//            retention for anything that merely stays (trap T-0046a, decision 015)
+//            retention for anything that merely stays (a known trap)
 //   S(t)   = the same with the simulator also given the region's start: the surplus beyond retention
 //   rem_k  = ||e_R||^2 with context from beat R - k, at the read beat R: the remainder against context
 //   E(t)   = <N_A>(t) / n, the members' share in A, under zero input (the calm vacuum) and under uniform noise (below)
@@ -798,7 +798,7 @@ export function freeSeries(input: {
 
 export type Sign = boolean | undefined
 
-// rho and rho0 are 0046's ratios, kept as readings; s is the surplus fraction S / r at every beat (refiled gate)
+// rho and rho0 are the earlier ratios, kept as readings; s is the surplus fraction S / r at every beat (refiled gate)
 export type Signs = { N1: Sign; Z1: Sign; N2: Sign; Z2: Sign; N3: Sign; Z3: Sign; rho: number; rho0: number; s: number[] }
 
 // THE FLOOR of "falls to zero" and "drifts to rest"
@@ -806,7 +806,7 @@ export const REST = 1 / 16
 
 const ratio = (a: number, b: number): number => (b > 0 ? a / b : 0)
 
-// THE SURPLUS BEYOND RETENTION (item vibe-roadmap-grounding-0053's gate, decision 015). G's simulator starts blind,
+// THE SURPLUS BEYOND RETENTION (the gate). G's simulator starts blind,
 // so anything that merely stays in A is unrebuilt and G reads retention. S's simulator also knows the region's start
 // (e'_0 = 0, e'_(s+1) = d_s + P U P e'_s): it runs the medium's rule on the region's own past plus the whole field
 // record, so a member that stays costs it nothing and S is the part of the region neither explains. s = S / r.

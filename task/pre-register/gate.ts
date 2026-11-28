@@ -3,13 +3,12 @@
 // Gates (each number and tolerance) are written into the item's `what` with
 // `pnpm checklist set <project> <id> --set what=... --commit` before any code. The checklist tool appends one
 // line `{"id","hash","at"}` to the `checklist.ledger.jsonl` beside the checklist every time an item's `what`
-// changes, where `hash` is the first 12 hex digits of sha1(what) (task/checklist/write/write.ts, whatHash). So
+// changes, where `hash` is the first 12 hex digits of sha1(what) (the checklist tool's whatHash). So
 // the last ledger line for an id hashes and dates the gate in force now.
 
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 export type Gate = {
   id: string
@@ -25,7 +24,7 @@ export type Gate = {
 
 export type GateLookup = { ok: true; gate: Gate } | { ok: false; reason: string }
 
-// Same hash as task/checklist/write/write.ts whatHash.
+// Same hash as the checklist tool's whatHash.
 export function whatHash(what: unknown): string {
   return createHash('sha1')
     .update(String(what ?? ''))
@@ -33,19 +32,17 @@ export function whatHash(what: unknown): string {
     .slice(0, 12)
 }
 
-// The ClueSurf repo base: the nearest directory above `from` holding note/project/workflow.
-export function findRepoBase(from: string = dirname(fileURLToPath(import.meta.url))): string {
-  let dir = resolve(from)
-  for (;;) {
-    if (existsSync(join(dir, 'note', 'project', 'workflow'))) {
-      return dir
-    }
-    const up = dirname(dir)
-    if (up === dir) {
-      throw new Error(`no note/project/workflow above ${from}: pass --repo <cluesurf dir>`)
-    }
-    dir = up
+// The roadmap directory the checklists live under: VIBE_ROADMAP_ROOT, which this package never guesses.
+export function findRoadmap(env: NodeJS.ProcessEnv = process.env): string {
+  const root = env.VIBE_ROADMAP_ROOT
+  if (!root) {
+    throw new Error('VIBE_ROADMAP_ROOT is not set: point it at the directory holding the roadmap checklists, or pass --roadmap <dir>')
   }
+  const dir = resolve(root)
+  if (!existsSync(dir)) {
+    throw new Error(`VIBE_ROADMAP_ROOT is ${dir}, which does not exist`)
+  }
+  return dir
 }
 
 // Every checklist.json under a directory, depth first.
@@ -64,7 +61,7 @@ function checklists(dir: string): string[] {
 
 type Item = { id: string; what?: string }
 
-// Find the item in any checklist under `<repo>/note/project/vibe/roadmap`, then its last ledger line.
+// Find the item in any checklist under the roadmap directory, then its last ledger line.
 export function findGate(id: string, roadmap: string): GateLookup {
   for (const checklist of checklists(roadmap)) {
     const list = JSON.parse(readFileSync(checklist, 'utf8')) as { item?: Item[] }

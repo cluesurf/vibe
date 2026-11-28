@@ -1,4 +1,4 @@
-// THE STATIC FIELD BELOW A CUSP WITH DEPTH-WEIGHTED COLUMNS (E-GRV-0154, item vibe-roadmap-board-0049, gap B-52,
+// THE STATIC FIELD BELOW A CUSP WITH DEPTH-WEIGHTED COLUMNS (E-GRV-0154,
 // future-models.md family 3). E-GRV-0150 found that the true mesh's own graph Laplacian, read on the husk, is screened
 // along the husk: the bulk below a cusp is the side that grows, a sink and not a shortcut. Family 3 reads the husk as a
 // brane at the cusp, as in Randall-Sundrum II, where each column is weighted by a warp factor that falls with depth
@@ -896,8 +896,8 @@ type WeightReading = {
   range: Map<number, [number, number]>
 }
 
-// how I3 gates a Bloch solve's residual: 'absolute' is board-0049's registered gate (E-GRV-0154), 'relative' is
-// board-0052's (E-GRV-0155), the residual over the largest modulus of the solved field
+// how I3 gates a Bloch solve's residual: 'absolute' is E-GRV-0154's registered gate, 'relative' is
+// E-GRV-0155's, the residual over the largest modulus of the solved field
 export type ResidualGate = 'absolute' | 'relative'
 
 export function cuspDepthWeightedRun(
@@ -1462,7 +1462,7 @@ export default experiment({
   id: 'gravity/cusp-depth-weighted',
   code: 'E-GRV-0154',
   title:
-    "the static field below a cusp with depth-weighted columns (board-0049, gap B-52), open by the registered rule: one of 1415 Bloch solves (p = 6, k = 0, a field of 3.4e4) missed the 1e-12 residual gate at 8.0e-12, 2.4e-16 of its value, the float floor, while every other gate held (the column reduction equals a direct solve on the exact period-2 cusp to 2.1e-15, the flat control reproduces E-GRV-0150 to 1.9e-4); with cell weight l^-p at Busemann level l the column's resistance to the floor grows as F^q with q -3.51, -2.04, -0.85, 0.13, 1.09, 3.02 for p 0, 1, 2, 3, 4, 6, so the infinite mesh is unscreened iff p >= 3, as derived; the RS-II warp (p = 1) stays screened (xi 0.35 docks, K still rising), the horosphere-area weight (p = 3) sits on the threshold (K 1.143 converged, resistance growing as ln F, but xi only 1.43 docks at level 49, 4 pi K r G(r) 0.074 at r = 4), and only p = 6 gives 1/r over the whole read, r = 1 to 8 within 10 percent at levels 33 and 49 (xi 184)",
+    "the static field below a cusp with depth-weighted columns, open by the registered rule: one of 1415 Bloch solves (p = 6, k = 0, a field of 3.4e4) missed the 1e-12 residual gate at 8.0e-12, 2.4e-16 of its value, the float floor, while every other gate held (the column reduction equals a direct solve on the exact period-2 cusp to 2.1e-15, the flat control reproduces E-GRV-0150 to 1.9e-4); with cell weight l^-p at Busemann level l the column's resistance to the floor grows as F^q with q -3.51, -2.04, -0.85, 0.13, 1.09, 3.02 for p 0, 1, 2, 3, 4, 6, so the infinite mesh is unscreened iff p >= 3, as derived; the RS-II warp (p = 1) stays screened (xi 0.35 docks, K still rising), the horosphere-area weight (p = 3) sits on the threshold (K 1.143 converged, resistance growing as ln F, but xi only 1.43 docks at level 49, 4 pi K r G(r) 0.074 at r = 4), and only p = 6 gives 1/r over the whole read, r = 1 to 8 within 10 percent at levels 33 and 49 (xi 184)",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L1',

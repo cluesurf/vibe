@@ -1,5 +1,5 @@
-// DOES R*'s OWN COLOUR HASH LOCALIZE A LONE THIRD, OR ONLY SLOW IT? (moving-matter item 0083, candidate P of
-// research/outside-the-box.md 1.3 and 3.3, decision 017 point 3). A static colour field confines a lone third only by
+// DOES R*'s OWN COLOUR HASH LOCALIZE A LONE THIRD, OR ONLY SLOW IT? (candidate P of
+// research/outside-the-box.md 1.3 and 3.3, point 3 of a recorded decision). A static colour field confines a lone third only by
 // localization, so this reads the localization of the cage engine's own cycle (holonomy-caging cagingBeat, the operator
 // color-gates-cage dockCageRead and E-SPN-0196 evolve: roleLinks on the weave's Weyl link start, section 'weyl', the
 // colour triplet k 3, mixer u = ringUnit(-1, 4)) on bulk boxes of side 6, 8 and 10, from its level statistics and its

@@ -18,7 +18,7 @@
 //                   M = 5..10 finite-ring ED convergence at rate 49/13, and literal 4D Z[zeta_9][1/6] check.
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, exact BigInt Z[zeta_9][1/6] +
-// O^+(4,1; Z[sqrt(2)]) + verified Float64 spectral & wavepacket solvers. Laptop-safe (< 10 s).
+// O^+(4,1; Z[sqrt(2)]) + verified Float64 spectral & wavepacket solvers. Fast (< 10 s).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS & EXACT COMPLEX / LINEAR ALGEBRA PRIMITIVES

@@ -1,16 +1,16 @@
-// A SELF ACROSS LINES (item vibe-roadmap-grounding-0021; board proposal 012, grounding decisions 002, 004). The line
+// A SELF ACROSS LINES (a board proposal). The line
 // self (B1's bound 3-love cluster, L(2) 0.959 under B1's line rule, 0019, 0020) lives on one mesh line, where the
 // working rule cannot move a vibe off its line. The rule's collision K = w_P does move vibes between lines on a dock with
 // two single lines and a third occupied line (note/line-confinement.md section 2, witness W0). Does a self whose dock is
 // shared with other lines, so that K fires on it, keep its level, i.e. does a self in the bulk export only its errors?
 //
 // THE RULE. The line self binds under the working rule plus the drift cost and the fermion sign, defined on one line
-// only (code/rule/bound-line-pieces). Proposal 012 writes both for any state: the sign as the reordering parity in
+// only (code/rule/bound-line-pieces). A board proposal writes both for any state: the sign as the reordering parity in
 // modeIndex order, the cost as S1, a Z3 trit on every link with Gauss at every dock and zeta_18^(-1) (pi/9) a flux link
 // (code/rule/cross-line-pieces, opt-in, not adopted). Here both run as optional pieces, the status the line pieces
 // have.
 //
-// THE INSTRUMENTS. (1) The main read, proposal 012 option C: B1's full 23-dock level on the line engine
+// THE INSTRUMENTS. (1) The main read, a board proposal option C: B1's full 23-dock level on the line engine
 // (code/measure/cone-line, clock 18), with K's block at one shared dock X on beat 1 (code/measure/cross-line-dock):
 // exact through beat 2 by the argument in that file's header, a lower bound if a collision changes l's love count.
 // (2) The exact R = 4 ball (162,049 docks), sparse branches (code/measure/cross-ball), on a start that fits its horizon
@@ -686,7 +686,7 @@ type Setting = {
 
 const SMOKE: Setting = { name: 'smoke', box: 8, levelBar: 1e-4, W: 10, armRadius: 2, reductionRadius: 2, reductionBeats: 1, denseBeats: 1 }
 // the smoke with the arms on the R = 3 ball, exact through beat 2 for this start (r0 + t = 3 = R: no stream leaves the
-// frontier shell before beat 3), to check X0's instruments before the M3 run; open by rule
+// frontier shell before beat 3), to check X0's instruments before the full run; open by rule
 const MID: Setting = { ...SMOKE, armRadius: 3 }
 const FULL: Setting = { name: 'full', box: 12, levelBar: 1e-9, W: 12, armRadius: 4, reductionRadius: 3, reductionBeats: 2, denseBeats: 2 }
 
@@ -699,7 +699,7 @@ export default experiment({
   id: 'selves/bulk-self',
   code: 'E-SLF-0186',
   title:
-    "a self across lines: B1's bound cluster on its honeycomb line with W0's env at a shared dock, so the collision K moves vibes between lines, under the working rule plus proposal 012's cross-line fermion sign and S1 link register at pi/9 (opt-in), read on the line engine with K's block (option C) and checked on the exact R = 4 ball",
+    "a self across lines: B1's bound cluster on its honeycomb line with W0's env at a shared dock, so the collision K moves vibes between lines, under the working rule plus a board proposal's cross-line fermion sign and S1 link register at pi/9 (opt-in), read on the line engine with K's block (option C) and checked on the exact R = 4 ball",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -931,7 +931,7 @@ export default experiment({
       status,
       claim: `${setting.name} setting, W ${W} k 3, window beats 0 to ${WINDOW}, S1 and the sign at pi/9 (clock 18). P0 line self L ${LP0.map(f4).join(' ')} (bar ${HOLD}); B0 at pi/7 L ${LB0.map(f4).join(' ')} against 0020's ${L_0020.join(' ')}. MAIN (option C, K at shared dock X* ${xStar - offset} of the start, env slot ${env.single} line ${env.full}): L ${main.L.map(f4).join(' ')}, K fired on weight ${f4(main.fired)}, exported ${main.exported.toExponential(1)}; over ${xs.length} docks L(2) from ${f4(worst.L[WINDOW]!)} (dock ${worst.X - offset}) up, profile ${sweep.map(r => `${r.X - offset}:${f4(r.L[WINDOW]!)}`).join(' ')}. Ball R ${setting.armRadius} cut start (${cut.length} configurations): ${arm('line arm', arms.line)} (instrument L ${cLine.F.map(f => f4(f / cLine.F[0]!)).join(' ')}) || ${arm('bulk arm', arms.bulk)} (instrument L ${cBulk.F.map(f => f4(f / cBulk.F[0]!)).join(' ')}, K fired weight ${cBulk.fired.toExponential(1)}) || X0b (reported, not gating; env at the cut's lone dock ${cutX - armOff}): ${arm('arm', armK)}, instrument L ${cK.F.map(f => f4(f / cK.F[0]!)).join(' ')}, K fired weight ${f4(cK.fired)}, exported ${cK.exported.toExponential(1)}, ball against instrument ${x0b.toExponential(1)} || control A ${arm('line', arms.lineA)} || ${arm('bulk', arms.bulkA)}. D = 4 level at pi/9 (information): ${d4}.`,
       metrics,
-      notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. Gates C1 ${gC1} (level off ${levelOff.toExponential(1)}), B0 ${gB0}, P0 ${gP0}, R0 ${gR0} (${r0} differing against coinedVetoBeat, pieces off, both places), R1 ${gR1} (reduction to bound-line-pieces at pi/7, coin before, R ${setting.reductionRadius}, ${setting.reductionBeats} beats: ${red.differ} differing, register off Q ${red.regOff}, ${red.branches} branches), R2 ${gR2}, R3 ${gR3}, R4 ${gR4} (${runs.map(r => `${r.name}: reverse ${r.reverse}, norm ${r.norm}, Gauss off ${r.gauss}, sparse differ ${r.sparse}, ${r.branches} branches`).join('; ')}), R5 ${gR5} (C off ${cOff}), X0 ${gX0} (ball against the line engine: line ${x0.line.toExponential(1)}, bulk ${x0.bulk.toExponential(1)}, instrument exported ${cBulk.exported.toExponential(1)}, K fired weight ${f4(cBulk.fired)}, off-line ${arms.line.offLine + arms.bulk.offLine}, register off ${arms.line.regOff + arms.bulk.regOff}, exact window ${exactWindow}). Proposal 012 is not adopted: the sign and S1 are opt-in pieces. The main read is a lower bound only where exported > 0. T (E-FND-0179) is not checked with the pieces on.`,
+      notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. Gates C1 ${gC1} (level off ${levelOff.toExponential(1)}), B0 ${gB0}, P0 ${gP0}, R0 ${gR0} (${r0} differing against coinedVetoBeat, pieces off, both places), R1 ${gR1} (reduction to bound-line-pieces at pi/7, coin before, R ${setting.reductionRadius}, ${setting.reductionBeats} beats: ${red.differ} differing, register off Q ${red.regOff}, ${red.branches} branches), R2 ${gR2}, R3 ${gR3}, R4 ${gR4} (${runs.map(r => `${r.name}: reverse ${r.reverse}, norm ${r.norm}, Gauss off ${r.gauss}, sparse differ ${r.sparse}, ${r.branches} branches`).join('; ')}), R5 ${gR5} (C off ${cOff}), X0 ${gX0} (ball against the line engine: line ${x0.line.toExponential(1)}, bulk ${x0.bulk.toExponential(1)}, instrument exported ${cBulk.exported.toExponential(1)}, K fired weight ${f4(cBulk.fired)}, off-line ${arms.line.offLine + arms.bulk.offLine}, register off ${arms.line.regOff + arms.bulk.regOff}, exact window ${exactWindow}). A board proposal is not adopted: the sign and S1 are opt-in pieces. The main read is a lower bound only where exported > 0. T (E-FND-0179) is not checked with the pieces on.`,
     })
   },
 })

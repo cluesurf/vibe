@@ -1,4 +1,4 @@
-// Item 0089 (roadmap/moving-matter, decision 019 point 3): the front lemma for EVERY n on the true {3,4,3,4} mesh.
+// An earlier step (the moving-matter roadmap, point 3 of a recorded decision): the front lemma for EVERY n on the true {3,4,3,4} mesh.
 //
 // The claim: the dock tau_d^L (L straight hops along slot d from the base dock) is reached by exactly one geodesic
 // dock path, for every L and all 24 slots, so the lone third's front there is a single colour-blind path.

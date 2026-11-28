@@ -21,7 +21,8 @@ LOG="$PWD/tmp/gpu-logs"
 mkdir -p "$LOG"
 # the sentinels gpu-run.ts reads: started here, finished on the last line. A run without both did not happen
 date -u +%FT%TZ >"$LOG/started"
-echo "== job started on $(hostname) as $(id -un), feature $FEATURE"
+# no host or user in the log: a job log can end up in a committed record
+echo "== job started, feature $FEATURE"
 export PATH=/opt/node/bin:/root/.cargo/bin:/opt/rocm/bin:/usr/local/cuda/bin:$PATH
 TSX=/root/tools/node_modules/.bin/tsx
 
@@ -39,7 +40,8 @@ step() {
 }
 
 machine() {
-  uname -a
+  # -srm, never -a: -a prints the host name
+  uname -srm
   nproc
   free -g
   lscpu | head -n 20

@@ -1,5 +1,5 @@
-// A CENSUS OF CONSTANT-FREE COINS WITH A NILPOTENT STRAIGHT BLOCK (note/project/vibe/roadmap/moving-matter item 0090,
-// research/nilpotent-step.md section 4, decision 019 point 3). Explores whether ANY coin built from the canonical
+// A CENSUS OF CONSTANT-FREE COINS WITH A NILPOTENT STRAIGHT BLOCK (the moving-matter roadmap,
+// research/nilpotent-step.md section 4, point 3 of a recorded decision). Explores whether ANY coin built from the canonical
 // slot-harmonic and Clifford projectors of R*'s dock, with phases from a finite set fixed in advance, could give a
 // lone-third front that a Z3 centre field might cancel.
 //
@@ -21,7 +21,7 @@
 //          farthest (dock, final slot) with amplitude above 1e-12 of its path scale, and its paths on the 0/1 support.
 //   STEP 3 for cycles whose every extremal nonzero (dock, final slot) at n 6 has 3 or more paths: their flux classes.
 //
-// GATES, fixed 2026-10-09 before any read (item 0090):
+// GATES, fixed 2026-10-09 before any read:
 //   SURVIVOR  some cycle passes STEP 1 and at n 6 every extremal nonzero (dock, final slot) has 3 or more paths in three
 //             flux classes
 //   KILL      every STEP 1 survivor has some extremal nonzero (dock, final slot) with 2 or fewer paths, or no cycle passes
@@ -2125,7 +2125,7 @@ function reducedWords(sup: readonly Uint8Array[], v: readonly number[], hops: nu
   return cur[slot]!.size
 }
 
-// cf0 (the most frustrated uniform centre pattern, item 0058) and its distinct images under the 192 box rotations
+// cf0 (the most frustrated uniform centre pattern) and its distinct images under the 192 box rotations
 export function cf0Patterns(): Int8Array[] {
   const c = enumerateCenterPatterns().kept[0]!.pattern.c
   const seen = new Map<string, Int8Array>()
@@ -2286,7 +2286,7 @@ export default experiment({
   paper: false,
   run(): Verdict {
     // the census runs in stages (deck/vibe/tmp/ncoin.sh); the suite run reads only the family instruments and states
-    // the staged outcome, read KILL by item 0095 (one flux class under cf0 and its 192 rotations is colour-blind)
+    // the staged outcome, read KILL by an earlier step (one flux class under cf0 and its 192 rotations is colour-blind)
     const f = buildFamilies()
     const instrumentsOk = Object.values(f.main.checks).every(v => Math.abs(v) < 1e-9)
 
@@ -2295,7 +2295,7 @@ export default experiment({
       claim: `coin-census ${instrumentsOk ? 'KILL' : 'OPEN (family instruments failed)'}: family harmonic dims ${f.harmonicDims.join(', ')}. Staged census: 74 of 46,656 coins have a zero straight block, 6,899,612 cycles; 33,244 have a farthest point on one path through full-rank blocks, and the other 6,866,368 (6,306,592 moving, 559,776 frozen) carry every farthest nonzero (dock, final slot) at n 6 in one flux class under the uniform centre field cf0 and all 192 rotations, so none has three classes of equal amplitude.`,
       metrics: f.main.checks,
       notes:
-        'Read on the flat D4 dock box at the support level with sampled amplitudes; the KILL holds on the fields the gate named (uniform cf0 and its rotations). A non-uniform centre field was declined, not disproved (item 0095).',
+        'Read on the flat D4 dock box at the support level with sampled amplitudes; the KILL holds on the fields the gate named (uniform cf0 and its rotations). A non-uniform centre field was declined, not disproved.',
     })
   },
 })

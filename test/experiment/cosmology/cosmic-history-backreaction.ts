@@ -1,6 +1,6 @@
 // FULL COSMIC HISTORY (RADIATION w = +1/3 -> MATTER w = 0 -> DARK ENERGY w = -1)
 // VIA REVERSIBLE MULTI-VIBE DENSITY BACKREACTION ON THE FIXED {3,4,3,4} HONEYCOMB
-// (E-CSM-0065, gaps B-18, B-42; follow-up to E-CSM-0064 and E-GRV-0157).
+// (E-CSM-0065; follow-up to E-CSM-0064 and E-GRV-0157).
 //
 // Part A: Microscopic reversible unitary radial walk on the fixed {3,4,3,4} branching tree (b = 18/1/5)
 //   with self-consistent density backreaction theta(rho) = pi / (1 + kappa * G_eff * rho) where
@@ -32,7 +32,7 @@ export default experiment({
   id: 'cosmology/cosmic-history-backreaction',
   code: 'E-CSM-0065',
   title:
-    'Full 3-era cosmic history (Radiation w = +1/3 -> Matter w = 0 -> Dark Energy w = -1) via reversible multi-vibe density backreaction on the fixed {3,4,3,4} honeycomb (B-18, B-42)',
+    'Full 3-era cosmic history (Radiation w = +1/3 -> Matter w = 0 -> Dark Energy w = -1) via reversible multi-vibe density backreaction on the fixed {3,4,3,4} honeycomb',
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L2',

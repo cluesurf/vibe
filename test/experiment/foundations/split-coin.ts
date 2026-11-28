@@ -1,4 +1,4 @@
-// THE SPLIT COIN (item vibe-roadmap-grounding-0017, grounding decision 004). The working beat becomes U = S W D Y D W with
+// THE SPLIT COIN. The working beat becomes U = S W D Y D W with
 // D = C^(1/2) (code/rule/coined-locked-knit halfCoinBranch, opt-in by setCoinPlace('split') or VIBE_COIN=split). This
 // file checks the three things the decision needs before the split can replace the default; the reruns of the held
 // results are task/split-coin-rerun.ts.
@@ -328,7 +328,7 @@ export function splitCoin(log: (line: string) => void = () => {}): Verdict {
       evenCptSplitPH: sp.even!.P!.H!,
       ...Object.fromEntries(Object.entries(gates).map(([g, ok]) => [`gate${g}`, ok ? 1 : 0])),
     },
-    notes: `Gates: grounding-0017 what. cptSplit ${JSON.stringify(sp)}. E-FND-0179 gates on the default place ${JSON.stringify(gates0179)}.`,
+    notes: `Gates registered before the run. cptSplit ${JSON.stringify(sp)}. E-FND-0179 gates on the default place ${JSON.stringify(gates0179)}.`,
   })
 }
 

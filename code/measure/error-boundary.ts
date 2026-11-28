@@ -1,4 +1,4 @@
-// A BOUNDARY THAT HANDS ONLY ERRORS OUTWARD (item vibe-roadmap-grounding-0024; self-structures-and-experience.md,
+// A BOUNDARY THAT HANDS ONLY ERRORS OUTWARD (self-structures-and-experience.md,
 // structures 7 and 6). B1's line self (E-SLF-0182's level under E-SPN-0103's pieces) on a ring of L docks, with bath
 // loves arriving at chosen beats and slots, and an opt-in piece that hands deviations to passing vacuum cells.
 //
@@ -363,7 +363,7 @@ export type Settings = {
   readonly every?: number
   // the most bytes of new dense columns one piece step may make; past it the arm ends (controls only)
   readonly byteBudget?: number
-  // STREAM (item vibe-roadmap-grounding-0036's store): one column at a time, the arrival then the piece, each output
+  // STREAM (the store): one column at a time, the arrival then the piece, each output
   // column added at once to the next beat's sector, which merges as soon as it passes its cap. Both maps are linear
   // and act column by column, so at full rank this is the batch path exactly; only the merges come at other moments,
   // and no step holds more than cap + 1 columns of a sector (plus one column's export buckets). The arrival's own

@@ -1,5 +1,5 @@
-// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205, gap B-05).
-// Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally
+// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205).
+// Under A recorded decision C / Key 8, the Born measure over record branches is posited operationally, not unconditionally
 // derived. This experiment verifies the algebraic Zurek envariance symmetry prerequisites on explicit bipartite
 // state vectors |Psi_SE> in H_S (x) H_E constructed from the single-beat branching amplitudes of R = 2 {3,4,3,4}
 // (with cross-branch role fine-graining via the Tier-B Sigma(648) qutrit Fourier gate Z_3 F_3).
@@ -43,7 +43,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ` +
+        `Under A recorded decision C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ` +
         `On the exact R = 2 {3,4,3,4} ball (${res.ballCells} docks, 0 frontier hits, normErr=0), 1 working-rule coin+stream beat produces ` +
         `exact single-beat Schmidt weights (${res.schmidtWeights[0]}, ${res.schmidtWeights[1]}). ` +
         `On the explicit 2-branch bipartite state |Psi_2> in H_S^(2) (x) H_E^(2), all ${res.phaseEnvarianceExact}/${res.phaseEnvarianceTested} ` +
@@ -72,7 +72,7 @@ export default experiment({
         derivedKeepProb: res.derivedKeepProb,
       },
       notes:
-        'Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ' +
+        'Under A recorded decision C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ' +
         'The 3-branch cross-role fine-graining gate Z_3 F_3 lies in the Tier-B qutrit Clifford group Sigma(648) over Z[w][1/3] ' +
         '(beyond bare single-excitation U), and the exact identity (1-w)/(2*(1+2w)) = -(1+w)/2 collapses the 4-branch Schmidt vector ' +
         'back into Z[w][1/2].',

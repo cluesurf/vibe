@@ -1,4 +1,4 @@
-// THE LINE SELF AT 4pi/9 ON THE HONEYCOMB AT BEAT 3 (item vibe-roadmap-grounding-0031, grounding decision 008). E-SLF-0189
+// THE LINE SELF AT 4pi/9 ON THE HONEYCOMB AT BEAT 3. E-SLF-0189
 // swept the frame mixer F-G at strength theta and found no theta that both moves a lone love past sqrt 2 and keeps
 // B1's line self 80 beats. Its motion read is honeycomb-exact, so pi/3, 2pi/9 and pi/9 fail exactly, and pi and 8pi/9
 // cross L = 1/2 before beat 1, inside Lemma W's exact window. 4pi/9 is the one theta that rests on the model: motion
@@ -9,7 +9,7 @@
 // THE REGION: the exact tube (code/substrate/coxeter/exact-tube), every dock within 3 facet steps of the line l's docks
 // at positions -4 to width + 3, the start's 23 docks with 4 more each side.
 //
-// THE RULE AND THE READ (code/measure/tube-self): B1's line rule as proposal 012 writes it on any state (sign and cost
+// THE RULE AND THE READ (code/measure/tube-self): B1's line rule as a board proposal writes it on any state (sign and cost
 // on, clock 14, split), G_theta on every lone frame before each beat with u = e^(4 i pi / 9) carried exactly as a
 // power, the hop's sign by modeIndex parity (B) or none (A). L(t) = F(t) / F0, B1's bound-trio count of the terms with
 // every love on l, grouped by register. A prune that keeps every term that can still be on l after beat 3.
@@ -137,7 +137,7 @@ export default experiment({
   id: 'selves/honeycomb-beat-three',
   code: 'E-SLF-0198',
   title:
-    "the line self at 4pi/9 on the honeycomb at beat 3: B1's line self under the frame mixer at strength 4pi/9, the one theta of E-SLF-0189 whose verdict rested on the line-restricted engine, run on the exact {3,4,3,4} tube around its 23 docks with proposal 012's sign and cost, exact per power of u, so weight the mixer sends off the line can come back, and read for L(3) against 1/2",
+    "the line self at 4pi/9 on the honeycomb at beat 3: B1's line self under the frame mixer at strength 4pi/9, the one theta of E-SLF-0189 whose verdict rested on the line-restricted engine, run on the exact {3,4,3,4} tube around its 23 docks with a board proposal's sign and cost, exact per power of u, so weight the mixer sends off the line can come back, and read for L(3) against 1/2",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -285,7 +285,7 @@ export default experiment({
         status,
         claim: `${setting.name} setting, box ${setting.box} W ${W}, theta 4pi/9 on the exact tube (${tube.cells} docks, radius ${RADIUS} around line positions ${-SEGMENT_PAD}..${width - 1 + SEGMENT_PAD}): ${arms.map(armRow).join(' || ')} || bare: L ${bare.L.map(f6).join(' ')} against the line engine ${lineBare.map(f6).join(' ')}, off-l ${e2(Math.max(...bareOff))}`,
         metrics,
-        notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. T0 ${gT0} (tube gates ${JSON.stringify(tubeGates)}, seeds ${tube.dockAt.size} of ${seeds}, frontier ${frontier}). C1 ${gC1} (level off ${e2(levelOff)}). S0 ${gS0} (F(0)/F0 ${read0.F / F0}, start ${start.kept} of ${start.configs} configurations kept, dropped ${e2(start.dropped)}). N0 ${gN0} (norm at beats 0 and 1: ${arms.map(a => `${a.name} ${a.reads[0]!.norm.toFixed(12)} ${a.reads[1]!.norm.toFixed(12)}`).join(', ')}). R0 ${gR0}. R1 ${gR1} (L(1), L(2) against the line engine: ${arms.map(a => `${a.name} ${e2(a.L[1]! - lineTheta[1]!)} ${e2(a.L[2]! - lineTheta[2]!)}`).join(', ')}). P0 ${gP0} (${checks.length} lone loves, 24 slots of dock 0 under both signs, on-l weight at beat 3 ${e2(Math.min(...checks.map(c => c.onL3)))} to ${e2(Math.max(...checks.map(c => c.onL3)))}). Scope: B1's line rule written on the honeycomb by proposal 012's opt-in sign and cost; beats 1 to 3 only.`,
+        notes: `L2. Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. T0 ${gT0} (tube gates ${JSON.stringify(tubeGates)}, seeds ${tube.dockAt.size} of ${seeds}, frontier ${frontier}). C1 ${gC1} (level off ${e2(levelOff)}). S0 ${gS0} (F(0)/F0 ${read0.F / F0}, start ${start.kept} of ${start.configs} configurations kept, dropped ${e2(start.dropped)}). N0 ${gN0} (norm at beats 0 and 1: ${arms.map(a => `${a.name} ${a.reads[0]!.norm.toFixed(12)} ${a.reads[1]!.norm.toFixed(12)}`).join(', ')}). R0 ${gR0}. R1 ${gR1} (L(1), L(2) against the line engine: ${arms.map(a => `${a.name} ${e2(a.L[1]! - lineTheta[1]!)} ${e2(a.L[2]! - lineTheta[2]!)}`).join(', ')}). P0 ${gP0} (${checks.length} lone loves, 24 slots of dock 0 under both signs, on-l weight at beat 3 ${e2(Math.min(...checks.map(c => c.onL3)))} to ${e2(Math.max(...checks.map(c => c.onL3)))}). Scope: B1's line rule written on the honeycomb by a board proposal's opt-in sign and cost; beats 1 to 3 only.`,
       })
     } finally {
       setCoinPlace(place0)

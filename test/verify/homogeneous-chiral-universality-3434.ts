@@ -27,13 +27,14 @@
 //            conjugated lineRev12Exch + {A, B, R} + 3-R horosphere-to-bulk launcher (11-state
 //            3+3+3+2 permutation); exhaustive bijectivity, N_occ conservation & W(F_4)^+-equivariance;
 //            live 4D horosphere-to-bulk counter round-trips: INC (c=0..2, dt=10, returning q0 pulse
-//            flips a live horosphere RE!), DEC (c=0..2, dt=6), and ZERO_TEST (c=0..3, t=t0+4c).
+//            flips a live horosphere RE!), DEC (c+1->c for c=0..2, i.e. 1->0..3->2, dt=6), and
+//            ZERO_TEST (c=0..3, t=t0+4c).
 //   GATE H5: Adversarial Negative Controls:
 //            (a) All 576 improper reflections W(F_4) \ W(F_4)^+ break L_univ5 equivariance (turner & RE),
 //            (b) Bijectivity failure under single RE output mutation & 3-R 3-cycle leg collapse,
 //            (c) Missing-turner leak off the horosphere into empty 4D hyperbolic bulk space.
 //   GATE H6: Spectral Sharpness Summary Cross-Check (exact BigInt inequalities of Vibe.SpectralSharpExt:
-//            913/80 < 387141227/33670000 <= 11.4982 < 11.5, width < 0.086, > 10.2x tighter than Depth-1,
+//            913/80 < 387141227/33670000 < 11.4982 < 11.5, width < 0.086, > 10.2x tighter than Depth-1,
 //            lambda_gap >= 420938773/808080000 > 25/48 > 13/25 = 0.52).
 
 const T_START_MS = performance.now()
@@ -521,6 +522,7 @@ class ExactCoxeterGraph {
   lorentzHeight2(id: number): bigint {
     const img = matVec5(this.mats[id]!, BASE_CENTER)
     const h = inner2B(img, BASE_CENTER)
+    if (h[1] !== 0n) throw new Error(`Non-zero sqrt(2) component in Lorentz height: ${h[1]}`)
     return -h[0]
   }
 }
@@ -1827,9 +1829,35 @@ function runGateH4(): GateH4Metrics {
     checkStrongCell(c2)
   }
 
-  // Exact 576-rotation W(F_4)^+-equivariance across all 11 active 3-R launcher states + 4 wire/turner/RE states
+  // Fallback-boundary coverage: bulk tokens on P in 0-R/1-R gates, 2-R cells, non-PULSE bulk tokens on Q
+  // in 1-R RE cells, mixed outer-port occupancy, and extra anchor fallback states
+  const outerPort = Array.from({ length: 24 }, (_, i) => i).find(
+    i => i !== UP && i !== UM && !info0.Q.includes(i) && !info0.P.includes(i),
+  )!
+  for (const rSet of [[], [info0.P[0]], [info0.P[0], info0.P[1]], info0.P] as readonly (readonly number[])[]) {
+    for (const bulkSp of [SP_M, SP_F, SP_G, PULSE]) {
+      const c = new Uint8Array(24)
+      c[UP] = ANC_A
+      c[UM] = ANC_B
+      for (const p of rSet) c[p] = ROT_R
+      const freeP = info0.P.find(p => !rSet.includes(p))
+      if (freeP !== undefined) c[freeP] = bulkSp
+      c[info0.Q[0]!] = bulkSp
+      c[outerPort] = SP_H
+      checkStrongCell(c)
+    }
+  }
+  const cExtraAnc = new Uint8Array(24)
+  cExtraAnc[UP] = ANC_A
+  cExtraAnc[UM] = ANC_B
+  cExtraAnc[outerPort] = ANC_A
+  cExtraAnc[info0.Q[0]!] = SP_M
+  cExtraAnc[ANTI[info0.Q[0]!]!] = SP_F
+  checkStrongCell(cExtraAnc)
+
+  // Exact 576-rotation W(F_4)^+-equivariance across all 11 active 3-R launcher states + 5 wire/RE(2 orientations)/turner/bulk-ray states (16 states = 9,216 x 2 checks)
   const eqTestCells: Uint8Array[] = [...launcherStates]
-  for (const rSet of [[], [info0.P[0]], info0.P] as readonly (readonly number[])[]) {
+  for (const rSet of [[], [info0.P[0]], [info0.P[1]], info0.P] as readonly (readonly number[])[]) {
     const c = new Uint8Array(24)
     c[UP] = ANC_A
     c[UM] = ANC_B
@@ -1837,6 +1865,10 @@ function runGateH4(): GateH4Metrics {
     c[info0.Q[0]!] = PULSE
     eqTestCells.push(c)
   }
+  const cBulkRayEq = new Uint8Array(24)
+  cBulkRayEq[0] = SP_M
+  cBulkRayEq[ANTI[0]!] = SP_F
+  eqTestCells.push(cBulkRayEq)
   let strongSymDef = 0
   let strongSymChecks = 0
   for (const perm of WF4.properPerms) {
@@ -2046,7 +2078,7 @@ function runGateH4(): GateH4Metrics {
   recordCheck(
     'H4',
     'H4.3',
-    'Live 4D horosphere-to-bulk DEC (c=0..2, dt=6, exact -2 bulk shift & exact reversal)',
+    'Live 4D horosphere-to-bulk DEC (c+1->c for c=0..2, i.e. 1->0..3->2, dt=6, exact -2 bulk shift & exact reversal)',
     decSpacings.every(x => x === 6) && decMarkerOk && decOccOk && decRevOk,
     `DEC dt=[${decSpacings.join(',')}], bulkShift(-2)=${decMarkerOk}, N_occConserved=${decOccOk}, exactRev=${decRevOk}`,
   )

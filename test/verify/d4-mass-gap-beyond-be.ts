@@ -28,7 +28,7 @@
 //      and 2-edge-covered BFS polymer bound C_n(Delta_0) <= C(10n - 1, n - 1) with exact geometric tail bound
 //      (4.37x KP jump on SU(2), 8.79x KP jump on SU(3)).
 //
-// 100% deterministic (zero Math.random()), laptop-safe (< 3 s), zero external dependencies beyond @/code/algebra/group/root-system.
+// 100% deterministic (zero Math.random()), fast (< 3 s), zero external dependencies beyond @/code/algebra/group/root-system.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { solveMultiPlaquetteKpThreshold } from '@/code/measure/infinite-volume-osterwalder-seiler-gap'

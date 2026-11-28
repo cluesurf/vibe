@@ -1,5 +1,5 @@
-// THE MOVING CLOCK READ AT TWICE THE RESOLUTION FROM THE SAME SOLVES (E-SPN-0219, OPEN-MOT-01,
-// vibe-roadmap-moving-matter-0001). E-SPN-0217 read the register pair's 1s-2s clock from level-group centroids at three
+// THE MOVING CLOCK READ AT TWICE THE RESOLUTION FROM THE SAME SOLVES (E-SPN-0219, OPEN-MOT-01).
+// E-SPN-0217 read the register pair's 1s-2s clock from level-group centroids at three
 // points near fixed coupling (m 0.284 a_B 12, m 0.380 a_B 10, m 0.427 a_B 7.5) and, with the Darwin exchange restored
 // at S = 1 (E-SPN-0218: the rule's own light gives S = 0.992 to 0.999), extrapolated it to 0.25 +- 1.65 of relativity's.
 // The error is the 2s level's curvature: its centroid moved 1.4e-4 to 1.9e-4 over the six settings, so each R_2s carried

@@ -1,6 +1,6 @@
-// THE FERMI HALF OF OPEN-CSM-14 ON A THIN LEVEL (E-FND-0175, item 0031 of moving-matter, decision 001). E-FND-0165 read a
+// THE FERMI HALF OF OPEN-CSM-14 ON A THIN LEVEL (E-FND-0175). E-FND-0165 read a
 // Gibbs form for three holes on the L = 6 torus, at a filling of 1.2e-3 a mode, where Fermi-Dirac and Gibbs agree to
-// O(f). Decision 001: make the level thin, not the holes many. A level of ONE momentum class holds 4 up-band modes, so
+// O(f). A recorded decision: make the level thin, not the holes many. A level of ONE momentum class holds 4 up-band modes, so
 // the exact store's three holes could fill it to 0.75. Exclusion itself is E-SPN-0191's, not claimed here.
 //
 // STAGE 0, fixed before the run (2026-10-08, from the item): the one-hole band levels on every torus with sides >= 6
@@ -21,7 +21,7 @@
 //    6x8x10x10). The top level is never fewer than 4 classes (6x6x8x8 at 1.82 GB, 6x8x8x10, 6x8x8x12): E(q) = E(-q) and
 //    each sign flip is a symmetry, so a top away from the classes q = -q is never alone. Three holes on the thinnest
 //    extreme fill it to at most 3 / 16 = 0.19, under the 0.5 the Fermi read needs.
-//  - So the Fermi half of OPEN-CSM-14 is open, unreachable by the exact engine (decision 001 point 4); no fallback
+//  - So the Fermi half of OPEN-CSM-14 is open, unreachable by the exact engine (point 4 of a recorded decision); no fallback
 //    engine is built, the law check and stage 1 are not run.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -99,6 +99,6 @@ export function registerFermiRun(): Verdict {
       symmetry: p.symmetry,
       seconds: (Date.now() - started) / 1000,
     },
-    notes: `L1: an exact count of the one-hole band levels, no dynamics. The register rule's member at ringUnit(-1, 4), fiber 8 (one half). L = 6 levels ${p.table6.levels.map(x => x.toFixed(6)).join(' ')}. Per box: ${p.rows.map(probeLine).join('; ')}. Decision 001 point 4: no fallback engine.`,
+    notes: `L1: an exact count of the one-hole band levels, no dynamics. The register rule's member at ringUnit(-1, 4), fiber 8 (one half). L = 6 levels ${p.table6.levels.map(x => x.toFixed(6)).join(' ')}. Per box: ${p.rows.map(probeLine).join('; ')}. Point 4 of a recorded decision: no fallback engine.`,
   })
 }

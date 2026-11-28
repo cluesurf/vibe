@@ -3,7 +3,7 @@
 //   Multi-Dock 4-Cycle Ring Search, Sharpness Controls, and Exact k=2 Scattering / Bound-State Classification.
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, exact BigInt Z[zeta_9][1/6] + O^+(4,1; Z[sqrt(2)]),
-// plus Float64 exact spectral solvers for k=2 scattering. Laptop-safe (< 5 s), noUncheckedIndexedAccess-safe.
+// plus Float64 exact spectral solvers for k=2 scattering. Fast (< 5 s), noUncheckedIndexedAccess-safe.
 
 // =================================================================================================
 // 0. HARNESS & COMPLEX / LINEAR ALGEBRA PRIMITIVES

@@ -14,7 +14,7 @@
 //           and Literal Verbatim 8-Layer Z[zeta_9][1/6] 4D {3,4,3,4} Coxeter Verification (non-vacuous entrywise check).
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, exact BigInt Z[zeta_9][1/6] +
-// O^+(4,1; Z[sqrt(2)]) + verified Float64 spectral solvers. Laptop-safe (< 10 s).
+// O^+(4,1; Z[sqrt(2)]) + verified Float64 spectral solvers. Fast (< 10 s).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS & EXACT COMPLEX / LINEAR ALGEBRA PRIMITIVES

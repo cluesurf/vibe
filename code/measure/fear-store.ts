@@ -1,13 +1,13 @@
-// THE TWO-SPECIES CLASS STORE (item vibe-roadmap-grounding-0055, grounding decisions 009, 010, 011 and 013): the run
-// loop of code/measure/class-store over FEAR sectors, for item 0051's fear schedule. B1's line self on a ring of L docks
-// with loves and fears (code/measure/fear-line, gates F0 to F3 of item 0050), the pieces, arrivals of either charge,
+// THE TWO-SPECIES CLASS STORE: the run
+// loop of code/measure/class-store over FEAR sectors, for the fear schedule of the two-species runs. B1's line self on a ring of L docks
+// with loves and fears (code/measure/fear-line, its gates F0 to F3), the pieces, arrivals of either charge,
 // and the same ledgers, on a store that holds columns and dense blocks per class.
 //
 // A NEW FILE, NOT AN OPTION OF class-store. class-store's sectors are cold-line's colex ranks of love-only bit masks
 // (two bits a dock), so a fear (a third value a mode) and the dock's store trit have no place in them. This file builds
 // its own sectors on fear-line's configuration and takes every piece from fear-line's functions, so class-store,
 // error-boundary and cold-line stay byte-unchanged and every loves-only caller with them. It imports class-store's
-// in-place merge (decision 010) and pivoted Cholesky as they are.
+// in-place merge and pivoted Cholesky as they are.
 //
 // THE SECTOR (l, f): every configuration of the ring holding l loves and f fears, a stored pair counting once in each
 // (a store holds a love and a fear). The beat keeps both counts (the coin and the stream move vibes, the pair move
@@ -25,7 +25,7 @@
 // Every store pattern (which docks hold a resting pair, and its trit) is part of the configuration, never a class of
 // its own: the pair rests one stream, so the pattern is not kept by the beat.
 //
-// DENSE BLOCKS (decision 009's rule, by option). A (loves, fears, residue) named in `dense` is held as its density
+// DENSE BLOCKS (the decision's rule, by option). A (loves, fears, residue) named in `dense` is held as its density
 // matrix on its support: every record handed to it is added as its outer product, so it is never merged and never
 // truncated. Its beat is P C rho C^dag P^dag in place (the phase and the coin keep the class and the support), then
 // the pair move and the stream as one signed relabelling. The next step's arrival and piece group its rows; the largest
@@ -34,7 +34,7 @@
 // whose residual trace goes to the ledger.
 //
 // COLUMNS. Every other class is held as columns rho = sum v v^dag, merged in place past its cap (class-store
-// mergeInPlace, decision 010), the dropped eigen weight ledgered. The floor applies to every column put.
+// mergeInPlace), the dropped eigen weight ledgered. The floor applies to every column put.
 //
 // THE ORDER (class-store's). The store holds the state after the step of beat t (its arrival, then the piece). One beat
 // works the dense blocks first, then every column: B1's beat (fear-line's, coin before: cost and dock phase, coin, pair
@@ -43,7 +43,7 @@
 // TRACKED. A branch left with fewer than TRACKED loves (open or stored) has lost the self: its weight is ledgered as
 // broken and followed no further, as in error-boundary.
 //
-// THE READINGS (item 0059, decision 017), by option: given a `reader` (0039's level, cold-line lineReader), every read
+// THE READINGS, by option: given a `reader` (the line reader's level, cold-line lineReader), every read
 // beat also carries F (the bound count, fears and stores as bath), out_rel, R = F / F(0) and R_up, and given `tvAt`
 // the run returns I's TV means keyed by the love part, all from code/measure/fear-reader. With no reader and no tvAt
 // nothing is computed and no existing field changes. F(0) and I's beat-0 distribution are read on the start column
@@ -104,7 +104,7 @@ export type FearSector = {
   readonly codes: Uint8Array
   readonly chunks: number
   readonly keys: Float64Array
-  // the order the store scans the configurations in (decision 018): with no fear, class-store's (cold-line's colex rank
+  // the order the store scans the configurations in: with no fear, class-store's (cold-line's colex rank
   // of the love mask), so the two stores make the same buckets, residue lists and merges in the same order; with a fear,
   // the sector's own order
   readonly scan: Int32Array
@@ -472,7 +472,7 @@ export type FearStoreSettings = {
   // the state after B1's beat at every beat, piece by piece (instruments only): a column (full sector, cut innermost)
   // or a dense block whose row a is the full index rows[a] with sign signs[a]
   readonly observe?: (t: number, s: FearSector, part: Observed) => void
-  // decision 017's readings (item 0059): the level's reader (F, out_rel, R, R_up at every read beat), the TV beats and
+  // the decision's readings: the level's reader (F, out_rel, R, R_up at every read beat), the TV beats and
   // window (I, as class-store's tvAt and tvWindow), and R_up's constants (FMAX, FBROKEN, FSTORE) for the schedule
   readonly reader?: LineReader
   readonly tvAt?: readonly number[]
@@ -482,7 +482,7 @@ export type FearStoreSettings = {
 
 export type FearBounds = { readonly fmax: number; readonly fbroken: number; readonly fstore: number }
 
-// decision 017 section 4: 0039's love schedule, and the fear schedule (BF, SF, NF)
+// the decision: the line reader's love schedule, and the fear schedule (BF, SF, NF)
 export const LOVE_BOUNDS: FearBounds = { fmax: 10, fbroken: 1, fstore: 1 }
 export const FEAR_BOUNDS: FearBounds = { fmax: 1, fbroken: 0, fstore: 1 }
 
@@ -523,7 +523,7 @@ export type FearReading = {
   // kept weight and column count by sector, 'loves:fears'
   readonly weightBy: Readonly<Record<string, number>>
   readonly columns: Readonly<Record<string, number>>
-  // with a reader (decision 017): F, out_rel, R, R_up with the run's bounds (when given) and with LOVE_BOUNDS, and F
+  // with a reader: F, out_rel, R, R_up with the run's bounds (when given) and with LOVE_BOUNDS, and F
   // and weight by block 'loves:fears:residue'
   readonly F?: number
   readonly outRel?: number
@@ -706,7 +706,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     const pos = new Int32Array(s.M).fill(-1)
     const counts = [0, 0, 0]
 
-    // each residue's list in the scan order (decision 018), the basis of its columns and dense block
+    // each residue's list in the scan order, the basis of its columns and dense block
     for (let i = 0; i < s.M; i++) {
       const r = s.scan[i]!
 
@@ -924,7 +924,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     const tb = table(id)
     const buckets = new Map<number, { fs: number; at: number[]; re: number[]; im: number[]; w: number }>()
 
-    // the buckets made in the scan order (decision 018), so they reach the next store in class-store's order
+    // the buckets made in the scan order, so they reach the next store in class-store's order
     for (let i = 0; i < s.M; i++) {
       const r = s.scan[i]!
       const k = tb.k[r]!
@@ -1068,7 +1068,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     fears: number
     rest: number
     weightBy: Map<number, number>
-    // decision 017's readings: F and out_rel at read beats (withF), I's distribution at TV beats
+    // the decision's readings: F and out_rel at read beats (withF), I's distribution at TV beats
     withF: boolean
     F: number
     outRel: number

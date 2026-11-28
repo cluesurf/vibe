@@ -275,5 +275,5 @@ Everything that CAN run headless belongs in `test/`.
 - **No semicolons or em-dashes in prose** (comments, docs, claim
   strings). Short sentences.
 - **This doc and all package docs are self-contained.** Never reference
-  paths outside this package. The research program notes live elsewhere
-  in the monorepo.
+  paths outside this package. The research program notes live outside
+  this package.

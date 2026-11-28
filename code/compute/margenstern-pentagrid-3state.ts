@@ -1,7 +1,7 @@
 // Margenstern's weakly universal cellular automaton on the pentagrid {5,4}, THREE states (arXiv:1510.09129).
 // Rules are 12-char words [current][5 edge-neighbours][5 vertex-neighbours][new] over {W,B,R}, rotation
 // invariant under the 5-fold rotation (which shifts the edge ring and the vertex ring together). See
-// land/text/papers/more-5/1510.09129.pdf and the shared engine in margenstern-ca.ts.
+// arXiv:1510.09129 and the shared engine in margenstern-ca.ts.
 import {
   compileMargensternCa,
   doubleRingRotations,

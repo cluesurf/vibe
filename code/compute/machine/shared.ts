@@ -1,5 +1,5 @@
 // A prototype hyperbolic computer, dimension-general. It assembles the three planes of the combined architecture
-// (see note/research/vibe/notes/theory-v0.8.0/notes/computation/13-combined-architecture.md) on a finite patch of
+// on a finite patch of
 // a regular tiling:
 //   substrate - the cell graph (degree = the cell's direction count: 7 in 2D {7,3}, 12 in 3D {5,3,4}, 24 in 4D
 //               {3,4,3,4}, the 24-cell cell)

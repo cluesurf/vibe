@@ -27,7 +27,7 @@ The gravity hole-finder. Places two lumps of matter on the genuine `{5,3,4}`, se
 
 ## Used by
 
-The clue.surf `/vibe/*` pages replay the JSON these exports produce. They mirror the selves and gravity experiments in `test/experiment/selves/` and the notes in `note/research/vibe/notes/` (`what-counts-as-a-self.md`, `visualizing-the-selves.md`, P171, P110). The horosphere and maintenance work is the deep dive `../coarse-graining-and-selves.md`.
+The clue.surf `/vibe/*` pages replay the JSON these exports produce. They mirror the selves and gravity experiments in `test/experiment/selves/` and the research notes on what counts as a self and on visualizing the selves (P171, P110). The horosphere and maintenance work is the deep dive `../coarse-graining-and-selves.md`.
 
 ## See also
 

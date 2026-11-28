@@ -1,5 +1,5 @@
-// DOES BINDING MAKE THREE MEMBERS CROSS ONE LINK TOGETHER? (E-SPN-0202, moving-matter item 0084, candidate A' of
-// research/outside-the-box.md section 2). RULE: the candidate (register) rule, provisional until moving-matter item 0006.
+// DOES BINDING MAKE THREE MEMBERS CROSS ONE LINK TOGETHER? (E-SPN-0202, candidate A' of
+// research/outside-the-box.md section 2). RULE: the candidate (register) rule, provisional until the rule is adopted.
 //
 // 0080 found that a like-tone color singlet crossing each link as one object sees det U = 1 and is color-blind, but that
 // E-SPN-0193's contact state is antisymmetric in the register (with role epsilon it is the color 10, not the singlet),
@@ -8,7 +8,7 @@
 // epsilon and Pauli-allowed, bind; and what share of its bound level's one-half-beat transition weight crosses the same
 // slot from the same dock.
 //
-// GATES (item 0084, fixed 2026-10-09 by lead 0062; read definitions in test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,
+// GATES (fixed 2026-10-09 by the lead; read definitions in test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,
 // frozen before any read).
 //  STEP 1 BINDS when the Sym start's bound fraction (E-SPN-0193's BND read: the late mean contact share over cycles 128
 //    to 255 of 256 under the rule) is at least 0.5, else NO SINGLET (A' dead).

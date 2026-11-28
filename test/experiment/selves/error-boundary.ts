@@ -1,4 +1,4 @@
-// A BOUNDARY THAT HANDS ONLY ERRORS OUTWARD (item vibe-roadmap-grounding-0024; self-structures-and-experience.md,
+// A BOUNDARY THAT HANDS ONLY ERRORS OUTWARD (self-structures-and-experience.md,
 // structure 7, then structure 6's copy-out). Opt-in only: adopting any piece here is the author's base change.
 //
 // THE QUESTION. E-SLF-0188 found B1's lone 3-love cluster an exact bound level of B1's rule, kept for ever, so the
@@ -23,7 +23,7 @@
 // the branches left with fewer than 2 loves or dropped from the 2-love merge (broken: the self already lost) are
 // ledgered, and R is read as a lower bound and an upper bound R + (10 (trunc + cap) + broken) / F(0).
 //
-// SETTINGS. Default SMOKE (30 beats, nMax 4; proves the file runs, open by rule). BOUNDARY_SWEEP=full for the M3.
+// SETTINGS. Default SMOKE (30 beats, nMax 4; proves the file runs, open by rule). BOUNDARY_SWEEP=full for a large machine.
 //
 // Depth L2: B1's rule in floats on one quotient line; the pieces exact signed permutations (checked).
 
@@ -77,7 +77,7 @@ type Setting = {
   runs: readonly ArmRun[]
   readAt: (beats: number) => number[]
   tvAt: (beats: number) => number[]
-  // the stream path of code/measure/error-boundary, or the class store of code/measure/class-store (item 0039)
+  // the stream path of code/measure/error-boundary, or the class store of code/measure/class-store
   engine: 'stream' | 'class'
   arrivals: readonly Arrival[]
   cap: readonly number[]
@@ -88,7 +88,7 @@ type Setting = {
   g2Beats: readonly number[]
   tvBeats: readonly number[]
   end: number
-  // log every beat with the run's allocation, and every merge's total (the scoped run, watched on the M3)
+  // log every beat with the run's allocation, and every merge's total (the scoped run, watched on a large machine)
   verbose: boolean
 }
 
@@ -98,7 +98,7 @@ const ARRIVALS: Arrival[] = Array.from({ length: 24 }, (_, k) => ({ beat: 20 + 4
 const CAP = [0, 0, 128, 128, 24, 8]
 const KEEP = [0, 0, 64, 64, 12, 4]
 
-// item vibe-roadmap-grounding-0039 (decision 007, gate 7934f4e93d0a): k = 0 and 1 only, caps 64/1024/1280/8 keeping
+// The scoped run (gate 7934f4e93d0a): k = 0 and 1 only, caps 64/1024/1280/8 keeping
 // 32/512/1024/4 for 2/3/4/5 loves, dense 2- and 3-love residues for B, S and A0, none for A1 and N
 const ARRIVALS_TWO: Arrival[] = ARRIVALS.slice(0, 2)
 const CAP_SCOPED = [0, 0, 64, 1024, 1280, 8]
@@ -162,7 +162,7 @@ const FULL: Setting = {
     ),
   tvAt: beats => [...GATE_BEATS, 99].filter(t => t <= beats),
 }
-// item 0039's gated run (BOUNDARY_SWEEP=scoped): the arms in the gate's stated order, each to beat 200, on the class
+// an earlier step's gated run (BOUNDARY_SWEEP=scoped): the arms in the gate's stated order, each to beat 200, on the class
 // store; G1 on 80 and 200, G2 at 200, G3 at 80 and 200, X4 at 200
 const SCOPED: Setting = {
   name: 'scoped',
@@ -538,7 +538,7 @@ export default experiment({
       status,
       claim: `${setting.name} setting, ring of ${L} (periodic grade), radius ${D}. ${all.map(row).join(' || ')}. Gates on B: G1 retention levels off ${gG1}, G2 outflow equals arrivals ${gG2} (E - A ${g2Beats.map(t => `${t}: ${f4(outflow(t))}`).join(', ')}), G3 interior changes ${gG3}`,
       metrics,
-      notes: `L2. Gate in the item's what (${setting.name === 'scoped' ? 'vibe-roadmap-grounding-0039, gate 7934f4e93d0a, class store' : 'vibe-roadmap-grounding-0024'}). Setting ${setting.name}${setting.name === 'smoke' || setting.name === 'scoped-smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. C1 ${gC1} (level off ${e2(levelOff)}). X1 ${gX1} (${checks.map(c => `${c.what}: ${c.configurations} configurations, order free ${c.orderFree}, injective ${c.injective}, signs ${c.signs}`).join('; ')}). X2 ${gX2} (trace off ${e2(metrics.traceOff!)}, merge off ${e2(metrics.mergeOff!)}). X3 ${gX3} (F ${e2(m.F)}, distribution ${e2(m.dist)}). X4 ${gX4} (B dropped ${e2(bDrop)} against ${DROP}). Opt-in: adoption is the author's base change.`,
+      notes: `L2. Gate registered before the run (${setting.name === 'scoped' ? 'gate 7934f4e93d0a, class store' : 'the registered gate'}). Setting ${setting.name}${setting.name === 'smoke' || setting.name === 'scoped-smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. C1 ${gC1} (level off ${e2(levelOff)}). X1 ${gX1} (${checks.map(c => `${c.what}: ${c.configurations} configurations, order free ${c.orderFree}, injective ${c.injective}, signs ${c.signs}`).join('; ')}). X2 ${gX2} (trace off ${e2(metrics.traceOff!)}, merge off ${e2(metrics.mergeOff!)}). X3 ${gX3} (F ${e2(m.F)}, distribution ${e2(m.dist)}). X4 ${gX4} (B dropped ${e2(bDrop)} against ${DROP}). Opt-in: adoption is the author's base change.`,
     })
   },
 })

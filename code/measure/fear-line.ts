@@ -1,8 +1,8 @@
-// FEARS ON B1'S LINE (item vibe-roadmap-grounding-0050, grounding decision 013). B1's line rule (code/measure/cold-line)
+// FEARS ON B1'S LINE. B1's line rule (code/measure/cold-line)
 // with every piece a fear needs, each one DERIVED from the working rule on the honeycomb restricted to line l, never
 // invented. The honeycomb code it is checked against is coinedVetoBeat (veto 'none', coin before) with the pieces off,
 // and code/rule/cross-line-pieces crossBeat (clock 14, coin before) with B1's pieces on: that file is the honeycomb form
-// of B1's pieces that takes a fear (proposal 012: every open vibe one fermion field, the S1 link register written with
+// of B1's pieces that takes a fear (every open vibe one fermion field, the S1 link register written with
 // q = +1 a love, -1 a fear), and it equals code/rule/bound-line-pieces on a loves-only line (its own conformance).
 //
 // THE CONFIGURATION. Line l's two slots at every dock and the dock's store trit on l. Mode 2x is the second slot (the
@@ -606,7 +606,7 @@ export function floatBeat(line: FearLine, s: FloatState): FloatBeat {
   return { state: out, crossing }
 }
 
-// ---- the boundary with fears (decision 013 item 4) ----
+// ---- the boundary with fears ----
 //
 // Charge blind. A dock's HELD UNITS are its vibes on l and its stored line. A vibe is a SYNDROME when it is the only
 // held unit on its dock (the other slot empty, store 0) and no held unit lies on another dock within distance d (cyclic
@@ -738,7 +738,7 @@ export function fearArrival(c: Cfg, x: number, label: number, q: number): { cfg:
   return { cfg: out, sign: openBelow(c, m) % 2 === 0 ? 1 : -1 }
 }
 
-// ---- the class (decision 013 item 5) ----
+// ---- the class ----
 
 // Q_t = loves - fears on docks x = parity mod 2, mod 3 (a store is neutral, so a resting pair never moves it)
 export function chargeClass(L: number, c: Cfg, parity: number): number {

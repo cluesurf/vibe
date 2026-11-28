@@ -1,5 +1,5 @@
 // 3D CUSP-HUSK DISPERSION, GROUP SPEED, AND ISOTROPY UNDER M_pair VS BARE LINE LAW
-// (E-RLT-0123, gaps B-10, B-41).
+// (E-RLT-0123).
 //
 // Measures exact 3D cusp-husk motion and Bloch dispersion of an interacting two-love pair under the
 // W(F4)-isotropic Pair-Line Mixer M_pair(u) at u = -1 (exact Z[w][1/6]) and u = zeta_18 = e^{i pi/9}

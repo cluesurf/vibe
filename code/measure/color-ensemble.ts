@@ -1,4 +1,4 @@
-// THE SIGMA(648) GAUGE ENSEMBLE ON R*'S OWN LATTICE (E-FRC-0297, moving-matter item 0056, decision 012 candidate b). Pure
+// THE SIGMA(648) GAUGE ENSEMBLE ON R*'S OWN LATTICE (E-FRC-0297). Pure
 // gauge heat-bath of a Sigma(648) colour field on the 24 D4 links of the weave's boxes (code/measure/color-slab bulkBox,
 // slabBox), with a class function of each elementary fcc triangle t as the action,
 //

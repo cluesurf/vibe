@@ -1,6 +1,6 @@
 // FRONTIER 7: COMPLETE 16-STATE SO(10) GENERATION x 3 TRIALITY FRAMES (48 WEYL FERMIONS),
 // EXACT 6/6 BIGINT-RATIONAL ANOMALY CANCELLATION, WEINBERG ANGLE, AND DYNAMICAL S_3 TRIALITY BREAKING
-// (E-FRC-0324, gaps B-25 and m-11).
+// (E-FRC-0324).
 //
 // Part 1: Completes each 8-slot D4 triality frame of the 24-cell (8_+ paired with antipodal conjugate 8_-)
 // into the exact 16-dimensional chiral Weyl spinor 16 of Spin(10) via 5 fermionic oscillators (a_1..a_5)
@@ -41,7 +41,7 @@ export default experiment({
   id: 'gauge/so10-three-generations',
   code: 'E-FRC-0324',
   title:
-    'Complete 16-state Spin(10) generation x 3 D4 triality frames (48 Weyl fermions), exact 6/6 BigInt-rational anomaly cancellation, sin^2(theta_W) = 3/8, and spontaneous dynamical S_3 triality breaking on {3,4,3,4} cusp shells (B-25, m-11)',
+    'Complete 16-state Spin(10) generation x 3 D4 triality frames (48 Weyl fermions), exact 6/6 BigInt-rational anomaly cancellation, sin^2(theta_W) = 3/8, and spontaneous dynamical S_3 triality breaking on {3,4,3,4} cusp shells',
   category: 'gauge',
   substrates: ['eft-continuum'],
   depth: 'L2',

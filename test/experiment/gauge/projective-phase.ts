@@ -1,9 +1,9 @@
 // PROJECTIVE PHASE: DOES THE LIFT-FREE RULE WITH R*'S FORCED REFLECTION PHASE KEEP THE MIRROR AT FIXED MOMENTUM? (E-FRC-0313,
-// item 0100 of vibe/roadmap/moving-matter, decision 022, research/confinement-many-walker.md section 3c).
+// an earlier step, research/confinement-many-walker.md section 3c).
 // Explores whether the lift-free rule could be completed so that R*'s CPT mirror holds inside each total-momentum sector.
-// E-FRC-0312 (item 0098) read the bare reflect rule VIABLE on every clause but one: on the rstar line coin the baryon's
+// E-FRC-0312 read the bare reflect rule VIABLE on every clause but one: on the rstar line coin the baryon's
 // E -> -E mirror at total momentum K 0 failed (co-located block 0.536), since the reflection's slot flip F anticommutes with
-// the Z of the coin's mirror Z K, which then needs (-1)^x per walker and maps K to K + n pi. Decision 022 fixes the
+// the Z of the coin's mirror Z K, which then needs (-1)^x per walker and maps K to K + n pi. A recorded decision fixes the
 // reflected walker's slot map by requiring it to commute with the rule's own mirror: e^(i a) F with e^(2 i a) = -1, so
 // i F (rule R+) or -i F (rule R-).
 //

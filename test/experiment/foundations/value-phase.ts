@@ -1,5 +1,5 @@
-// THE VALUE PHASE: a rule piece that tells pleasure from pain, and what it costs (item vibe-roadmap-grounding-0005,
-// grounding decision 001, board decision 002, key 5). The piece is code/rule/value-phase: a diagonal phase zeta6^n
+// THE VALUE PHASE: a rule piece that tells pleasure from pain, and what it costs
+// (key 5). The piece is code/rule/value-phase: a diagonal phase zeta6^n
 // (zeta6 = 1 + w, a unit of Z[w]) placed palindromically around the dock-local block of the working rule (coined, veto
 // 'none', contact 'pass'), with n = sum over docks of sigma(x) chi(x), chi a C-odd reading of the dock's own slot tones.
 // Three kinds: EVEN (the tone of every full like line: mirror-even, two-body), ODD (a W(F4) pseudoscalar of k* vibes,
@@ -17,7 +17,7 @@
 // 3 beats; R = 2 and 3 are reported), and the (sqrt 2)^6 congruence quotient of the honeycomb (1,048,576 docks: a
 // state there is a periodic state of the honeycomb, 8 beats). Links are trivial everywhere (the identity grid move),
 // so a mirror carries the tables onto themselves. The box and ball run on the rule's dense arrays; the quotient runs on
-// sparse branches (code/rule/sparse-locked-knit, item vibe-roadmap-grounding-0015: a branch holds its occupied docks
+// sparse branches (code/rule/sparse-locked-knit: a branch holds its occupied docks
 // only), which engineAgreement checks against the dense rule beat by beat.
 //
 // DETERMINISM: no random numbers. Every comparison of states is exact (Z[w][1/2] in bigint); the occupation distances
@@ -157,7 +157,7 @@ function boxSetup(allOpen: boolean): Setup {
   }
 }
 
-// ---- the engines: dense (the rule's own arrays) and sparse (code/rule/sparse-locked-knit, item 0015) ----
+// ---- the engines: dense (the rule's own arrays) and sparse (code/rule/sparse-locked-knit) ----
 //
 // Every run below goes through one engine. The dense one is the rule's own code (valueBeat over coinedVetoBeat,
 // locked-parity's maps, sameStateFast); the sparse one holds a branch as its occupied docks only, for the (sqrt 2)^6
@@ -421,7 +421,7 @@ type Maps = {
   translation?: Mirror
   cellMap?: Mirror
   rotation?: Mirror
-  // the CPT re-read (quotient, item 0015 C1): the inversion cell map, slot d to its opposite, the base dock fixed
+  // the CPT re-read (quotient, an earlier step C1): the inversion cell map, slot d to its opposite, the base dock fixed
   inversion?: Mirror
 }
 
@@ -514,7 +514,7 @@ type KindReading = {
   cptRotation: Record<string, number>
   chsh: Record<string, number>
   orientation: { translation: number; cellMap: number; rotation: number }
-  // the CPT re-read on the quotient's full set (item 0015 C1 to C3): beats off under CPT with the inversion cell map,
+  // the CPT re-read on the quotient's full set (an earlier step C1 to C3): beats off under CPT with the inversion cell map,
   // with L.g and with L, per start
   cptMaps: Record<string, Record<string, number>>
 }
@@ -668,7 +668,7 @@ export function readWith<C, S>(
         )
       }
 
-      // the CPT re-read on the quotient (item 0015 C1 to C3)
+      // the CPT re-read on the quotient (an earlier step C1 to C3)
       for (const [name, m] of extra) {
         if (m && maps.inversion) {
           r.cptMaps[name] ??= {}
@@ -701,7 +701,7 @@ export function readWith<C, S>(
   }
 }
 
-// ---- S0: the sparse engine against the dense one, beat by beat (item 0015) ----
+// ---- S0: the sparse engine against the dense one, beat by beat ----
 
 export type Agreement = {
   // runs compared (kind x start), beats compared, beats where the two states differ (as sets, exact amplitudes), beats
@@ -940,7 +940,7 @@ export function meshSetup(kind: MeshKind, radius = 4): Setup {
   const q = quotientMesh(e.table, e.order, 'congruence-3434 (sqrt 2)^6')
 
   // radius 1 on the quotient: the subset G1 to G5, G10, G11 (Setup.lite); radius 2: the orientation check alone; any
-  // other radius: the full set (sparse branches make it feasible, item 0015)
+  // other radius: the full set (sparse branches make it feasible)
   const lite = radius === 1
   const orientationOnly = radius === 2
   const tag = lite ? ' (G6 to G9 not run)' : orientationOnly ? ' (G11 only)' : ''
@@ -1026,7 +1026,7 @@ export function valuePhase(
     status,
     claim: `the value phase on the working rule: ${status}; k* = ${census.kStar}; gates ${JSON.stringify(allGates)} on ${gated.map(r => r.m.setup.name).join(', ')}`,
     metrics,
-    notes: `Gates: grounding-0005 what, gate da3345dbf693. Census: ${census.summary}. ${readings
+    notes: `Gates registered before the run, gate da3345dbf693. Census: ${census.summary}. ${readings
       .map(r => `${r.m.setup.name} (${r.spec.gated ? 'gated' : 'reported'}, ${r.m.seconds.toFixed(0)} s): ${JSON.stringify(r.gates)}`)
       .join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
@@ -1045,7 +1045,7 @@ export default experiment({
     return valuePhase(
       [
         // the gated runs (M3): the box without XA and the R = 4 ball (2026-11-14, dense), the quotient's full set on
-        // sparse branches (item 0015, 2026-11-16; radius 0 = the full set)
+        // sparse branches (2026-11-16; radius 0 = the full set)
         { kind: 'box', radius: 1, gated: true },
         { kind: 'ball', radius: 4, gated: true },
         { kind: 'quotient', radius: 0, gated: true },

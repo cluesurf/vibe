@@ -1,5 +1,5 @@
 // IS THERE A CP-ODD FLAVOR PIECE ON THE WILSON HALF OF R*, AND CAN A DYNAMICAL LIGHT IT BIASES BE RUN? (E-FRC-0293,
-// moving-matter item 0012, readme step 5). E-SPN-0171: the wall's member flow is an index, +4 per flavor per E . B
+// an earlier step, readme step 5). E-SPN-0171: the wall's member flow is an index, +4 per flavor per E . B
 // winding on face A and exactly -4 for the CP-conjugate winding, so a CP-symmetric history nets 0 and a net asymmetry
 // needs the windings biased by a dynamical light pushed by CP-odd flavor currents. E-FRC-0258 is the baseline: exact P
 // and CP violation, C kept, no asymmetry (partial). The item's order: first check the piece (on one half only, covariant,
@@ -63,7 +63,7 @@
 // SECOND RUN (test/record/E-FRC-0293/wasym.log, 47 s): OPEN, as derived. K2 576/576/576/576 rotations, 0/0 reflections; every other gate,
 //  control and the instrument as in the first run. The dynamical-light run: 2.3e17 flops and 4.0e11 bytes a history.
 //
-// PART 'symmetry' (item 0044, decision 009 point 2): every exact symmetry of the flavored slab cycle (E-SPN-0171's slab,
+// PART 'symmetry' (point 2 of a recorded decision): every exact symmetry of the flavored slab cycle (E-SPN-0171's slab,
 // L 12, qa 15, p 1: depths 0 .. 5 the flavored Wilson half, 6 .. 11 the mass alone, A+ = V D V^dag in both) that commutes
 // with a uniform A2 and the wall-side member number N (depths 3 .. 8, E-SPN-0171's flow depths).
 //  CANDIDATES: the 16 sign maps x -> signs x (the only W(F4) elements that keep the depth axis, the field's x0 supercell
@@ -415,7 +415,7 @@ export function wallAsymmetryRun(plan: WallAsymmetryPlan): Verdict {
   })
 }
 
-// ================= PART 'symmetry' (item 0044, decision 009 point 2) =================
+// ================= PART 'symmetry' (point 2 of a recorded decision) =================
 
 export type SymmetryPlan = {
   slab: { L: number; qa: number; p: number }

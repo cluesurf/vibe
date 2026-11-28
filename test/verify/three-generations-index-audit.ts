@@ -12,7 +12,7 @@
 // STANDARD MODEL CLOSURE TRACK 2 — THREE GENERATIONS INDEX & NO-GO AUDIT (G1..G4)
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, strict TypeScript,
-// laptop-safe (< 6 s, < 250 MB RAM), hard assert() checks (exits non-zero on any failure).
+// fast (< 6 s, < 250 MB RAM), hard assert() checks (exits non-zero on any failure).
 //
 // Parts certified:
 //   G1: 24 = 8 + 8 + 8 Three 16-Cell Negative Control

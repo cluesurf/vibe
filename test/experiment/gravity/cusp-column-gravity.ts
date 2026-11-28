@@ -1,5 +1,5 @@
 // CUSP COLUMN COUNTS, BRANCHING STEP-FIELD SCREENING, AND PAIR-DENSITY (1/N_D^2 = l^-6) WARPED 1/r GRAVITY
-// (E-GRV-0156, item vibe-roadmap-board-0012, gaps B-14, B-37, B-52, m-10).
+// (E-GRV-0156).
 //
 // Depth L2: exact cached {3,4,3,4} cusp geometry + exact 3D Bloch Schur complement. Zero random numbers.
 
@@ -35,7 +35,7 @@ export default experiment({
       claim:
         `Exact cached {3,4,3,4} cusp columns: N_D(0..3) = ${res.shellCountsD0to3.join(', ')} (cumulative ${res.cumulativeD0to3.join(', ')}). ` +
         `Raw unweighted bulk Laplacian screens sharply on the 3D husk (G(2)/G(1) = ${res.rawDecayRatio2to1.toFixed(4)} < 0.25, ` +
-        `confirming Proposal 006 Option A fails without a floor). Parameter-free pair-density warp w(D) = 1/N_D^2 (= l^-6, ` +
+        `confirming a board proposal Option A fails without a floor). Parameter-free pair-density warp w(D) = 1/N_D^2 (= l^-6, ` +
         `zero free parameters!) makes column resistance diverge exponentially with depth (${r.map(x => x.toExponential(2)).join(' -> ')}) ` +
         `and restores an unscreened 3D 1/r husk propagator (log-log slope r=1..5: ${res.warpedSlope1to5.toFixed(4)}, ` +
         `max rel 1/r dev: ${(res.warpedMaxRel1overRErr1to5 * 100).toFixed(2)}%) with ZERO floor and ZERO depth register`,

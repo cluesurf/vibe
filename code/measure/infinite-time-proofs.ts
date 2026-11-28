@@ -1,4 +1,4 @@
-// INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
+// INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185).
 //
 // Exact zero-float BigInt symbolic proof certificates mirroring the core infinite-time theorems (T1-T6)
 // in code/proof/Vibe/Rule.lean and code/proof/Vibe/Geometry.lean, paired with a structural and build-artifact
@@ -9,7 +9,7 @@
 //   Theorem 2: forall t : Nat unitarity & exact reversibility + exact BigInt matrix unitarity
 //              in Z[zeta_9][1/6] for C, D (with D^2 = C), F-G, M_pair(zeta_18), ODD value phase,
 //              and ODD-octet G_8(zeta_18).
-//   Theorem 3: SU(2) gate density & infinite order (B-07, forall n >= 1) via elementary 2-adic
+//   Theorem 3: SU(2) gate density & infinite order (forall n >= 1) via elementary 2-adic
 //              parity of s(n) = 2^n Tr(W^n) (zero Kronecker/Niven black box), exact det(W) = 1,
 //              Tr(W) = 1/2, 2 W^2 - W + 2 I = 0, s(n) = 1 (mod 2) for all n >= 1, W^n != +-I,
 //              and non-commuting conjugate [W, V W V^dag] != 0 with ||[W, W2]||_F^2 = 27/4
@@ -17,11 +17,11 @@
 //   Theorem 4: M_pair(u) exact unitarity & forall t : Nat 4D s-wave eigenstate M_pair(u)^t |s> = u^t |s>,
 //              forall t : Nat transverse fixation M_pair(u)^t |v> = |v> on all 11 Helmert basis vectors
 //              of s^perp, and exact irreducible cubic spectral gap g^3 - 6 g^2 + 9 g - 1 = 0 at u = zeta_18.
-//   Theorem 5: 1/N_D^2 column resistance divergence (forall F : Nat, B-14, B-52): exact BigInt proof
+//   Theorem 5: 1/N_D^2 column resistance divergence (forall F : Nat): exact BigInt proof
 //              of N_D >= 18^D and 17 * R(F) + 1 >= 18^F for both N_D = 18^D and the exact {3,4,3,4}
 //              cusp shell recurrence (1, 18, 330, 6034, ...) up to F = 128, plus strict monotonicity
 //              and vanishing screening mass m_screen^2 = 1 / R(F) -> 0.
-//   Theorem 6: Universal speed lock identity (forall F >= 1, B-41, m-29): exact BigInt rational proof
+//   Theorem 6: Universal speed lock identity (forall F >= 1): exact BigInt rational proof
 //              that c_grav^2 = c_light^2 = c_matter^2 = K_eff / M_eff (exact 0 difference) across all
 //              floors F = 1..64 and arbitrary positive warp profiles, plus exact proof of K_eff < M_eff
 //              and strict subluminal causality c^2 < 1 for every floor F >= 2 on the {3,4,3,4} cusp.

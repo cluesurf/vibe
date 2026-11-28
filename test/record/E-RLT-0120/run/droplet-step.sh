@@ -2,7 +2,7 @@
 # The droplet step for E-RLT-0120: task/kernel/droplet-job.sh runs it in the copied package with TSX and THREADS set
 # (job-steps.tsv line 'rlt120 0 bash test/record/E-RLT-0120/run/droplet-step.sh'). It runs the parts axes, plane and
 # generic in turn (each resumable, a finished one refused), and after each copies its record and log into
-# tmp/droplet-logs/. With SMOKE=1 it runs the smoke parts (run.ts --smoke) instead, which is how the laptop smoke test
+# tmp/droplet-logs/. With SMOKE=1 it runs the smoke parts (run.ts --smoke) instead, which is how the local smoke test
 # runs this very file.
 P=$(cd "$(dirname "$0")/../../../.." && pwd) || exit 2
 cd "$P" || exit 2

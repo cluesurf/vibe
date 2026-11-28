@@ -58,7 +58,7 @@ import {
 const SIDE = 3
 
 // every kernel here is built in exact Eisenstein integers (E-FRC-0206, code/rule/fear-kernel-exact): no cosine,
-// sine or rounding, the user's rule of 2026-09-26; the tables equal the fear weave's float-built ones entry for
+// sine or rounding, the author's rule of 2026-09-26; the tables equal the fear weave's float-built ones entry for
 // entry. The swap mode's kernel is 4 K of SWAP U(2 pi / 3), E-QTM-0100's meetingKernel, from the exchanged like
 // kernel at its own divisor
 const SWAP_KERNEL4: number[][] = (() => {

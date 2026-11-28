@@ -1,4 +1,4 @@
-// F-G AT A STRENGTH theta (item vibe-roadmap-grounding-0025; future-models.md family 2; board decision 013). E-FRC-0321
+// F-G AT A STRENGTH theta (future-models.md family 2). E-FRC-0321
 // selected the frame mixer F-G for motion (one lone love passes sqrt 2 on the R = 4 ball within the horizon), and
 // E-SLF-0185 found that at full strength it drains B1's line self in under 2 beats. The report on self persistence in
 // reversible dynamics (avenue 4) asks whether a weaker mixer opens a prethermal gap: a lifetime that grows as

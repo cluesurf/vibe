@@ -1,4 +1,4 @@
-// EXACT U(2) GATE GROUP DENSITY AND ABSTRACT TWO-MODE BEAMSPLITTER BALANCE (item vibe-roadmap-board-0008, gaps B-07, B-46).
+// EXACT U(2) GATE GROUP DENSITY AND ABSTRACT TWO-MODE BEAMSPLITTER BALANCE.
 // Tests both the Q(w) lift (Z[w][1/6]) and the Sigma(648) lift (Z[zeta_9][1/6]) named in note/path-records-and-the-ring.md §3.
 // Gate provenance note: on a single excitation in the bare Tier-A QCA beat U, only the local coin C (cyclic order 6) acts;
 // the qutrit phase gates P_w = diag(1, w), P_{zeta_9} = diag(1, zeta_9), the qutrit Fourier gate F_3, and the path-role

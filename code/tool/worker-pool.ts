@@ -1,7 +1,7 @@
 // Deterministic multi-core worker pool built on Node's worker_threads.
 //
 // Maps a readonly list of independent inputs across a bounded pool of worker
-// threads (capped by default at max(1, min(cpus - 2, 8)) so laptops stay
+// threads (capped by default at max(1, min(cpus - 2, 8)) so the machine stays
 // responsive) and returns results in the exact input index order regardless of
 // worker completion order. Supports structured-cloneable payloads and
 // zero-copy ArrayBuffer transfer in both directions, forwards tsx's TypeScript

@@ -1,7 +1,7 @@
 #!/bin/bash
 # The droplet step for E-RLT-0119's generic part: task/kernel/droplet-run.ts runs it in the copied package with TSX
 # set (--step 'rlt119_generic=bash test/record/E-RLT-0119/run/droplet-generic.sh'). It runs the part, then copies its
-# record and log into tmp/droplet-logs/, the one directory the run's log fetch brings back to the laptop.
+# record and log into tmp/droplet-logs/, the one directory the run's log fetch brings back to the local machine.
 P=$(cd "$(dirname "$0")/../../../.." && pwd) || exit 2
 cd "$P" || exit 2
 echo "threads $THREADS of $(nproc) cores"

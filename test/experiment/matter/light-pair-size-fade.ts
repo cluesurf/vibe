@@ -1,4 +1,4 @@
-// DOES THE LIGHT PAIR'S EXTRA QUARTIC FADE AS THE PAIR GROWS? (E-MTR-0034, OPEN-MOT-01, vibe-roadmap-moving-matter-0002)
+// DOES THE LIGHT PAIR'S EXTRA QUARTIC FADE AS THE PAIR GROWS? (E-MTR-0034, OPEN-MOT-01)
 // E-MTR-0033 read the light register pair's quartic fraction rho, from level-group centroids, at m 0.284 a_B 12
 // (2.192 +- 0.009), m 0.380 a_B 10 (3.241 +- 0.018) and m 0.427 a_B 7.5 (4.49 +- 0.11), against the lone member's 1.770,
 // 2.414 and 2.808: binding adds an excess Delta = rho - rho_member of 0.42, 0.83 and 1.68 that grows with the lattice

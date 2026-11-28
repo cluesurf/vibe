@@ -1,5 +1,5 @@
 // UNIVERSAL LIMITING SPEED c_light = c_matter = c_grav ON THE WARPED {3,4,3,4} CUSP COLUMN
-// VS GW170817 (6e-15 BOUND) (E-RLT-0125, gaps B-41, m-29).
+// VS GW170817 (6e-15 BOUND) (E-RLT-0125).
 //
 // Physics & mathematical structure:
 //   1. Negative control (decoupled layers fail GW170817 by 12 orders of magnitude):

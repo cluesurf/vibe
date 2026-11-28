@@ -1,4 +1,4 @@
-// THE VALUE PHASE AND ITS READINGS ON SPARSE BRANCHES (item vibe-roadmap-grounding-0015): code/rule/value-phase's beat
+// THE VALUE PHASE AND ITS READINGS ON SPARSE BRANCHES: code/rule/value-phase's beat
 // (U = S W X W around the working rule) and the maps E-FND-0178 reads it with (code/measure/locked-parity's mirrors,
 // charge conjugation and motion reversal K S R; code/measure/value-phase-maps' exact state equality and occupation
 // distance; code/measure/doublet-locked-readings' CHSH of the like knot), each on the sparse branches of

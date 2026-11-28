@@ -1,4 +1,4 @@
-// THE GAUGE-INVARIANT CAGE READ FOR THE COLOUR GATES (moving-matter item 0065, decision 013 point 2). C is read from a
+// THE GAUGE-INVARIANT CAGE READ FOR THE COLOUR GATES. C is read from a
 // start that is a function of the gauge orbit only: one dock, colour maximally mixed,
 //
 //   rho0 = |x0><x0| (x) I_3/3 (x) s0

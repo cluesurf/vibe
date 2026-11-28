@@ -1,5 +1,5 @@
-// THE SLAB LEAK AS A TWO-PATH EVANESCENT SUM (E-SPN-0198, moving-matter item 0050, key 2 of research/mass-inputs.md).
-// Working rule R* with the spinor lift L(s) (decision 0006), half +, K = 0.
+// THE SLAB LEAK AS A TWO-PATH EVANESCENT SUM (E-SPN-0198, key 2 of research/mass-inputs.md).
+// Working rule R* with the spinor lift L(s), half +, K = 0.
 //
 // THE QUESTION. E-SPN-0197 read the wall pair's leak delta on E-FRC-0267's chiral slab at L = 8 to 20 and it is not
 // exp(-L / xi): it falls 40-fold from L 10 to 12, then rises. The slab is periodic in the depth, so wall A and wall B are

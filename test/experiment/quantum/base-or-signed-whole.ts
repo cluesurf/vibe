@@ -1,4 +1,4 @@
-// IS THE ONE BASE CONFIGURATION REAL, OR THE SIGNED WHOLE? (E-QTM-0189, quantum-coverage decision 001, options B and
+// IS THE ONE BASE CONFIGURATION REAL, OR THE SIGNED WHOLE? (E-QTM-0189, options B and
 // C, checks 1 and 2 of model-changes.md). Option B ('t Hooft) says one configuration is real and the superposed layer
 // is bookkeeping over it: then the register's states and readings need a non-negative hidden-configuration model, and
 // its step needs a basis in which it is a permutation. Option C says the signed whole is real: where no fear acts it

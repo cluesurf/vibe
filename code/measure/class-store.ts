@@ -1,4 +1,4 @@
-// THE CLASS STORE (item vibe-roadmap-grounding-0041): error-boundary.ts's run (B1's line self, the pieces, the
+// THE CLASS STORE: error-boundary.ts's run (B1's line self, the pieces, the
 // arrivals, the same readings and ledgers) on a smaller exact store, for E-SLF-0196's two-arrival run.
 //
 // THE CLASS. On the ring (L even) every love moves exactly one dock a beat (the coin only turns a love's label on its
@@ -18,7 +18,7 @@
 // outer product, so it is never merged and never truncated. Its beat is P C rho C^dag P^dag in place (the phase and the
 // coin keep the class and the support; the stream is a relabelling), its piece is a block extraction by the piece's
 // key, and where it must become columns (an arrival lifting it into a column sector) it is split by a pivoted Cholesky
-// whose residual trace is ledgered as truncation. Decision 009 holds every 3-love residue dense (19,200 rows for
+// whose residual trace is ledgered as truncation. The decision holds every 3-love residue dense (19,200 rows for
 // residues 1 and 2 on the ring of 32), and each block becomes the next beat's block IN PLACE: the rows that stay in
 // the block are signed and permuted by their stream-and-piece target in the block's own memory, the rows that leave
 // are taken out first, so no block is held twice.
@@ -26,7 +26,7 @@
 // THE ORDER. One beat works the dense blocks first (each moved in place to the next beat; a sub-block bound for a
 // block not yet moved waits until it has), then runs every stored column through B1's beat, its readings, and the
 // next step's arrival and piece, into the next beat's store, so a column is dense in memory only while it is worked.
-// Merges are error-boundary's mergeColumns done in place (mergeInPlace, decision 010: bit-equal, the same caps per
+// Merges are error-boundary's mergeColumns done in place (mergeInPlace: bit-equal, the same caps per
 // class, no new columns held beside the old). At full rank this is the stream path exactly; checked to 1e-12 against it
 // (tmp/eb41-class-check.ts). The floor applies to every column put, as in the stream path; a dense sector has no floor.
 //
@@ -322,7 +322,7 @@ export function choleskyColumns(
   return residual
 }
 
-// THE IN-PLACE MERGE (decision 010): error-boundary's mergeColumns with the kept columns written into the memory of
+// THE IN-PLACE MERGE: error-boundary's mergeColumns with the kept columns written into the memory of
 // the columns they replace, so a merge never holds its `keep` new columns beside the cap + 1 old ones. The Gram matrix,
 // its eigen solve, the order, the kept set and the dropped weight are mergeColumns' own; the new column j is
 // sum_b V_b w_{kept j, b} summed over b in the same order with the same skip of a zero weight, so every amplitude is
@@ -1186,7 +1186,7 @@ export function runClassStore(
 
     // groups bound for a dense sector are added as blocks; those bound for columns are split by Cholesky, the
     // largest last and in place. The largest group bound for this same block (n, r) is the PRIMARY: it is moved in
-    // place (decision 009), so the block for beat t + 1 lives in this block's memory and no block is held twice.
+    // place, so the block for beat t + 1 lives in this block's memory and no block is held twice.
     const toColumns: Group[] = []
     const toDense: { gr: Group; res: number; ii: Int32Array; size: number }[] = []
     let primary: { gr: Group; ii: Int32Array } | undefined
@@ -1607,20 +1607,20 @@ export function runClassStore(
 
       cur.cols[n]!.clear()
 
-      // this love number's full-sector scratch is let go once its columns are worked (item 0045's cut: the 5-love
+      // this love number's full-sector scratch is let go once its columns are worked (a memory cut: the 5-love
       // pair is 0.68 GiB on the ring of 32 and was held through every 4-love merge); a fresh one is zero, as fill(0)
       // leaves a reused one, so no number changes
       bufA.delete(n)
       bufB.delete(n)
     }
 
-    // the arrival's lift buffers are let go after the beat that used them (item 0045's cut: the 5-love one is 0.34
+    // the arrival's lift buffers are let go after the beat that used them (a memory cut: the 5-love one is 0.34
     // GiB and was held from beat 60 on); a fresh buffer is zero, as fill(0) leaves a reused one
     upBuffers.clear()
 
     if (set.every !== undefined && t % set.every === 0) {
       // the next beat's store, counted after this beat built it, so a caller reads its allocation beside the store
-      // it was measured with (item 0045: alloc read against the store at the START of the beat counted an arrival's
+      // it was measured with (reading alloc against the store at the START of the beat counted an arrival's
       // new dense block twice)
       let nextBytes = 0
 

@@ -9,7 +9,7 @@ import Mathlib.Tactic.Ring
 # Vibe Theory: Full-`W(F_4)`-Covariant `GF(3)` Holographic Stabilizer Codes (`[[24, 1, 8]]_3` & `[[24, 0, 6]]_3`)
 
 Lean `4.35.0` + Mathlib `v4.35.0` formalization of Wave-2 Track W2's Open Challenge 4 breakthrough
-(`test/verify/covariant-gf3-holographic-tensors.ts`, `note/project/vibe/research/wave2/02-covariant-gf3-holographic-tensors.md`):
+(`test/verify/covariant-gf3-holographic-tensors.ts`):
 
 1. **Exact `W(F_4)` Alignment & `S_3`-Triality Local-Clifford Homomorphism:**
    - All 4 Bourbaki `W(F_4)` simple reflections `s_0..s_3` on `Fin 24` match `Vibe.Chirality.mat2SlotPerm (f4SimpleMat2 k)`

@@ -41,7 +41,7 @@
 //   Pillar 5 (U5): Sharp classification table (classical railway CA vs externally scheduled exchange-gate
 //                  synthesis U4 vs autonomous low-depth ballistic primitives U1/U2 vs obstructed U3)
 //
-// Strictly deterministic (zero randomness), zero external imports, strict tsc clean, laptop-safe (< 10 s).
+// Strictly deterministic (zero randomness), zero external imports, strict tsc clean, fast (< 10 s).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS, COMPLEX / LINEAR ALGEBRA, AND EXACT Z[zeta_9][1/6] {3,4,3,4} KERNEL

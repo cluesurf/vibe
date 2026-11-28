@@ -89,7 +89,7 @@ function buildSvg(): string {
 
 function main(): void {
   const out =
-    '/Users/lancepollard/base/crew/cluesurf/deck/vibe/make/24-clock.svg'
+    process.env.VIBE_CLOCK_OUT ?? 'make/24-clock.svg'
 
   mkdirSync(dirname(out), { recursive: true })
   writeFileSync(out, buildSvg())

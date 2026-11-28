@@ -16,7 +16,7 @@
 //   Wave-3 W8 champions:         SU(2): 0.277274 (1D-axial 2-wedge), SU(3): 0.546000 (4-dir single-link).
 //
 // 100% deterministic (zero Math.random()), zero external imports, zero Migdal-Kadanoff truncation,
-// zero heuristic MC sampling, exact outward downward rounding (floor6), laptop-safe (< 12 s).
+// zero heuristic MC sampling, exact outward downward rounding (floor6), fast (< 12 s).
 
 const t0Global = performance.now()
 

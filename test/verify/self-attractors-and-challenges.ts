@@ -1,4 +1,4 @@
-// FRONTIER TRACK F5 (vibe-roadmap-board-0066, Game-Changers #7 & #12, board-0030):
+// FRONTIER TRACK F5 (Game-Changers #7 & #12):
 //   Part A: Exact No-Strict-Attractor Theorem (closed finite unitary box in exact Z[zeta_9][1/6])
 //           vs Open-Subsystem Hyperbolic-Sink Recovery on {3,4,3,4} (R=3 exact 8,857-dock O^+(4,1; Z[sqrt(2)])
 //           ball + infinite geodesic/radial channels vs matched-degree 24-regular flat D_4 box control).
@@ -16,7 +16,7 @@
 //             C5. Exact bare 8-layer palindromic beat U in Z[zeta_9][1/6] breather/soliton search (k=1,2,4).
 //
 // Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), exact BigInt + Float64,
-// laptop-safe (< 15 s), noUncheckedIndexedAccess-safe, ending with `export {}`.
+// fast (< 15 s), noUncheckedIndexedAccess-safe, ending with `export {}`.
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS & BASIC DETERMINISTIC PRIMITIVES
@@ -1557,16 +1557,16 @@ function runPartA(): ReturnType<typeof buildExactBallR3> {
 }
 
 // =================================================================================================
-// PART B: TONE-READING INTEGRATION MEASURE Phi_tone UNDER CONTINUOUS MATERIAL TURNOVER (board-0030)
+// PART B: TONE-READING INTEGRATION MEASURE Phi_tone UNDER CONTINUOUS MATERIAL TURNOVER
 // =================================================================================================
 
 function runPartB(): void {
   console.log('\n================================================================================')
-  console.log('PART B: TONE-READING INTEGRATION Phi_tone UNDER MATERIAL TURNOVER (board-0030)')
+  console.log('PART B: TONE-READING INTEGRATION Phi_tone UNDER MATERIAL TURNOVER')
   console.log('================================================================================')
 
   // 1. Find the lexicographically first CHARGE-NEUTRAL (Q = 0: two +1, two -1) 4-slot chiral quad
-  //    on a single dock with exact chi_odd = +1 (certifying board-0002 + board-0030 simultaneously!).
+  //    on a single dock with exact chi_odd = +1 (certifying both at once).
   let neutralChiralSlots: [number, number, number, number] = [0, 0, 0, 0]
   let neutralChiralTones: [ToneNZ, ToneNZ, ToneNZ, ToneNZ] = [1, 1, -1, -1]
   let foundNeutral = false

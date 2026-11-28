@@ -1,8 +1,8 @@
-// THE CROSS-LINE PIECES (board proposal 012, item vibe-roadmap-grounding-0021): the fermion sign and the drift cost of
+// THE CROSS-LINE PIECES: the fermion sign and the drift cost of
 // code/rule/bound-line-pieces written for a state on any number of mesh lines, so a self in the 4D bulk, where the
 // collision K = w_P moves vibes between lines (note/line-confinement.md section 2), has both pieces defined. Both are
 // OPTIONAL, the status the line pieces have: with both off the beat is the working beat (coinedVetoBeat, veto 'none')
-// bit for bit, in either coin place. Proposal 012 is not adopted; nothing here changes the base.
+// bit for bit, in either coin place. The board proposal is not adopted; nothing here changes the base.
 //
 // (a) THE SIGN (012 "The sign"). Every open vibe, love or fear, is one fermion field. The beat's slot maps act on the
 // Fock state in the order modeIndex (code/rule/coined-locked-knit: dock-major, then line, the first slot before the
@@ -38,7 +38,7 @@
 //   - On a state on one open line of the honeycomb the register is Gauss's f_l = Q(l) (the cut trit c of
 //     bound-line-pieces stays 0, no ring), so the cost is bound-line-pieces' cost up to the coupling.
 //
-// ONE BEAT, 'split' (the working place, decision 004): the cost, D, the meetings, the collision with its sign, D, the
+// ONE BEAT, 'split' (the working place): the cost, D, the meetings, the collision with its sign, D, the
 // stream with its sign and the register. 'before': the cost, the coin, the meetings, the collision with its sign, the
 // stream with its sign and the register. The inverses run each part back in the reverse order.
 //

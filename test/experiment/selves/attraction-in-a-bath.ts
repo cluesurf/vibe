@@ -1,4 +1,4 @@
-// ATTRACTION IN A BATH (research 21, B1; item vibe-roadmap-grounding-0002). Does the strongest binding the rule has
+// ATTRACTION IN A BATH (research brief B1). Does the strongest binding the rule has
 // keep a composite in a churning background, or does it ionize with no return? Research 21 reads the author's "an
 // attraction that lets a bundle hold itself together" two ways: as a binding force, which on a closed reversible box
 // keeps nothing for good, or as a cold channel, which does. This run tells them apart on the cheapest bound state.
@@ -63,16 +63,16 @@
 //  Verdict: fail if I1, I2 or C1 fails (the instrument); open in the smoke setting (it proves the file runs, and is no
 //  evidence); otherwise pass on the prediction with C2 and C3, fail on the refutation, open on anything else.
 //
-// SETTINGS. The default is the SMOKE setting (box-8 level, ring 10, k 0 and 3, one start, 16 beats; under 30 s on the
-// laptop). BATH_SWEEP=full is the sweep for the M3: the box-12 level, ring 12 with k 0, 3, 6, 9 (density 0 to 0.75
+// SETTINGS. The default is the SMOKE setting (box-8 level, ring 10, k 0 and 3, one start, 16 beats; under 30 s on a
+// small machine). BATH_SWEEP=full is the sweep for a large machine: the box-12 level, ring 12 with k 0, 3, 6, 9 (density 0 to 0.75
 // lone loves a dock, three starts) and ring 15 with k 0, 3, 6 (two starts), 256 beats each, read every 8. Ring 15 at
-// k = 6 holds 3 C(30, 9) = 43 million states (about 2 GB): never on the laptop.
+// k = 6 holds 3 C(30, 9) = 43 million states (about 2 GB): never on a small machine.
 //
 // PREDICTIONS (written before the first run). I1, I2, C1 pass. C2 passes (E-SPN-0104: fidelity >= 0.9991 alone). The
 // bath strings ionize the cluster: f falls with k, tau_k finite for k >= 6. C3 the least certain: three bath loves at
 // span 2 or 4 overlap the level by construction of the reading.
 //
-// SMOKE RUNS (laptop, 2026-11-12, tmp/run-attraction-in-a-bath.ts, about 6 s; no evidence). Run 1: the cluster as a
+// SMOKE RUNS (small machine, 2026-11-12, tmp/run-attraction-in-a-bath.ts, about 6 s; no evidence). Run 1: the cluster as a
 // packet at one anchor read 0.80 alone at beat 8 (C2 fail, the K mixing above) and C1 failed its 1e-5 smoke bar
 // (1.6e-5). Run 2, at total momentum 0: alone 0.865 flat, because a wrapped translate was placed at c = 0 (its string
 // sent the long way round) and B_X left the cluster's cut trit behind; both fixed (wrapped loves move c, B_X takes them
@@ -858,7 +858,7 @@ export default experiment({
   id: 'selves/attraction-in-a-bath',
   code: 'E-SLF-0182',
   title:
-    "attraction in a bath (research 21, B1): E-SPN-0093's bound one-line cluster, held by the working knit's line sector with E-SPN-0103's two pieces on flat links, placed among k lone loves on its own husk line (charge 0 mod 3): how long it keeps its shape against the bath's density, and whether any share is kept independent of density",
+    "attraction in a bath (research brief B1): E-SPN-0093's bound one-line cluster, held by the working knit's line sector with E-SPN-0103's two pieces on flat links, placed among k lone loves on its own husk line (charge 0 mod 3): how long it keeps its shape against the bath's density, and whether any share is kept independent of density",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

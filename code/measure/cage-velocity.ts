@@ -1,4 +1,4 @@
-// THE ASYMPTOTIC SPEED OF A LONE THIRD ON A UNIFORM CENTRE FIELD (moving-matter item 0074, decision 017 point 3). A static
+// THE ASYMPTOTIC SPEED OF A LONE THIRD ON A UNIFORM CENTRE FIELD. A static
 // periodic field confines only by localization, so a one-dock start on cf0 either stops (all its weight on flat bands, an
 // Aharonov-Bohm cage) or spreads ballistically for ever at v_inf, the root-mean-square band velocity weighted by the
 // start. This reads v_inf from the Bloch blocks of the CAGE ENGINE's own cycle (holonomy-caging cagingBeat, the operator

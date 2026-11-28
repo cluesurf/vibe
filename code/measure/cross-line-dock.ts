@@ -1,4 +1,4 @@
-// THE LINE ENGINE WITH K AT A SHARED DOCK (item vibe-roadmap-grounding-0021, board proposal 012 option C). B1's cluster
+// THE LINE ENGINE WITH K AT A SHARED DOCK. B1's cluster
 // runs on its mesh line l in code/measure/cone-line (the working rule's line sector with the drift cost and the line
 // block's sign, split coin, at the store's clock). At one dock X of l, a second mesh line m holds a single love and a
 // third line m' a full pair (W0's dock, note/line-confinement.md section 2), so on beat 1 the collision at X is K = w_P
@@ -15,7 +15,7 @@
 // `exported`, the reading is then a lower bound).
 //
 // THE ORDER for the sign: every mode off l first (in modeIndex order), then l's modes in line order (position, back
-// slot first). A total order, so by proposal 012 it gives the dynamics of the modeIndex order up to a fixed diagonal
+// slot first). A total order, so by the board proposal it gives the dynamics of the modeIndex order up to a fixed diagonal
 // gauge; the env-only phases it adds are traced out with the env. The experiment checks the whole instrument against the
 // exact R = 4 ball (code/measure/cross-ball) on a start that fits it.
 

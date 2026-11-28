@@ -6,8 +6,8 @@ that claim. **It is false beyond one beat at one dock.** The box and the honeyco
 labeled walk of length 2 or less, and differ at length 3. So a reading of one dock after one beat carries over
 exactly, and every reading that spans two docks or two beats needs a run on the honeycomb itself.
 
-Probe: [`tmp/honeycomb-transfer-probe.ts`](../tmp/honeycomb-transfer-probe.ts) (seconds, laptop). Its output is
-quoted below. Item `vibe-roadmap-honeycomb-0006` turns it into a registered experiment.
+Probe: [`tmp/honeycomb-transfer-probe.ts`](../tmp/honeycomb-transfer-probe.ts) (seconds, one CPU). Its output is
+quoted below. A registered experiment follows it.
 
 ## 1. The two meshes as labeled graphs
 
@@ -160,7 +160,7 @@ the square relation goes to 2(a - b), which lies in 2 D4. Probe: on the radius-3
 with 0 conflicts. A pattern on the box that depends only on a dock's class mod 2 D4 therefore pulls back to the
 honeycomb with the same local relations along every link. The box's vacuum store is built from the classes of
 L'/2 D4 ([`code/measure/dense-hub.ts`](../code/measure/dense-hub.ts), `HUB_SHIFTS`). If it depends only on that
-class and the line, it transfers exactly. Item `vibe-roadmap-honeycomb-0002` checks this.
+class and the line, it transfers exactly. That is still to be checked.
 
 ## 6. Where to run, then
 

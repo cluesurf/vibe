@@ -1,4 +1,4 @@
-// THE LAMBDA^3 WALKER AT ITS OWN CHARGE 3 (E-FRC-0306, note/project/vibe/roadmap/moving-matter item 0091, decision 020
+// THE LAMBDA^3 WALKER AT ITS OWN CHARGE 3 (E-FRC-0306, the moving-matter roadmap, a recorded decision
 // gate G1, the reversal gate of the one-walker reading). In the walker reading the electron is ONE fear Lambda^3 walker,
 // colour-blind because det R = 1, and its charge is 3 in units of a role's third. Every wall result so far (E-FRC-0295's
 // pump, E-SPN-0197's g, E-SPN-0198/0199's leak) was read at probe charge 1. This experiment explores whether the wall, its
@@ -33,7 +33,7 @@
 // WALL INDEX. The signed pump per wall divided by the flux quanta the walker sees and by its twist winding: the number of
 // chiral branches per flux quantum each crossing pi once per 2 pi of the walker's own twist. Charge 1: net / 1. Flux-3
 // loop: net / 3. Charge-3 loop: net / 9. The raw nets are reported beside it, so another normalization can be re-read.
-// GATES (fixed 2026-10-09 by the lead in item 0091, copied, never changed):
+// GATES (fixed 2026-10-09 by the lead, copied, never changed):
 //   KEEP     the wall index unchanged and nonzero, the charge-3 pump exactly 3 times the charge-1 pump per component
 //            (A -6, B +6, integer to 1e-9), |g - 2| <= 2e-3 on every resolved L, and m(L) = charge-1 delta(L) to 1e-9
 //            relative

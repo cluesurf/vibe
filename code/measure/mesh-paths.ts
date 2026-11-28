@@ -1,4 +1,4 @@
-// The shortest-path count of the straight transport tau_a^(2n) on the true {3,4,3,4} mesh (item 0086's instrument,
+// The shortest-path count of the straight transport tau_a^(2n) on the true {3,4,3,4} mesh (the cage front's instrument,
 // shared by gauge/cage-front and gauge/front-mesh). The ball of radius 4 gives each cell's geodesic word count N(c) in
 // breadth-first order; beyond the ball the count splits at the midpoint: the distance D is the least |c| + |c^-1 g|
 // over |c| <= L/2, and the paths are the sum over |c| = L/2 of N(c) N(c^-1 g).

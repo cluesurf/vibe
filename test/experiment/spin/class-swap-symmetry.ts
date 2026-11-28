@@ -1,7 +1,7 @@
-// PARITY-CLASS SWAP SYMMETRY ON THE EXACT {3,4,3,4} BALL (E-SPN-0220, item vibe-roadmap-board-0051, gap B-55).
+// PARITY-CLASS SWAP SYMMETRY ON THE EXACT {3,4,3,4} BALL (E-SPN-0220).
 // Tests whether swapping the honeycomb's two bipartite parity classes (label translation L, det -1), composed with
-// {I, P, C, CP, T, CPT}, commutes exactly in Z[w][1/2] with the bare working rule, working rule + ODD (grounding
-// decision 003), and working rule + F-G (board-0045 surviving mixer), on both coin placements (before and split).
+// {I, P, C, CP, T, CPT}, commutes exactly in Z[w][1/2] with the bare working rule, working rule + ODD (
+// a recorded decision), and working rule + F-G (E-FRC-0321's surviving mixer), on both coin placements (before and split).
 //
 // Depth L2: exact working rule and exact Z[w][1/2] comparisons on the exact {3,4,3,4} ball within its horizon,
 // zero floats, zero random numbers.

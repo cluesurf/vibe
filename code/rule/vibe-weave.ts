@@ -147,7 +147,7 @@ export type VibeWeave = {
   readonly frontier?: number
 }
 
-// THE STREAM ON ANY MESH (vibe-roadmap-honeycomb-0007). A slot (x, d) streams into (neighbour(x, d), d). Where the
+// THE STREAM ON ANY MESH. A slot (x, d) streams into (neighbour(x, d), d). Where the
 // neighbour is missing (-1, a mesh with a frontier, such as a ball of the {3,4,3,4} honeycomb), it streams into its
 // own dock's opposite slot (x, -d): the reflecting frontier. That is the only frontier that keeps the stream one to
 // one, since the slot (x, -d) is exactly the one no neighbour streams into. On the box no neighbour is missing, so

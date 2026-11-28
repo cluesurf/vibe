@@ -4,7 +4,7 @@
 //
 // Strictly standalone (zero external imports), strictly deterministic (zero Math.random),
 // exact BigInt Z[zeta_9][1/6] & Float64 arithmetic, strict TypeScript (--strict --noUncheckedIndexedAccess),
-// laptop-safe (< 6 s runtime, < 200 MB RSS).
+// fast (< 6 s runtime, < 200 MB RSS).
 //
 // BRUTALLY HONEST EPISTEMIC SCOPE LEDGER:
 //   - TIER A (Exact bare-U theorems, no-go bounds, and finite algebraic identities):
@@ -4194,8 +4194,8 @@ function main(): void {
   }
   console.log(`\n  Total runtime: ${elapsedMs.toFixed(0)} ms (< 6000 ms) | Peak RSS: ${rssMb.toFixed(1)} MB (< 200 MB)`)
   assert(passedCount === 8 && GATES.length === 8, `Expected 8/8 gates passing, got ${passedCount}/${GATES.length}`)
-  assert(elapsedMs < 6000, `Runtime ${elapsedMs.toFixed(0)} ms exceeded 6000 ms laptop budget`)
-  assert(rssMb < 200, `Peak RSS ${rssMb.toFixed(1)} MB exceeded 200 MB laptop budget`)
+  assert(elapsedMs < 6000, `Runtime ${elapsedMs.toFixed(0)} ms exceeded 6000 ms budget`)
+  assert(rssMb < 200, `Peak RSS ${rssMb.toFixed(1)} MB exceeded 200 MB budget`)
   console.log('  STATUS: ALL 8/8 DETERMINISTIC GATES CERTIFIED.')
 }
 

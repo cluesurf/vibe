@@ -13,7 +13,7 @@
 //   - Part B is an L1 Z[w][1/2] SU(2) Meet-in-the-Middle gate-synthesis convergence benchmark on a prepared Bell
 //     singlet transported along an open 128-dock line. Because the spatial line walk commutes with uniform spin
 //     analyzers uA (x) uB, this tests SU(2) gate approximation accuracy over L_word in {6, 10, 14, 18, 22}, while
-//     dynamical open-line entanglement saturation (E-QTM-0202 / B-08) remains open.
+//     dynamical open-line entanglement saturation (E-QTM-0202) remains open.
 //
 // Zero Math.random, zero PRNGs, pure deterministic unitary state evolution and exact BigInt Z[w][1/2] arithmetic.
 

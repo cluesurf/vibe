@@ -1,8 +1,8 @@
 // DOES R*'S OWN FROZEN COLOUR KEEP THE BULK GAP AT PI, AND WHAT IS THE COLOUR-SINGLET MASS SPURION D3 ON THE COLOURED
-// SLAB? (E-FRC-0294, note/project/vibe/roadmap/moving-matter item 0049, key 1 of research/mass-inputs.md.) RULE: the
+// SLAB? (E-FRC-0294, the moving-matter roadmap, key 1 of research/mass-inputs.md.) RULE: the
 // register rule R*, half +, member unit ringUnit(-2, 5), with E-SPN-0132's frozen colour: the weave's integer Weyl link
 // start (code/rule/vibe-weave linkStart) lifted to Sigma(648) by a Z3 centre section (code/measure/holonomy-caging
-// roleLinks, sections 'first' and 'weyl'). Colour on R* has no action and no dynamics (C* is deferred, decision 003), so
+// roleLinks, sections 'first' and 'weyl'). Colour on R* has no action and no dynamics (C* is deferred), so
 // the wire term of research/frozen-mass.md input 3 is not a rate: it is a read of the rule's own field.
 //
 // THE INSTRUMENT (code/measure/color-slab). The member carried as a colour triplet: the slot crossing link (x, d) turns
@@ -18,7 +18,7 @@
 //  OPEN    no level within 0.2 in either set under both sections: m_wire = 0 exactly (no gap-closing region in the rule's
 //          field); go to STEP 2.
 //  KILL    a level within 0.04 of pi with participation at least 0.1, in either set, under both sections: no protected
-//          doublet on R*'s own colour, decision 002 point 3 fails; raise a Decide: for 0011 and stop.
+//          doublet on R*'s own colour, point 3 of a recorded decision fails; raise a Decide: for 0011 and stop.
 //  Sections disagree: report and raise a Decide:. Otherwise PARTIAL: go to STEP 2, the wire term is read as D3.
 // STEP 2. The coloured slab 8^3 x L (D4 modulo 8 D3 and L e_3, 512 docks a class), L 8, 12, 16, links the vibe-weave
 //  numbers of that box: the levels within 0.1 of pi (a Chebyshev-filtered block subspace iteration, residual 1e-11: the
@@ -606,7 +606,7 @@ export function colorSlabVerdict(plan: ColorSlabPlan, stages: readonly Stage[]):
     metrics,
     control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), I: flag(I) },
     notes:
-      'The colour is frozen (no action, C* deferred), read in the 4D bulk and on a hand-placed slab, never on the husk. A level count in a window is not a gap criterion (decision 008 point 7). D3 is the A-to-B block of the window levels; it equals the pair-splitting product only when the wall-A projector splits each pair at 45 degrees.',
+      'The colour is frozen (no action, C* deferred), read in the 4D bulk and on a hand-placed slab, never on the husk. A level count in a window is not a gap criterion (point 7 of a recorded decision). D3 is the A-to-B block of the window levels; it equals the pair-splitting product only when the wall-A projector splits each pair at 45 degrees.',
   })
 }
 

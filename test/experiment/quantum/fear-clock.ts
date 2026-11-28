@@ -9,7 +9,7 @@
 //
 // Two geometries: a ring of docks with one line each (3 and 5 docks, 24 beats), where every configuration
 // of a charge sector can be held; and one D4 dock with its twelve lines under the committed turning weave's
-// schedule, streaming into itself (9 beats, the laptop's reach: the support passes 26,000 configurations).
+// schedule, streaming into itself (9 beats, a small machine's reach: the support passes 26,000 configurations).
 // Three states each: the vacuum (every slot calm), the vacuum with a love on one slot (A), and with a love on
 // another (B).
 //

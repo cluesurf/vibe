@@ -1,4 +1,4 @@
-// 4D M_pair(zeta_18) s-WAVE SELF SPECTRAL FILTER ON THE EXACT {3,4,3,4} BALL (E-SLF-0200, gaps B-19, B-49, B-50).
+// 4D M_pair(zeta_18) s-WAVE SELF SPECTRAL FILTER ON THE EXACT {3,4,3,4} BALL (E-SLF-0200).
 //
 // Clean sparse Float64 2-love evolution engine on the cached exact R = 3 honeycomb ball (8,857 docks) under:
 //   U_pair(theta) = S * D * M_pair(theta) * K_pass * P_meet * D
@@ -9,7 +9,7 @@
 //   - All 11 orthogonal transverse modes |t_k> have exact eigenvalue 1.
 //   - Spectral gap |zeta_18 - 1| = 2 sin(pi/18) = 0.3472963553338607 separates |s> from every transverse perturbation.
 //
-// Also includes a laptop-safe wrapper for the fast L = 32, nMax = 5 sparse error-boundary bath survival check
+// Also includes a memory-safe wrapper for the fast L = 32, nMax = 5 sparse error-boundary bath survival check
 // built on code/measure/sparse-error-boundary.ts. Deterministic only (zero Math.random).
 
 import { BOUNCE_TABLE, bouncePermutation } from '@/code/rule/bounce-pair-knit'

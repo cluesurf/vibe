@@ -1,5 +1,5 @@
-// A SEPARATION STRING IN THE MASS CHANNEL: DOES IT KEEP THE MIRROR AND LOCALIZE TWO WALKERS' SEPARATION? (note/project/
-// vibe/roadmap/moving-matter item 0099, E-FRC-0311, decision 021 point 3, research/confinement-many-walker.md section 2,
+// A SEPARATION STRING IN THE MASS CHANNEL: DOES IT KEEP THE MIRROR AND LOCALIZE TWO WALKERS' SEPARATION? (the
+// moving-matter roadmap, E-FRC-0311, point 3 of a recorded decision, research/confinement-many-walker.md section 2,
 // candidate S). Explores whether a pair piece that grows with separation could bound two walkers' separation when it
 // enters the coin's mixing angle (a position-dependent mass) instead of a phase per beat (a vector potential). The phase
 // channel failed both ways on this instrument (E-FRC-0307 unreversed localizes but breaks the E -> -E mirror, E-FRC-0308;

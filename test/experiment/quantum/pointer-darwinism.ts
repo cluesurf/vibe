@@ -1,5 +1,5 @@
 // THE POINTER WITH A LARGER ENVIRONMENT, ITS REDUNDANCY, AND CHARGE SUPERSELECTION (E-QTM-0186, OPEN-QTM-05, 06, 14,
-// path 4 of note/project/vibe/roadmap/quantum-coverage/paths.md). E-QTM-0166 found on C* (E-FND-0160), with ONE other
+// path 4 of the quantum-coverage paths notes). E-QTM-0166 found on C* (E-FND-0160), with ONE other
 // hole as the environment, that a member superposed between pleasure-tone and pain-tone loses 2.0 to 3.2 times more
 // coherence a beat than one superposed between two roles. Its named next step is a larger environment of holes. This
 // file runs the same question with 1, 2 and 3 environment holes, the most the exact engine carries once every member

@@ -1,4 +1,4 @@
-// THE SELF READER (item vibe-roadmap-grounding-0004; note/self-reader.md; grounding decisions 002, 004). Every grounding
+// THE SELF READER (note/self-reader.md). Every grounding
 // route so far read a self by a hand-chosen weight L(t) of B1's bound level, and all failed (E-SLF-0183 to E-SLF-0186).
 // Here a self is a REGION that keeps its past: its closure c_A(t), the fidelity with which the region's present alone
 // (the complement put back to its self-free run) implies its past when the reversible rule runs back, must outlast the

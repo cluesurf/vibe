@@ -15,7 +15,7 @@ import {
 // is the growth at the boundary. The continuity law says the divergence of the conserved current equals the
 // source inside a region. The wake (the atom "wake": new docks joining the one present at its boundary) is
 // exactly such a source, and only at the boundary. There is one present, the whole state at this beat: the
-// boundary is where it grows, not where the now lives, and the interior is not a settled past (decision 001 of
+// boundary is where it grows, not where the now lives, and the interior is not a settled past (a recorded decision of
 // the one-present roadmap). We grow the curved {3,4,3,4} mesh shell by shell, birthing a unit of charge on each
 // newly born frontier cell, run the reversible knit, and measure the discrete divergence (the per-region
 // continuity residual) at the boundary versus in the interior. The title's "settled bulk" means this fully

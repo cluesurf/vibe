@@ -1,6 +1,6 @@
 // DOES A BOUND THREE-MEMBER STATE KEEP ITS IDENTITY WHILE IT MOVES (E-SLF-0181, OPEN-MND-02, OPEN-FND-03; moving-matter
-// item 0025). RULE: R* with the spinor lift L(s) (decision 0006). The state is E-SPN-0193's bound triple (three like-tone
-// register holes, Q = -1, J = 1/2, n+ = 3, on the L = 4 D4 torus), which by decision 002 is the heavy bulk three-member
+// an earlier step). RULE: R* with the spinor lift L(s). The state is E-SPN-0193's bound triple (three like-tone
+// register holes, Q = -1, J = 1/2, n+ = 3, on the L = 4 D4 torus), which by a recorded decision is the heavy bulk three-member
 // state (inertia 100 to 126 times its constituents), not the electron: this verdict is about a bound state keeping its
 // identity, never about the electron.
 //
@@ -406,7 +406,7 @@ export function registerPersistenceRun(plan: PersistencePlan): Verdict {
       .join('; ')} (OV ${OV}, BF ${BF}, CF ${CF}, I1 ${I1}, I2 ${I2}, I3 ${I3})`,
     metrics,
     control: { CF: flag(CF), ...Object.fromEntries(rows.map(r => [`freeMin_${r.d.join('')}`, r.freeMin])) },
-    notes: `R* with L(s), decision 0006; the heavy bulk state of decision 002, not the electron. Lines at K = 0: ${lines
+    notes: `R* with L(s); the heavy bulk state of a recorded decision, not the electron. Lines at K = 0: ${lines
       .map(l => `${l.E.toFixed(4)} (${l.height.toFixed(3)})`)
       .join(', ')}. Rest sector (an eigenstate by construction): a^2 ${restSector.level.a2.toFixed(6)}, rho ${restSector.level.rho.toExponential(2)}. Moving sectors: ${rows
       .map(r => `(${r.d.join(',')}) K ${r.moving.key} leak ${r.moving.level.leak.toExponential(2)} a^2 ${r.moving.level.a2.toFixed(6)} rho ${r.moving.level.rho.toExponential(2)} E ${r.moving.E.toFixed(6)} compressed return at ${r.tMax} ${r.movingReturn.toFixed(5)} integration max ${r.moving.integration.toExponential(2)}, crossing ${r.tCross.toFixed(0)} cycles (E-SPN-0193 speed: ${(plan.L / MOTION_SPEED[r.d.join('')]!).toFixed(0)})`)

@@ -1,4 +1,4 @@
-// Frontier Track F1 (board-0061 Pillars 1 & 2 + board-0055 Game-Changer #5):
+// Frontier Track F1 (Pillars 1 & 2 + Game-Changer #5):
 //   Part A1: Exact 1-loop bare-U vacuum polarization Pi_{mu,nu}(q), discrete Ward-Takahashi identity,
 //            and bare contact-interaction RPA collective spin-1 pole test (honest no-go theorem).
 //   Part A2: Minimal exact cyclotomic Delta(27) <| Sigma(648) < SU(3) Quantum Link Model on a
@@ -15,7 +15,7 @@
 //            exact 4-triangle planar Haar convolution + 4D Migdal-Kadanoff full-character Hessian
 //            bound for SU(2) and SU(3), plus exact 4D non-plaquette loop enumeration).
 //
-// Zero imports, zero Math.random(), deterministic Float64/BigInt arithmetic only, laptop-safe (< 20 s).
+// Zero imports, zero Math.random(), deterministic Float64/BigInt arithmetic only, fast (< 20 s).
 
 // =================================================================================================
 // 0. CORE DETERMINISTIC LINEAR ALGEBRA & COMPLEX MATRIX PRIMITIVES
@@ -2693,7 +2693,7 @@ function runPartB(): PartBReport {
 }
 
 // =================================================================================================
-// PART C: GAME-CHANGER #5 (board-0055) — AXIAL-GAUGE FIXING & 1-STEP 2*D_4 BLOCK-SPIN DECIMATION
+// PART C: GAME-CHANGER #5 — AXIAL-GAUGE FIXING & 1-STEP 2*D_4 BLOCK-SPIN DECIMATION
 // =================================================================================================
 
 type Quat = readonly [number, number, number, number]

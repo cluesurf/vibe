@@ -53,7 +53,7 @@
 //                contradiction (w_sp = -tan(pi alpha/2) = -1/w_R: u_A - u_C = -sqrt(3), u_C - u_D = +sqrt(3)
 //                => w_{AD}=0, v(u_A)=v(u_D))
 //
-// Strictly deterministic (ZERO Math.random), zero external imports, strict tsc clean, laptop-safe (< 10 s).
+// Strictly deterministic (ZERO Math.random), zero external imports, strict tsc clean, fast (< 10 s).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS, COMPLEX / MATRIX SOLVERS, AND EXACT Z[zeta_9][1/6] {3,4,3,4} KERNEL

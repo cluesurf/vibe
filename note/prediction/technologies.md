@@ -8,7 +8,7 @@ mechanism, the artifact, and the first concrete step.
 
 - **The deterministic quantum laboratory.** Every interference,
   collapse, Bell, and decoherence result in the suite reruns bit for
-  bit on a laptop. No physics lab can offer that. The artifact: a
+  bit on an ordinary computer. No physics lab can offer that. The artifact: a
   teaching and research instrument where a student SETS the hidden
   state and watches the Born-rule statistics emerge, and a researcher
   tests foundations proposals (objective collapse, superdeterminism,

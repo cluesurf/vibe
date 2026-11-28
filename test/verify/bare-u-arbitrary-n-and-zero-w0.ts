@@ -51,7 +51,7 @@
 //            decay rate gamma = (6/13) * P_off = 0.0042525/beat (tau=235; P_{d=0}=6/13 and P_off are individually exact;
 //            multi-beat corrections are O(P_off^2) ~ 8e-5)
 //
-// Strictly deterministic (zero Math.random()), zero external imports, strict tsc clean, laptop-safe (< 12 s, < 400 MB).
+// Strictly deterministic (zero Math.random()), zero external imports, strict tsc clean, fast (< 12 s, < 400 MB).
 
 // =================================================================================================
 // 0. HARNESS, COMPLEX/REAL LINEAR ALGEBRA, JACOBI EIGENSOLVER, & EXACT 4D Z[zeta_9][1/6] KERNEL

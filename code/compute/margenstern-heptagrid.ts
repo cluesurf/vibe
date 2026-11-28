@@ -1,7 +1,7 @@
 // Margenstern's universal cellular automaton on the ternary heptagrid {7,3}, FOUR states (arXiv:0903.2108).
 // Rules are 9-char words [current][7 side-neighbours][new] over {W,B,G,R}, rotation invariant under the 7-fold
 // rotation of the heptagon (a cyclic permutation of the seven neighbours). See
-// land/text/papers/more-5/0903.2108.pdf and the shared engine in margenstern-ca.ts.
+// arXiv:0903.2108 and the shared engine in margenstern-ca.ts.
 import {
   compileMargensternCa,
   cyclicRotations,

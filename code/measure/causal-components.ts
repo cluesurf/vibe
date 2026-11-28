@@ -1,6 +1,6 @@
 // Causal components from the copy history (E-RLT-0089). MEASUREMENT: every count is an exact integer.
 //
-// THE USER'S RULE (2026-09-26). Two docks are connected when they arose from each other: a chain of copy events in
+// THE PROJECT'S RULE (2026-09-26). Two docks are connected when they arose from each other: a chain of copy events in
 // the run's history links them, one dock's value copied from the other's, directly or through intermediates. A
 // matter meeting across a boundary is one case. Pass is exactly one causal component on the husk.
 //

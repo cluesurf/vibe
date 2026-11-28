@@ -1,4 +1,4 @@
-// PBR'S READING ON TWO ROLES, EXACT IN Z[w] (E-QTM-0191, decision 001 of the quantum-coverage project).
+// PBR'S READING ON TWO ROLES, EXACT IN Z[w] (E-QTM-0191).
 //
 // Pusey, Barrett and Rudolph (2012): two systems, each prepared independently in psi_0 or psi_1 (non-orthogonal),
 // and one entangled reading on the pair whose every outcome has chance exactly 0 on at least one of the four product

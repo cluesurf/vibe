@@ -1,5 +1,5 @@
-// g OF THE LIGHT WALL PAIR AND ITS CHIRAL PROTECTION (E-SPN-0197, OPEN-MAT-04 protection half; moving-matter item 0009
-// as rewritten by decisions 002 and 007). Working rule R* with the spinor lift L(s) (decision 0006).
+// g OF THE LIGHT WALL PAIR AND ITS CHIRAL PROTECTION (E-SPN-0197, OPEN-MAT-04 protection half; an earlier step
+// as rewritten by a recorded decision). Working rule R* with the spinor lift L(s).
 //
 // THE QUESTION. E-FRC-0290 read, on E-FRC-0267's chiral slab, one Weyl doublet per wall (wall A hand +1, wall B hand -1)
 // and a small inter-wall leak that splits the in-gap levels by +-delta. Together the two walls' levels are one massive
@@ -8,7 +8,7 @@
 // symmetry, g_w - 2 is second order in delta / Lambda (Brodsky and Drell, the chiral case); if it does not, first order.
 // The leak varies about 300-fold over L = 8 to 20, so the two orders separate.
 //
-// THE READ (decision 007: g of a stepped walk is read from its Landau zero level, never from a k-space moment). The slab
+// THE READ (a recorded decision: g of a stepped walk is read from its Landau zero level, never from a k-space moment). The slab
 // sits in a uniform field F01 = B = 2 pi p / qa in the tangent (0, 1) plane (wilson-register's slabStream magnetic cell,
 // Landau gauge, exact Peierls phases on every hop), qa = 48, 64, 96, p = 1, K0 = K1 = K3 = 0, half +, V = -U:
 //   eps0(B)  half the quasienergy gap of the zero-level pair (the levels continuous with +-delta), minimized over K2
@@ -97,7 +97,7 @@ export function logSlope(pts: readonly { eps: number; a: number }[]): number {
   return n > 1 ? sxy / sxx : Number.NaN
 }
 
-// ==== THE LANDAU READ (decision 007) ====
+// ==== THE LANDAU READ ====
 
 export const FIELDS: readonly number[] = [48, 64, 96]
 const H2 = 1e-3
@@ -671,7 +671,7 @@ export function landauVerdict(s: LandauStages): Verdict {
       worstWallResidual: Math.max(...v.rows.map(r => r.vResidual)),
       halfMinusInGap: s.halfMinus.inGap,
     },
-    notes: `L2. R* with L(s). Half +. Decision 007's reader. The plain member has four valleys (K0, K1 in {0, pi}) of mass M, in-plane v0 v1 0.497, 0.159, 0.159, 0.0552, so I1's witness reads the (pi, pi) valley's rung; the Wilson set's zero level is its (pi, pi) valley (M ${g.set1!.M.toFixed(6)}). The wall pair has 4 zero-level states and no doubler walls.`,
+    notes: `L2. R* with L(s). Half +. A recorded decision's reader. The plain member has four valleys (K0, K1 in {0, pi}) of mass M, in-plane v0 v1 0.497, 0.159, 0.159, 0.0552, so I1's witness reads the (pi, pi) valley's rung; the Wilson set's zero level is its (pi, pi) valley (M ${g.set1!.M.toFixed(6)}). The wall pair has 4 zero-level states and no doubler walls.`,
   })
 }
 

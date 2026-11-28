@@ -2,17 +2,17 @@
 // and Exact BigInt Z[zeta_9][1/6] vs Float64 Multi-Excitation Sparse QCA Benchmark.
 //
 // Targets:
-//   - vibe-roadmap-board-0057: Replace bolted-on E-QTM-0206/0207 L1 qubit proxies with pure
+//   - Replace bolted-on E-QTM-0206/0207 L1 qubit proxies with pure
 //     bare-QCA Quantum Darwinism and deterministic bare-QCA Page curves (ZERO external
 //     Sigma(648) gates, ZERO Haar random gates, ZERO external CNOTs, ZERO Math.random()).
-//   - vibe-roadmap-board-0066: Exact BigInt Z[zeta_9][1/6] vs Float64 parity and multi-excitation
+//   - Exact BigInt Z[zeta_9][1/6] vs Float64 parity and multi-excitation
 //     sparse QCA throughput baseline on the 4D {3,4,3,4} Coxeter honeycomb (n = 1, 2, 3, 4).
 //
 // Canonical bare palindromic 8-layer QCA beat from test/universe.ts:
 //   U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd
 // over Z[zeta_9][1/6] mod (z^6 + z^3 + 1 = 0) and O^+(4,1; Z[sqrt(2)]).
 //
-// Strictly deterministic (ZERO Math.random), laptop-safe (< 15s), strict TypeScript
+// Strictly deterministic (ZERO Math.random), fast (< 15s), strict TypeScript
 // (noUncheckedIndexedAccess: true safe), ending with `export {}`.
 
 // ============================================================================

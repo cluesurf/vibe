@@ -1,5 +1,5 @@
-// KEY 5 VALUE ARROW FOR A RADIATING HISTORY & BOX CYCLE-MEAN FINGERPRINT (E-FND-0183, item vibe-roadmap-board-0013, gaps B-01, B-54, m-24).
-// Verifies that the adopted ODD value piece (grounding decision 003) under split coin produces a nonzero C-odd
+// KEY 5 VALUE ARROW FOR A RADIATING HISTORY & BOX CYCLE-MEAN FINGERPRINT (E-FND-0183).
+// Verifies that the adopted ODD value piece under split coin produces a nonzero C-odd
 // interference arrow on a non-repeating radiating history on the cached exact R = 2 {3,4,3,4} ball (breaking C-pairing
 // while keeping exact CP-pairing) and breaks C-conjugate cycle-mean pairing on the period-4 D4 box.
 //

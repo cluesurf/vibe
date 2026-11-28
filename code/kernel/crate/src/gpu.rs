@@ -5,7 +5,7 @@
 // WHY RUNTIME COMPILATION. The source is compiled at load by the vendor's runtime compiler (hiprtc for AMD, NVRTC for
 // NVIDIA) on the machine that runs it, and both runtimes are opened with dlopen, their few calls declared here by hand
 // as node.rs declares napi. So the crate stays dependency-free, a build with the hip or cuda feature needs no toolkit
-// (it compiles on a laptop with neither, which is how it is checked there), the device architecture is the one found
+// (it compiles on a machine with neither, which is how it is checked there), the device architecture is the one found
 // at load (gfx942 on an MI300X, sm_90 on a GH200) rather than a guess at build time, and the FMA control is a compile
 // OPTION at load (VIBE_KERNEL_GPU_CONTRACT), not a second build.
 //

@@ -1,5 +1,5 @@
 // A CP-ODD FLAVOR STRUCTURE ON THE WILSON HALF OF THE ADOPTED RULE R*, AND THE SIZE OF THE DYNAMICAL-LIGHT RUN IT FEEDS
-// (E-FRC-0293, moving-matter item 0012). E-SPN-0171 found the wall's member flow an index, 4 per flavor per E . B winding,
+// (E-FRC-0293). E-SPN-0171 found the wall's member flow an index, 4 per flavor per E . B winding,
 // CP-blind, so a net asymmetry needs the windings biased by a dynamical light pushed by CP-odd flavor currents. On one
 // half a flavor phase is physical only when the half holds TWO flavor bases (E-FRC-0259 point 2): one basis is removed by
 // W = P+ (x) V + P- (x) 1. R*'s Wilson half has two flavor-carrying structures, the mass (Q_S P+ in beat 1, its inverse
@@ -20,7 +20,7 @@
 //   dynamicalLightCost    the arithmetic of the dynamical-light run on E-SPN-0171's slab: modes, the sea's band states,
 //                         the flops a beat and the memory
 //
-// THE SYMMETRY CENSUS (part 'symmetry', item 0044, decision 009 point 2). A candidate is a signed coordinate map x ->
+// THE SYMMETRY CENSUS (part 'symmetry'). A candidate is a signed coordinate map x ->
 // signs x (+ a depth shift that keeps the wall profile, + an optional magnetic step along x0), unitary or antiunitary
 // (complex conjugation after it), with the stream sent to itself (rev false) or to its inverse (rev true), the two beats
 // kept or exchanged (swap). In the real register basis every projector and the swap coin are real, so the only complex
@@ -367,7 +367,7 @@ export function dynamicalLightCost(plan: {
   }
 }
 
-// ---- the symmetry census of the driven slab (part 'symmetry', item 0044) ----
+// ---- the symmetry census of the driven slab (part 'symmetry') ----
 
 const SM = HF
 const SM2 = SM * SM

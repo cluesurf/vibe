@@ -1,20 +1,20 @@
 area,fact,status,depth,mesh,grade,rule,vacuum,experiments,unregistered,refusal
-A. Quantum foundations,superposition and interference,held,L2,d4-box none,box-specific no-mesh,working,,E-QTM-0100 E-QTM-0103 E-QTM-0109 E-QTM-0163,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,the Born rule,held,L2,d4-box,box-specific,other,,E-QTM-0113 E-QTM-0130 E-QTM-0142,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+A. Quantum foundations,superposition and interference,held,L2,d4-box none,box-specific no-mesh,working,,E-QTM-0100 E-QTM-0103 E-QTM-0109 E-QTM-0163,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,the Born rule,held,L2,d4-box,box-specific,other,,E-QTM-0113 E-QTM-0130 E-QTM-0142,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 A. Quantum foundations,unitarity and reversibility,held,,,,,,,,held with no registered experiment
-A. Quantum foundations,no signaling,held,L2,d4-box,box-specific,other,,E-QTM-0111 E-QTM-0143,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,Bell violation,held,L2,d4-box,box-specific,other,,E-QTM-0140 E-MTH-0028 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,Tsirelson's bound,held,L2,d4-box none,box-specific no-mesh,working,,E-QTM-0112 E-QTM-0132 E-QTM-0133 E-QTM-0141 E-QTM-0163,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,where Bell's escape comes from,held,L2,d4-box,box-specific,other,,E-QTM-0143 E-QTM-0144 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,the love-fear middle rung's true maximum,held,L2,none d4-box,no-mesh box-specific,other,,E-QTM-0165 E-QTM-0100 E-QTM-0140 E-QTM-0141,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,contextuality,held,L2,d4-box,box-specific,other,,E-QTM-0149 E-QTM-0150 E-QTM-0120 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,the magic resource,held,L2,none d4-box,no-mesh box-specific,other,,E-QTM-0118 E-QTM-0119 E-QTM-0121 E-QTM-0149,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+A. Quantum foundations,no signaling,held,L2,d4-box,box-specific,other,,E-QTM-0111 E-QTM-0143,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,Bell violation,held,L2,d4-box,box-specific,other,,E-QTM-0140 E-MTH-0028 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,Tsirelson's bound,held,L2,d4-box none,box-specific no-mesh,working,,E-QTM-0112 E-QTM-0132 E-QTM-0133 E-QTM-0141 E-QTM-0163,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,where Bell's escape comes from,held,L2,d4-box,box-specific,other,,E-QTM-0143 E-QTM-0144 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,the love-fear middle rung's true maximum,held,L2,none d4-box,no-mesh box-specific,other,,E-QTM-0165 E-QTM-0100 E-QTM-0140 E-QTM-0141,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,contextuality,held,L2,d4-box,box-specific,other,,E-QTM-0149 E-QTM-0150 E-QTM-0120 E-FND-0160,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,the magic resource,held,L2,none d4-box,no-mesh box-specific,other,,E-QTM-0118 E-QTM-0119 E-QTM-0121 E-QTM-0149,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 A. Quantum foundations,canonical commutation,partial,L2,ring,stand-in,other,,E-FRC-0230,,
 A. Quantum foundations,uncertainty relations,partial,L2,d4-box none,box-specific no-mesh,other,,E-QTM-0115 E-QTM-0059,,
-A. Quantum foundations,no-cloning,held,L2,d4-box,box-specific,other,,E-QTM-0151,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-A. Quantum foundations,teleportation and swapping,held,L2,d4-box,box-specific,other,,E-QTM-0152,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+A. Quantum foundations,no-cloning,held,L2,d4-box,box-specific,other,,E-QTM-0151,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+A. Quantum foundations,teleportation and swapping,held,L2,d4-box,box-specific,other,,E-QTM-0152,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 A. Quantum foundations,entanglement monogamy,partial,L2,d4-box,box-specific,other,,E-QTM-0153,,
-A. Quantum foundations,GHZ and Mermin,held,L2,d4-box,box-specific,other,,E-QTM-0153,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+A. Quantum foundations,GHZ and Mermin,held,L2,d4-box,box-specific,other,,E-QTM-0153,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 A. Quantum foundations,measurement inside the model,partial,L2,d4-box,box-specific,other,,E-QTM-0135 E-QTM-0138 E-QTM-0142 E-QTM-0144,,
 A. Quantum foundations,decoherence and pointer states,open,L2,d4-box,box-specific,other,,E-QTM-0114 E-QTM-0128 E-QTM-0166,,
 A. Quantum foundations,quantum Zeno,open,L2,d4-box,box-specific,other,,E-QTM-0116 E-QTM-0129,,
@@ -25,28 +25,28 @@ A. Quantum foundations,Aharonov-Bohm,partial,L2,d4-box,box-specific,working,,E-F
 A. Quantum foundations,Berry and geometric phase,stand-in,L2,none,no-mesh,none,,E-GMT-0036 E-QTM-0094,,
 A. Quantum foundations,the Schrödinger limit,partial,L2,d4-box none cubic,box-specific no-mesh stand-in,working,,E-QTM-0157 E-CMP-0017 E-MTR-0006 E-QTM-0060,,
 A. Quantum foundations,the path integral,partial,L2,d4-box,box-specific,working,,E-QTM-0158,,
-A. Quantum foundations,positions in superposition,held,L2,d4-box,box-specific,working,,E-QTM-0157 E-RLT-0104 E-RLT-0105,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+A. Quantum foundations,positions in superposition,held,L2,d4-box,box-specific,working,,E-QTM-0157 E-RLT-0104 E-RLT-0105,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 A. Quantum foundations,the quantum-classical boundary,none,,,,,,,,
 A. Quantum foundations,weak measurement and weak values,partial,L2,d4-box,box-specific,working,,E-QTM-0160,,
 A. Quantum foundations,mixed states and POVMs,partial,L2,d4-box,box-specific,working,,E-QTM-0161,,
 A. Quantum foundations,Wigner's friend,partial,L2,d4-box cubic,box-specific stand-in,working,,E-QTM-0162 E-SLF-0083,,
 A. Quantum foundations,ontological status of the state (PBR),open,L2,d4-box,box-specific,other,,E-QTM-0130 E-QTM-0142,,
 A. Quantum foundations,the vacuum's entanglement,open,L2,d4-box,box-specific,working,,E-GRV-0068 E-HLG-0037,,
-B. Special relativity,a light cone,held,L2,d4-box,box-specific,other,,E-RLT-0091 E-FND-0113,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+B. Special relativity,a light cone,held,L2,d4-box,box-specific,other,,E-RLT-0091 E-FND-0113,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 B. Special relativity,one light speed,partial,L2,d4-box none ring,box-specific no-mesh stand-in,working,,E-SPN-0160 E-GRV-0145 E-SPN-0090 E-FRC-0260 E-FRC-0261 E-RLT-0110 E-FRC-0266 E-FRC-0262 E-FRC-0265 E-FRC-0269 E-FRC-0270 E-FRC-0275 E-FRC-0276 E-FRC-0235 E-FRC-0212 E-FRC-0250 E-FRC-0251 E-MTR-0013 E-MTR-0023,,
-B. Special relativity,isotropy of transport,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0094 E-RLT-0096 E-GMT-0039 E-RLT-0086 E-RLT-0058,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+B. Special relativity,isotropy of transport,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0094 E-RLT-0096 E-GMT-0039 E-RLT-0086 E-RLT-0058,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 B. Special relativity,Lorentz invariance of the dispersion,partial,L2,none d4-box honeycomb-ball honeycomb-cusp cubic,no-mesh box-specific honeycomb periodic mirrored stand-in,other,,E-MTR-0013 E-CMP-0017 E-SPN-0182 E-SPN-0181 E-SPN-0184 E-MTR-0030 E-MTR-0031 E-MTR-0029,,
 B. Special relativity,the size of Lorentz violation,partial,L2,d4-box cubic ring none,box-specific stand-in no-mesh,other,,E-MTH-0008 E-MTH-0014 E-FRC-0261 E-RLT-0110,,
 B. Special relativity,time dilation,partial,L2,ring d4-box cubic,stand-in box-specific,other,,E-MTR-0025 E-SPN-0207 E-SPN-0206 E-SPN-0213 E-SPN-0214 E-MTR-0026,,
 B. Special relativity,length contraction and simultaneity,partial,L2,d4-box,box-specific,working,,E-RLT-0108,,
 B. Special relativity,E = mc²,partial,L2,ring cubic d4-box,stand-in box-specific,other,,E-MTR-0024 E-RLT-0111 E-SPN-0212 E-SPN-0162 E-MTR-0028,,
 B. Special relativity,relativistic momentum and collisions,partial,L2,d4-box,box-specific,working,,E-RLT-0109,,
-B. Special relativity,CPT,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0061 E-RLT-0062 E-RLT-0063 E-RLT-0064 E-RLT-0065 E-RLT-0066 E-RLT-0067 E-RLT-0068 E-RLT-0069,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+B. Special relativity,CPT,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0061 E-RLT-0062 E-RLT-0063 E-RLT-0064 E-RLT-0065 E-RLT-0066 E-RLT-0067 E-RLT-0068 E-RLT-0069,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 C. Spin and statistics,spin one half,held,L1,none,no-mesh,other,,E-SPN-0051 E-SPN-0054 E-SPN-0071,,
 C. Spin and statistics,a moving token is a spinor,partial,L2,none,no-mesh,other,,E-SPN-0066 E-SPN-0053,,
 C. Spin and statistics,the spin-statistics theorem,held,L1,none,no-mesh,none,,E-SPN-0071,,
-C. Spin and statistics,Pauli exclusion,held,L2,d4-box,box-specific,other,,E-SPN-0045 E-SPN-0047 E-SPN-0175,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-C. Spin and statistics,a conserved fermion number,held,L2,d4-box,box-specific,other,,E-SPN-0059 E-SPN-0062 E-SPN-0063,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+C. Spin and statistics,Pauli exclusion,held,L2,d4-box,box-specific,other,,E-SPN-0045 E-SPN-0047 E-SPN-0175,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+C. Spin and statistics,a conserved fermion number,held,L2,d4-box,box-specific,other,,E-SPN-0059 E-SPN-0062 E-SPN-0063,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 C. Spin and statistics,g = 2,partial,L2,none,no-mesh,other,,E-SPN-0079 E-SPN-0080,,
 C. Spin and statistics,the anomalous moment a = α/2π,none,,,,,,,,
 C. Spin and statistics,spin-orbit coupling,none,,,,,,,,
@@ -55,7 +55,7 @@ C. Spin and statistics,no anyons in 3D,partial,L2,none d4-box,no-mesh box-specif
 C. Spin and statistics,bosons,partial,L2,none ring d4-box,no-mesh stand-in box-specific,other,,E-SPN-0046 E-SPN-0055 E-FRC-0232 E-FND-0158 E-FND-0163 E-FND-0166,,
 D. Light and charge (quantum electrodynamics),Gauss's law exactly,held,L2,d4-box ring,box-specific stand-in,other,,E-FRC-0185 E-FRC-0231,,
 D. Light and charge (quantum electrodynamics),gauge invariance,held,L2,d4-box cubic,box-specific stand-in,other,,E-FRC-0168 E-FRC-0179,,
-D. Light and charge (quantum electrodynamics),light linear and exact,held,L2,d4-box,box-specific,other,,E-FRC-0185 E-FRC-0244 E-FRC-0245,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+D. Light and charge (quantum electrodynamics),light linear and exact,held,L2,d4-box,box-specific,other,,E-FRC-0185 E-FRC-0244 E-FRC-0245,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 D. Light and charge (quantum electrodynamics),a quantum photon that travels,partial,L2,ring,stand-in,other,,E-FRC-0231,,
 D. Light and charge (quantum electrodynamics),a massless photon,partial,L2,d4-box ring,box-specific stand-in,other,,E-FRC-0235,,
 D. Light and charge (quantum electrodynamics),two transverse polarizations,held,L2,d4-box cubic ring,box-specific stand-in,other,,E-FRC-0168 E-FRC-0179 E-FRC-0235,,
@@ -104,7 +104,7 @@ G. The weak force and the Standard Model's structure,CP violation,partial,L2,d4-
 G. The weak force and the Standard Model's structure,neutrino oscillations,stand-in,L2,none,no-mesh,none,,E-FRC-0036,,
 G. The weak force and the Standard Model's structure,hypercharges and anomaly cancellation,stand-in,L2,none,no-mesh,none,,E-FRC-0002 E-FND-0020,,
 G. The weak force and the Standard Model's structure,the particle count,stand-in,L2,none,no-mesh,none,,E-FND-0020 E-FND-0027 E-FRC-0022,,
-H. Gravity and spacetime,three space dimensions,held,L2,d4-box,box-specific,other,,E-FRC-0168,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+H. Gravity and spacetime,three space dimensions,held,L2,d4-box,box-specific,other,,E-FRC-0168,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 H. Gravity and spacetime,the equivalence principle,stand-in,L2,d4-box cubic,box-specific stand-in,other,,E-SLF-0046 E-GRV-0090 E-GRV-0096 E-GRV-0146 E-GRV-0147 E-FND-0167 E-GRV-0149,,
 H. Gravity and spacetime,Newton's inverse square,stand-in,L2,cubic d4-box,stand-in box-specific,working,box-store,E-GRV-0090 E-GRV-0091 E-GRV-0100 E-GRV-0102 E-SPN-0098 E-GRV-0086 E-GRV-0034 E-GRV-0056 E-GRV-0057 E-GRV-0058 E-GRV-0059 E-GRV-0060 E-GRV-0061 E-GRV-0062 E-GRV-0063 E-GRV-0064 E-GRV-0065 E-GRV-0066 E-GRV-0067 E-GRV-0068 E-GRV-0069 E-GRV-0070 E-GRV-0071 E-GRV-0072 E-GRV-0073 E-GRV-0074 E-GRV-0075 E-GRV-0076 E-GRV-0077 E-GRV-0078 E-GRV-0079 E-GRV-0080 E-GRV-0081 E-GRV-0082 E-GRV-0083 E-GRV-0084 E-GRV-0085 E-GRV-0087 E-GRV-0146 E-GRV-0147 E-GRV-0148,,
 H. Gravity and spacetime,light bending,stand-in,L2,d4-box cubic,box-specific stand-in,other,,E-GRV-0088 E-GRV-0092 E-GRV-0093 E-GRV-0099,,
@@ -134,21 +134,21 @@ I. Cosmology,the Hubble tension,none,,,,,,,,
 I. Cosmology,the singularity,open,,,,,,,,
 I. Cosmology,the end state,partial,L2,d4-box honeycomb-ball honeycomb-cusp,box-specific honeycomb,other,box-store,E-FND-0155 E-CSM-0060,,
 "J. Heat, statistics and time",temperature and equilibrium,partial,L2,d4-box,box-specific,other,box-store,E-FND-0148 E-SPN-0048 E-SPN-0056 E-SPN-0057 E-FND-0158 E-FND-0162 E-FND-0161 E-FND-0164 E-FND-0163 E-FND-0165,,
-"J. Heat, statistics and time",the second law in a reversible rule,held,L2,d4-box,box-specific,other,box-store,E-FND-0146 E-FND-0122,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-"J. Heat, statistics and time",the arrow of time,held,L2,d4-box,box-specific,other,box-store,E-FND-0147,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-"J. Heat, statistics and time",fluctuation-dissipation,held,L2,d4-box,box-specific,other,box-store,E-FND-0156,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+"J. Heat, statistics and time",the second law in a reversible rule,held,L2,d4-box,box-specific,other,box-store,E-FND-0146 E-FND-0122,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+"J. Heat, statistics and time",the arrow of time,held,L2,d4-box,box-specific,other,box-store,E-FND-0147,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+"J. Heat, statistics and time",fluctuation-dissipation,held,L2,d4-box,box-specific,other,box-store,E-FND-0156,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 "J. Heat, statistics and time",Bose and Fermi distributions,partial,L2,ring d4-box cubic,stand-in box-specific,other,,E-FRC-0230 E-FRC-0232 E-SPN-0048 E-SPN-0058 E-FND-0158 E-FND-0162 E-FND-0165,,
 "J. Heat, statistics and time",phase transitions and universality,partial,L2,d4-box cubic,box-specific stand-in,other,,E-MTH-0023 E-FRC-0165,,
 "J. Heat, statistics and time","superconductivity, superfluidity, condensation",stand-in,L2,none,no-mesh,none,,E-FLD-0007,,
 K. Matter in bulk and fluids,hydrodynamics,open,L2,d4-box,box-specific,working,,E-RLT-0056 E-RLT-0057 E-FND-0158 E-FND-0171,,
 K. Matter in bulk and fluids,isotropic viscosity,open,L2,d4-box,box-specific,working,,E-RLT-0057 E-FND-0171,,
-K. Matter in bulk and fluids,sound,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0086 E-MTH-0010,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+K. Matter in bulk and fluids,sound,held,L2,d4-box none,box-specific no-mesh,other,,E-RLT-0086 E-MTH-0010,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 K. Matter in bulk and fluids,crystals and band structure,none,,,,,,,,
 K. Matter in bulk and fluids,magnetism,none,,,,,,,,
 K. Matter in bulk and fluids,topological phases and the quantum Hall effect,stand-in,L2,none d4-box,no-mesh box-specific,other,,E-QTM-0077 E-QTM-0080 E-QTM-0081 E-QTM-0097 E-SPN-0188,,
-L. The vacuum and walls,one causally connected world,held,L2,d4-box,box-specific,other,box-store,E-RLT-0089 E-RLT-0091 E-RLT-0093,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-L. The vacuum and walls,"one vacuum domain, no frozen walls",held,L2,d4-box,box-specific,working,box-store,E-RLT-0103 E-RLT-0092 E-RLT-0095,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
-L. The vacuum and walls,a vacuum that neither melts nor freezes,held,L2,d4-box,box-specific,working,,E-RLT-0103 E-RLT-0105 E-RLT-0084 E-RLT-0085 E-RLT-0086 E-RLT-0087 E-RLT-0088,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)"
+L. The vacuum and walls,one causally connected world,held,L2,d4-box,box-specific,other,box-store,E-RLT-0089 E-RLT-0091 E-RLT-0093,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+L. The vacuum and walls,"one vacuum domain, no frozen walls",held,L2,d4-box,box-specific,working,box-store,E-RLT-0103 E-RLT-0092 E-RLT-0095,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
+L. The vacuum and walls,a vacuum that neither melts nor freezes,held,L2,d4-box,box-specific,working,,E-RLT-0103 E-RLT-0105 E-RLT-0084 E-RLT-0085 E-RLT-0086 E-RLT-0087 E-RLT-0088,,"held on the flat D4 box alone, box-specific until rerun on the honeycomb"
 L. The vacuum and walls,a vacuum that boils,held,,,,,,,,held with no registered experiment
 M. The classical world,Newton's laws,stand-in,L2,cubic d4-box none,stand-in box-specific no-mesh,other,,E-MTR-0006 E-FRC-0215 E-QTM-0094,,
 M. The classical world,Maxwell's equations,held,L2,d4-box cubic,box-specific stand-in,other,,E-FRC-0168 E-FRC-0179,,

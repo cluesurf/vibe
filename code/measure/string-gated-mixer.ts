@@ -1,4 +1,4 @@
-// THE STRING-GATED LINE MIXER (E-SPN-0121). note/project/vibe/roadmap/research/remaining-pieces.md, "Two hubs bound by the
+// THE STRING-GATED LINE MIXER (E-SPN-0121). the remaining-pieces notes, "Two hubs bound by the
 // string" (E-SPN-0120): free 3d motion of bound matter needs a change to the rule itself, and the first candidate
 // named there is a line mixer that acts only on non-vacuum states and still cannot cascade.
 //

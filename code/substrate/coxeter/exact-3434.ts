@@ -26,7 +26,7 @@
 //
 // `reduce: { prime, sqrtTwo }` runs the same search over the transports reduced modulo a prime ideal of Z[sqrt 2]
 // (sqrt 2 -> s with s^2 = 2 mod p), keyed by the whole reduced frame. With no radius it enumerates the finite
-// group the transports generate mod p, the quotient of item vibe-roadmap-honeycomb-0008.
+// group the transports generate mod p, the finite quotient of quotient-3434.ts.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { type Mesh } from '@/code/tool/mesh'

@@ -1,9 +1,9 @@
-// THE COLOUR GATES' CONTROLS WITH THE GAUGE-INVARIANT CAGE READ (E-FRC-0296, moving-matter item 0065, decision 013 point 2).
+// THE COLOUR GATES' CONTROLS WITH THE GAUGE-INVARIANT CAGE READ (E-FRC-0296, point 2 of a recorded decision).
 // The W and P reads are 0055's (test/experiment/gauge/color-gates gateSpecs, wall code unchanged since 0055, so their kept
 // stage files are reused); C is now read from rho0 = |x0><x0| (x) I_3/3 (x) s0 (code/measure/color-gates-cage
 // dockCageRead), exactly gauge invariant, so CG holds C to rounding again.
 //
-// CONTROLS (decision 013 point 2, item 0065)
+// CONTROLS (point 2 of a recorded decision)
 //  CF identity links: W-PASS, C at least 0.9, P = 1 to 1e-12.
 //  CR R*'s own lifted hash, section 'first': W-FAIL with the L 8 nearest level 0.4736 within 1e-3, C under 0.9, and the
 //     old packet's role-0 ratio (printed diagnostic) still E-SPN-0196's 0.3004 within 5e-5.

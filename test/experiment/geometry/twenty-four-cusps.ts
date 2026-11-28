@@ -1,4 +1,4 @@
-// READING ONE BULK STATE TOWARD ALL 24 CUSPS OF A DOCK (E-GMT-0045, item vibe-roadmap-board-0011, gaps B-11, B-36).
+// READING ONE BULK STATE TOWARD ALL 24 CUSPS OF A DOCK (E-GMT-0045).
 // Constructs all 24 exact ideal cusp vertices of the base 24-cell in Z[sqrt 2] and reads 4 evolved states (present
 // minus empty vacuum V1) toward all 24 cusps on the exact R = 2 ball (split coin, bare and F-G).
 //

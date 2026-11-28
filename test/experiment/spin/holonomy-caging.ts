@@ -1,6 +1,6 @@
-// DOES THE LINK HOLONOMY CAGE A MEMBER CARRIED AS A ROLE TRIPLET? (E-SPN-0196, moving-matter item 0019, Key 4 of
+// DOES THE LINK HOLONOMY CAGE A MEMBER CARRIED AS A ROLE TRIPLET? (E-SPN-0196, Key 4 of
 // idea/keys.md, one-body half; research/charge-one-after-anomaly.md makes it the confinement premise: anomaly matching
-// presupposes that a lone +-1/3 member does not move freely). R* with the spinor lift (decision 0006).
+// presupposes that a lone +-1/3 member does not move freely). R* with the spinor lift.
 //
 // THE QUESTION. A lone member's role is a triplet that nearly every loop twists (E-SPN-0132: 399,485 of 401,408
 // elementary loops curved on side 8), while the member-antimember delta singlet and the three-member epsilon singlet are

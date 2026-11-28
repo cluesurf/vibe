@@ -1,6 +1,6 @@
 // Horosphere export: the real {5,3,4} does the computing, the horosphere gives the flat picture.
 //
-// The faithful selves pipeline (note/project/vibe/research/notes/visualizing-the-selves.md, what-is-a-self.md,
+// The faithful selves pipeline (the visualizing the selves notes, what-is-a-self.md,
 // 04-life.md). The cohesive perception rule (the P106 rule, a charge hops toward where it has MORE
 // same-sign neighbours, conserving) runs on the genuine hyperbolic {5,3,4} crystal. We then take a
 // HOROSPHERE slice (a flat Busemann level set, P142), project its cells to flat 2D (perpendicular to the
@@ -18,9 +18,9 @@ import { makeWeyl } from '@/code/tool/weyl'
 
 type Weyl = { next: () => number }
 
-// where the browser page reads the replay from (the clue.surf home site public dir)
+// where the browser page reads the replay from (set VIBE_HOROSPHERE_OUT to the site's public dir)
 const OUTPUT_PATH =
-  '/Users/lancepollard/base/crew/cluesurf/mesh/site/clue.surf/home/public/vibe/horosphere.json'
+  process.env.VIBE_HOROSPHERE_OUT ?? 'make/horosphere.json'
 
 // the cohesive perception rule (P106), one beat on the bulk. A charge hops into an adjacent peace cell when
 // that move lands it among MORE same-sign neighbours (cohesion), with a rare random escape, opposite

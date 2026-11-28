@@ -1,6 +1,6 @@
 // THREE CHIRAL FERMION GENERATIONS, EXPONENTIAL MASS HIERARCHY, AND UNITARY CKM MIXING
 // FROM D4 TRIALITY, THE EXACT Z[zeta_9][1/6] UNITARY CUSP WALL, AND {3,4,3,4} WARP SHELLS
-// (E-FRC-0323, Frontier 2, gaps B-25 and m-11).
+// (E-FRC-0323, Frontier 2).
 //
 // Builds directly on verified Vibe Theory primitives and confronts prior negative/honest results:
 //   - E-SPN-0222 (code/measure/unitary-cusp-wall.ts): exact Z[zeta_9][1/6] split-step unitary cusp

@@ -1,5 +1,5 @@
 // FRONTIER TRACK F6: TIER-C SPIN(10) EFT CONSISTENCY AUDIT
-// (Roadmap item vibe-roadmap-board-0067)
+// (a roadmap item)
 //
 // Standalone deterministic verification script (ZERO Math.random, ZERO external edits, < 5 s runtime):
 //

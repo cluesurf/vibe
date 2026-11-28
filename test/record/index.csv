@@ -130,7 +130,7 @@ tmp/g2t-smoke2.log,kept,test/record/E-SPN-0152/g2t-smoke2.log,8020,test/experime
 tmp/g2t-smoke3.log,kept,test/record/E-SPN-0152/g2t-smoke3.log,9813,test/experiment/spin/hurwitz-link-register.ts:125;from experiment/open-pieces
 tmp/gwall.log,kept,test/record/E-SPN-0198/gwall.log,6226,test/experiment/spin/wall-leak-channels.ts:72
 tmp/hb-exp-run1.log,kept,test/record/E-FRC-0262/hb-exp-run1.log,3367,test/experiment/gauge/husk-balance.ts:84;from experiment/open-pieces
-tmp/hb-probe1.log,kept,test/record/E-FRC-0262/hb-probe1.log,1046,test/experiment/gauge/husk-balance.ts:71;from experiment/open-pieces
+tmp/hb-probe1.log,kept,test/record/E-FRC-0262/hb-probe1.log,803,test/experiment/gauge/husk-balance.ts:71;from experiment/open-pieces
 tmp/hb-probe1b.log,kept,test/record/E-FRC-0262/hb-probe1b.log,1486,test/experiment/gauge/husk-balance.ts:73;from experiment/open-pieces
 tmp/hb-probe2.log,kept,test/record/E-FRC-0262/hb-probe2.log,345,test/experiment/gauge/husk-balance.ts:76;from experiment/open-pieces
 tmp/hc-exp12-run1.log,kept,test/record/E-CSM-0059/hc-exp12-run1.log,4183,test/experiment/cosmology/husk-growth-rate.ts:35;test/experiment/cosmology/husk-horizon-flatness.ts:50;from experiment/open-pieces
@@ -143,7 +143,7 @@ tmp/hl-collision-run1.log,kept,test/record/E-RLT-0109/hl-collision-run1.log,2403
 tmp/hl-collision-run2.log,kept,test/record/E-RLT-0109/hl-collision-run2.log,2514,test/experiment/relativity/husk-collision-kinematics.ts:54;from experiment/open-pieces
 tmp/hl-landauer-run1.log,kept,test/record/E-CMP-0018/hl-landauer-run1.log,1245,test/experiment/computation/landauer-line.ts:51;from experiment/open-pieces
 tmp/hl-lorentz-run1.log,kept,test/record/E-RLT-0108/hl-lorentz-run1.log,4046,test/experiment/relativity/husk-lorentz-kinematics.ts:67;from experiment/open-pieces
-tmp/hl-probe1.log,kept,test/record/E-RLT-0108/hl-probe1.log,3753,test/experiment/relativity/husk-lorentz-kinematics.ts:58;test/experiment/gauge/higgs-larger-group.ts:67;from experiment/open-pieces
+tmp/hl-probe1.log,kept,test/record/E-RLT-0108/hl-probe1.log,3024,test/experiment/relativity/husk-lorentz-kinematics.ts:58;test/experiment/gauge/higgs-larger-group.ts:67;from experiment/open-pieces
 tmp/hl-probe1b.log,kept,test/record/E-RLT-0108/hl-probe1b.log,10063,test/experiment/relativity/husk-lorentz-kinematics.ts:60;test/experiment/relativity/husk-collision-kinematics.ts:42;from experiment/open-pieces
 tmp/hl-probe2.log,kept,test/record/E-CMP-0019/hl-probe2.log,2189,test/experiment/computation/line-code.ts:38;test/experiment/computation/landauer-line.ts:44;test/experiment/gauge/higgs-larger-group.ts:71;from experiment/open-pieces
 tmp/hloc-levels-10-identity-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-10-identity-0.1.json,204805,tmp/hloc-main.ts:combine
@@ -176,13 +176,13 @@ tmp/hsk-probe1.log,kept,test/record/E-SPN-0167/hsk-probe1.log,595,test/experimen
 tmp/hsk-smoke.log,kept,test/record/E-SPN-0167/hsk-smoke.log,3295,test/experiment/spin/husk-reading.ts:100;from experiment/open-pieces
 tmp/hub-exp-run1.log,kept,test/record/E-SPN-0119/hub-exp-run1.log,4224,test/experiment/spin/hub-star.ts:73;from experiment/open-pieces
 tmp/hub-exp-run2.log,kept,test/record/E-SPN-0119/hub-exp-run2.log,4314,test/experiment/spin/hub-star.ts:77;from experiment/open-pieces
-tmp/hub-probe-1.log,kept,test/record/E-SPN-0119/hub-probe-1.log,2006,test/experiment/spin/hub-star.ts:67;from experiment/open-pieces
+tmp/hub-probe-1.log,kept,test/record/E-SPN-0119/hub-probe-1.log,1520,test/experiment/spin/hub-star.ts:67;from experiment/open-pieces
 tmp/hub-probe-2.log,kept,test/record/E-SPN-0119/hub-probe-2.log,2420,test/experiment/spin/hub-star.ts:68;from experiment/open-pieces
 tmp/kmove-probe.log,kept,test/record/E-SPN-0118/kmove-probe.log,2380,test/experiment/spin/bounce-mover.ts:50;from experiment/open-pieces
 tmp/kmove-probe2.log,kept,test/record/E-SPN-0118/kmove-probe2.log,928,test/experiment/spin/bounce-mover.ts:51;from experiment/open-pieces
 tmp/kmove-probe3.log,kept,test/record/E-SPN-0118/kmove-probe3.log,626,test/experiment/spin/bounce-mover.ts:53;from experiment/open-pieces
 tmp/kmove-run1.log,kept,test/record/E-SPN-0118/kmove-run1.log,5532,test/experiment/spin/bounce-mover.ts:84;from experiment/open-pieces
-tmp/leak-fresh-frozen-20261009T032809Z.json,kept,test/record/E-FRC-0306/leak-fresh-frozen-20261009T032809Z.json,2378,test/experiment/gauge/charge-three.ts:117
+tmp/leak-fresh-frozen-20261009T032809Z.json,kept,test/record/E-FRC-0306/leak-fresh-frozen-20261009T032809Z.json,2357,test/experiment/gauge/charge-three.ts:117
 tmp/lflux-1d-exp-run1.log,kept,test/record/E-SPN-0149/lflux-1d-exp-run1.log,15281,test/experiment/spin/line-flux-string.ts:87;from experiment/open-pieces
 tmp/lflux-1d-smoke.log,kept,test/record/E-SPN-0149/lflux-1d-smoke.log,9392,test/experiment/spin/line-flux-string.ts:77;from experiment/open-pieces
 tmp/lflux-4d-exp-run1.log,kept,test/record/E-SPN-0150/lflux-4d-exp-run1.log,6860,test/experiment/spin/swap-link-flux.ts:104;from experiment/open-pieces
@@ -196,7 +196,7 @@ tmp/liquid-exp-run1.log,kept,test/record/E-SPN-0137/liquid-exp-run1.log,2603,tes
 tmp/liquid-exp-run3.log,kept,test/record/E-SPN-0137/liquid-exp-run3.log,2616,test/experiment/spin/line-liquid-vacuum.ts:74;from experiment/open-pieces
 tmp/liquid-probe5-n3.log,kept,test/record/E-SPN-0137/liquid-probe5-n3.log,752,test/experiment/spin/line-liquid-vacuum.ts:43;from experiment/open-pieces
 tmp/lso-exp-run1.log,kept,test/record/E-FRC-0261/lso-exp-run1.log,4659,test/experiment/gauge/light-split-origin.ts:94;from experiment/open-pieces
-tmp/mach-exp-run1.log,kept,test/record/E-SPN-0124/mach-exp-run1.log,1578,test/experiment/spin/mach-background.ts:84;from experiment/open-pieces
+tmp/mach-exp-run1.log,kept,test/record/E-SPN-0124/mach-exp-run1.log,930,test/experiment/spin/mach-background.ts:84;from experiment/open-pieces
 tmp/mach-exp-run2.log,kept,test/record/E-SPN-0124/mach-exp-run2.log,8067,test/experiment/spin/mach-background.ts:85;from experiment/open-pieces
 tmp/mach-probe1-8-4.log,kept,test/record/E-SPN-0124/mach-probe1-8-4.log,470,test/experiment/spin/mach-background.ts:77;from experiment/open-pieces
 tmp/mach-probe2.log,kept,test/record/E-SPN-0124/mach-probe2.log,4024,test/experiment/spin/mach-background.ts:78;from experiment/open-pieces
@@ -362,10 +362,10 @@ tmp/qtm-probe.log,kept,test/record/E-QTM-0181/qtm-probe.log,834,test/experiment/
 tmp/qtm-probe2.log,kept,test/record/E-QTM-0181/qtm-probe2.log,587,test/experiment/quantum/plane-pair-light.ts:68
 tmp/qtm163-run1.log,kept,test/record/E-QTM-0163/qtm163-run1.log,8951,test/experiment/quantum/kept-branch.ts:69;from experiment/kept-branch
 tmp/rch-exp-run1.log,kept,test/record/E-SPN-0200/rch-exp-run1.log,3933,test/experiment/spin/register-coulomb-track.ts:169;test/experiment/spin/register-coulomb-hold.ts:111;code/measure/register-track.ts:60;from experiment/open-pieces
-tmp/rch-probe1.log,kept,test/record/E-SPN-0173/rch-probe1.log,2923,test/experiment/spin/register-coulomb-hold.ts:86;from experiment/open-pieces
+tmp/rch-probe1.log,kept,test/record/E-SPN-0173/rch-probe1.log,2518,test/experiment/spin/register-coulomb-hold.ts:86;from experiment/open-pieces
 tmp/rch-probe2.log,kept,test/record/E-SPN-0173/rch-probe2.log,1518,test/experiment/spin/register-coulomb-hold.ts:90;from experiment/open-pieces
-tmp/rch-probe3-25.log,kept,test/record/E-SPN-0173/rch-probe3-25.log,1981,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
-tmp/rch-probe3-35.log,kept,test/record/E-SPN-0173/rch-probe3-35.log,1984,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
+tmp/rch-probe3-25.log,kept,test/record/E-SPN-0173/rch-probe3-25.log,1576,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
+tmp/rch-probe3-35.log,kept,test/record/E-SPN-0173/rch-probe3-35.log,1579,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
 tmp/rch-probe3-m427-35.log,kept,test/record/E-SPN-0173/rch-probe3-m427-35.log,1150,test/experiment/spin/register-coulomb-hold.ts:95;from experiment/open-pieces
 tmp/rch-probe4.log,kept,test/record/E-SPN-0173/rch-probe4.log,1549,test/experiment/spin/register-coulomb-hold.ts:94;from experiment/open-pieces
 tmp/rch-probe5.log,kept,test/record/E-SPN-0173/rch-probe5.log,864,test/experiment/spin/register-coulomb-hold.ts:96;from experiment/open-pieces
@@ -458,7 +458,7 @@ tmp/rrfix-verdict115.log,kept,test/record/E-RLT-0115/rrfix-verdict115.log,3717,t
 tmp/rs-run1.log,kept,test/record/E-GRV-0137/rs-run1.log,8003,test/experiment/gravity/rs-layering.ts:68;test/experiment/gravity/tensor-layering.ts:169;from experiment/open-pieces
 tmp/rs2-exp-run1.log,kept,test/record/E-GRV-0142/rs2-exp-run1.log,5925,test/experiment/gravity/tensor-layering.ts:69;from experiment/open-pieces
 tmp/rs2-exp-run4.log,kept,test/record/E-GRV-0142/rs2-exp-run4.log,6077,test/experiment/gravity/tensor-layering.ts:85;from experiment/open-pieces
-tmp/scross-gates-frozen-20261009T213901Z.md,kept,test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,3038,test/experiment/spin/singlet-crossing.ts:11;PR.md:61
+tmp/scross-gates-frozen-20261009T213901Z.md,kept,test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,2999,test/experiment/spin/singlet-crossing.ts:11;PR.md:61
 tmp/selves-gate.log,kept,test/record/E-SLF-0179/selves-gate.log,3570,test/experiment/selves/register-selves.ts:58
 tmp/selves-smoke.log,kept,test/record/E-SLF-0179/selves-smoke.log,2940,test/experiment/selves/register-selves.ts:57
 tmp/sing-exp-run1.log,kept,test/record/E-SPN-0142/sing-exp-run1.log,4885,test/experiment/spin/singlet-relativity.ts:97;from experiment/open-pieces
@@ -470,7 +470,7 @@ tmp/smix-exp-run3.log,kept,test/record/E-SPN-0121/smix-exp-run3.log,6045,test/ex
 tmp/smix-probe1-8.log,kept,test/record/E-SPN-0121/smix-probe1-8.log,2944,test/experiment/spin/string-gated-mixer.ts:83;from experiment/open-pieces
 tmp/smix-probe2.log,kept,test/record/E-SPN-0121/smix-probe2.log,4449,test/experiment/spin/string-gated-mixer.ts:85;from experiment/open-pieces
 tmp/smix-probe3-n0.log,kept,test/record/E-SPN-0121/smix-probe3-n0.log,731,test/experiment/spin/string-gated-mixer.ts:87;from experiment/open-pieces
-tmp/smix-probe3-n3.log,kept,test/record/E-SPN-0121/smix-probe3-n3.log,7930,test/experiment/spin/string-gated-mixer.ts:44;test/experiment/spin/string-gated-mixer.ts:87;from experiment/open-pieces
+tmp/smix-probe3-n3.log,kept,test/record/E-SPN-0121/smix-probe3-n3.log,5694,test/experiment/spin/string-gated-mixer.ts:44;test/experiment/spin/string-gated-mixer.ts:87;from experiment/open-pieces
 tmp/smix-probe4-b.log,kept,test/record/E-SPN-0121/smix-probe4-b.log,3534,test/experiment/spin/string-gated-mixer.ts:88;from experiment/open-pieces
 tmp/smix-probe4-free.log,kept,test/record/E-SPN-0121/smix-probe4-free.log,2350,test/experiment/spin/string-gated-mixer.ts:88;from experiment/open-pieces
 tmp/smix-probe5.log,kept,test/record/E-SPN-0121/smix-probe5.log,691,test/experiment/spin/string-gated-mixer.ts:98;from experiment/open-pieces
@@ -578,7 +578,7 @@ tmp/twohub-exp-run1.log,kept,test/record/E-SPN-0120/twohub-exp-run1.log,3837,tes
 tmp/twohub-exp-run2.log,kept,test/record/E-SPN-0120/twohub-exp-run2.log,3909,test/experiment/spin/two-hub-bound.ts:76;from experiment/open-pieces
 tmp/twohub-probe-keyed.log,kept,test/record/E-SPN-0120/twohub-probe-keyed.log,601,test/experiment/spin/two-hub-bound.ts:68;from experiment/open-pieces
 tmp/twohub-probe-terms.log,kept,test/record/E-SPN-0120/twohub-probe-terms.log,3509,test/experiment/spin/two-hub-bound.ts:70;from experiment/open-pieces
-tmp/twohub-probe-window.log,kept,test/record/E-SPN-0120/twohub-probe-window.log,1217,test/experiment/spin/two-hub-bound.ts:42;test/experiment/spin/two-hub-bound.ts:71;from experiment/open-pieces
+tmp/twohub-probe-window.log,kept,test/record/E-SPN-0120/twohub-probe-window.log,812,test/experiment/spin/two-hub-bound.ts:42;test/experiment/spin/two-hub-bound.ts:71;from experiment/open-pieces
 tmp/univ-exp-run1.log,kept,test/record/E-SPN-0143/univ-exp-run1.log,5292,test/experiment/spin/swap-cone.ts:113;from experiment/open-pieces
 tmp/univ-exp-run2.log,kept,test/record/E-SPN-0159/univ-exp-run2.log,5302,test/experiment/spin/swap-two-beat.ts:125;test/experiment/spin/swap-two-beat.ts:263;test/experiment/spin/swap-cone.ts:119;from experiment/open-pieces
 tmp/univ-probe1.log,kept,test/record/E-SPN-0143/univ-probe1.log,2601,test/experiment/spin/swap-cone.ts:102;from experiment/open-pieces
@@ -1622,25 +1622,25 @@ tmp/qtm143-probe.ts,scratch,,,test/experiment/quantum/bell-on-net-records.ts:40
 tmp/rad-post79.ts,scratch,,,test/experiment/gravity/radion-static.ts:51
 tmp/rad-post80.ts,scratch,,,test/experiment/gravity/radion-causal.ts:52
 tmp/rad-probe1.ts,scratch,,,test/experiment/gravity/radion-static.ts:23
-tmp/rcw-checks.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-checks.sh,881,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-counts.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-counts.ts,603,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-done.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-done.sh,466,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-eq-compare.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq-compare.ts,932,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-checks.sh,scratch,tmp/rcw-checks.sh,881,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-counts.ts,scratch,tmp/rcw-counts.ts,603,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-done.sh,scratch,tmp/rcw-done.sh,466,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-eq-compare.ts,scratch,tmp/rcw-eq-compare.ts,932,test/experiment/spin/register-coulomb-weak.ts:71
 tmp/rcw-eq.ts,scratch,,,test/experiment/spin/register-coulomb-weak.ts:113
-tmp/rcw-eq.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq.ts,3398,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-load.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-load.sh,192,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe1.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe1.ts,6472,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe2.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe2.ts,3917,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe4.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe4.ts,2409,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe5.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe5.ts,3645,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe6.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe6.ts,3930,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe7.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe7.ts,4226,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-probe7a.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe7a.ts,937,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-register.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-register.ts,1062,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-run.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-run.sh,423,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-stop-probe3.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-stop-probe3.sh,308,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-tsc.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-tsc.sh,299,test/experiment/spin/register-coulomb-weak.ts:71
-tmp/rcw-watch.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-watch.sh,427,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-eq.ts,scratch,tmp/rcw-eq.ts,3398,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-load.sh,scratch,tmp/rcw-load.sh,192,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe1.ts,scratch,tmp/rcw-probe1.ts,6472,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe2.ts,scratch,tmp/rcw-probe2.ts,3917,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe4.ts,scratch,tmp/rcw-probe4.ts,2409,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe5.ts,scratch,tmp/rcw-probe5.ts,3645,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe6.ts,scratch,tmp/rcw-probe6.ts,3930,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe7.ts,scratch,tmp/rcw-probe7.ts,4226,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe7a.ts,scratch,tmp/rcw-probe7a.ts,937,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-register.ts,scratch,tmp/rcw-register.ts,1062,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-run.sh,scratch,tmp/rcw-run.sh,423,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-stop-probe3.sh,scratch,tmp/rcw-stop-probe3.sh,308,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-tsc.sh,scratch,tmp/rcw-tsc.sh,299,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-watch.sh,scratch,tmp/rcw-watch.sh,427,test/experiment/spin/register-coulomb-weak.ts:71
 tmp/reel-probe1.ts,scratch,,,test/experiment/spin/lightest-charge-one-at-ends.ts:18;test/experiment/spin/string-held-at-ends.ts:42
 tmp/reel-probe2.ts,scratch,,,test/experiment/spin/lightest-charge-one-at-ends.ts:56
 tmp/remainder-hot-probe.ts,scratch,,,test/experiment/gauge/photon-remainder.ts:1564
@@ -1688,4 +1688,4 @@ tmp/wstream.sh,scratch,,,test/experiment/gauge/wall-index.ts:84
 tmp/wy-probe1.ts,scratch,,,test/experiment/quantum/weyl-pair.ts:58
 tmp/wy-probe5.ts,scratch,,,test/experiment/quantum/weyl-pair.ts:58;test/experiment/quantum/weyl-pair.ts:71
 tmp/zn-probe1.ts,scratch,,,test/experiment/quantum/discrete-zeno-law.ts:38
-tmp/rcw-eq-js.bin,too_large,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq-js.bin,592118800,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-eq-js.bin,too_large,tmp/rcw-eq-js.bin,592118800,test/experiment/spin/register-coulomb-weak.ts:71

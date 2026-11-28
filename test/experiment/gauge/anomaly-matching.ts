@@ -1,6 +1,6 @@
-// 'T HOOFT ANOMALY MATCHING FOR A LIGHT THREE-MEMBER ELECTRON (E-FRC-0289, note/project/vibe/roadmap/moving-matter item
-// 0018, idea/keys.md Key 3). RULE: the register rule R*, with the spinor lift L(s) as the member's rotation (decision
-// 0006).
+// 'T HOOFT ANOMALY MATCHING FOR A LIGHT THREE-MEMBER ELECTRON (E-FRC-0289, the moving-matter
+// roadmap, idea/keys.md Key 3). RULE: the register rule R*, with the spinor lift L(s) as the member's rotation (
+// a recorded decision).
 //
 // If members are confined thirds and the electron is their singlet, the electron is a composite far lighter than its
 // binding scale. 't Hooft's condition says that can be natural only if the composites reproduce the constituents'

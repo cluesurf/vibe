@@ -1,6 +1,6 @@
 # The cusp neighborhood: what the period and the floor change
 
-Item `vibe-roadmap-board-0027`. Code: [`code/substrate/coxeter/exact-cusp.ts`](../code/substrate/coxeter/exact-cusp.ts).
+Code: [`code/substrate/coxeter/exact-cusp.ts`](../code/substrate/coxeter/exact-cusp.ts).
 Experiment: `E-GMT-0041`, [`test/experiment/geometry/cusp-neighborhood.ts`](../test/experiment/geometry/cusp-neighborhood.ts).
 The gates were written into the item before any rule ran on the mesh.
 
@@ -63,7 +63,7 @@ at beat 2 under floor 1 and at beat 5 under floor 2.
 
 The floor cannot be removed by a further quotient. A lattice of honeycomb symmetries fixes no ideal point with
 anything but parabolics, so there is no isometry that folds depth onto itself. A finite quotient with no boundary at
-all is item `vibe-roadmap-honeycomb-0008` (mod 3 + sqrt 2), which has a systole instead of a floor.
+all is the quotient mod 3 + sqrt 2 (`code/substrate/coxeter/quotient-3434.ts`), which has a systole instead of a floor.
 
 ## Does the floor cause the leak?
 
@@ -82,8 +82,8 @@ and store were pulled back from the cusp, and both ran the working rule (the kee
 collision pass, veto none) from the open stand-in vacuum and from a lone love. After each beat t <= R, every ball dock
 within R - t of the base and at depth at most F - t matched its dock on the cusp, bit for bit. At R = 3 that is 481,
 25 and 1 docks at beats 1, 2 and 3, 0 off, while 5,094 ball docks outside that set differed at beat 3. The R = 4 run
-is the M3 one. Over 96 beats forward and back on period 4 the start came back exactly, with charge, count and C kept
-every beat (about 0.01 s a beat at 22,336 docks on the laptop).
+is the larger one. Over 96 beats forward and back on period 4 the start came back exactly, with charge, count and C kept
+every beat (about 0.01 s a beat at 22,336 docks on one CPU core).
 
 The store is a stand-in (the held pattern of the box's union store, every sign +1). It is not the working vacuum,
-which is item `vibe-roadmap-honeycomb-0002`. So nothing here reads physics. The instrument is ready for runs that do.
+which is still open. So nothing here reads physics. The instrument is ready for runs that do.

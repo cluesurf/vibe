@@ -1,4 +1,4 @@
-// A SELF WITH A KEEL AND A FLAME (item vibe-roadmap-grounding-0027, future-models.md Living Lattice ideas 1 and 3), all
+// A SELF WITH A KEEL AND A FLAME (future-models.md Living Lattice ideas 1 and 3), all
 // opt-in, none of it the rule. The flame is B1's lone 3-love cluster on the line engine (code/measure/cone-line.ts).
 // The keel is its bound level (kept for ever under B1's rule, E-SLF-0188) plus a HISTORY REGISTER, one value of Z3
 // held beside the line. Each beat, before the line beat:

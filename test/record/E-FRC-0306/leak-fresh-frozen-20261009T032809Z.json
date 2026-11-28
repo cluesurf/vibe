@@ -1,6 +1,6 @@
 {
   "frozen_at": "2026-10-09T03:28:09Z",
-  "item": "vibe-roadmap-moving-matter-0051",
+  "item": "E-FRC-0306",
   "code": "E-SPN-0199",
   "written_before": "any delta on a fresh slab was read; nothing below was computed after this file was written",
   "form": "delta(nW, nP) = | sum over paths, over each path's columns, x_k * column_k |, columns as code/measure/wall-leak-channels.ts pathColumns: q 0 -> e^(-kappa n), q pi -> e^(-kappa n) (-1)^n, other q -> e^(-kappa n) cos(q n), e^(-kappa n) sin(q n); n = nW on side 0 (Wilson), nP on side 1 (plain)",

@@ -1,11 +1,11 @@
-// A MEETING'S EFFECT ON THE MEMBER SPIN ON R* (E-SLF-0180; moving-matter item 0036; row OPEN-MND-01, binding, the R*
-// form of E-QTM-0154 per decision 004). RULE: R* with the spinor lift (decision 0006), E-SPN-0175's pieces as in
+// A MEETING'S EFFECT ON THE MEMBER SPIN ON R* (E-SLF-0180; row OPEN-MND-01, binding, the R*
+// form of E-QTM-0154 per a recorded decision). RULE: R* with the spinor lift, E-SPN-0175's pieces as in
 // E-SLF-0179: member mixers at ringUnit(-1, 4), the sector string ringUnit(-2, 1) (cap 8), the contact v^2 with
 // v = ringUnit(2, 0). The free rule is the member mixers alone.
 //
 // WHAT E-QTM-0154 SAYS AND ITS R* FORM. E-QTM-0154: a meeting moves a member's internal state onto its partner (the
 // "one" becomes shared), and at one rate for every basis because the frame group is a unitary 2-design (no meeting
-// premeasures). Its own observable, the role qutrit's Sigma(648) frame classes, is C*-deferred (decision 004) and not
+// premeasures). Its own observable, the role qutrit's Sigma(648) frame classes, is C*-deferred and not
 // read here. On R* the internal state is the hole's spin under the lift L(s) (code/measure/register-meeting): the
 // member doublet D, a hole's spin Sigma_n on its fiber, the frame potential F2 of the lifted rotations fixing both
 // holes' classes.

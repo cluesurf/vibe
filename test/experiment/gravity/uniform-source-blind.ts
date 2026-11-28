@@ -1,5 +1,5 @@
-// A UNIFORM SOURCE AND THE DEPTH (E-GRV-0153), route H12c (note/project/vibe/roadmap/research/routes/
-// gravity-cosmos-heat-classical.md, H · the cosmological constant): "a Floquet rule has no vacuum energy: a cycle has a
+// A UNIFORM SOURCE AND THE DEPTH (E-GRV-0153), route H12c (the
+// gravity-cosmos-heat-classical route notes, H · the cosmological constant): "a Floquet rule has no vacuum energy: a cycle has a
 // quasi-energy defined mod 2 pi and no ground state, so a uniform vacuum energy is not defined, and only departures source
 // depth (discrete-gravity.md 5e: a uniform source sets the zero of depth)." Test, in the route's words: "show the depth
 // field is blind to a uniform source on a closed box, exact". Kill: "a uniform source tilts the husk." OPEN-CSM-06.

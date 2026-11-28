@@ -2,7 +2,7 @@
 // code/measure/register-reduced the sectors of the little groups of (1, 1, -1) and (1, -1, 1), built directly, grew the
 // norm to 2.9e152 by 4,096 cycles at R 16 (E-RLT-0115's probe, test/record/E-RLT-0115/rlt115-probe.log), while (1, 1, 1)
 // and (1, -1, -1) held. Since then those two are built as the images of (1, 1, 1)'s sector under the flip of one
-// coordinate (register-reduced's conjugateSector, vibe-roadmap-moving-matter-0008). This file reads whether that
+// coordinate (register-reduced's conjugateSector). This file reads whether that
 // repaired the engine, and which of two causes the blow-up had.
 //
 // TWO CANDIDATE CAUSES, stated before the run.
@@ -65,7 +65,7 @@
 //    quarters fall (1.0036, 1.0009, 1.0006, 1.00045), it is the same on the torus (1.00045, 1.00044) as on the ball,
 //    and the cycle followed by the projection onto invariant states reads 1.0000006 to 1.000003. The gate should have
 //    asked for a radius well below the broken builds' 1.046, not 1 + 1e-9.
-//  - S2 HOLDS (the proof for vibe-roadmap-moving-matter-0008): on the torus of radius 16 all four body diagonals keep
+//  - S2 HOLDS (the proof for the engine fix): on the torus of radius 16 all four body diagonals keep
 //    N / N0 - 1 at most 7.06e-13 over 4,096 cycles (identical to the 13th digit), and the final remainder is at most
 //    5.4e-14 of the largest block.
 //  - S3 FAILS ON "NEVER RISES". On the ball of radius 16 all four lose the same 1.17403e-5 by 4,096 cycles (spread

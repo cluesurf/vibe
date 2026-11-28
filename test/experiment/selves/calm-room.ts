@@ -1,5 +1,5 @@
-// CALM ROOM (item vibe-roadmap-grounding-0058; B3 refiled by grounding decision 016, superseding item 0007; decisions
-// 002 and 004). Does B1's cluster (E-SLF-0182, E-SPN-0093's level) keep more of itself, long after its bath has spread,
+// CALM ROOM (B3 refiled by a recorded decision, superseding an earlier step;
+// a recorded decision and 004). Does B1's cluster (E-SLF-0182, E-SPN-0093's level) keep more of itself, long after its bath has spread,
 // when the bath can spread into calm docks than on B1's closed ring, which keeps throwing the bath back?
 //
 // WHY A RING OF L. E-SLF-0188 and 0193 found the lone cluster's retention is 1 for ever under B1's rule, so every loss
@@ -19,7 +19,7 @@
 // PREDICTION (before any probe): s(W, 32) is 1.5 to 2 times s(W, W), and P holds at both W.
 //
 // SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, rings 10, 20, 22, window [4L, 8L] every 4, E and R on ring
-// 22). CALM_SWEEP=full for the M3 (box 12, W 12 on rings 12, 28, 32 with starts 0 to 2, W 15 on rings 15, 28, 32 with
+// 22). CALM_SWEEP=full for a large machine (box 12, W 12 on rings 12, 28, 32 with starts 0 to 2, W 15 on rings 15, 28, 32 with
 // starts 0 to 1, window [8L, 16L] every 8, E and R on ring 32).
 //
 // Depth L2: B1's rule in floats on one sector; the line law rests on E-SLF-0183's exact ball checks and E-SLF-0198's
@@ -111,7 +111,7 @@ const FULL: Setting = {
 const mean = (xs: readonly number[]): number =>
   xs.reduce((s, x) => s + x, 0) / xs.length
 
-// the docks B1's start spans once lifted (T-0007a)
+// the docks B1's start spans once lifted
 const widthOf = (W: number, fit: readonly Placed[]): number =>
   W + Math.max(...fit.flatMap(p => p.ts.map(t => t[0])))
 

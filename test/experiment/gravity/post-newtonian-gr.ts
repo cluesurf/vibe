@@ -1,5 +1,5 @@
 // POST-NEWTONIAN GENERAL RELATIVITY ON THE {3,4,3,4} 1/N_D^2 WARPED CUSP COLUMN
-// (E-GRV-0159, gap B-52; Frontier 6).
+// (E-GRV-0159; Frontier 6).
 //
 // Depth L2: parameter-free {3,4,3,4} couplings G_eff = 0.07859254 (E-GRV-0157) and
 // c_u = 0.9779246684 (E-RLT-0125) on the isotropic warped-cusp metric (gamma_PPN = 1,

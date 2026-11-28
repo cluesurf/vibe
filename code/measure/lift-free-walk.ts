@@ -1,10 +1,10 @@
-// The lift-free line walk (vibe/roadmap/moving-matter, research/confinement-many-walker.md section 3c, decision 022).
+// The lift-free line walk (research/confinement-many-walker.md section 3c).
 // Distinguishable walkers on a ring, each with a two-state coin (slot 0 moves +1, slot 1 moves -1) and a triality t in Z3.
 // One beat: the coin on every walker, then the move. At each link (x, x + 1) the walkers in the two facing slots, (x, +)
 // and (x + 1, -), carry the ORIENTED triality flux F = sum t forward - sum t backward. If F = 0 mod 3 every facing walker
 // crosses; otherwise
 //   reflect   every facing walker stays at its site with its slot map e^(i a) F (F the slot flip), a = phase * pi / 2,
-//             so phase 0 is the bare reflection of E-FRC-0312, phase +1 is i F and phase -1 is -i F (decision 022)
+//             so phase 0 is the bare reflection of E-FRC-0312, phase +1 is i F and phase -1 is -i F
 //   stay      every facing walker stays with its slot unchanged (not a bijection on three walkers, E-FRC-0312)
 //   free      (control) every walker always crosses.
 // Each crossing / reflecting map is a bijection on configurations times a phase i^(phase r), r the number of walkers

@@ -1,7 +1,7 @@
 // DOES THE FULLY FRUSTRATED CENTRE FLUX KEEP A CHIRAL WALL MEMBER THAT ITS BULK LEVELS ONLY PUSHED OUT OF THE WINDOW?
-// (note/project/vibe/roadmap/moving-matter item 0069, decision 013 step 4.) Item 0058 read its one kept pattern cf0 (every
+// (the moving-matter roadmap, a recorded decision step 4.) An earlier step read its one kept pattern cf0 (every
 // D4 triangle carries 2 pi / 3, colour omega^(c_d) times 1 on slot d) as W-UNSURE: no slab level within 0.2 of pi at L 8
-// and 12 (nearest 0.232), 24 Wilson bulk levels within 0.2. Decision 013 decides W-UNSURE by item 0053's Laughlin pump
+// and 12 (nearest 0.232), 24 Wilson bulk levels within 0.2. A recorded decision decides W-UNSURE by an earlier step's Laughlin pump
 // (code/measure/color-pump, E-FRC-0295), run here on cf0 with 0053's gates unchanged.
 //
 // THE PROBE, exactly 0053's: every link times one colour-singlet U(1) phase, one flux quantum through the transverse (0, 1)
@@ -184,7 +184,7 @@ export const thetaOf = (plan: CenterPumpPlan, j: number): number => (2 * Math.PI
 // block read resolves the cluster; a block that stops at its pass limit above the eigen tolerance is replaced by the
 // Lanczos levels when that search is complete and the two counts agree (the block's count guards Lanczos against
 // undercounting a degenerate cluster). On the k 3 triplet the six-fold clusters can leave the 8-pass block at 1e-7
-// (item 0069, cg-2), where 0053's code called the step incomplete although both reads hold the same 24 levels.
+// (cg-2), where 0053's code called the step incomplete although both reads hold the same 24 levels.
 export function centerRead(op: ColorOp, o: PumpReadOptions): PumpStepRead & { replaced: boolean } {
   const states = (levels: readonly { offset: number; vector: ColorLevel['vector'] }[]) => ({
     levels: wallStates(op, levels, o.windows, o.halfA),

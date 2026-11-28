@@ -3,7 +3,7 @@
 // =================================================================================================
 //
 // Strictly deterministic (ZERO Math.random, zero external imports), BigInt + Float64,
-// strict TypeScript (--noUncheckedIndexedAccess), laptop-safe (< 6 s, < 150 MB RSS).
+// strict TypeScript (--noUncheckedIndexedAccess), fast (< 6 s, < 150 MB RSS).
 //
 // BRUTALLY HONEST EPISTEMIC SCOPE LEDGER:
 //   [Tier A - Exact Mathematical Theorems & Spectral Computations]

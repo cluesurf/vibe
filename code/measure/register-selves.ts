@@ -1,4 +1,4 @@
-// INTEGRATION AND BINDING ACROSS LINES ON THE MANY-HOLE STORE (item 0022 of moving-matter, E-SLF-0179). Two reads of
+// INTEGRATION AND BINDING ACROSS LINES ON THE MANY-HOLE STORE (E-SLF-0179). Two reads of
 // E-FND-0163's sorted store, both defined on the holes alone: no role, no line label, no member label (the holes are
 // fermions of one kind, so a read must be symmetric in them).
 //

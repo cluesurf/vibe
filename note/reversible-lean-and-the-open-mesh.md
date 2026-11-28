@@ -2,9 +2,8 @@
 
 Depth **L1** (known math, see [experimental-methodology.md](experimental-methodology.md), section 2). Written
 2026-11-12 for the advisory board, round 01 (objections S-2, S-3, G-8, C-1, P-3), and restated the same day after
-round 02 found scope errors (G2-1, G2-2, Q2-6, Q2-7, S2-1, S2-2, S2-4, S2-6, S2-7, K2-2, K2-7, K2-8). Records:
-`note/project/vibe/roadmap/board/round-0N/response.md` in the ClueSurf repo. It extends the theorem note
-`no-attractor-and-the-cost-of-keeping.md` (research/intention-grounding worktree), which covers a finite closed box.
+round 02 found scope errors (G2-1, G2-2, Q2-6, Q2-7, S2-1, S2-2, S2-4, S2-6, S2-7, K2-2, K2-7, K2-8). It extends the theorem note
+[`no-attractor-and-the-cost-of-keeping.md`](no-attractor-and-the-cost-of-keeping.md), which covers a finite closed box.
 Nothing here is a run. Every section states its scope first.
 
 ## 1. Symmetric rule, symmetric start: every odd reading is zero forever
@@ -21,7 +20,7 @@ with V∘C = −V. If the start distribution ρ has ρ∘C = ρ, then the mean o
 pleasure from pain on average from a C-symmetric start. One asymmetric start is not C-symmetric, and a C-odd reading
 can then keep a sign forever, but that is the start telling pleasure from pain, not the rule, which is not what key 5
 asks (objection S2-6). The working vacuum itself "keeps C" (`02-the-rule.tex`:34), so it gives no sign of its own
-(round 03, S3 on m-26, which corrects this note's round 02 wording).
+(round 03, S3, which corrects this note's round 02 wording).
 
 **The unitary form.** The working rule with the coin on is a unitary, not a bijection of configurations, and has no
 cycles (`02-the-rule.tex`:25). The same statement holds for a C-symmetric state under a unitary that commutes with C,
@@ -59,7 +58,7 @@ f and C does not keep f, then PT does not reverse f.
 **Proof.** If PT and CPT both reverse f, then C = CPT·(PT)^{−1} gives C f C^{−1} = CPT (PT)^{−1} f PT (CPT)^{−1} =
 CPT f^{−1} (CPT)^{−1} = f, so C keeps f. Two reversals compose to a symmetry (objections K2-8, S2-7).
 
-**Consequence.** The value piece of grounding decision 001 pays in P or T. What the data bound is the size of each
+**Consequence.** The value piece of the grounding decision pays in P or T. What the data bound is the size of each
 broken symmetry in few-body physics (atomic and molecular parity tests, the weak sector's CP), not the piece's form.
 So the constraint is on its few-body size: whatever it breaks must sit below those bounds where they are measured.
 
@@ -75,10 +74,10 @@ Then H(E after) = H(E before) + H(S before) − I(S : E)_before.
 **Quantum.** For a global pure state the mutual information is 2S(S), so a global unitary can restore S while E's
 entropy falls by S(S) (del Rio, Åberg, Renner, Dahlsten and Vedral, Nature 474, 2011). A cost appears only when the
 repair's reach is limited: the cost is the conditional entropy of S given the part of E the repair can act on, inside
-its light cone. Under board proposal 001 (the present is one pure amplitude state) this is the form that applies, and
+its light cone. Under the board proposal (the present is one pure amplitude state) this is the form that applies, and
 the theorem note's theorem 2 holds only for errors whose correlations have left the repair's reach.
 
-**The target must depend on the branch** (round 03, S3-1). Under proposals 001 and 007, a record is a correlation of
+**The target must depend on the branch** (round 03, S3-1). Under the board proposals, a record is a correlation of
 S with what lies outside it, and each record branch is lived. A repair to one fixed pattern p would count a self's own
 records as errors and erase which branch it is in. The cost of keeping a form F is the conditional entropy
 H(F | R, E_R), with R the self's records and E_R the part of the rest within the repair's reach.
@@ -104,12 +103,12 @@ H(F | R, E_R), with R the self's records and E_R the part of the rest within the
 **What the outward channel needs, none of which reversibility supplies** (objections Q2-6, S2-2, K2-1):
 - **Reach.** Under the line law every piece acts inside one line and every line is a geodesic (E-SPN-0156), so a
   pattern is a set of one-dimensional patterns, each with two exits, and the Cheeger constant never enters. The surface
-  bound needs a line mixer (board proposal 004).
-- **What physics reads keeps on a flat budget** (round 03, G3-2). Under board proposal 005, a quantity the stream
+  bound needs a line mixer.
+- **What physics reads keeps on a flat budget** (round 03, G3-2). Under the board proposal, a quantity the stream
   carries dock by dock changes a column sum only through links that join two columns, so the column-sum field obeys a
   3d continuity law on the flat cusp layer, where the surface grows as |B|^{2/3}. The hyperbolic surface helps only
   errors whose column sum is zero, which is the part key 1 calls experience, not physics.
-- **The amplitude form.** Under proposal 001 the present is an amplitude state and the working vacuum is entangled
+- **The amplitude form.** Under the board proposal the present is an amplitude state and the working vacuum is entangled
   with a volume law (E-GRV-0083), so statement 2 should be read in the quantum cellular automaton form (Schumacher and
   Werner 2004): a vacuum state the global unitary keeps, disturbed by local operators (round 03, K3-5).
 - **A locally cold vacuum.** The working vacuum is known globally but volume-law locally (E-GRV-0083), and a small lump

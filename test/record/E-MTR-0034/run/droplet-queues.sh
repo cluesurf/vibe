@@ -2,7 +2,7 @@
 # The droplet step shared by E-MTR-0034 (the a_B 16 pair) and E-SPN-0219's stage 2 (the clock's K reads at 6,800 lags):
 # task/kernel/droplet-job.sh runs it in the copied package with TSX set. Three queues of one thread each, balanced by
 # representatives times lags (1.6e9 to 1.8e9 each), run side by side; each part is a JSON written as it lands, and each
-# queue's log is written as it goes. Verdicts never run here: the parts are fetched to the laptop
+# queue's log is written as it goes. Verdicts never run here: the parts are fetched to the local machine
 # (test/record/E-MTR-0034/run/mtr034.sh fetch).
 P=$(cd "$(dirname "$0")/../../../.." && pwd) || exit 2
 cd "$P" || exit 2

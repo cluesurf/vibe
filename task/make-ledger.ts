@@ -1,6 +1,6 @@
-// The 191-fact ledger as a CSV beside the registry (vibe-roadmap-board-0023).
+// The 191-fact ledger as a CSV beside the registry.
 //
-// The ledger itself is note/project/vibe/roadmap/everything.md in the parent workspace: one table per area (A to Q),
+// The ledger itself is a note outside this package (VIBE_LEDGER_NOTE, below the workspace root): one table per area (A to Q),
 // one row per fact the model must produce, each with a status (held, partial, stand-in, open, none) and the
 // experiments it cites. Its totals were typed by hand into the readme and the paper and disagreed (readme 38, 67, 45,
 // 24, 17; paper 36, 52, 45, 26, 32). This task reads the note, expands every cited code (E-QTM-0149 to 0153 is five
@@ -9,7 +9,7 @@
 //
 // A held mark is REFUSED when the experiments it cites deny it:
 //   - no cited code is in test/registry.csv (nothing to rerun)
-//   - every cited experiment that builds a mesh builds only the flat D4 box: by keys 6 and honeycomb decision 001 a
+//   - every cited experiment that builds a mesh builds only the flat D4 box: by keys 6 and the honeycomb decision a
 //     box result is box-specific until it is rerun on the honeycomb, so it cannot be held for the model's mesh
 // A refusal never edits the note. It is written in the `refusal` column and counted beside the totals, so the totals
 // the readme prints say how many of the held rows stand on the honeycomb.
@@ -23,9 +23,11 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
-const root = process.cwd()
+import { REPO_ROOT, scrubPrivate } from '@/code/tool/private-path'
+
+const root = REPO_ROOT
 const workspace = resolve(root, '../../../..')
-const notePath = join(workspace, 'note/project/vibe/roadmap/everything.md')
+const notePath = join(workspace, process.env.VIBE_LEDGER_NOTE ?? 'everything.md')
 const registryPath = join(root, 'test/registry.csv')
 const catalogPath = join(root, 'test/catalog.csv')
 const meshPath = join(root, 'test/mesh.csv')
@@ -223,7 +225,7 @@ const rows = facts.map(fact => {
     if (registered.length === 0) {
       refusal = 'held with no registered experiment'
     } else if (boxOnly) {
-      refusal = 'held on the flat D4 box alone, box-specific until rerun on the honeycomb (honeycomb decision 001)'
+      refusal = 'held on the flat D4 box alone, box-specific until rerun on the honeycomb'
     }
   }
 
@@ -275,7 +277,11 @@ for (const [area, map] of byArea) {
 }
 
 if (commit) {
-  const quote = (s: string): string => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
+  // the cells come from a note outside this public package: scrubbed so a path in it never reaches test/ledger.csv
+  const quote = (raw: string): string => {
+    const s = scrubPrivate(raw)
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  }
   const header = 'area,fact,status,depth,mesh,grade,rule,vacuum,experiments,unregistered,refusal'
   const body = rows.map(r =>
     [

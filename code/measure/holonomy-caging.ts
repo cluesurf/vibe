@@ -1,4 +1,4 @@
-// DOES THE LINK HOLONOMY CAGE A MEMBER CARRIED AS A ROLE TRIPLET? (E-SPN-0196, moving-matter item 0019, Key 4 of
+// DOES THE LINK HOLONOMY CAGE A MEMBER CARRIED AS A ROLE TRIPLET? (E-SPN-0196, Key 4 of
 // idea/keys.md, one-body half). The register member of E-SPN-0160 (192 modes a dock: 24 slots x the 8-mode register)
 // carried with a role factor C^k. k = 1 is the trivial carriage (the links ignored); k = 3 is the triplet carriage, where
 // the slot crossing link (x, d) turns the role by the link's grid move lifted to Sigma(648) in SU(3), the defining

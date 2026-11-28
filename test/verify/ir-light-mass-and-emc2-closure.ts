@@ -37,7 +37,7 @@
 //     Clifford operator C = c_0 sum_d L(r_d) R(g_{y,d}) T_d versus the non-chiral averaged hop T.
 //
 // Strictly standalone (zero external imports), strictly deterministic (zero Math.random),
-// strict TypeScript (noUncheckedIndexedAccess-safe), laptop-safe (< 6 s, < 250 MB RAM).
+// strict TypeScript (noUncheckedIndexedAccess-safe), fast (< 6 s, < 250 MB RAM).
 
 const T0_GLOBAL = performance.now()
 const PI = Math.PI

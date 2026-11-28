@@ -1,4 +1,4 @@
-# A' gates, frozen 2026-10-09T21:39:01Z before any read (item vibe-roadmap-moving-matter-0084)
+# A' gates, frozen 2026-10-09T21:39:01Z before any read
 
 The gates are the item's (fixed 2026-10-09 by lead 0062). This file fixes only how each quantity is read. Never edited
 after this timestamp; any later change goes in a new file.

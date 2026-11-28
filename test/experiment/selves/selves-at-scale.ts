@@ -216,7 +216,7 @@ export default experiment({
       control: { largestRandom: r.largestRandom },
       notes:
         'AUDIT 2026-08-31 (perturbation): at half size (30000 cells) the verdict fails with one patch over fifty against five at 60000 and six at 90000, so the claim has a measured size floor between 30000 and 60000 cells; it holds at 60000 and 90000. ' +
-        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is an open roadmap item. ' +
         'uses a cohesion maintenance term that is not one of the five base things, a mid-layer result not pure substrate emergence',
     })
   },

@@ -5,7 +5,7 @@
 //
 // Strictly standalone (ZERO external imports, ends with `export {}`), strictly deterministic
 // (ZERO Math.random()), strict TypeScript clean (--strict --noUncheckedIndexedAccess
-// --noUnusedLocals --noUnusedParameters), and laptop-safe (< 12 s, < 400 MB RSS).
+// --noUnusedLocals --noUnusedParameters), and fast (< 12 s, < 400 MB RSS).
 //
 // FOUR MACHINE-CERTIFIED PILLARS:
 //   PILLAR N1: Exact Reversible, (Q, D)-Conserving, Finite-Seed {3,4,3,4} Strong Turing RPCA

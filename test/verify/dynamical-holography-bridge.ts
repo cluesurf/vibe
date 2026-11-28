@@ -2,7 +2,7 @@
 // Dynamical Holography Bridge between the Bare 8-Layer Palindromic QCA Beat U on {3,4,3,4}
 // and the Wave-3 W10 Exact All-Radius W(F_4)-Covariant [[24, 1, 8]]_3 HaPPY Tensor Network.
 //
-// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), laptop-safe (< 12 s,
+// Strictly deterministic (ZERO Math.random), standalone (ZERO external imports), fast (< 12 s,
 // < 500 MB RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Machine-verified theorems and exact computations proved in this script:

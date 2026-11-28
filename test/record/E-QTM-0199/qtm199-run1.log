@@ -27,7 +27,7 @@ m3: refused, load 39 is over 30. Wait and retry
 m3: refused, load 35 is over 30. Wait and retry
 m3: refused, load 37 is over 30. Wait and retry
 m3: refused, load 36 is over 30. Wait and retry
-started run/b09-bell (pid 77247), log run/b09-bell.job/box.log: m3 status b09-bell
+started run/b09-bell (pid 77247), log run/b09-bell.job/box.log: remote-run status b09-bell
 run/b09-bell: exit 0
 22:28:46 start b09-bell: env NODE_OPTIONS=--max-old-space-size=24576 npx tsx tmp/run-open-line-bell.ts 
 ball R=4: 162049 docks, line open true 18s
@@ -142,6 +142,6 @@ C0 golden 2.815863 52s
 }
 verdict: partial
 22:29:41 exit 0 b09-bell
-recorded vibe-roadmap-board-0009: verdict partial, exit 0, gate 6c1c3bd9a8e7 set 2026-11-17T05:55:20.324Z
+recorded the gated item: verdict partial, exit 0, gate 6c1c3bd9a8e7 set 2026-11-17T05:55:20.324Z
 
 [exited with code 0]

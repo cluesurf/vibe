@@ -196,7 +196,7 @@ export function fearPortReading(
       knit,
     )
     // the kernels in exact Eisenstein integers (E-FRC-0206), the phases as trits: no cosine, sine or rounding
-    // reaches the knit's fear beat (the user's rule of 2026-09-26); the tables equal fearKernels' entry for entry
+    // reaches the knit's fear beat (the author's rule of 2026-09-26); the tables equal fearKernels' entry for entry
     const on = exactFearKernels({
       like: 1,
       unlike: 1,

@@ -347,7 +347,6 @@ negatives are as much the output as the positives.
 - `test/experiment/selves/renormalization-tower.ts`, the level-stack
   accounting, and `l3-causal-emergence-needs-loss.ts`, the explicit
   demonstration that emergence requires information loss.
-- The research notes,
-  `note/project/vibe/archive/theory-v0.7.0/paper/selves-and-the-coarse-graining-of-reversibility.md`
-  and `routes-to-nested-selves.md`, the written-up findings on selves
+- The research notes on selves and the coarse graining of reversibility
+  and on routes to nested selves, the written-up findings on selves
   and the reversible bulk.

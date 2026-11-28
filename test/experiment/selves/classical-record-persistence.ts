@@ -19,11 +19,11 @@
 // record made by the settling against the open slab, not the coherent phase, which is the
 // bridge's point that vibe's persistence carries no coherence bill.
 //
-// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab is not growth and
+// UNDER REVIEW (a recorded decision of the one-present roadmap). The open slab is not growth and
 // not part of the rule: zeroing it destroys information every beat. There is one present,
 // the whole state at this beat, and a record is a correlation inside it, never information
 // destroyed. So the persistent pattern here is the erasure run's, and the rerun with a bath
-// that stays in the present (item 0011, X4 in the review) decides the verdict. The gates and
+// that stays in the present (X4 in the review) decides the verdict. The gates and
 // verdict below are unchanged until then.
 //
 // Depth L2. It measures the lag autocorrelation of the coarse field along the substrate's
@@ -147,7 +147,7 @@ export default experiment({
         maxClosedAutocorr: Number(maxClosedAutocorr.toFixed(4)),
       },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; an open roadmap item tracks the switch to an odd side. ' +
         'Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md), the spatial companion to the scalar record-drift in decoherence-immunity (E-QTM-0049). Uses a localized body so the coarse profile has spatial variance, the fix for the degenerate flat-profile probe.',
     })
   },

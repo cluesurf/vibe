@@ -25,7 +25,7 @@
 //       FCNC/LFV/nEDM/g-2; includes honest high-scale decoupling limits and falsification criteria).
 //
 // Strictly standalone (zero external imports), strictly deterministic (zero Math.random),
-// strict TypeScript (--strict --noUncheckedIndexedAccess clean), laptop-safe (< 8 s, < 250 MB RSS).
+// strict TypeScript (--strict --noUncheckedIndexedAccess clean), fast (< 8 s, < 250 MB RSS).
 
 const T0_MS = performance.now()
 const PI = Math.PI

@@ -9,6 +9,11 @@
 //
 // It goes through `runSuite`, so the integrity rule applies here exactly as in the suite: an
 // L3 claim without a control is printed as partial.
+//
+// Exit status, so a proof of the form "rerun.ts E-CMP-xxxx" fails on its own:
+//   0  every chosen experiment passed
+//   1  at least one read fail, or crashed (a gate threw)
+//   2  none failed or crashed, but at least one read partial or open
 
 import { allExperiments, runSuite } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
@@ -40,11 +45,37 @@ const chosen = experiments.filter(
     (e.code !== undefined && requested.includes(e.code)),
 )
 
+const failed: string[] = []
+const unfinished: string[] = []
+
 for (const experiment of chosen) {
   const started = Date.now()
-  const [result] = runSuite([experiment], {})
+  const name = experiment.code ?? experiment.id
+
+  let result: ReturnType<typeof runSuite>[number] | undefined
+
+  try {
+    result = runSuite([experiment], {})[0]
+  } catch (error) {
+    const seconds = ((Date.now() - started) / 1000).toFixed(1)
+
+    console.log(
+      `\n${experiment.code ?? ''} ${experiment.id}  ${experiment.depth}  ${seconds}s`,
+    )
+    console.log(`status   crash`)
+    console.log(`error    ${(error as Error).message}`)
+    failed.push(`${name} crash`)
+    continue
+  }
+
   const seconds = ((Date.now() - started) / 1000).toFixed(1)
   const { verdict } = result!
+
+  if (verdict.status === 'fail') {
+    failed.push(`${name} fail`)
+  } else if (verdict.status !== 'pass') {
+    unfinished.push(`${name} ${verdict.status}`)
+  }
 
   console.log(
     `\n${experiment.code ?? ''} ${experiment.id}  ${experiment.depth}  ${seconds}s`,
@@ -66,4 +97,16 @@ for (const experiment of chosen) {
   if (verdict.notes) {
     console.log(`notes    ${verdict.notes}`)
   }
+}
+
+if (failed.length > 0) {
+  console.error(
+    `\nrerun FAILED: ${[...failed, ...unfinished].join(', ')}`,
+  )
+  process.exit(1)
+}
+
+if (unfinished.length > 0) {
+  console.error(`\nrerun not all pass: ${unfinished.join(', ')}`)
+  process.exit(2)
 }

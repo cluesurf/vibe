@@ -1,4 +1,4 @@
-// Rerun the held results that use the coin on the split coin (item vibe-roadmap-grounding-0017, grounding decision 004).
+// Rerun the held results that use the coin on the split coin.
 //
 //   pnpm call task/split-coin-rerun.ts scan                       list the candidate experiments
 //   pnpm call task/split-coin-rerun.ts both --dir tmp/split-coin   run them with the coin before, then the ones that
@@ -25,13 +25,14 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { coinUse, setCoinPlace } from '@/code/rule/coined-locked-knit'
+import { scrubPrivate } from '@/code/tool/private-path'
 import { allExperiments, runSuite } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const LEFT_OUT = new Set(['foundations/coin-reversal', 'foundations/split-coin'])
 // run last: the slowest (E-FND-0178's default run holds the R = 4 ball; E-FND-0171's V8 multi-modular null-space solve
-// ran past 46 hours on the M3 in clones split-coin and split-coin-2, 2026-11-14 to 11-16, with no line after its
+// ran past 46 hours on one machine in clones split-coin and split-coin-2, 2026-11-14 to 11-16, with no line after its
 // "V8: 3908 A rows", and held up every candidate behind it)
 const LAST = new Set([
   'foundations/pair-conserved-search',
@@ -176,7 +177,8 @@ function runPlace(place: 'before' | 'split', out: string, ids: readonly string[]
       row.claim = result!.verdict.claim
       row.metrics = result!.verdict.metrics
     } catch (err) {
-      row.error = err instanceof Error ? err.message : String(err)
+      // an error message can carry an absolute path (a missing file, a failed import): scrubbed for the record
+      row.error = scrubPrivate(err instanceof Error ? err.message : String(err))
     }
 
     const use1 = coinUse()

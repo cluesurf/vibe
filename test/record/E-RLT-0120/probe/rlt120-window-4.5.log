@@ -1,4 +1,4 @@
-/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter-next/tmp/rlt120-spectrum-4.5.json: EL 1.6504683714095383, 4097 points
+tmp/rlt120-spectrum-4.5.json: EL 1.6504683714095383, 4097 points
 FD S 2048: -2.558e-3:0.2834 -1.103e-3:0.0105 -7.247e-4:0.0340 7.085e-4:0.5314 1.957e-3:0.1044 3.717e-3:0.0437 7.739e-3:0.0018; heaviest 7.085e-4
 sigma 0.002: peaks 4.038e-4:0.7363
   window [-0.02, 0.02]: weight 1.000000 centroid - EL 5.6660e-9 width 1.823e-3

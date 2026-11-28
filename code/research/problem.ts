@@ -110,7 +110,7 @@ export const PROBLEMS: Problem[] = [
     scope: 'a mechanical pass, one experiment at a time',
     starting: ['task/check-perturbation.ts'],
     depends: [],
-    source: 'depth-grades, roadmap item 0012',
+    source: 'depth-grades',
   },
   {
     id: 'OP-06',
@@ -126,7 +126,7 @@ export const PROBLEMS: Problem[] = [
     scope: 'a small theoretical and computational investigation',
     starting: ['test/experiment/holography/'],
     depends: ['R-HLG-0001'],
-    source: 'roadmap item 0014',
+    source: 'roadmap',
   },
   {
     id: 'OP-07',
@@ -140,7 +140,7 @@ export const PROBLEMS: Problem[] = [
     scope: 'a mechanical pass',
     starting: ['code/tool/mesh.ts, the PARITY note on d4Mesh'],
     depends: ['R-FND-0001'],
-    source: 'd4-mesh-parity, roadmap item 0017',
+    source: 'd4-mesh-parity',
   },
   {
     id: 'OP-08',

@@ -10,7 +10,7 @@ export type ProbeOptions = {
   item: string
   // the probe, argument by argument
   command: string[]
-  // the directory searched for the item's checklist.json, normally <repo>/note/project/vibe/roadmap
+  // the directory searched for the item's checklist.json (VIBE_ROADMAP_ROOT)
   roadmap: string
   // where <item>.jsonl lives
   logDir: string
@@ -25,13 +25,16 @@ export type ProbeOptions = {
 export type ProbeResult = { code: number; line: ProbeLine | null; message: string }
 
 // A `.ts` experiment file under test/experiment/ runs through task/run-experiment.ts, which prints its verdict as
-// JSON. Any other `.ts` file runs with tsx. Anything else runs as given.
-export function resolveCommand(command: string[], cwd: string): string[] {
+// JSON. Any other `.ts` file runs with tsx. Anything else runs as given. The tsx path is relative to the package
+// root, so a logged command names no machine path; execute resolves it against cwd.
+export const TSX = 'node_modules/.bin/tsx'
+
+export function resolveCommand(command: string[]): string[] {
   const [first, ...rest] = command
   if (!first || !first.endsWith('.ts')) {
     return command
   }
-  const tsx = join(cwd, 'node_modules', '.bin', 'tsx')
+  const tsx = TSX
   if (first.includes('test/experiment/')) {
     return [tsx, 'task/run-experiment.ts', first, ...rest]
   }
@@ -44,7 +47,8 @@ function execute(
   out: (text: string) => void,
 ): Promise<{ exit: number | null; stdout: string }> {
   return new Promise(done => {
-    const [file, ...args] = command
+    const [given, ...args] = command
+    const file = given === TSX ? join(cwd, TSX) : given
     let stdout = ''
     const child = spawn(file!, args, { cwd, stdio: ['inherit', 'pipe', 'inherit'] })
     child.stdout.on('data', (chunk: Buffer) => {
@@ -73,7 +77,7 @@ export async function runProbe(options: ProbeOptions): Promise<ProbeResult> {
   const gate = lookup.gate
   const at = now().toISOString()
   const reasons = judge(gate, readProbes(options.logDir, options.item), at)
-  const command = resolveCommand(options.command, options.cwd)
+  const command = resolveCommand(options.command)
   const { exit, stdout } = await execute(command, options.cwd, out)
 
   // A gate edited while the probe ran was edited after seeing it.

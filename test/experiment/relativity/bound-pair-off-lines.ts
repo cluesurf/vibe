@@ -1,5 +1,5 @@
-// IS THE BOUND REGISTER PAIR STUCK ON LINES, READ ABOVE THE INSTRUMENT'S FLOOR (E-RLT-0118)? Decision 002 of
-// vibe/roadmap/moving-matter: E-RLT-0115 stays FAIL as registered (its off-line residual 9.84e-4 is above its 2.34e-4
+// IS THE BOUND REGISTER PAIR STUCK ON LINES, READ ABOVE THE INSTRUMENT'S FLOOR (E-RLT-0118)? A recorded decision of
+// the moving-matter roadmap: E-RLT-0115 stays FAIL as registered (its off-line residual 9.84e-4 is above its 2.34e-4
 // "stuck" bound), but that residual is the level's own floor (1.52e-3 at K 0 after a 2048-cycle filter), so this file
 // asks the same question with gates set above floors measured first. E-RLT-0116 and E-RLT-0117 (open) read lines by
 // filter diagonalization on the axis and the (1, 1, 1) body diagonal only; this file reads the axis, all four body
@@ -50,7 +50,7 @@
 //   BAND at most 0.05. All hold at step 1.
 //  VERDICT: open if an instrument fails or a read is missing; PASS (moves off lines) if all six directions MOVE; FAIL
 //   (stuck on lines) if all six are STUCK; open otherwise.
-//  G_ISO, registered, reported, moving no status (for vibe-roadmap-moving-matter-0003): the leading-order coefficient a(n)
+//  G_ISO, registered, reported, moving no status: the leading-order coefficient a(n)
 //   = (d1 k2^2 / k1^2 - d2 k1^2 / k2^2) / (k2^2 - k1^2) from the heaviest line's shift d at the two momenta, spread
 //   (max - min) / mean over the six below 0.02, and every shift above 0.
 // PREDICTED: pass (the members are 3d Dirac bands, E-SPN-0140, E-SPN-0145; E-RLT-0117 left 0 at rest on (1, 1, 1)). The

@@ -1,6 +1,6 @@
 // EXACT UNSCREENED 1/r SLOPE, GEOMETRIC NEWTON COUPLING G_eff, AND INVERSE-SQUARE 2-BODY FORCE
 // FROM PARAMETER-FREE PAIR-DENSITY WARP w(D) = 1 / N_D^2 (= l^-6) ON THE {3,4,3,4} CUSP COLUMN
-// (E-GRV-0157, gaps B-52, m-10; follow-up to E-GRV-0156).
+// (E-GRV-0157; follow-up to E-GRV-0156).
 //
 // Why E-GRV-0156 saw a raw log-log slope of -1.82 on side = 16:
 //   Subtracting G(L/2 = 8) on a small L = 16 periodic box turns 1/r into 1/r - 1/8, which drops steeply to 0 at r = 8.

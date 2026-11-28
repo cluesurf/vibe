@@ -10,20 +10,20 @@ import { profileGradient } from '@/code/measure/profile'
 // slab of the periodic box zeroed after every beat) or CLOSED (no slab zeroed). The closed one stays coherent
 // and recoverable (the Loschmidt echo recovers it exactly).
 //
-// UNDER REVIEW (decision 001, one present, note/project/vibe/roadmap/one-present/review.md). The open mode is
+// UNDER REVIEW (the one-present review). The open mode is
 // not growth and not part of the rule. Zeroing a slab is a non-invertible sink: it destroys information every
 // beat. It was once named the "growing edge" and its loss called the record, but there is one present (the
 // whole state at this beat) and a record is a correlation inside it, never information destroyed. So the
 // open mode's "irreversible record" is the echo error this erasure causes, and the occupancy gradient read as
-// the pointer is partly drawn by the zeroed slab itself. Item 0011 replaces it with a bath that stays part of
-// the present ('grow' and 'region') and keeps this erasure only as a control. Item 0010 supplies the inverse
+// the pointer is partly drawn by the zeroed slab itself. A follow-up replaces it with a bath that stays part of
+// the present ('grow' and 'region') and keeps this erasure only as a control. A follow-up supplies the inverse
 // growth step the 'grow' bath needs. The behavior below is unchanged until then.
 
 const sideOf = (mesh: Mesh): number =>
   Math.round(Math.pow(mesh.cellCount, 1 / 4))
 
 // Zero one slab (cells at a fixed x-coordinate) of the periodic box. This erases what the slab held, so it is a
-// non-invertible sink, not a growing boundary and not a bath inside the present (item 0011).
+// non-invertible sink, not a growing boundary and not a bath inside the present.
 export function bornAtPeace(will: Will, frontierX: number): void {
   const mesh = will.mesh
   const side = sideOf(mesh)
@@ -65,7 +65,7 @@ export function slabOccupancy(will: Will, axis = 0): number[] {
 }
 
 // The coarse-POINTER trajectory, the occupancy gradient after each beat. Open zeroes the slab each beat, and the
-// gradient it reads is over the whole box, zeroed slab included (item 0011 reads the body's own docks only).
+// gradient it reads is over the whole box, zeroed slab included (a follow-up reads the body's own docks only).
 export function pointerTrajectory(input: {
   init: Will
   forward: Collision
@@ -113,7 +113,7 @@ export function pointerTrajectory(input: {
 // `beats` beats, optionally zeroing the slab each beat), but it returns the whole occupancy
 // profile each beat so its spatial pattern can be autocorrelated over time. In the open mode
 // the persistent profile is partly the zeroed slab's own shape, so a persistence read from it
-// is under review (item 0011).
+// is under review.
 export function slabOccupancySeries(input: {
   init: Will
   forward: Collision
@@ -158,7 +158,7 @@ export function slabOccupancySeries(input: {
 
 // The Loschmidt echo, forward `beats` then the exact inverse backward `beats`, the recovery error. Zero for the
 // closed reversible run. Nonzero for the open one, but only because the slab zeroing destroyed information the
-// inverse cannot restore: this error measures the erasure, not a record (item 0011).
+// inverse cannot restore: this error measures the erasure, not a record.
 export function loschmidtEcho(input: {
   init: Will
   forward: Collision
@@ -252,7 +252,7 @@ export function signedSlabPointer(will: Will, axis = 0): number {
 // Zero every slab in `frontiers` (x-coordinates) each beat. Generalises bornAtPeace to
 // several drains, so a symmetric two-drain detector (both ends open) can be built. Like
 // bornAtPeace it is a non-invertible sink, so a one-sided drain's settled record rests on
-// erasure (item 0011 checks the experiments that call it).
+// erasure (a follow-up checks the experiments that call it).
 export function drainSlabs(
   will: Will,
   frontiers: readonly number[],

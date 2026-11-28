@@ -1,7 +1,6 @@
 # The self reader: information closure on the working rule
 
-Written 2026-11-16 for item `vibe-roadmap-grounding-0004` (records: `note/project/vibe/roadmap/grounding/` in the
-ClueSurf repo). Code: `code/measure/self-reader.ts`. Experiment: `test/experiment/selves/self-reader.ts` (E-SLF-0187).
+Written 2026-11-16. Code: `code/measure/self-reader.ts`. Experiment: `test/experiment/selves/self-reader.ts` (E-SLF-0187).
 
 Every grounding route so far read a self by a hand-chosen weight: L(t), the share of B1's bound level still on its line
 (E-SLF-0183 to E-SLF-0186). This note defines a self without choosing its shape: a region of the mesh is a self when its
@@ -84,18 +83,17 @@ in which identical members are listed (only a global sign changes).
 
 ## 5. The readings (E-SLF-0187, then its rerun E-SLF-0191)
 
-**E-SLF-0187 (item 0004): fail on one gate.** Every instrument held and B1's line self read as A SELF over 96 beats
+**E-SLF-0187: fail on one gate.** Every instrument held and B1's line self read as A SELF over 96 beats
 of the line engine (c(96) 0.914, never below 1/2, against its free null's tau_0 = 11). The vacuum read not a self, and
 the reading was the same to 0 over 24 line orientations, C and member order. The lone-love gate S3 failed as an
 undecidable test: on the R = 4 ball's 3-beat horizon a lone love's c equals its null to 0 but never falls below 1/2,
-so tau_c = tau_0 = Infinity and "tau_c < 2 tau_0" cannot hold. That verdict stands as recorded (decision 005 of the
-grounding project).
+so tau_c = tau_0 = Infinity and "tau_c < 2 tau_0" cannot hold. That verdict stands as recorded.
 
-**E-SLF-0191 (item 0029): pass.** A new pre-registration reads the lone love on the line engine over the same 96 beats
+**E-SLF-0191: pass.** A new pre-registration reads the lone love on the line engine over the same 96 beats
 (one love has no flux link and no full dock, so the line rule runs it as on the honeycomb), each of the 24 slots of
 dock 0 on its own line, region its dock and the two line neighbours. Its c equals its free null to 0 on every slot:
 1, 1, 0.56, 0.88, 0.11 at beats 0 to 4. So tau_c = tau_0 = 4 and a lone love is not a self. Every other gate, rerun in
-the same run, reproduced 0004's numbers to the digits printed (S1 tau_0 11, c(96) 0.914; E-SLF-0186's main arm
+the same run, reproduced the first run's numbers to the digits printed (S1 tau_0 11, c(96) 0.914; E-SLF-0186's main arm
 kappa(2) 0.913 against L(2) 0.887, so closure survives where L dropped; E-SLF-0185's six mixers drop under both,
 kappa 0.02 to 0.44).
 
@@ -104,8 +102,7 @@ the region), so the first beat below 1/2 is what the closure time reads.
 
 ## 6. Against the literature (added after the gates were set, 2026-11-16)
 
-The survey `note/project/vibe/roadmap/grounding/research_notes/Self persistence in reversible dynamics/defining-a-self.md`
-(ClueSurf repo) names the forms this reader sits beside:
+The survey "Self persistence in reversible dynamics" names the forms this reader sits beside:
 
 - Krakauer, Bertschinger, Olbrich, Flack, Ay 2020: A* = I(S_{n+1}; S_n), A = I(S_{n+1}; S_n | E_n), non-closure
   nC = I(S_{n+1}; E_n | S_n). They need an ensemble of starts. With one pure start in a calm vacuum the environment
@@ -121,9 +118,9 @@ The survey `note/project/vibe/roadmap/grounding/research_notes/Self persistence 
   time over a finite run cannot tell a localized eigenstate from a slow leak; a spectral test (an eigenvector of the
   n-member sector with its weight on a finite region) can.
 
-## 7. The reference closure (E-SLF-0197, item 0035)
+## 7. The reference closure (E-SLF-0197)
 
-**The blind spot (E-SLF-0194, trap T-0027a).** E-SLF-0194 put B1's line self under opt-in shape phases (a twist w^o on
+**The blind spot (E-SLF-0194).** E-SLF-0194 put B1's line self under opt-in shape phases (a twist w^o on
 the cluster's orientation, and a register that steers and records it). The reader called every arm a self (c 0.77 to
 0.92 at beat 80) though the twisted arms broke B1's bound level (L 0.13 against 0.949 bare).
 
@@ -144,7 +141,7 @@ members, c_ref = sum_h |<P_A phi_t | P_A psi_h(t)>|^2 over the complement's othe
 run |h = 0>). When the run is the reference rule, phi = psi and c_ref = c operation for operation, so every reading of
 sections 5 and 6 stands unchanged. Code: `code/measure/self-reference.ts`.
 
-**The readings (E-SLF-0197): pass.** One run on the M3 (1,052 s). Every E-SLF-0191 gate reproduces under c_ref,
+**The readings (E-SLF-0197): pass.** One run (1,052 s). Every E-SLF-0191 gate reproduces under c_ref,
 equal to the old c to 0: B1's line self A SELF (c_ref(96) 0.914, tau_0 11), the vacuum not, a lone love tau_c = tau_0
 = 4 on all 24 slots, invariance to 0. On E-SLF-0194's arms (80 beats, tau_0 11):
 

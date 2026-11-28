@@ -1,6 +1,6 @@
 # Horava Gravity Bounds Under a Preferred Beat
 
-Depth **L1** (analytical literature mapping onto the discrete step-field and depth-register gravity). Written 2026-11-24 for item `vibe-roadmap-board-0036`, gap B-41, objections R2-2 and R3 B-41.
+Depth **L1** (analytical literature mapping onto the discrete step-field and depth-register gravity). Written 2026-11-24 for the advisory board (objections R2-2 and R3).
 
 ## 1. What a global beat leaves free
 
@@ -27,6 +27,6 @@ Every bound below assumes the khronon / global-beat foliation exists in the infr
 
 ## 3. Mapping onto Vibe's current model
 
-1. **Step field and depth register (proposal 006)**: On the flat box, `E-GRV-0104` sets the step field's propagation speed by choosing `kappa` to match the husk photon speed, which tunes `beta = 0` by hand rather than deriving it. No symmetry of the current working rule forces `alpha = 0` or `lambda = 1` on the honeycomb.
-2. **Board decision 009 (one state on any slice)**: Decision 009 replaces a preferred global beat with "one state on any slice inside the stream's cone, no slice preferred". If the adopted rule on the honeycomb produces a low-energy emergent Lorentz symmetry (Family 6, `board-0010`), then full spacetime slide invariance (`E-GRV-0141`) is restored in the continuum limit and `(alpha, beta, lambda - 1) -> (0, 0, 0)` automatically, avoiding the `10^-15` / `10^-7` Horava tuning. Until `board-0010` passes on the honeycomb, `c_T = c` and `lambda = 1` remain unproved.
+1. **Step field and depth register**: On the flat box, `E-GRV-0104` sets the step field's propagation speed by choosing `kappa` to match the husk photon speed, which tunes `beta = 0` by hand rather than deriving it. No symmetry of the current working rule forces `alpha = 0` or `lambda = 1` on the honeycomb.
+2. **The board's decision (one state on any slice)**: The decision replaces a preferred global beat with "one state on any slice inside the stream's cone, no slice preferred". If the adopted rule on the honeycomb produces a low-energy emergent Lorentz symmetry (Family 6), then full spacetime slide invariance (`E-GRV-0141`) is restored in the continuum limit and `(alpha, beta, lambda - 1) -> (0, 0, 0)` automatically, avoiding the `10^-15` / `10^-7` Horava tuning. Until the board's gap passes on the honeycomb, `c_T = c` and `lambda = 1` remain unproved.
 3. **Paper status check (`0017-the-vibe-theory-model`)**: Verified on 2026-11-24 that `text/00-scope.tex` (lines 35 to 37) and `text/04-gravity.tex` (lines 55 to 58) have already withdrawn the claim that `c_T = c` and `lambda = 1` are solved, explicitly stating that both remain free constants until slice-independence is demonstrated on the adopted rule.

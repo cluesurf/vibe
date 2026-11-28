@@ -44,7 +44,7 @@
 //    branches would leave 0.5 at E0 and the main line would split in two; neither shows, but the registered bound is
 //    not met, so the axis read is open and with it the verdict.
 //
-// AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
+// AFTER THE ENGINE FIX (2026-10-21). code/measure/register-reduced now builds the
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
 // are unchanged bit for bit (tmp/rrfix-tables.ts), so its reads stand as recorded; the verdict recomputed from the
 // recorded part after the fix is unchanged (test/record/E-RLT-0116/rrfix-rlt116.log). RERUN (2026-10-22,

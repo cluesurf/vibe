@@ -41,7 +41,7 @@ four-dimensional hyperbolic honeycomb `{3,4,3,4}`:
    `S_exch`-conjugated Table-6 constant-particle ray counter `lineRev12_exch`, the `3-R`
    horosphere-to-bulk `11`-state (`3 + 3 + 3 + 2`) reversible launcher `launch5`, and all horosphere
    gate sectors (`0-R`, `1-R`, `4-R`), proved universally bijective, `W(F_4)^+`-equivariant,
-   occupation-conservative, and quiescent-stationary, with exact `INC`/`DEC`/`ZERO_TEST` ray kinematics.
+   occupation-conservative, and quiescent-stationary.
 6. **Theorem 6 (`thm_horosphere_flat_z2_and_global_bijection`):**
    Exact `5 × 5` `ℤ[√2]` Coxeter reflection geometry (`facetRefl := faceReflection`) of the `6`
    cusp-layer facets fixing `cuspVertex`, exact `ℤ^2` commutation of the `4` horosphere plane
@@ -63,6 +63,12 @@ abbrev det4 := det4Vecs
 
 /-- Exact `5 × 5` Coxeter facet reflection over `ℤ[√2]` (alias for `Vibe.faceReflection`). -/
 abbrev facetRefl := faceReflection
+
+private theorem cu_det4_wf4 (g : WF4Elem) (a b c d : Fin 24) :
+    det4 (d4RootOf (wf4Perm g a)) (d4RootOf (wf4Perm g b))
+         (d4RootOf (wf4Perm g c)) (d4RootOf (wf4Perm g d)) =
+      wf4Det g * det4 (d4RootOf a) (d4RootOf b) (d4RootOf c) (d4RootOf d) :=
+  thm_wf4_det4_transformation g a b c d
 
 private theorem cu_vec4_cancel_scale2 (u v : Vec4) (h : scaleVec4 2 u = scaleVec4 2 v) : u = v := by
   rcases u with ⟨u0, u1, u2, u3⟩; rcases v with ⟨v0, v1, v2, v3⟩
@@ -110,114 +116,55 @@ private theorem cu_wf4Perm_mul (g1 g2 : WF4Elem) (a : Fin 24) :
 private theorem cu_wf4Perm_id : ∀ a : Fin 24, wf4Perm wf4Id a = a := by
   decide
 
-private theorem cu_wf4Det_pm_one (g : WF4Elem) : wf4Det g = 1 ∨ wf4Det g = -1 := by
-  unfold wf4Det perm4Det s3Det; split_ifs <;> decide
+private theorem cu_wf4Mul_assoc (g1 g2 g3 : WF4Elem) :
+    wf4Mul (wf4Mul g1 g2) g3 = wf4Mul g1 (wf4Mul g2 g3) := by
+  apply thm_wf4_semidirect_order_1152.2.2.2.1
+  intro a
+  rw [cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_mul]
+
+private theorem cu_wf4Mul_id_left (g : WF4Elem) : wf4Mul wf4Id g = g := by
+  apply thm_wf4_semidirect_order_1152.2.2.2.1
+  intro a; rw [cu_wf4Perm_mul, cu_wf4Perm_id]
+
+private theorem cu_wf4Mul_inv_left (g : WF4Elem) : wf4Mul (wf4Inv g) g = wf4Id := by
+  have hS3Inv : ∀ c : Fin 6, s3Mul (s3Inv c) c = ⟨0, by decide⟩ ∧ s3Mul (s3Inv c) ⟨0, by decide⟩ = s3Inv c ∧
+      s3Mul ⟨0, by decide⟩ c = c := by decide
+  have hWDIdL : ∀ (p : Fin 24) (e : Fin 8), wd4Mul (⟨0, by decide⟩, ⟨0, by decide⟩) (p, e) = (p, e) := by decide
+  have hWDIdR : ∀ (p : Fin 24) (e : Fin 8), wd4Mul (p, e) (⟨0, by decide⟩, ⟨0, by decide⟩) = (p, e) := by decide
+  have hWDInv : ∀ (p : Fin 24) (e : Fin 8), wd4Mul (wd4Inv (p, e)) (p, e) = (⟨0, by decide⟩, ⟨0, by decide⟩) := by decide
+  have hConj0 : ∀ (p : Fin 24) (e : Fin 8), conjS3WD4 ⟨0, by decide⟩ (p, e) = (p, e) := by decide
+  have hConjId : ∀ c : Fin 6, conjS3WD4 c (⟨0, by decide⟩, ⟨0, by decide⟩) = (⟨0, by decide⟩, ⟨0, by decide⟩) := by decide
+  rcases g with ⟨p, e, c⟩
+  let uS : WF4Elem := (⟨0, by decide⟩, ⟨0, by decide⟩, s3Inv c)
+  let uD : WF4Elem := ((wd4Inv (p, e)).1, (wd4Inv (p, e)).2, ⟨0, by decide⟩)
+  let vD : WF4Elem := (p, e, ⟨0, by decide⟩)
+  let vS : WF4Elem := (⟨0, by decide⟩, ⟨0, by decide⟩, c)
+  have hInvFac : wf4Inv (p, e, c) = wf4Mul uS uD := by
+    unfold wf4Inv wf4Mul uS uD
+    dsimp only
+    rw [hWDIdL, (hS3Inv c).2.1]
+  have hGFac : (p, e, c) = wf4Mul vD vS := by
+    unfold wf4Mul vD vS
+    dsimp only
+    rw [hConj0, hWDIdR, (hS3Inv c).2.2]
+  have hMid : wf4Mul uD vD = wf4Id := by
+    unfold wf4Mul wf4Id uD vD
+    dsimp only
+    rw [hConj0, hWDInv]; rfl
+  have hEnd : wf4Mul uS vS = wf4Id := by
+    unfold wf4Mul wf4Id uS vS
+    dsimp only
+    rw [hConjId, hWDIdL, (hS3Inv c).1]
+  rw [hInvFac, hGFac, cu_wf4Mul_assoc, ← cu_wf4Mul_assoc uD vD vS, hMid, cu_wf4Mul_id_left, hEnd]
 
 private theorem cu_wf4Perm_wf4Inv (g : WF4Elem) (a : Fin 24) :
     wf4Perm (wf4Inv g) a = wf4PermInv g a := by
-  have hInvMat : wf4Mat2 (wf4Inv g) = mat4Transpose (wf4Mat2 g) := by
-    -- Verify via orthogonality: `M * M^T = 4 I` and `wf4PermInv` is right-inverse of `wf4Perm`
-    have hV : ∀ x : Fin 24,
-        mat4Vec (mat4Transpose (wf4Mat2 g)) (d4RootOf x) =
-          scaleVec4 2 (d4RootOf (wf4PermInv g x)) := by
-      intro x
-      have hAct := (thm_wf4_action_orthogonal_and_bijective g).2.2.2.1 (wf4PermInv g x)
-      rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 x).2] at hAct
-      have hMul := congrArg (mat4Vec (mat4Transpose (wf4Mat2 g))) hAct
-      rw [← cu_mat4Vec_mul, (thm_wf4_action_orthogonal_and_bijective g).1, cu_mat4Vec_scale2] at hMul
-      have h4I : ∀ v : Vec4, mat4Vec (fun i j : Fin 4 => if i = j then (4 : Int) else 0) v = scaleVec4 2 (scaleVec4 2 v) := by
-        intro ⟨v0, v1, v2, v3⟩
-        simp only [mat4Vec, sum4, coord4, scaleVec4, Prod.mk.injEq]
-        refine ⟨?_, ?_, ?_, ?_⟩ <;> omega
-      rw [h4I] at hMul
-      exact cu_vec4_cancel_scale2 _ _ hMul.symm
-    -- Now compare `wf4Mat2 (wf4Inv g)` directly on `wf4Inv` using `wf4Mat2` orthogonality
-    have hMulInv : mat4Mul (wf4Mat2 (wf4Inv g)) (wf4Mat2 g) = fun i j => if i = j then 4 else 0 := by
-      have hEvenInv : ∀ x : WF4Elem, ∀ i j : Fin 4,
-          2 * wf4Mat2 x i j = mat4Mul (wd4Mat2 (x.1, x.2.1)) (s3Mat2 x.2.2) i j := by
-        intro x i j
-        have hW : wd4Mat2 (x.1, x.2.1) i ⟨0, by decide⟩ % 2 = 0 ∧
-                  wd4Mat2 (x.1, x.2.1) i ⟨1, by decide⟩ % 2 = 0 ∧
-                  wd4Mat2 (x.1, x.2.1) i ⟨2, by decide⟩ % 2 = 0 ∧
-                  wd4Mat2 (x.1, x.2.1) i ⟨3, by decide⟩ % 2 = 0 :=
-          (by decide : ∀ (p : Fin 24) (e : Fin 8) (r : Fin 4),
-            wd4Mat2 (p, e) r ⟨0, by decide⟩ % 2 = 0 ∧
-            wd4Mat2 (p, e) r ⟨1, by decide⟩ % 2 = 0 ∧
-            wd4Mat2 (p, e) r ⟨2, by decide⟩ % 2 = 0 ∧
-            wd4Mat2 (p, e) r ⟨3, by decide⟩ % 2 = 0) x.1 x.2.1 i
-        simp only [wf4Mat2, mat4MulHalf, mat4Mul, sum4]
-        rcases hW with ⟨h0, h1, h2, h3⟩
-        have he : ∀ u v : Int, u % 2 = 0 → (u * v) % 2 = 0 := fun u v hu => by
-          rw [show u = 2 * (u / 2) by omega, Int.mul_assoc]; omega
-        have m0 := he _ (s3Mat2 x.2.2 ⟨0, by decide⟩ j) h0
-        have m1 := he _ (s3Mat2 x.2.2 ⟨1, by decide⟩ j) h1
-        have m2 := he _ (s3Mat2 x.2.2 ⟨2, by decide⟩ j) h2
-        have m3 := he _ (s3Mat2 x.2.2 ⟨3, by decide⟩ j) h3
-        omega
-      -- Use `thm_wf4_semidirect_order_1152.1` + `wf4Mul (wf4Inv g) g = wf4Id`!
-      -- Instead of re-proving matrix transpose formula, compute `wf4Perm (wf4Inv g)` directly!
-      have hPermInv : ∀ x : Fin 24, wf4Perm (wf4Inv g) (wf4Perm g x) = x := by
-        intro x
-        have hS3 : ∀ c : Fin 6, ∀ y : Fin 24, s3Slot (s3Inv c) (s3Slot c y) = y := by decide
-        have hWInv : ∀ (p : Fin 24) (e : Fin 8) (y : Fin 24),
-            evenSignSlot (wd4Inv (p, e)).2 (perm4Slot (wd4Inv (p, e)).1 (evenSignSlot e (perm4Slot p y))) = y := by decide
-        have hConjPerm : ∀ (c : Fin 6) (p : Fin 24) (e : Fin 8) (y : Fin 24),
-            evenSignSlot (conjS3WD4 c (p, e)).2 (perm4Slot (conjS3WD4 c (p, e)).1 (s3Slot c y)) =
-              s3Slot c (evenSignSlot e (perm4Slot p y)) := by
-          intro c p e y
-          have hStep : ∀ (c : Fin 6) (d : WD4Elem) (z : Fin 24),
-              wf4Perm (wf4Mul (⟨0, by decide⟩, ⟨0, by decide⟩, c) (d.1, d.2, ⟨0, by decide⟩)) z =
-                wf4Perm (⟨0, by decide⟩, ⟨0, by decide⟩, c) (wf4Perm (d.1, d.2, ⟨0, by decide⟩) z) :=
-            fun c d z => cu_wf4Perm_mul _ _ z
-          have h0 := hStep c (p, e) y
-          have hIdP : ∀ z : Fin 24, perm4Slot ⟨0, by decide⟩ z = z := by decide
-          have hIdE : ∀ z : Fin 24, evenSignSlot ⟨0, by decide⟩ z = z := by decide
-          have hIdS : ∀ z : Fin 24, s3Slot ⟨0, by decide⟩ z = z := by decide
-          have hWdId : ∀ d : WD4Elem, wd4Mul (⟨0, by decide⟩, ⟨0, by decide⟩) d = d := by
-            intro ⟨p0, e0⟩
-            exact (by decide : ∀ (p0 : Fin 24) (e0 : Fin 8), wd4Mul (⟨0, by decide⟩, ⟨0, by decide⟩) (p0, e0) = (p0, e0)) p0 e0
-          have hS3Id : ∀ c0 : Fin 6, s3Mul c0 ⟨0, by decide⟩ = c0 := by decide
-          simp only [wf4Perm, wf4Mul, hWdId, hS3Id, hIdP, hIdE, hIdS] at h0
-          exact h0
-        unfold wf4Perm wf4Inv
-        dsimp only
-        rw [hConjPerm (s3Inv g.2.2) (wd4Inv (g.1, g.2.1)).1 (wd4Inv (g.1, g.2.1)).2,
-            hWInv g.1 g.2.1, hS3 g.2.2 x]
-      have hEqId : wf4Mul (wf4Inv g) g = wf4Id := by
-        apply thm_wf4_semidirect_order_1152.2.2.2.1
-        intro x; rw [cu_wf4Perm_mul, hPermInv, cu_wf4Perm_id]
-      rw [thm_wf4_semidirect_order_1152.1, hEqId]
-      funext i j
-      exact (by decide : ∀ r c : Fin 4, 2 * wf4Mat2 wf4Id r c = if r = c then 4 else 0) i j
-    -- Not even needed to finish hInvMat; we already have `wf4Perm (wf4Inv g) (wf4Perm g x) = x`!
-    funext i j
-    have hA := congrFun (congrFun hMulInv i) j
-    have hR := (thm_wf4_action_orthogonal_and_bijective g).2.1
-    have hProd : mat4Mul (mat4Mul (wf4Mat2 (wf4Inv g)) (wf4Mat2 g)) (mat4Transpose (wf4Mat2 g)) =
-        mat4Mul (wf4Mat2 (wf4Inv g)) (mat4Mul (wf4Mat2 g) (mat4Transpose (wf4Mat2 g))) := by
-      funext r c; simp only [mat4Mul, sum4]; ring
-    rw [hMulInv, hR] at hProd
-    have h4L : ∀ M : Mat4, ∀ r c : Fin 4, mat4Mul (fun a b => if a = b then (4 : Int) else 0) M r c = 4 * M r c := by
-      intro M r c; fin_cases r <;> simp [mat4Mul, sum4] <;> omega
-    have h4R : ∀ M : Mat4, ∀ r c : Fin 4, mat4Mul M (fun a b => if a = b then (4 : Int) else 0) r c = 4 * M r c := by
-      intro M r c; fin_cases c <;> simp [mat4Mul, sum4] <;> omega
-    have hij := congrFun (congrFun hProd i) j
-    rw [h4L, h4R] at hij; omega
-  have hAct := (thm_wf4_action_orthogonal_and_bijective (wf4Inv g)).2.2.2.1 a
-  rw [hInvMat] at hAct
-  have hActG := (thm_wf4_action_orthogonal_and_bijective g).2.2.2.1 (wf4PermInv g a)
-  rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 a).2] at hActG
-  have hMul := congrArg (mat4Vec (mat4Transpose (wf4Mat2 g))) hActG
-  rw [← cu_mat4Vec_mul, (thm_wf4_action_orthogonal_and_bijective g).1, cu_mat4Vec_scale2, hAct] at hMul
-  have h4I : ∀ v : Vec4, mat4Vec (fun i j : Fin 4 => if i = j then (4 : Int) else 0) v = scaleVec4 2 (scaleVec4 2 v) := by
-    intro ⟨v0, v1, v2, v3⟩; simp only [mat4Vec, sum4, coord4, scaleVec4, Prod.mk.injEq]; refine ⟨?_, ?_, ?_, ?_⟩ <;> omega
-  rw [h4I] at hMul
-  exact d4RootOf_inj _ _ (cu_vec4_cancel_scale2 _ _ (cu_vec4_cancel_scale2 _ _ hMul.symm))
+  have h := cu_wf4Perm_mul (wf4Inv g) g (wf4PermInv g a)
+  rw [cu_wf4Mul_inv_left, cu_wf4Perm_id, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 a).2] at h
+  exact h.symm
 
-private theorem cu_wf4Mul_inv_left (g : WF4Elem) : wf4Mul (wf4Inv g) g = wf4Id := by
-  apply thm_wf4_semidirect_order_1152.2.2.2.1
-  intro a
-  rw [cu_wf4Perm_mul, cu_wf4Perm_wf4Inv, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 a).1, cu_wf4Perm_id]
+private theorem cu_wf4Det_pm_one (g : WF4Elem) : wf4Det g = 1 ∨ wf4Det g = -1 := by
+  unfold wf4Det perm4Det s3Det; split_ifs <;> decide
 
 private theorem cu_wf4Det_inv (g : WF4Elem) : wf4Det (wf4Inv g) = wf4Det g := by
   have h : wf4Det (wf4Mul (wf4Inv g) g) = 1 := by rw [cu_wf4Mul_inv_left]; decide
@@ -233,17 +180,11 @@ private theorem cu_wf4PermInv_opp (g : WF4Elem) (a : Fin 24) :
   rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).1] at h2
   exact h2.symm
 
-private theorem cu_wf4PermInv_dot4 (g : WF4Elem) (a b : Fin 24) :
-    dot4 (d4RootOf (wf4PermInv g a)) (d4RootOf (wf4PermInv g b)) = dot4 (d4RootOf a) (d4RootOf b) := by
-  rw [← (thm_wf4_action_orthogonal_and_bijective g).2.2.2.2.1 (wf4PermInv g a) (wf4PermInv g b),
-      ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 a).2,
-      ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 b).2]
-
 private theorem cu_det4_swap34 (a b c d : Vec4) :
-    det4Vecs a b d c = -det4Vecs a b c d := by
+    det4 a b d c = -det4 a b c d := by
   rcases a with ⟨a0, a1, a2, a3⟩; rcases b with ⟨b0, b1, b2, b3⟩
   rcases c with ⟨c0, c1, c2, c3⟩; rcases d with ⟨d0, d1, d2, d3⟩
-  simp only [det4Vecs, det2Int]; ring
+  simp only [det4, det4Vecs, det2Int]; ring
 
 /-- `Fin 24` bijection `wf4Perm g` packaged as an `Equiv`. -/
 def wf4Equiv (g : WF4Elem) : Fin 24 ≃ Fin 24 where
@@ -255,7 +196,11 @@ def wf4Equiv (g : WF4Elem) : Fin 24 ≃ Fin 24 where
 
 /-! ## Section 1: Theorem 1 — Chiral `k = 1` Single-Line Obstruction & Sharp `k* = 4` Hierarchy -/
 
-/-- Explicit proper rotation `u ∈ W(F_4)^+` mapping any slot `a : Fin 24` to canonical slot `0`. -/
+/-- Canonical ordered orthogonal anchor pair `(0, 1)` (`(1, 1, 0, 0)` and `(1, -1, 0, 0)`). -/
+def canonA : Fin 24 := ⟨0, by decide⟩
+def canonB : Fin 24 := ⟨1, by decide⟩
+
+/-- Explicit proper rotation `u ∈ W(F_4)^+` mapping any slot `a : Fin 24` to canonical slot `canonA`. -/
 def mapTo0Proper : Fin 24 → WF4Elem
   | ⟨0, _⟩  => (⟨0, by decide⟩,  ⟨0, by decide⟩, ⟨0, by decide⟩)
   | ⟨1, _⟩  => (⟨0, by decide⟩,  ⟨2, by decide⟩, ⟨0, by decide⟩)
@@ -283,7 +228,7 @@ def mapTo0Proper : Fin 24 → WF4Elem
   | ⟨23, _⟩ => (⟨16, by decide⟩, ⟨6, by decide⟩, ⟨0, by decide⟩)
   | _ => wf4Id
 
-/-- Explicit proper rotation in `Stab_{W(F_4)^+}(0)` swapping any orthogonal pair `(p, q)` perp to `0`. -/
+/-- Explicit proper rotation in `Stab_{W(F_4)^+}(canonA)` swapping any orthogonal pair `(p, q)` perp to `canonA`. -/
 def swapAt0 (p q : Fin 24) : WF4Elem :=
   match p.val, q.val with
   | 1, 20 | 20, 1 | 2, 23 | 23, 2 => (⟨1, by decide⟩, ⟨0, by decide⟩, ⟨4, by decide⟩)
@@ -296,16 +241,16 @@ def swapAt0 (p q : Fin 24) : WF4Elem :=
 
 private theorem mapTo0Proper_spec :
     (∀ a : Fin 24, wf4Det (mapTo0Proper a) = 1) ∧
-    (∀ a : Fin 24, wf4Perm (mapTo0Proper a) a = ⟨0, by decide⟩) := by
+    (∀ a : Fin 24, wf4Perm (mapTo0Proper a) a = canonA) := by
   decide
 
 private theorem swapAt0_spec :
     ∀ p q : Fin 24,
-      dot4 (d4RootOf ⟨0, by decide⟩) (d4RootOf p) = 0 →
-      dot4 (d4RootOf ⟨0, by decide⟩) (d4RootOf q) = 0 →
+      dot4 (d4RootOf canonA) (d4RootOf p) = 0 →
+      dot4 (d4RootOf canonA) (d4RootOf q) = 0 →
       dot4 (d4RootOf p) (d4RootOf q) = 0 →
       wf4Det (swapAt0 p q) = 1 ∧
-      wf4Perm (swapAt0 p q) ⟨0, by decide⟩ = ⟨0, by decide⟩ ∧
+      wf4Perm (swapAt0 p q) canonA = canonA ∧
       wf4Perm (swapAt0 p q) p = q ∧
       wf4Perm (swapAt0 p q) q = p := by
   decide
@@ -336,33 +281,29 @@ theorem thm_chiral_k1_single_line_obstruction :
       ∃ g : WF4Elem, wf4Det g = -1 ∧ wf4Perm g a = a ∧ wf4Perm g b = b ∧ wf4Perm g c = c) := by
   refine ⟨?_, thm_k3_pointwise_improper_stabilizer⟩
   intro a p q hap haq hpq
-  let u := mapTo0Proper a
-  let p' := wf4Perm u p
-  let q' := wf4Perm u q
+  set u := mapTo0Proper a
+  set p' := wf4Perm u p
+  set q' := wf4Perm u q
   have hDot := (thm_wf4_action_orthogonal_and_bijective u).2.2.2.2.1
-  have hu0 : wf4Perm u a = ⟨0, by decide⟩ := mapTo0Proper_spec.2 a
-  have h0p' : dot4 (d4RootOf ⟨0, by decide⟩) (d4RootOf p') = 0 := by
+  have hu0 : wf4Perm u a = canonA := mapTo0Proper_spec.2 a
+  have h0p' : dot4 (d4RootOf canonA) (d4RootOf p') = 0 := by
     rw [← hu0]; exact (hDot a p).trans hap
-  have h0q' : dot4 (d4RootOf ⟨0, by decide⟩) (d4RootOf q') = 0 := by
+  have h0q' : dot4 (d4RootOf canonA) (d4RootOf q') = 0 := by
     rw [← hu0]; exact (hDot a q).trans haq
   have hp'q' : dot4 (d4RootOf p') (d4RootOf q') = 0 := (hDot p q).trans hpq
   obtain ⟨hDetH, hH0, hHp, hHq⟩ := swapAt0_spec p' q' h0p' h0q' hp'q'
-  let g := wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)
+  set g := wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)
   have hDetG : wf4Det g = 1 := by
-    change wf4Det (wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)) = 1
     rw [thm_wf4_semidirect_order_1152.2.1, thm_wf4_semidirect_order_1152.2.1,
         cu_wf4Det_inv, mapTo0Proper_spec.1 a, hDetH]
     decide
   have hGa : wf4Perm g a = a := by
-    change wf4Perm (wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)) a = a
     rw [cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_wf4Inv, hu0, hH0, ← hu0,
         ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 a).1]
   have hGp : wf4Perm g p = q := by
-    change wf4Perm (wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)) p = q
     rw [cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_wf4Inv, hHp,
         ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 q).1]
   have hGq : wf4Perm g q = p := by
-    change wf4Perm (wf4Mul (wf4Inv u) (wf4Mul (swapAt0 p' q') u)) q = p
     rw [cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_wf4Inv, hHq,
         ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 p).1]
   refine ⟨g, hDetG, hGa, hGp, hGq, fun b => ?_⟩
@@ -376,10 +317,6 @@ theorem thm_chiral_k1_single_line_obstruction :
 def isOrthPair (a b : Fin 24) : Bool :=
   dot4 (d4RootOf a) (d4RootOf b) == 0
 
-/-- Canonical ordered orthogonal anchor pair `(0, 1)` (`(1, 1, 0, 0)` and `(1, -1, 0, 0)`). -/
-def canonA : Fin 24 := ⟨0, by decide⟩
-def canonB : Fin 24 := ⟨1, by decide⟩
-
 /-- Horosphere 4-port plane `Q(a, b) = {q | r_q · r_a = 1 ∧ r_q · r_b = 1}`. -/
 def isInQ (a b q : Fin 24) : Bool :=
   dot4 (d4RootOf q) (d4RootOf a) == 1 && dot4 (d4RootOf q) (d4RootOf b) == 1
@@ -388,7 +325,7 @@ def isInQ (a b q : Fin 24) : Bool :=
 def isInP (a b p : Fin 24) : Bool :=
   dot4 (d4RootOf p) (d4RootOf a) == 0 && dot4 (d4RootOf p) (d4RootOf b) == 0
 
-/-- Explicit proper rotation fixing `0` and mapping any slot `b` orthogonal to `0` to `1`. -/
+/-- Explicit proper rotation fixing `canonA` and mapping any slot `b` orthogonal to `canonA` to `canonB`. -/
 def mapOrth0To1 (b : Fin 24) : WF4Elem :=
   match b.val with
   | 1  => (⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩)
@@ -399,7 +336,7 @@ def mapOrth0To1 (b : Fin 24) : WF4Elem :=
   | 23 => (⟨7, by decide⟩, ⟨0, by decide⟩, ⟨1, by decide⟩)
   | _  => wf4Id
 
-/-- Explicit witness mapping ANY ordered orthogonal pair `(a, b)` to canonical `(0, 1)` inside `W(F_4)^+`. -/
+/-- Explicit witness mapping ANY ordered orthogonal pair `(a, b)` to canonical `(canonA, canonB)` inside `W(F_4)^+`. -/
 def mapOrthPairToCanon (a b : Fin 24) : WF4Elem :=
   let u := mapTo0Proper a
   wf4Mul (mapOrth0To1 (wf4Perm u b)) u
@@ -414,7 +351,10 @@ def stab01Pow : Nat → WF4Elem
 
 /-- Explicit 4-element list of the `C_4` pointwise stabilizer of `(0, 1)` in `W(F_4)^+`. -/
 def stab01Elems : List WF4Elem :=
-  [stab01Pow 0, stab01Pow 1, stab01Pow 2, stab01Pow 3]
+  [ (⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩),
+    (⟨1, by decide⟩, ⟨0, by decide⟩, ⟨3, by decide⟩),
+    (⟨0, by decide⟩, ⟨1, by decide⟩, ⟨0, by decide⟩),
+    (⟨1, by decide⟩, ⟨1, by decide⟩, ⟨3, by decide⟩) ]
 
 private theorem mapOrth0To1_spec :
     ∀ b : Fin 24, isOrthPair canonA b = true →
@@ -451,7 +391,11 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       (s3Slot ⟨4, by decide⟩ canonA = ⟨0, by decide⟩ ∧ s3Slot ⟨4, by decide⟩ canonB = ⟨20, by decide⟩) ∧
       (s3Slot ⟨5, by decide⟩ canonA = ⟨0, by decide⟩ ∧ s3Slot ⟨5, by decide⟩ canonB = ⟨21, by decide⟩) := by
     decide
-  have hC03 : ∀ (p : Fin 24) (e : Fin 8),
+  have hStabC : ∀ x ∈ stab01Elems, x.2.2 = ⟨0, by decide⟩ ∨ x.2.2 = ⟨3, by decide⟩ := by
+    intro x hx
+    simp only [stab01Elems, List.mem_cons, List.not_mem_nil, or_false] at hx
+    rcases hx with rfl | rfl | rfl | rfl <;> simp
+  have hC0 : ∀ (p : Fin 24) (e : Fin 8),
       (wf4Det (p, e, ⟨0, by decide⟩) = 1 ∧
        wf4Perm (p, e, ⟨0, by decide⟩) canonA = canonA ∧
        wf4Perm (p, e, ⟨0, by decide⟩) canonB = canonB) ↔
@@ -463,7 +407,7 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       (p, e, (⟨3, by decide⟩ : Fin 6)) ∈ stab01Elems := by decide
   rcases g with ⟨p, e, c⟩
   match c with
-  | ⟨0, _⟩ => exact hC03 p e
+  | ⟨0, _⟩ => exact hC0 p e
   | ⟨3, _⟩ => exact hC3 p e
   | ⟨1, _⟩ =>
     constructor
@@ -472,7 +416,7 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       have d1 := congrArg (fun x : Fin 24 => x.val / 4) h1
       simp only [wf4Perm, hS3Vals.1.1, hS3Vals.1.2, hPairEven] at d0 d1
       exact absurd (d0.trans d1.symm) (hPermDisj p).2
-    · intro hMem; simp [stab01Elems, stab01Pow, stab01Gen, wf4Mul, wf4Id] at hMem
+    · intro hMem; rcases hStabC _ hMem with h | h <;> cases h
   | ⟨2, _⟩ =>
     constructor
     · rintro ⟨_, h0, h1⟩
@@ -480,7 +424,7 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       have d1 := congrArg (fun x : Fin 24 => x.val / 4) h1
       simp only [wf4Perm, hS3Vals.2.1.1, hS3Vals.2.1.2, hPairEven] at d0 d1
       exact absurd (d0.trans d1.symm) (hPermDisj p).1
-    · intro hMem; simp [stab01Elems, stab01Pow, stab01Gen, wf4Mul, wf4Id] at hMem
+    · intro hMem; rcases hStabC _ hMem with h | h <;> cases h
   | ⟨4, _⟩ =>
     constructor
     · rintro ⟨_, h0, h1⟩
@@ -488,7 +432,7 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       have d1 := congrArg (fun x : Fin 24 => x.val / 4) h1
       simp only [wf4Perm, hS3Vals.2.2.1.1, hS3Vals.2.2.1.2, hPairEven] at d0 d1
       exact absurd (d0.trans d1.symm) (hPermDisj p).1
-    · intro hMem; simp [stab01Elems, stab01Pow, stab01Gen, wf4Mul, wf4Id] at hMem
+    · intro hMem; rcases hStabC _ hMem with h | h <;> cases h
   | ⟨5, _⟩ =>
     constructor
     · rintro ⟨_, h0, h1⟩
@@ -496,7 +440,7 @@ private theorem stab01_c4_characterization (g : WF4Elem) :
       have d1 := congrArg (fun x : Fin 24 => x.val / 4) h1
       simp only [wf4Perm, hS3Vals.2.2.2.1, hS3Vals.2.2.2.2, hPairEven] at d0 d1
       exact absurd (d0.trans d1.symm) (hPermDisj p).2
-    · intro hMem; simp [stab01Elems, stab01Pow, stab01Gen, wf4Mul, wf4Id] at hMem
+    · intro hMem; rcases hStabC _ hMem with h | h <;> cases h
 
 private theorem isOrthPair_wf4 (g : WF4Elem) (a b : Fin 24) :
     isOrthPair (wf4Perm g a) (wf4Perm g b) = isOrthPair a b := by
@@ -514,6 +458,18 @@ private theorem isInP_wf4 (g : WF4Elem) (a b p : Fin 24) :
   unfold isInP
   rw [(thm_wf4_action_orthogonal_and_bijective g).2.2.2.2.1,
       (thm_wf4_action_orthogonal_and_bijective g).2.2.2.2.1]
+
+private theorem isInQ_wf4_symm (g : WF4Elem) (a b i : Fin 24) :
+    isInQ (wf4Perm g a) (wf4Perm g b) i = isInQ a b ((wf4Equiv g).symm i) := by
+  have h := isInQ_wf4 g a b (wf4PermInv g i)
+  rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 i).2] at h
+  exact h
+
+private theorem isInP_wf4_symm (g : WF4Elem) (a b i : Fin 24) :
+    isInP (wf4Perm g a) (wf4Perm g b) i = isInP a b ((wf4Equiv g).symm i) := by
+  have h := isInP_wf4 g a b (wf4PermInv g i)
+  rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 i).2] at h
+  exact h
 
 private theorem finset_card_pred_equiv (e : Fin 24 ≃ Fin 24) (p q : Fin 24 → Prop)
     [DecidablePred p] [DecidablePred q] (h : ∀ x : Fin 24, p x ↔ q (e x)) :
@@ -537,8 +493,7 @@ private theorem canon_QP_cards_and_disjoint :
 
 /-- **Headline Theorem 2 (`W(F_4)^+` Transitivity on `144` Ordered Orthogonal Pairs & `C_4` Stabilizer):**
     1. There are exactly `144` ordered orthogonal facet pairs `(a, b)` on the 24-cell.
-    2. `W(F_4)^+` acts transitively on all `144` ordered orthogonal pairs (explicit witness mapping
-       `(a, b) ↦ (canonA, canonB)` and inverse mapping `(canonA, canonB) ↦ (a, b)`).
+    2. `W(F_4)^+` acts transitively on all `144` ordered orthogonal pairs (explicit witnesses in both directions).
     3. The pointwise stabilizer `{g ∈ W(F_4)^+ | g(0) = 0, g(1) = 1}` has exact cardinality `4`
        and is generated as a cyclic group `C_4 = ⟨stab01Gen⟩` (`stab01Gen^4 = wf4Id`).
     4. For every orthogonal pair `(a, b)`, `|Q(a, b)| = 4`, `|P(a, b)| = 4`, and `{a, b}`,
@@ -549,7 +504,8 @@ theorem thm_wf4plus_orth_pair_orbit_and_c4_stabilizer :
       ∃ g : WF4Elem, wf4Det g = 1 ∧ wf4Perm g a = canonA ∧ wf4Perm g b = canonB) ∧
     (∀ a b : Fin 24, isOrthPair a b = true →
       ∃ g : WF4Elem, wf4Det g = 1 ∧ wf4Perm g canonA = a ∧ wf4Perm g canonB = b) ∧
-    (wf4Det stab01Gen = 1 ∧ stab01Pow 4 = wf4Id ∧ stab01Elems.Nodup ∧
+    (wf4Det stab01Gen = 1 ∧ stab01Pow 4 = wf4Id ∧
+      stab01Elems = [stab01Pow 0, stab01Pow 1, stab01Pow 2, stab01Pow 3] ∧ stab01Elems.Nodup ∧
       (∀ g : WF4Elem, (wf4Det g = 1 ∧ wf4Perm g canonA = canonA ∧ wf4Perm g canonB = canonB) ↔ g ∈ stab01Elems) ∧
       (Finset.univ.filter (fun g : WF4Elem =>
         wf4Det g = 1 ∧ wf4Perm g canonA = canonA ∧ wf4Perm g canonB = canonB)).card = 4) ∧
@@ -563,7 +519,7 @@ theorem thm_wf4plus_orth_pair_orbit_and_c4_stabilizer :
   have hCount144 : (Finset.univ.filter (fun ab : Fin 24 × Fin 24 => isOrthPair ab.1 ab.2 = true)).card = 144 := by
     have hRow : ∀ a : Fin 24, (Finset.univ.filter (fun b : Fin 24 => isOrthPair a b = true)).card = 6 := by
       intro a
-      let u := mapTo0Proper a
+      set u := mapTo0Proper a
       have h0 : (Finset.univ.filter (fun b : Fin 24 => isOrthPair canonA b = true)).card = 6 := by decide
       rw [← h0]
       exact finset_card_pred_equiv (wf4Equiv u) _ _ fun b => by
@@ -587,17 +543,26 @@ theorem thm_wf4plus_orth_pair_orbit_and_c4_stabilizer :
       exact stab01_c4_characterization g
     rw [hSet]
     decide
+  have hStabCyc : stab01Elems = [stab01Pow 0, stab01Pow 1, stab01Pow 2, stab01Pow 3] ∧ stab01Pow 4 = wf4Id := by
+    have h1 : stab01Pow 1 = (⟨1, by decide⟩, ⟨0, by decide⟩, ⟨3, by decide⟩) := by decide
+    have h2 : stab01Pow 2 = (⟨0, by decide⟩, ⟨1, by decide⟩, ⟨0, by decide⟩) := by
+      change wf4Mul stab01Gen (stab01Pow 1) = _; rw [h1]; decide
+    have h3 : stab01Pow 3 = (⟨1, by decide⟩, ⟨1, by decide⟩, ⟨3, by decide⟩) := by
+      change wf4Mul stab01Gen (stab01Pow 2) = _; rw [h2]; decide
+    have h4 : stab01Pow 4 = wf4Id := by
+      change wf4Mul stab01Gen (stab01Pow 3) = _; rw [h3]; decide
+    exact ⟨by unfold stab01Elems; rw [h1, h2, h3]; rfl, h4⟩
   refine ⟨hCount144,
     fun a b h => ⟨mapOrthPairToCanon a b, mapOrthPairToCanon_spec a b h⟩,
     fun a b h => ?_,
-    ⟨by decide, by decide, by decide, stab01_c4_characterization, hStabCard⟩,
+    ⟨by decide, hStabCyc.2, hStabCyc.1, by decide, stab01_c4_characterization, hStabCard⟩,
     fun a b h => ?_⟩
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b h
     refine ⟨wf4Inv g, by rw [cu_wf4Det_inv, hDet], ?_, ?_⟩
     · rw [cu_wf4Perm_wf4Inv, ← hA, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 a).1]
     · rw [cu_wf4Perm_wf4Inv, ← hB, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 b).1]
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨_, hA, hB⟩ := mapOrthPairToCanon_spec a b h
     refine ⟨?_, ?_, ?_⟩
     · rw [← canon_QP_cards_and_disjoint.1]
@@ -670,8 +635,7 @@ def qNorth (a b p : Fin 24) : Fin 24 :=
     for orthogonal `(a, b)`, `p ∈ P(a, b)`, `q ∈ Q(a, b)`. -/
 def isPerpQ (a b p q : Fin 24) : Bool :=
   isOrthPair a b && isInP a b p && isInQ a b q &&
-    let qN := qNorth a b p
-    (q == qN || q == rotQ a b (rotQ a b qN))
+    (q == qNorth a b p || q == rotQ a b (rotQ a b (qNorth a b p)))
 
 private theorem canon_rotQ_unique :
     ∀ q : Fin 24, isInQ canonA canonB q = true →
@@ -696,18 +660,18 @@ private theorem rotQ_spec (a b q : Fin 24) (hab : isOrthPair a b = true) (hq : i
     det4 (d4RootOf a) (d4RootOf b) (d4RootOf q) (d4RootOf (rotQ a b q)) = 2 ∧
     (∀ q' : Fin 24, isInQ a b q' = true →
       det4 (d4RootOf a) (d4RootOf b) (d4RootOf q) (d4RootOf q') = 2 → q' = rotQ a b q) := by
-  let g := mapOrthPairToCanon a b
+  set g := mapOrthPairToCanon a b
   obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
   have hq0 : isInQ canonA canonB (wf4Perm g q) = true := by
     rw [← hA, ← hB, isInQ_wf4]; exact hq
   obtain ⟨hIn0, hDet0, hUniq0⟩ := canon_rotQ_unique (wf4Perm g q) hq0
-  let x0 := wf4PermInv g (rotQ canonA canonB (wf4Perm g q))
+  set x0 := wf4PermInv g (rotQ canonA canonB (wf4Perm g q))
   have hx0_in : isInQ a b x0 = true := by
     have := isInQ_wf4 g a b x0
     rw [hA, hB, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).2] at this
     exact this.symm.trans hIn0
   have hx0_det : det4 (d4RootOf a) (d4RootOf b) (d4RootOf q) (d4RootOf x0) = 2 := by
-    have hd := thm_wf4_det4_transformation g a b q x0
+    have hd := cu_det4_wf4 g a b q x0
     rw [hA, hB, hDet, one_mul, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).2] at hd
     exact hd.symm.trans hDet0
   have hx0_uniq : ∀ q' : Fin 24, isInQ a b q' = true →
@@ -715,7 +679,7 @@ private theorem rotQ_spec (a b q : Fin 24) (hab : isOrthPair a b = true) (hq : i
     intro q' hq' hd'
     have hq'0 : isInQ canonA canonB (wf4Perm g q') = true := by rw [← hA, ← hB, isInQ_wf4]; exact hq'
     have hd'0 : det4 (d4RootOf canonA) (d4RootOf canonB) (d4RootOf (wf4Perm g q)) (d4RootOf (wf4Perm g q')) = 2 := by
-      rw [← hA, ← hB, thm_wf4_det4_transformation g, hDet, one_mul]; exact hd'
+      rw [← hA, ← hB, cu_det4_wf4 g, hDet, one_mul]; exact hd'
     have hEq := hUniq0 (wf4Perm g q') hq'0 hd'0
     have hInv := congrArg (wf4PermInv g) hEq
     rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 q').1] at hInv
@@ -736,18 +700,18 @@ private theorem rotP_spec (a b p : Fin 24) (hab : isOrthPair a b = true) (hp : i
     det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf (rotP a b p)) = 4 ∧
     (∀ p' : Fin 24, isInP a b p' = true →
       det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf p') = 4 → p' = rotP a b p) := by
-  let g := mapOrthPairToCanon a b
+  set g := mapOrthPairToCanon a b
   obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
   have hp0 : isInP canonA canonB (wf4Perm g p) = true := by
     rw [← hA, ← hB, isInP_wf4]; exact hp
   obtain ⟨hIn0, hDet0, hUniq0⟩ := canon_rotP_unique (wf4Perm g p) hp0
-  let x0 := wf4PermInv g (rotP canonA canonB (wf4Perm g p))
+  set x0 := wf4PermInv g (rotP canonA canonB (wf4Perm g p))
   have hx0_in : isInP a b x0 = true := by
     have := isInP_wf4 g a b x0
     rw [hA, hB, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).2] at this
     exact this.symm.trans hIn0
   have hx0_det : det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf x0) = 4 := by
-    have hd := thm_wf4_det4_transformation g a b p x0
+    have hd := cu_det4_wf4 g a b p x0
     rw [hA, hB, hDet, one_mul, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).2] at hd
     exact hd.symm.trans hDet0
   have hx0_uniq : ∀ p' : Fin 24, isInP a b p' = true →
@@ -755,7 +719,7 @@ private theorem rotP_spec (a b p : Fin 24) (hab : isOrthPair a b = true) (hp : i
     intro p' hp' hd'
     have hp'0 : isInP canonA canonB (wf4Perm g p') = true := by rw [← hA, ← hB, isInP_wf4]; exact hp'
     have hd'0 : det4 (d4RootOf canonA) (d4RootOf canonB) (d4RootOf (wf4Perm g p)) (d4RootOf (wf4Perm g p')) = 4 := by
-      rw [← hA, ← hB, thm_wf4_det4_transformation g, hDet, one_mul]; exact hd'
+      rw [← hA, ← hB, cu_det4_wf4 g, hDet, one_mul]; exact hd'
     have hEq := hUniq0 (wf4Perm g p') hp'0 hd'0
     have hInv := congrArg (wf4PermInv g) hEq
     rw [((thm_wf4_action_orthogonal_and_bijective g).2.2.1 p').1] at hInv
@@ -781,7 +745,7 @@ private theorem rotQ_equivariant (g : WF4Elem) (hg : wf4Det g = 1) (a b q : Fin 
     have hIn' : isInQ (wf4Perm g a) (wf4Perm g b) (wf4Perm g (rotQ a b q)) = true := by rw [isInQ_wf4]; exact hIn
     have hDet' : det4 (d4RootOf (wf4Perm g a)) (d4RootOf (wf4Perm g b))
         (d4RootOf (wf4Perm g q)) (d4RootOf (wf4Perm g (rotQ a b q))) = 2 := by
-      rw [thm_wf4_det4_transformation g, hg, one_mul]; exact hDet
+      rw [cu_det4_wf4 g, hg, one_mul]; exact hDet
     exact (rotQ_spec (wf4Perm g a) (wf4Perm g b) (wf4Perm g q) hab' hq').2.2 _ hIn' hDet'
   · have hFalse : (isOrthPair a b && isInQ a b q) = false := by
       cases h1 : isOrthPair a b <;> cases h2 : isInQ a b q <;> simp_all
@@ -799,7 +763,7 @@ private theorem rotP_equivariant (g : WF4Elem) (hg : wf4Det g = 1) (a b p : Fin 
     have hIn' : isInP (wf4Perm g a) (wf4Perm g b) (wf4Perm g (rotP a b p)) = true := by rw [isInP_wf4]; exact hIn
     have hDet' : det4 (d4RootOf (wf4Perm g a)) (d4RootOf (wf4Perm g b))
         (d4RootOf (wf4Perm g p)) (d4RootOf (wf4Perm g (rotP a b p))) = 4 := by
-      rw [thm_wf4_det4_transformation g, hg, one_mul]; exact hDet
+      rw [cu_det4_wf4 g, hg, one_mul]; exact hDet
     exact (rotP_spec (wf4Perm g a) (wf4Perm g b) (wf4Perm g p) hab' hp').2.2 _ hIn' hDet'
   · have hFalse : (isOrthPair a b && isInP a b p) = false := by
       cases h1 : isOrthPair a b <;> cases h2 : isInP a b p <;> simp_all
@@ -833,11 +797,11 @@ private theorem qNorth_spec (a b p : Fin 24) (hab : isOrthPair a b = true) (hp :
     (∀ q : Fin 24, isInQ a b q = true →
       dot4 (d4RootOf p) (d4RootOf q) = 1 →
       dot4 (d4RootOf p) (d4RootOf (rotQ a b q)) = 1 → q = qNorth a b p) := by
-  let g := mapOrthPairToCanon a b
+  set g := mapOrthPairToCanon a b
   obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
   have hp0 : isInP canonA canonB (wf4Perm g p) = true := by rw [← hA, ← hB, isInP_wf4]; exact hp
   obtain ⟨hIn0, hD10, hD20, hUniq0⟩ := canon_qNorth_unique (wf4Perm g p) hp0
-  let x0 := wf4PermInv g (qNorth canonA canonB (wf4Perm g p))
+  set x0 := wf4PermInv g (qNorth canonA canonB (wf4Perm g p))
   have hgx0 : wf4Perm g x0 = qNorth canonA canonB (wf4Perm g p) :=
     ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 _).2
   have hx0_in : isInQ a b x0 = true := by
@@ -895,8 +859,8 @@ private theorem isPerpQ_equivariant (g : WF4Elem) (hg : wf4Det g = 1) (a b p q :
   unfold isPerpQ
   rw [isOrthPair_wf4, isInP_wf4, isInQ_wf4,
       ← qNorth_equivariant g hg, ← rotQ_equivariant g hg, ← rotQ_equivariant g hg]
-  have hInj : ∀ x y : Fin 24, (wf4Perm g x == wf4Perm g y) = (x == y) := fun x y => by
-    simp only [beq_iff_eq, (wf4Equiv g).injective.eq_iff]
+  have hInj : ∀ x y : Fin 24, (wf4Perm g x == wf4Perm g y) = (x == y) := fun x y =>
+    Bool.eq_iff_iff.mpr (by simp only [beq_iff_eq]; exact (wf4Equiv g).injective.eq_iff)
   rw [hInj, hInj]
 
 private theorem canon_rot_laws :
@@ -911,10 +875,10 @@ private theorem canon_rot_laws :
     (∀ p q : Fin 24, isPerpQ canonA canonB p (rotQ canonA canonB (rotQ canonA canonB q)) = isPerpQ canonA canonB p q) := by
   decide
 
-private theorem rotQ_pow4 (a b q : Fin 24) :
+theorem rotQ_pow4 (a b q : Fin 24) :
     rotQ a b (rotQ a b (rotQ a b (rotQ a b q))) = q := by
   by_cases hab : isOrthPair a b = true
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     apply (wf4Equiv g).injective
     change wf4Perm g (rotQ a b (rotQ a b (rotQ a b (rotQ a b q)))) = wf4Perm g q
@@ -923,10 +887,10 @@ private theorem rotQ_pow4 (a b q : Fin 24) :
   · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
     simp [rotQ, hf]
 
-private theorem rotP_pow4 (a b p : Fin 24) :
+theorem rotP_pow4 (a b p : Fin 24) :
     rotP a b (rotP a b (rotP a b (rotP a b p))) = p := by
   by_cases hab : isOrthPair a b = true
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     apply (wf4Equiv g).injective
     change wf4Perm g (rotP a b (rotP a b (rotP a b (rotP a b p)))) = wf4Perm g p
@@ -935,19 +899,19 @@ private theorem rotP_pow4 (a b p : Fin 24) :
   · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
     simp [rotP, hf]
 
-private theorem rotQ_inv_left (a b q : Fin 24) : rotQInv a b (rotQ a b q) = q :=
+theorem rotQ_inv_left (a b q : Fin 24) : rotQInv a b (rotQ a b q) = q :=
   rotQ_pow4 a b q
 
-private theorem rotQ_inv_right (a b q : Fin 24) : rotQ a b (rotQInv a b q) = q :=
+theorem rotQ_inv_right (a b q : Fin 24) : rotQ a b (rotQInv a b q) = q :=
   rotQ_pow4 a b q
 
-private theorem rotP_inv_left (a b p : Fin 24) : rotPInv a b (rotP a b p) = p :=
+theorem rotP_inv_left (a b p : Fin 24) : rotPInv a b (rotP a b p) = p :=
   rotP_pow4 a b p
 
-private theorem rotP_inv_right (a b p : Fin 24) : rotP a b (rotPInv a b p) = p :=
+theorem rotP_inv_right (a b p : Fin 24) : rotP a b (rotPInv a b p) = p :=
   rotP_pow4 a b p
 
-private theorem rotQ2_invol (a b q : Fin 24) :
+theorem rotQ2_invol (a b q : Fin 24) :
     rotQ a b (rotQ a b (rotQ a b (rotQ a b q))) = q :=
   rotQ_pow4 a b q
 
@@ -980,26 +944,26 @@ private theorem rotP_outside (a b x : Fin 24) (h : isInP a b x = false) : rotP a
 private theorem isPerpQ_rot_preserved (a b p q : Fin 24) :
     isPerpQ a b (rotP a b p) (rotQ a b q) = isPerpQ a b p q := by
   by_cases hab : isOrthPair a b = true
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     rw [← isPerpQ_equivariant g hDet a b (rotP a b p) (rotQ a b q),
         ← isPerpQ_equivariant g hDet a b p q,
         rotP_equivariant g hDet, rotQ_equivariant g hDet, hA, hB]
     exact canon_rot_laws.2.2.2.2.2.1 (wf4Perm g p) (wf4Perm g q)
   · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
-    simp [isPerpQ, hf]
+    unfold isPerpQ; rw [hf]; rfl
 
 private theorem isPerpQ_rotQ2_preserved (a b p q : Fin 24) :
     isPerpQ a b p (rotQ a b (rotQ a b q)) = isPerpQ a b p q := by
   by_cases hab : isOrthPair a b = true
-  · let g := mapOrthPairToCanon a b
+  · set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     rw [← isPerpQ_equivariant g hDet a b p (rotQ a b (rotQ a b q)),
         ← isPerpQ_equivariant g hDet a b p q,
         rotQ_equivariant g hDet, rotQ_equivariant g hDet, hA, hB]
     exact canon_rot_laws.2.2.2.2.2.2 (wf4Perm g p) (wf4Perm g q)
   · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
-    simp [isPerpQ, hf]
+    unfold isPerpQ; rw [hf]; rfl
 
 /-- **Headline Theorem 3 (Canonical Order-4 `90°` Rotations & Global `W(F_4)^+`-Equivariance):**
     For all ordered orthogonal pairs `(a, b)`, `rotQ` (`det4 = 2` on `Q`) and `rotP` (`det4 = 4` on `P`)
@@ -1035,7 +999,7 @@ theorem thm_chiral_rot90_order4_and_equivariant :
       qNorth_equivariant g hg a b x, isPerpQ_equivariant g hg a b x y⟩⟩
   · intro a b q hab hq
     obtain ⟨hIn, hD, _⟩ := rotQ_spec a b q hab hq
-    let g := mapOrthPairToCanon a b
+    set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     have hq0 : isInQ canonA canonB (wf4Perm g q) = true := by rw [← hA, ← hB, isInQ_wf4]; exact hq
     obtain ⟨hNe1, hNe2⟩ := canon_rot_laws.2.2.1 (wf4Perm g q) hq0
@@ -1044,7 +1008,7 @@ theorem thm_chiral_rot90_order4_and_equivariant :
     · rw [← hA, ← hB, ← rotQ_equivariant g hDet, ← rotQ_equivariant g hDet, hEq]
   · intro a b p hab hp
     obtain ⟨hIn, hD, _⟩ := rotP_spec a b p hab hp
-    let g := mapOrthPairToCanon a b
+    set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     have hp0 : isInP canonA canonB (wf4Perm g p) = true := by rw [← hA, ← hB, isInP_wf4]; exact hp
     obtain ⟨hNe1, hNe2⟩ := canon_rot_laws.2.2.2.1 (wf4Perm g p) hp0
@@ -1052,7 +1016,7 @@ theorem thm_chiral_rot90_order4_and_equivariant :
     · rw [← hA, ← hB, ← rotP_equivariant g hDet, hEq]
     · rw [← hA, ← hB, ← rotP_equivariant g hDet, ← rotP_equivariant g hDet, hEq]
   · intro a b q hab
-    let g := mapOrthPairToCanon a b
+    set g := mapOrthPairToCanon a b
     obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
     apply (wf4Equiv g).injective
     change wf4Perm g (rotQ a b (rotQ a b q)) = wf4Perm g (rotQ b a (rotQ b a q))
@@ -1063,9 +1027,9 @@ theorem thm_chiral_rot90_order4_and_equivariant :
 
 /-! ## Section 4: Generic `Fin 24` Equivariant Predicate & Slot-Permutation Infrastructure -/
 
-/-- Exact count of slots `i : Fin 24` satisfying Boolean predicate `p`. -/
+/-- Exact fast list-based count of slots `i : Fin 24` satisfying Boolean predicate `p`. -/
 def countPred24 (p : Fin 24 → Bool) : Nat :=
-  ∑ i : Fin 24, if p i = true then 1 else 0
+  ((List.finRange 24).filter p).length
 
 /-- Boolean universal check across all `24` slots. -/
 def allPred24 (p : Fin 24 → Bool) : Bool :=
@@ -1075,13 +1039,26 @@ def allPred24 (p : Fin 24 → Bool) : Bool :=
 def uniquePred24 (p : Fin 24 → Bool) : Option (Fin 24) :=
   if countPred24 p = 1 then (List.finRange 24).find? p else none
 
+private theorem countPred24_eq_card (p : Fin 24 → Bool) :
+    countPred24 p = (Finset.univ.filter (fun i : Fin 24 => p i = true)).card := by
+  unfold countPred24
+  have hnd : ((List.finRange 24).filter p).Nodup := (List.nodup_finRange 24).filter p
+  rw [← List.toFinset_card_of_nodup hnd]
+  congr 1
+  ext i
+  simp
+
+private theorem countPred24_eq_sum (p : Fin 24 → Bool) :
+    countPred24 p = ∑ i : Fin 24, if p i = true then 1 else 0 := by
+  rw [countPred24_eq_card, Finset.card_eq_sum_ones, Finset.sum_filter]
+
 private theorem allPred24_eq_true_iff (p : Fin 24 → Bool) :
     allPred24 p = true ↔ ∀ i : Fin 24, p i = true := by
   simp [allPred24, List.all_eq_true]
 
 private theorem countPred24_comp_equiv (e : Fin 24 ≃ Fin 24) (p : Fin 24 → Bool) :
     countPred24 (fun i => p (e i)) = countPred24 p := by
-  unfold countPred24
+  rw [countPred24_eq_sum, countPred24_eq_sum]
   exact Equiv.sum_comp e (fun i => if p i = true then 1 else 0)
 
 private theorem allPred24_comp_equiv (e : Fin 24 ≃ Fin 24) (p : Fin 24 → Bool) :
@@ -1101,10 +1078,7 @@ private theorem allPred24_comp_equiv (e : Fin 24 ≃ Fin 24) (p : Fin 24 → Boo
 
 private theorem countPred24_eq_one_iff (p : Fin 24 → Bool) :
     countPred24 p = 1 ↔ ∃ a : Fin 24, p a = true ∧ ∀ i : Fin 24, p i = true → i = a := by
-  have hCard : countPred24 p = (Finset.univ.filter (fun i : Fin 24 => p i = true)).card := by
-    unfold countPred24
-    rw [Finset.card_eq_sum_ones, Finset.sum_filter]
-  rw [hCard, Finset.card_eq_one]
+  rw [countPred24_eq_card, Finset.card_eq_one]
   constructor
   · rintro ⟨a, ha⟩
     refine ⟨a, ?_, fun i hi => ?_⟩
@@ -1127,17 +1101,14 @@ private theorem uniquePred24_eq_some_iff (p : Fin 24 → Bool) (a : Fin 24) :
     · obtain ⟨a0, ha0, huniq0⟩ := (countPred24_eq_one_iff p).mp hc
       have hFind : (List.finRange 24).find? p = some a0 := by
         cases hf : (List.finRange 24).find? p with
-        | none =>
-          exact absurd ha0 (List.find?_eq_none.mp hf a0 (List.mem_finRange a0))
-        | some y =>
-          rw [huniq0 y (List.find?_some hf)]
+        | none => exact absurd ha0 (List.find?_eq_none.mp hf a0 (List.mem_finRange a0))
+        | some y => rw [huniq0 y (List.find?_some hf)]
       rw [hFind] at h
       cases h
       exact ⟨ha0, huniq0⟩
-    · exact Option.noConfusion h
   · rintro ⟨ha, huniq⟩
     have hc : countPred24 p = 1 := (countPred24_eq_one_iff p).mpr ⟨a, ha, huniq⟩
-    rw [if_pos hc]
+    rw [ite_eq_left hc]
     cases hf : (List.finRange 24).find? p with
     | none => exact absurd ha (List.find?_eq_none.mp hf a (List.mem_finRange a))
     | some y => rw [huniq y (List.find?_some hf)]
@@ -1152,7 +1123,7 @@ private theorem uniquePred24_comp_equiv (e : Fin 24 ≃ Fin 24) (p : Fin 24 → 
       ⟨by simpa using ha, fun i hi => by
         have h1 := huniq (e.symm i) hi
         have h2 := congrArg e h1
-        simpa using h2.symm⟩
+        simpa using h2⟩
   | none =>
     simp only [Option.map_none]
     cases hu' : uniquePred24 (fun i => p (e.symm i)) with
@@ -1164,22 +1135,23 @@ private theorem uniquePred24_comp_equiv (e : Fin 24 ≃ Fin 24) (p : Fin 24 → 
           have h1 := huniq (e i) (by simpa using hi)
           have h2 := congrArg e.symm h1
           simpa using h2⟩
-      rw [hSome] at hu; exact Option.noConfusion hu
+      rw [hSome] at hu; cases hu
+
+private theorem uniquePred24_comp_equiv_fwd (e : Fin 24 ≃ Fin 24) (p : Fin 24 → Bool) :
+    uniquePred24 (fun i => p (e i)) = (uniquePred24 p).map e.symm :=
+  uniquePred24_comp_equiv e.symm p
 
 private theorem uniquePred24_congr (p q : Fin 24 → Bool) (h : ∀ i : Fin 24, p i = q i) :
     uniquePred24 p = uniquePred24 q := by
-  have hf : p = q := funext h
-  rw [hf]
+  have hf : p = q := funext h; rw [hf]
 
 private theorem countPred24_congr (p q : Fin 24 → Bool) (h : ∀ i : Fin 24, p i = q i) :
     countPred24 p = countPred24 q := by
-  have hf : p = q := funext h
-  rw [hf]
+  have hf : p = q := funext h; rw [hf]
 
 private theorem allPred24_congr (p q : Fin 24 → Bool) (h : ∀ i : Fin 24, p i = q i) :
     allPred24 p = allPred24 q := by
-  have hf : p = q := funext h
-  rw [hf]
+  have hf : p = q := funext h; rw [hf]
 
 private theorem isInP_opp (a b p : Fin 24) : isInP a b (oppSlot p) = isInP a b p := by
   have hOpp : ∀ x y : Fin 24, dot4 (d4RootOf (oppSlot x)) (d4RootOf y) = -dot4 (d4RootOf x) (d4RootOf y) := by
@@ -1211,7 +1183,7 @@ def rotPEquiv (a b : Fin 24) : Fin 24 ≃ Fin 24 where
   left_inv := rotP_inv_left a b
   right_inv := rotP_inv_right a b
 
-/-- `Equiv` packaging simultaneous `rotQ` on `Q(a, b)` and `rotP` on `P(a, b)` (commuting because `Q ∩ P = ∅`). -/
+/-- `Equiv` packaging simultaneous `rotQ` on `Q(a, b)` and `rotP` on `P(a, b)`. -/
 def rotQPEquiv (a b : Fin 24) : Fin 24 ≃ Fin 24 :=
   (rotPEquiv a b).trans (rotQEquiv a b)
 
@@ -1224,9 +1196,7 @@ private theorem rotQP_comm (a b i : Fin 24) :
   · have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
     by_cases hq : isInQ a b i = true
     · have hp : isInP a b i = false := by
-        cases hp' : isInP a b i with
-        | false => rfl
-        | true => exact absurd ⟨hq, hp'⟩ (hDisj i).2.2
+        cases hp' : isInP a b i with | false => rfl | true => exact absurd ⟨hq, hp'⟩ (hDisj i).2.2
       have hp' : isInP a b (rotQInv a b i) = false := by
         cases h2 : isInP a b (rotQInv a b i) with
         | false => rfl
@@ -1254,6 +1224,79 @@ private theorem rotQP_comm (a b i : Fin 24) :
       rw [hQI _ hqf, hQI _ hqf']
   · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
     simp [rotPInv, rotQInv, rotP, rotQ, hf]
+
+private theorem rotQ_invariants (a b : Fin 24) :
+    (∀ i, isInQ a b (rotQ a b i) = isInQ a b i) ∧
+    (∀ i, isInQ a b (rotQInv a b i) = isInQ a b i) ∧
+    (∀ i, isInP a b (rotQ a b i) = isInP a b i) ∧
+    (∀ i, isInP a b (rotQInv a b i) = isInP a b i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → rotQ a b i = i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → rotQInv a b i = i) := by
+  have hP : ∀ i, isInP a b (rotQ a b i) = isInP a b i := fun i => by
+    by_cases hq : isInQ a b i = true
+    · by_cases hab : isOrthPair a b = true
+      · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
+        have h1 : isInP a b i = false := by cases h : isInP a b i <;> [rfl; exact absurd ⟨hq, h⟩ (hD i).2.2]
+        have h2 : isInP a b (rotQ a b i) = false := by
+          cases h : isInP a b (rotQ a b i) with
+          | false => rfl
+          | true => exact absurd ⟨(isInQ_rotQ a b i).trans hq, h⟩ (hD _).2.2
+        rw [h1, h2]
+      · simp [rotQ, Bool.eq_false_iff.mpr hab]
+    · rw [rotQ_outside a b i (Bool.eq_false_iff.mpr hq)]
+  have hPInv : ∀ i, isInP a b (rotQInv a b i) = isInP a b i := fun i => by
+    unfold rotQInv; rw [hP, hP, hP]
+  refine ⟨isInQ_rotQ a b, isInQ_rotQInv a b, hP, hPInv,
+    fun i hqf _ => rotQ_outside a b i hqf,
+    fun i hqf _ => by unfold rotQInv; rw [rotQ_outside a b i hqf, rotQ_outside a b i hqf, rotQ_outside a b i hqf]⟩
+
+private theorem rotQ2Equiv_invariants (a b : Fin 24) :
+    (∀ i, isInQ a b (rotQ2Equiv a b i) = isInQ a b i) ∧
+    (∀ i, isInP a b (rotQ2Equiv a b i) = isInP a b i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → rotQ2Equiv a b i = i) ∧
+    (∀ i, isInQ a b ((rotQ2Equiv a b).symm i) = isInQ a b i) ∧
+    (∀ i, isInP a b ((rotQ2Equiv a b).symm i) = isInP a b i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → (rotQ2Equiv a b).symm i = i) := by
+  obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQ_invariants a b
+  have h1 : ∀ i, isInQ a b (rotQ2Equiv a b i) = isInQ a b i := fun i => by
+    change isInQ a b (rotQ a b (rotQ a b i)) = _; rw [hQ, hQ]
+  have h2 : ∀ i, isInP a b (rotQ2Equiv a b i) = isInP a b i := fun i => by
+    change isInP a b (rotQ a b (rotQ a b i)) = _; rw [hP, hP]
+  have h3 : ∀ i, isInQ a b i = false → isInP a b i = false → rotQ2Equiv a b i = i := fun i hqf hpf => by
+    change rotQ a b (rotQ a b i) = i; rw [hOut i hqf hpf, hOut i hqf hpf]
+  exact ⟨h1, h2, h3, h1, h2, h3⟩
+
+private theorem rotQPEquiv_invariants (a b : Fin 24) :
+    (∀ i, isInQ a b (rotQPEquiv a b i) = isInQ a b i) ∧
+    (∀ i, isInQ a b ((rotQPEquiv a b).symm i) = isInQ a b i) ∧
+    (∀ i, isInP a b (rotQPEquiv a b i) = isInP a b i) ∧
+    (∀ i, isInP a b ((rotQPEquiv a b).symm i) = isInP a b i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → rotQPEquiv a b i = i) ∧
+    (∀ i, isInQ a b i = false → isInP a b i = false → (rotQPEquiv a b).symm i = i) := by
+  obtain ⟨hQ, hQInv, hP, hPInv, hQOut, hQInvOut⟩ := rotQ_invariants a b
+  have hP_Q : ∀ i, isInQ a b (rotP a b i) = isInQ a b i := fun i => by
+    by_cases hp : isInP a b i = true
+    · by_cases hab : isOrthPair a b = true
+      · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
+        have h1 : isInQ a b i = false := by cases h : isInQ a b i <;> [rfl; exact absurd ⟨h, hp⟩ (hD i).2.2]
+        have h2 : isInQ a b (rotP a b i) = false := by
+          cases h : isInQ a b (rotP a b i) with
+          | false => rfl
+          | true => exact absurd ⟨h, (isInP_rotP a b i).trans hp⟩ (hD _).2.2
+        rw [h1, h2]
+      · simp [rotP, Bool.eq_false_iff.mpr hab]
+    · rw [rotP_outside a b i (Bool.eq_false_iff.mpr hp)]
+  have hPInv_Q : ∀ i, isInQ a b (rotPInv a b i) = isInQ a b i := fun i => by
+    unfold rotPInv; rw [hP_Q, hP_Q, hP_Q]
+  refine ⟨fun i => by change isInQ a b (rotQ a b (rotP a b i)) = _; rw [hQ, hP_Q],
+    fun i => by change isInQ a b (rotPInv a b (rotQInv a b i)) = _; rw [hPInv_Q, hQInv],
+    fun i => by change isInP a b (rotQ a b (rotP a b i)) = _; rw [hP, isInP_rotP],
+    fun i => by change isInP a b (rotPInv a b (rotQInv a b i)) = _; rw [isInP_rotPInv, hPInv],
+    fun i hqf hpf => by change rotQ a b (rotP a b i) = i; rw [rotP_outside a b i hpf, hQOut i hqf hpf],
+    fun i hqf hpf => by
+      change rotPInv a b (rotQInv a b i) = i
+      rw [hQInvOut i hqf hpf]; unfold rotPInv
+      rw [rotP_outside a b i hpf, rotP_outside a b i hpf, rotP_outside a b i hpf]⟩
 
 
 /-! ## Section 5: Theorem 4 — 5-Symbol Homogeneous `W(F_4)^+`-Equivariant Universal CA (`Sym5`) -/
@@ -1340,14 +1383,7 @@ private theorem bgStep5_invol (cell : Fin 24 → Sym5) : bgStep5 (bgStep5 cell) 
   funext s
   have hOpp := (thm_24_facets_geometry.2.1 s).1
   unfold bgStep5
-  by_cases hc : isCat5 (cell s) || isCat5 (cell (oppSlot s))
-  · have hc' : isCat5 (cell (oppSlot s)) || isCat5 (cell (oppSlot (oppSlot s))) = true := by
-      rw [hOpp]; exact Bool.or_comm _ _ ▸ hc
-    simp [hc, hc']
-  · have hcf : (isCat5 (cell s) || isCat5 (cell (oppSlot s))) = false := Bool.eq_false_iff.mpr hc
-    have hcf' : (isCat5 (cell (oppSlot s)) || isCat5 (cell (oppSlot (oppSlot s)))) = false := by
-      rw [hOpp, Bool.or_comm]; exact hcf
-    simp [hcf, hcf', hOpp]
+  cases h1 : isCat5 (cell s) <;> cases h2 : isCat5 (cell (oppSlot s)) <;> simp [h1, h2, hOpp]
 
 private theorem bgStep5_preserves_cat (cell : Fin 24 → Sym5) (s : Fin 24) :
     isCat5 (bgStep5 cell s) = isCat5 (cell s) ∧
@@ -1355,30 +1391,20 @@ private theorem bgStep5_preserves_cat (cell : Fin 24 → Sym5) (s : Fin 24) :
     (bgStep5 cell s == .ancB) = (cell s == .ancB) ∧
     (bgStep5 cell s == .rotR) = (cell s == .rotR) := by
   unfold bgStep5
-  by_cases hc : isCat5 (cell s) || isCat5 (cell (oppSlot s))
-  · simp [hc]
-  · have hcf : (isCat5 (cell s) || isCat5 (cell (oppSlot s))) = false := Bool.eq_false_iff.mpr hc
-    simp only [hcf, Bool.false_eq_true, ↓reduceIte]
-    have h1 : isCat5 (cell s) = false := by
-      cases hs : isCat5 (cell s) <;> simp_all
-    have h2 : isCat5 (cell (oppSlot s)) = false := by
-      cases ho : isCat5 (cell (oppSlot s)) <;> simp_all
-    cases cs : cell s <;> cases co : cell (oppSlot s) <;> simp_all [isCat5]
+  cases cs : cell s <;> cases co : cell (oppSlot s) <;> decide
 
 private theorem bgStep5_preserves_gateMode5 (cell : Fin 24 → Sym5) :
     gateMode5 (bgStep5 cell) = gateMode5 cell := by
   unfold gateMode5
-  have hA : uniquePred24 (fun i => bgStep5 cell i == .ancA) = uniquePred24 (fun i => cell i == .ancA) :=
-    uniquePred24_congr _ _ fun i => (bgStep5_preserves_cat cell i).2.1
-  have hB : uniquePred24 (fun i => bgStep5 cell i == .ancB) = uniquePred24 (fun i => cell i == .ancB) :=
-    uniquePred24_congr _ _ fun i => (bgStep5_preserves_cat cell i).2.2.1
-  rw [hA, hB]
+  rw [uniquePred24_congr _ _ (fun i => (bgStep5_preserves_cat cell i).2.1),
+      uniquePred24_congr _ _ (fun i => (bgStep5_preserves_cat cell i).2.2.1)]
   cases uniquePred24 (fun i => cell i == .ancA) with
   | none => rfl
   | some a =>
     cases uniquePred24 (fun i => cell i == .ancB) with
     | none => rfl
     | some b =>
+      dsimp only
       have hQ : allPred24 (fun i => !isInQ a b i || !isCat5 (bgStep5 cell i)) =
           allPred24 (fun i => !isInQ a b i || !isCat5 (cell i)) :=
         allPred24_congr _ _ fun i => by rw [(bgStep5_preserves_cat cell i).1]
@@ -1399,8 +1425,7 @@ private theorem bgStep5_preserves_gateMode5 (cell : Fin 24 → Sym5) :
             have h2 := hf (oppSlot i); simp [hip'] at h2
             unfold bgStep5
             split_ifs <;> simp [hip, h1, h2]
-          · have hipf : isInP a b i = false := Bool.eq_false_iff.mpr hip
-            simp [hipf]
+          · simp [Bool.eq_false_iff.mpr hip]
         cases h1 : allPred24 (fun i => !isInP a b i || (cell i == .empty || cell i == .rotR)) with
         | true => exact hImp cell h1
         | false =>
@@ -1409,14 +1434,13 @@ private theorem bgStep5_preserves_gateMode5 (cell : Fin 24 → Sym5) :
           | true =>
             have h3 := hImp (bgStep5 cell) h2
             rw [bgStep5_invol] at h3
-            rw [h3] at h1; exact Bool.noConfusion h1
+            rw [h3] at h1; cases h1
       rw [hQ, hP, hR]
 
 private theorem bgStep5_equivariant (g : WF4Elem) (cell : Fin 24 → Sym5) :
     actSym5 g (bgStep5 cell) = bgStep5 (actSym5 g cell) := by
   funext i
-  unfold actSym5 bgStep5
-  rw [cu_wf4PermInv_opp]
+  simp only [actSym5, bgStep5, cu_wf4PermInv_opp]
 
 private theorem bgStep5_countSym5 (s : Sym5) (cell : Fin 24 → Sym5) :
     countSym5 s (bgStep5 cell) = countSym5 s cell := by
@@ -1426,20 +1450,16 @@ private theorem bgStep5_countSym5 (s : Sym5) (cell : Fin 24 → Sym5) :
     intro i
     have hOpp := (thm_24_facets_geometry.2.1 i).1
     dsimp only [π]
-    by_cases hc : isCat5 (cell i) || isCat5 (cell (oppSlot i))
-    · simp [hc]
-    · have hcf : (isCat5 (cell i) || isCat5 (cell (oppSlot i))) = false := Bool.eq_false_iff.mpr hc
-      have hcf' : (isCat5 (cell (oppSlot i)) || isCat5 (cell (oppSlot (oppSlot i)))) = false := by
-        rw [hOpp, Bool.or_comm]; exact hcf
-      simp [hcf, hcf', hOpp]
+    cases h1 : isCat5 (cell i) <;> cases h2 : isCat5 (cell (oppSlot i)) <;> simp [h1, h2, hOpp]
   let e : Fin 24 ≃ Fin 24 := ⟨π, π, hInvol, hInvol⟩
   have hEq : bgStep5 cell = fun i => cell (e i) := by
-    funext i; unfold bgStep5; dsimp only [e, π]; split_ifs <;> rfl
+    funext i
+    change (if isCat5 (cell i) || isCat5 (cell (oppSlot i)) then cell i else cell (oppSlot i)) =
+      cell (if isCat5 (cell i) || isCat5 (cell (oppSlot i)) then i else oppSlot i)
+    split_ifs <;> rfl
   unfold countSym5; rw [hEq]
   exact countPred24_comp_equiv e (fun i => cell i == s)
 
-/-- Helper: any slot bijection `e` fixing `Q(a,b)` as a set, `P(a,b)` as a set, and every slot outside `Q ∪ P`
-    preserves `gateMode5 cell = some (a, b, r)`. -/
 private theorem gateMode5_preserved_by_QP_equiv (cell : Fin 24 → Sym5) (a b : Fin 24) (r : Nat)
     (hMode : gateMode5 cell = some (a, b, r))
     (e : Fin 24 ≃ Fin 24)
@@ -1450,51 +1470,49 @@ private theorem gateMode5_preserved_by_QP_equiv (cell : Fin 24 → Sym5) (a b : 
   have hMode' := hMode
   unfold gateMode5 at hMode'
   cases hA : uniquePred24 (fun i => cell i == .ancA) with
-  | none => rw [hA] at hMode'; exact Option.noConfusion hMode'
+  | none => simp [hA] at hMode'
   | some a0 =>
     cases hB : uniquePred24 (fun i => cell i == .ancB) with
-    | none => rw [hA, hB] at hMode'; exact Option.noConfusion hMode'
+    | none => simp [hA, hB] at hMode'
     | some b0 =>
       rw [hA, hB] at hMode'
+      dsimp only at hMode'
       split_ifs at hMode' with hCond hR
       simp only [Option.some.injEq, Prod.mk.injEq] at hMode'
-      rcases hMode' with ⟨rfl, rfl, rfl⟩
+      obtain ⟨ha0, hb0, hr0⟩ := hMode'
+      subst ha0; subst hb0; subst hr0
       simp only [Bool.and_eq_true] at hCond
       rcases hCond with ⟨⟨hOrth, hQNoCat⟩, hPOnly⟩
-      have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hOrth).2.2
-      have haOutQ : isInQ a b a = false := by
-        cases h : isInQ a b a with | false => rfl | true => exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).1
-      have haOutP : isInP a b a = false := by
-        cases h : isInP a b a with | false => rfl | true => exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).2.1
-      have hbOutQ : isInQ a b b = false := by
-        cases h : isInQ a b b with | false => rfl | true => exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).1
-      have hbOutP : isInP a b b = false := by
-        cases h : isInP a b b with | false => rfl | true => exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).2.1
-      have hea : e a = a := heOut a haOutQ haOutP
-      have heb : e b = b := heOut b hbOutQ hbOutP
-      have heaS : e.symm a = a := by simpa [hea] using e.symm_apply_apply a
-      have hebS : e.symm b = b := by simpa [heb] using e.symm_apply_apply b
-      have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a := by
-        have h := uniquePred24_comp_equiv e.symm (fun i => cell i == .ancA)
-        simpa [hA, heaS] using h
-      have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b := by
-        have h := uniquePred24_comp_equiv e.symm (fun i => cell i == .ancB)
-        simpa [hB, hebS] using h
-      have hQ' : allPred24 (fun i => !isInQ a b i || !isCat5 (cell (e i))) = true := by
-        rw [allPred24_congr _ (fun i => !isInQ a b (e i) || !isCat5 (cell (e i))) (fun i => by rw [heQ]),
-            allPred24_comp_equiv e]
+      have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a0 b0 hOrth).2.2
+      have hea : e a0 = a0 := heOut a0
+        (by cases h : isInQ a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).1])
+        (by cases h : isInP a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).2.1])
+      have heb : e b0 = b0 := heOut b0
+        (by cases h : isInQ a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).1])
+        (by cases h : isInP a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).2.1])
+      have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a0 := by
+        simpa [hA, show e.symm a0 = a0 from by simpa [hea] using e.symm_apply_apply a0] using
+          uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancA)
+      have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b0 := by
+        simpa [hB, show e.symm b0 = b0 from by simpa [heb] using e.symm_apply_apply b0] using
+          uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancB)
+      have hQ' : allPred24 (fun i => !isInQ a0 b0 i || !isCat5 (cell (e i))) = true := by
+        rw [allPred24_congr _ (fun i => !isInQ a0 b0 (e i) || !isCat5 (cell (e i))) (fun i => by rw [heQ]),
+            allPred24_comp_equiv e (fun i => !isInQ a0 b0 i || !isCat5 (cell i))]
         exact hQNoCat
-      have hP' : allPred24 (fun i => !isInP a b i || (cell (e i) == .empty || cell (e i) == .rotR)) = true := by
-        rw [allPred24_congr _ (fun i => !isInP a b (e i) || (cell (e i) == .empty || cell (e i) == .rotR)) (fun i => by rw [heP]),
-            allPred24_comp_equiv e]
+      have hP' : allPred24 (fun i => !isInP a0 b0 i || (cell (e i) == .empty || cell (e i) == .rotR)) = true := by
+        rw [allPred24_congr _ (fun i => !isInP a0 b0 (e i) || (cell (e i) == .empty || cell (e i) == .rotR)) (fun i => by rw [heP]),
+            allPred24_comp_equiv e (fun i => !isInP a0 b0 i || (cell i == .empty || cell i == .rotR))]
         exact hPOnly
-      have hR' : countPred24 (fun i => isInP a b i && (cell (e i) == .rotR)) =
-          countPred24 (fun i => isInP a b i && (cell i == .rotR)) := by
-        rw [countPred24_congr _ (fun i => isInP a b (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
-        exact countPred24_comp_equiv e _
+      have hR' : countPred24 (fun i => isInP a0 b0 i && (cell (e i) == .rotR)) =
+          countPred24 (fun i => isInP a0 b0 i && (cell i == .rotR)) := by
+        rw [countPred24_congr _ (fun i => isInP a0 b0 (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
+        exact countPred24_comp_equiv e (fun i => isInP a0 b0 i && (cell i == .rotR))
       unfold gateMode5
-      rw [hA', hB', hR']
-      simp [hOrth, hQ', hP', hR]
+      rw [hA', hB']
+      dsimp only
+      rw [hQ', hP', hR']
+      simp only [hOrth, Bool.and_self, ↓reduceIte, hR]
 
 private theorem gateMode5_equivariant (g : WF4Elem) (cell : Fin 24 → Sym5) :
     gateMode5 (actSym5 g cell) = (gateMode5 cell).map (fun t => (wf4Perm g t.1, wf4Perm g t.2.1, t.2.2)) := by
@@ -1511,28 +1529,25 @@ private theorem gateMode5_equivariant (g : WF4Elem) (cell : Fin 24 → Sym5) :
     cases uniquePred24 (fun i => cell i == .ancB) with
     | none => rfl
     | some b =>
-      simp only [Option.map_some]
+      dsimp only [Option.map_some]
       have hOrth : isOrthPair (wf4Perm g a) (wf4Perm g b) = isOrthPair a b := isOrthPair_wf4 g a b
       have hQ : allPred24 (fun i => !isInQ (wf4Perm g a) (wf4Perm g b) i || !isCat5 (cell ((wf4Equiv g).symm i))) =
           allPred24 (fun i => !isInQ a b i || !isCat5 (cell i)) := by
-        rw [allPred24_congr _ (fun i => !isInQ a b ((wf4Equiv g).symm i) || !isCat5 (cell ((wf4Equiv g).symm i))) (fun i => by
-          have := isInQ_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => !x || !isCat5 (cell ((wf4Equiv g).symm i))) this)]
-        exact allPred24_comp_equiv (wf4Equiv g).symm _
+        rw [allPred24_congr _ (fun i => !isInQ a b ((wf4Equiv g).symm i) || !isCat5 (cell ((wf4Equiv g).symm i)))
+              (fun i => by rw [isInQ_wf4_symm])]
+        exact allPred24_comp_equiv (wf4Equiv g).symm (fun i => !isInQ a b i || !isCat5 (cell i))
       have hP : allPred24 (fun i => !isInP (wf4Perm g a) (wf4Perm g b) i ||
             (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) =
           allPred24 (fun i => !isInP a b i || (cell i == .empty || cell i == .rotR)) := by
         rw [allPred24_congr _ (fun i => !isInP a b ((wf4Equiv g).symm i) ||
-            (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-          have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => !x || (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) this)]
-        exact allPred24_comp_equiv (wf4Equiv g).symm _
+              (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR))
+              (fun i => by rw [isInP_wf4_symm])]
+        exact allPred24_comp_equiv (wf4Equiv g).symm (fun i => !isInP a b i || (cell i == .empty || cell i == .rotR))
       have hR : countPred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (cell ((wf4Equiv g).symm i) == .rotR)) =
           countPred24 (fun i => isInP a b i && (cell i == .rotR)) := by
-        rw [countPred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-          have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => x && (cell ((wf4Equiv g).symm i) == .rotR)) this)]
-        exact countPred24_comp_equiv (wf4Equiv g).symm _
+        rw [countPred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR))
+              (fun i => by rw [isInP_wf4_symm])]
+        exact countPred24_comp_equiv (wf4Equiv g).symm (fun i => isInP a b i && (cell i == .rotR))
       change (if isOrthPair (wf4Perm g a) (wf4Perm g b) &&
           allPred24 (fun i => !isInQ (wf4Perm g a) (wf4Perm g b) i || !isCat5 (cell ((wf4Equiv g).symm i))) &&
           allPred24 (fun i => !isInP (wf4Perm g a) (wf4Perm g b) i ||
@@ -1540,207 +1555,177 @@ private theorem gateMode5_equivariant (g : WF4Elem) (cell : Fin 24 → Sym5) :
         let r := countPred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (cell ((wf4Equiv g).symm i) == .rotR))
         if r = 0 || r = 1 || r = 4 then some (wf4Perm g a, wf4Perm g b, r) else none else none) = _
       rw [hOrth, hQ, hP, hR]
-      split_ifs <;> simp
+      dsimp only
+      split_ifs <;> rfl
 
-private theorem rotQEquiv_invariants (a b : Fin 24) :
-    (∀ i, isInQ a b (rotQEquiv a b i) = isInQ a b i) ∧
-    (∀ i, isInQ a b ((rotQEquiv a b).symm i) = isInQ a b i) ∧
-    (∀ i, isInP a b (rotQEquiv a b i) = isInP a b i) ∧
-    (∀ i, isInP a b ((rotQEquiv a b).symm i) = isInP a b i) ∧
-    (∀ i, isInQ a b i = false → isInP a b i = false → rotQEquiv a b i = i) ∧
-    (∀ i, isInQ a b i = false → isInP a b i = false → (rotQEquiv a b).symm i = i) := by
-  have hQ : ∀ i, isInQ a b (rotQ a b i) = isInQ a b i := isInQ_rotQ a b
-  have hQInv : ∀ i, isInQ a b (rotQInv a b i) = isInQ a b i := isInQ_rotQInv a b
-  have hP : ∀ i, isInP a b (rotQ a b i) = isInP a b i := fun i => by
-    by_cases hq : isInQ a b i = true
-    · by_cases hab : isOrthPair a b = true
-      · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-        have h1 : isInP a b i = false := by cases h : isInP a b i <;> [rfl; exact absurd ⟨hq, h⟩ (hD i).2.2]
-        have h2 : isInP a b (rotQ a b i) = false := by
-          cases h : isInP a b (rotQ a b i) with
-          | false => rfl
-          | true => exact absurd ⟨(hQ i).trans hq, h⟩ (hD _).2.2
-        rw [h1, h2]
-      · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
-        simp [rotQ, hf]
-    · rw [rotQ_outside a b i (Bool.eq_false_iff.mpr hq)]
-  have hPInv : ∀ i, isInP a b (rotQInv a b i) = isInP a b i := fun i => by
-    unfold rotQInv; rw [hP, hP, hP]
-  refine ⟨hQ, hQInv, hP, hPInv,
-    fun i hqf _ => rotQ_outside a b i hqf,
-    fun i hqf _ => by unfold rotQEquiv rotQInv; dsimp only; rw [rotQ_outside a b i hqf, rotQ_outside a b i hqf, rotQ_outside a b i hqf]⟩
+private theorem morita_perp_helpers (a b pBar qIn : Fin 24)
+    (hpInP : isInP a b pBar = true) (hqInQ : isInQ a b qIn = true) (hab : isOrthPair a b = true) :
+    rotQPEquiv a b pBar = rotP a b pBar ∧
+    rotQPEquiv a b qIn = rotQ a b qIn ∧
+    (rotQPEquiv a b).symm pBar = rotPInv a b pBar ∧
+    (rotQPEquiv a b).symm qIn = rotQInv a b qIn ∧
+    (rotQ2Equiv a b).symm pBar = pBar := by
+  have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
+  have hqfP : isInQ a b pBar = false := by
+    cases h : isInQ a b pBar <;> [rfl; exact absurd ⟨h, hpInP⟩ (hDisj pBar).2.2]
+  have hpfQ : isInP a b qIn = false := by
+    cases h : isInP a b qIn <;> [rfl; exact absurd ⟨hqInQ, h⟩ (hDisj qIn).2.2]
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · change rotQ a b (rotP a b pBar) = rotP a b pBar
+    have hp' : isInP a b (rotP a b pBar) = true := by rw [isInP_rotP]; exact hpInP
+    have hqf : isInQ a b (rotP a b pBar) = false := by
+      cases h : isInQ a b (rotP a b pBar) <;> [rfl; exact absurd ⟨h, hp'⟩ (hDisj _).2.2]
+    exact rotQ_outside a b _ hqf
+  · change rotQ a b (rotP a b qIn) = rotQ a b qIn
+    rw [rotP_outside a b qIn hpfQ]
+  · change rotPInv a b (rotQInv a b pBar) = rotPInv a b pBar
+    unfold rotQInv; rw [rotQ_outside a b pBar hqfP, rotQ_outside a b pBar hqfP, rotQ_outside a b pBar hqfP]
+  · rw [rotQP_symm_eq, rotQP_comm]
+    unfold rotPInv; rw [rotP_outside a b qIn hpfQ, rotP_outside a b qIn hpfQ, rotP_outside a b qIn hpfQ]
+  · change rotQ a b (rotQ a b pBar) = pBar
+    rw [rotQ_outside a b pBar hqfP, rotQ_outside a b pBar hqfP]
 
-private theorem rotQ2Equiv_invariants (a b : Fin 24) :
-    (∀ i, isInQ a b (rotQ2Equiv a b i) = isInQ a b i) ∧
-    (∀ i, isInP a b (rotQ2Equiv a b i) = isInP a b i) ∧
-    (∀ i, isInQ a b i = false → isInP a b i = false → rotQ2Equiv a b i = i) := by
-  obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQEquiv_invariants a b
-  refine ⟨fun i => by change isInQ a b (rotQ a b (rotQ a b i)) = _; rw [hQ, hQ],
-    fun i => by change isInP a b (rotQ a b (rotQ a b i)) = _; rw [hP, hP],
-    fun i hqf hpf => by change rotQ a b (rotQ a b i) = i; rw [hOut i hqf hpf, hOut i hqf hpf]⟩
-
-private theorem rotQPEquiv_invariants (a b : Fin 24) :
-    (∀ i, isInQ a b (rotQPEquiv a b i) = isInQ a b i) ∧
-    (∀ i, isInQ a b ((rotQPEquiv a b).symm i) = isInQ a b i) ∧
-    (∀ i, isInP a b (rotQPEquiv a b i) = isInP a b i) ∧
-    (∀ i, isInP a b ((rotQPEquiv a b).symm i) = isInP a b i) ∧
-    (∀ i, isInQ a b i = false → isInP a b i = false → rotQPEquiv a b i = i) ∧
-    (∀ i, isInQ a b i = false → isInP a b i = false → (rotQPEquiv a b).symm i = i) := by
-  obtain ⟨hQ, hQInv, hP, hPInv, hQOut, hQInvOut⟩ := rotQEquiv_invariants a b
-  have hP_Q : ∀ i, isInQ a b (rotP a b i) = isInQ a b i := fun i => by
-    by_cases hp : isInP a b i = true
-    · by_cases hab : isOrthPair a b = true
-      · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-        have h1 : isInQ a b i = false := by cases h : isInQ a b i <;> [rfl; exact absurd ⟨h, hp⟩ (hD i).2.2]
-        have h2 : isInQ a b (rotP a b i) = false := by
-          cases h : isInQ a b (rotP a b i) with
-          | false => rfl
-          | true => exact absurd ⟨h, (isInP_rotP a b i).trans hp⟩ (hD _).2.2
-        rw [h1, h2]
-      · have hf : isOrthPair a b = false := Bool.eq_false_iff.mpr hab
-        simp [rotP, hf]
-    · rw [rotP_outside a b i (Bool.eq_false_iff.mpr hp)]
-  have hPInv_Q : ∀ i, isInQ a b (rotPInv a b i) = isInQ a b i := fun i => by
-    unfold rotPInv; rw [hP_Q, hP_Q, hP_Q]
-  refine ⟨fun i => by change isInQ a b (rotQ a b (rotP a b i)) = _; rw [hQ, hP_Q],
-    fun i => by change isInQ a b (rotPInv a b (rotQInv a b i)) = _; rw [hPInv_Q, hQInv],
-    fun i => by change isInP a b (rotQ a b (rotP a b i)) = _; rw [hP, isInP_rotP],
-    fun i => by change isInP a b (rotPInv a b (rotQInv a b i)) = _; rw [isInP_rotPInv, hPInv],
-    fun i hqf hpf => by change rotQ a b (rotP a b i) = i; rw [rotP_outside a b i hpf, hQOut i hqf hpf],
-    fun i hqf hpf => by
-      change rotPInv a b (rotQInv a b i) = i
-      rw [hQInvOut i hqf hpf]; unfold rotPInv
-      rw [rotP_outside a b i hpf, rotP_outside a b i hpf, rotP_outside a b i hpf]⟩
-
-private theorem univ5_step_inv (fwd : Bool) (cell : Fin 24 → Sym5) :
-    (if fwd then localUniv5Inv (localUniv5 cell) else localUniv5 (localUniv5Inv cell)) = cell := by
+private theorem univ5_inv_left (cell : Fin 24 → Sym5) : localUniv5Inv (localUniv5 cell) = cell := by
   cases hMode : gateMode5 cell with
   | none =>
-    cases fwd <;> simp only [localUniv5, localUniv5Inv, hMode, bgStep5_preserves_gateMode5, bgStep5_invol]
+    simp only [localUniv5, localUniv5Inv, hMode, bgStep5_preserves_gateMode5, bgStep5_invol]
   | some abr =>
     rcases abr with ⟨a, b, r⟩
     by_cases hr0 : r = 0
     · subst hr0
-      obtain ⟨hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
-      have hM' := gateMode5_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b) hQ hP hOut
-      cases fwd <;> simp only [localUniv5, localUniv5Inv, hMode, hM', ↓reduceIte] <;>
-        (funext i; exact congrArg cell (rotQ2_invol a b i))
+      obtain ⟨_, _, _, hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+      have hM' := gateMode5_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b).symm hQ hP hOut
+      simp only [localUniv5, localUniv5Inv, hMode, hM', ↓reduceIte]
+      funext i; exact congrArg cell (rotQ2_invol a b i)
     · by_cases hr4 : r = 4
       · subst hr4
-        obtain ⟨hQ, hQInv, hP, hPInv, hOut, hOutInv⟩ := rotQEquiv_invariants a b
+        obtain ⟨_, hQInv, _, hPInv, _, hOutInv⟩ := rotQ_invariants a b
         have hM1 := gateMode5_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b).symm hQInv hPInv hOutInv
-        have hM2 := gateMode5_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b) hQ hP hOut
-        cases fwd
-        · simp only [localUniv5, localUniv5Inv, hMode, hM2, hr0, ↓reduceIte]
-          funext i; exact congrArg cell ((rotQEquiv a b).apply_symm_apply i)
-        · simp only [localUniv5, localUniv5Inv, hMode, hM1, hr0, ↓reduceIte]
-          funext i; exact congrArg cell ((rotQEquiv a b).symm_apply_apply i)
+        simp only [localUniv5, localUniv5Inv, hMode, hM1, hr0, ↓reduceIte]
+        funext i; exact congrArg cell ((rotQEquiv a b).symm_apply_apply i)
       · cases hpBar : uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
-        | none =>
-          cases fwd <;> simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, ↓reduceIte]
+        | none => simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, ↓reduceIte]
         | some pBar =>
           cases hqIn : uniquePred24 (fun i => isInQ a b i && (cell i == .pulse)) with
-          | none =>
-            cases fwd <;> simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, hqIn, ↓reduceIte]
+          | none => simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, hqIn, ↓reduceIte]
           | some qIn =>
+            have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
+            have hqInQ : isInQ a b qIn = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1).1
             by_cases hPerp : isPerpQ a b pBar qIn = true
-            · obtain ⟨hQ, hQInv, hP, hPInv, hOut, hOutInv⟩ := rotQPEquiv_invariants a b
+            · obtain ⟨_, hQInv, _, hPInv, _, hOutInv⟩ := rotQPEquiv_invariants a b
               have hM1 := gateMode5_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b).symm hQInv hPInv hOutInv
-              have hM2 := gateMode5_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b) hQ hP hOut
               have hP1 : uniquePred24 (fun i => isInP a b i && (cell ((rotQPEquiv a b).symm i) == .rotR)) =
                   some (rotQPEquiv a b pBar) := by
                 rw [uniquePred24_congr _ (fun i => isInP a b ((rotQPEquiv a b).symm i) &&
                     (cell ((rotQPEquiv a b).symm i) == .rotR)) (fun i => by rw [hPInv]),
-                    uniquePred24_comp_equiv (rotQPEquiv a b), hpBar]; rfl
+                    uniquePred24_comp_equiv (rotQPEquiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
               have hQ1 : uniquePred24 (fun i => isInQ a b i && (cell ((rotQPEquiv a b).symm i) == .pulse)) =
                   some (rotQPEquiv a b qIn) := by
                 rw [uniquePred24_congr _ (fun i => isInQ a b ((rotQPEquiv a b).symm i) &&
                     (cell ((rotQPEquiv a b).symm i) == .pulse)) (fun i => by rw [hQInv]),
-                    uniquePred24_comp_equiv (rotQPEquiv a b), hqIn]; rfl
+                    uniquePred24_comp_equiv (rotQPEquiv a b) (fun i => isInQ a b i && (cell i == .pulse)), hqIn]; rfl
+              have hab : isOrthPair a b = true := by
+                unfold isPerpQ at hPerp; simp only [Bool.and_eq_true] at hPerp; exact hPerp.1.1.1
+              have hMH := morita_perp_helpers a b pBar qIn hpInP hqInQ hab
+              have hPerp1 : isPerpQ a b (rotQPEquiv a b pBar) (rotQPEquiv a b qIn) = true := by
+                rw [hMH.1, hMH.2.1, isPerpQ_rot_preserved]; exact hPerp
+              simp only [localUniv5, localUniv5Inv, hMode, hM1, hr0, hr4, hpBar, hqIn, hPerp, hP1, hQ1, hPerp1, ↓reduceIte]
+              funext i; exact congrArg cell ((rotQPEquiv a b).symm_apply_apply i)
+            · have hPerpF : isPerpQ a b pBar qIn = false := Bool.eq_false_iff.mpr hPerp
+              obtain ⟨_, _, _, hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+              have hM' := gateMode5_preserved_by_QP_equiv cell a b r hMode (rotQ2Equiv a b).symm hQ hP hOut
+              have hP' : uniquePred24 (fun i => isInP a b i && (cell ((rotQ2Equiv a b).symm i) == .rotR)) =
+                  some (rotQ2Equiv a b pBar) := by
+                rw [uniquePred24_congr _ (fun i => isInP a b ((rotQ2Equiv a b).symm i) &&
+                    (cell ((rotQ2Equiv a b).symm i) == .rotR)) (fun i => by rw [hP]),
+                    uniquePred24_comp_equiv (rotQ2Equiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
+              have hQ' : uniquePred24 (fun i => isInQ a b i && (cell ((rotQ2Equiv a b).symm i) == .pulse)) =
+                  some (rotQ2Equiv a b qIn) := by
+                rw [uniquePred24_congr _ (fun i => isInQ a b ((rotQ2Equiv a b).symm i) &&
+                    (cell ((rotQ2Equiv a b).symm i) == .pulse)) (fun i => by rw [hQ]),
+                    uniquePred24_comp_equiv (rotQ2Equiv a b) (fun i => isInQ a b i && (cell i == .pulse)), hqIn]; rfl
+              have hPFix : rotQ2Equiv a b pBar = pBar := by
+                by_cases hab : isOrthPair a b = true
+                · exact (morita_perp_helpers a b pBar qIn hpInP hqInQ hab).2.2.2.2
+                · change rotQ a b (rotQ a b pBar) = pBar; simp [rotQ, Bool.eq_false_iff.mpr hab]
+              have hPerp' : isPerpQ a b (rotQ2Equiv a b pBar) (rotQ2Equiv a b qIn) = false := by
+                rw [hPFix]; change isPerpQ a b pBar (rotQ a b (rotQ a b qIn)) = false
+                rw [isPerpQ_rotQ2_preserved]; exact hPerpF
+              simp only [localUniv5, localUniv5Inv, hMode, hM', hr0, hr4, hpBar, hqIn, hPerpF, hP', hQ', hPerp',
+                Bool.false_eq_true, ↓reduceIte]
+              funext i; exact congrArg cell (rotQ2_invol a b i)
+
+private theorem univ5_inv_right (cell : Fin 24 → Sym5) : localUniv5 (localUniv5Inv cell) = cell := by
+  cases hMode : gateMode5 cell with
+  | none =>
+    simp only [localUniv5, localUniv5Inv, hMode, bgStep5_preserves_gateMode5, bgStep5_invol]
+  | some abr =>
+    rcases abr with ⟨a, b, r⟩
+    by_cases hr0 : r = 0
+    · subst hr0
+      obtain ⟨hQ, hP, hOut, _, _, _⟩ := rotQ2Equiv_invariants a b
+      have hM' := gateMode5_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b) hQ hP hOut
+      simp only [localUniv5, localUniv5Inv, hMode, hM', ↓reduceIte]
+      funext i; exact congrArg cell (rotQ2_invol a b i)
+    · by_cases hr4 : r = 4
+      · subst hr4
+        obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQ_invariants a b
+        have hM2 := gateMode5_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b) hQ hP hOut
+        simp only [localUniv5, localUniv5Inv, hMode, hM2, hr0, ↓reduceIte]
+        funext i; exact congrArg cell ((rotQEquiv a b).apply_symm_apply i)
+      · cases hpBar : uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
+        | none => simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, ↓reduceIte]
+        | some pBar =>
+          cases hqIn : uniquePred24 (fun i => isInQ a b i && (cell i == .pulse)) with
+          | none => simp only [localUniv5, localUniv5Inv, hMode, hr0, hr4, hpBar, hqIn, ↓reduceIte]
+          | some qIn =>
+            have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
+            have hqInQ : isInQ a b qIn = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1).1
+            by_cases hPerp : isPerpQ a b pBar qIn = true
+            · obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQPEquiv_invariants a b
+              have hM2 := gateMode5_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b) hQ hP hOut
               have hP2 : uniquePred24 (fun i => isInP a b i && (cell (rotQPEquiv a b i) == .rotR)) =
                   some ((rotQPEquiv a b).symm pBar) := by
                 rw [uniquePred24_congr _ (fun i => isInP a b (rotQPEquiv a b i) &&
                     (cell (rotQPEquiv a b i) == .rotR)) (fun i => by rw [hP]),
-                    uniquePred24_comp_equiv (rotQPEquiv a b).symm, hpBar]; rfl
+                    uniquePred24_comp_equiv_fwd (rotQPEquiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
               have hQ2 : uniquePred24 (fun i => isInQ a b i && (cell (rotQPEquiv a b i) == .pulse)) =
                   some ((rotQPEquiv a b).symm qIn) := by
                 rw [uniquePred24_congr _ (fun i => isInQ a b (rotQPEquiv a b i) &&
                     (cell (rotQPEquiv a b i) == .pulse)) (fun i => by rw [hQ]),
-                    uniquePred24_comp_equiv (rotQPEquiv a b).symm, hqIn]; rfl
-              have hpInP : isInP a b pBar = true := by
-                have := ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1
-                exact (Bool.and_eq_true _ _).mp this |>.1
-              have hqInQ : isInQ a b qIn = true := by
-                have := ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1
-                exact (Bool.and_eq_true _ _).mp this |>.1
+                    uniquePred24_comp_equiv_fwd (rotQPEquiv a b) (fun i => isInQ a b i && (cell i == .pulse)), hqIn]; rfl
               have hab : isOrthPair a b = true := by
                 unfold isPerpQ at hPerp; simp only [Bool.and_eq_true] at hPerp; exact hPerp.1.1.1
-              have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-              have hQP_p : rotQPEquiv a b pBar = rotP a b pBar := by
-                change rotQ a b (rotP a b pBar) = rotP a b pBar
-                have hp' : isInP a b (rotP a b pBar) = true := by rw [isInP_rotP]; exact hpInP
-                have hqf : isInQ a b (rotP a b pBar) = false := by
-                  cases h : isInQ a b (rotP a b pBar) <;> [rfl; exact absurd ⟨h, hp'⟩ (hDisj _).2.2]
-                exact rotQ_outside a b _ hqf
-              have hQP_q : rotQPEquiv a b qIn = rotQ a b qIn := by
-                change rotQ a b (rotP a b qIn) = rotQ a b qIn
-                have hpf : isInP a b qIn = false := by
-                  cases h : isInP a b qIn <;> [rfl; exact absurd ⟨hqInQ, h⟩ (hDisj qIn).2.2]
-                rw [rotP_outside a b qIn hpf]
-              have hPerp1 : isPerpQ a b (rotQPEquiv a b pBar) (rotQPEquiv a b qIn) = true := by
-                rw [hQP_p, hQP_q, isPerpQ_rot_preserved]; exact hPerp
-              have hQPs_p : (rotQPEquiv a b).symm pBar = rotPInv a b pBar := by
-                change rotPInv a b (rotQInv a b pBar) = rotPInv a b pBar
-                have hqf : isInQ a b pBar = false := by
-                  cases h : isInQ a b pBar <;> [rfl; exact absurd ⟨h, hpInP⟩ (hDisj pBar).2.2]
-                have hQI : rotQInv a b pBar = pBar := by
-                  unfold rotQInv; rw [rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf]
-                rw [hQI]
-              have hQPs_q : (rotQPEquiv a b).symm qIn = rotQInv a b qIn := by
-                rw [rotQP_symm_eq, rotQP_comm]
-                have hpf : isInP a b qIn = false := by
-                  cases h : isInP a b qIn <;> [rfl; exact absurd ⟨hqInQ, h⟩ (hDisj qIn).2.2]
-                have hPI : rotPInv a b qIn = qIn := by
-                  unfold rotPInv; rw [rotP_outside a b qIn hpf, rotP_outside a b qIn hpf, rotP_outside a b qIn hpf]
-                rw [hPI]
+              have hMH := morita_perp_helpers a b pBar qIn hpInP hqInQ hab
               have hPerp2 : isPerpQ a b ((rotQPEquiv a b).symm pBar) ((rotQPEquiv a b).symm qIn) = true := by
-                rw [hQPs_p, hQPs_q, ← isPerpQ_rot_preserved a b (rotPInv a b pBar) (rotQInv a b qIn),
+                rw [hMH.2.2.1, hMH.2.2.2.1, ← isPerpQ_rot_preserved a b (rotPInv a b pBar) (rotQInv a b qIn),
                     rotP_inv_right, rotQ_inv_right]
                 exact hPerp
-              cases fwd
-              · simp only [localUniv5, localUniv5Inv, hMode, hM2, hr0, hr4, hpBar, hqIn, hPerp, hP2, hQ2, hPerp2, ↓reduceIte]
-                funext i; exact congrArg cell ((rotQPEquiv a b).apply_symm_apply i)
-              · simp only [localUniv5, localUniv5Inv, hMode, hM1, hr0, hr4, hpBar, hqIn, hPerp, hP1, hQ1, hPerp1, ↓reduceIte]
-                funext i; exact congrArg cell ((rotQPEquiv a b).symm_apply_apply i)
+              simp only [localUniv5, localUniv5Inv, hMode, hM2, hr0, hr4, hpBar, hqIn, hPerp, hP2, hQ2, hPerp2, ↓reduceIte]
+              funext i; exact congrArg cell ((rotQPEquiv a b).apply_symm_apply i)
             · have hPerpF : isPerpQ a b pBar qIn = false := Bool.eq_false_iff.mpr hPerp
-              obtain ⟨hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+              obtain ⟨hQ, hP, hOut, _, _, _⟩ := rotQ2Equiv_invariants a b
               have hM' := gateMode5_preserved_by_QP_equiv cell a b r hMode (rotQ2Equiv a b) hQ hP hOut
               have hP' : uniquePred24 (fun i => isInP a b i && (cell (rotQ2Equiv a b i) == .rotR)) =
                   some ((rotQ2Equiv a b).symm pBar) := by
                 rw [uniquePred24_congr _ (fun i => isInP a b (rotQ2Equiv a b i) &&
                     (cell (rotQ2Equiv a b i) == .rotR)) (fun i => by rw [hP]),
-                    uniquePred24_comp_equiv (rotQ2Equiv a b).symm, hpBar]; rfl
+                    uniquePred24_comp_equiv_fwd (rotQ2Equiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
               have hQ' : uniquePred24 (fun i => isInQ a b i && (cell (rotQ2Equiv a b i) == .pulse)) =
                   some ((rotQ2Equiv a b).symm qIn) := by
                 rw [uniquePred24_congr _ (fun i => isInQ a b (rotQ2Equiv a b i) &&
                     (cell (rotQ2Equiv a b i) == .pulse)) (fun i => by rw [hQ]),
-                    uniquePred24_comp_equiv (rotQ2Equiv a b).symm, hqIn]; rfl
-              have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
+                    uniquePred24_comp_equiv_fwd (rotQ2Equiv a b) (fun i => isInQ a b i && (cell i == .pulse)), hqIn]; rfl
               have hPFix : (rotQ2Equiv a b).symm pBar = pBar := by
-                change rotQ a b (rotQ a b pBar) = pBar
                 by_cases hab : isOrthPair a b = true
-                · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-                  have hqf : isInQ a b pBar = false := by
-                    cases h : isInQ a b pBar <;> [rfl; exact absurd ⟨h, hpInP⟩ (hD pBar).2.2]
-                  rw [rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf]
-                · simp [rotQ, Bool.eq_false_iff.mpr hab]
+                · exact (morita_perp_helpers a b pBar qIn hpInP hqInQ hab).2.2.2.2
+                · change rotQ a b (rotQ a b pBar) = pBar; simp [rotQ, Bool.eq_false_iff.mpr hab]
               have hPerp' : isPerpQ a b ((rotQ2Equiv a b).symm pBar) ((rotQ2Equiv a b).symm qIn) = false := by
                 rw [hPFix]; change isPerpQ a b pBar (rotQ a b (rotQ a b qIn)) = false
                 rw [isPerpQ_rotQ2_preserved]; exact hPerpF
-              cases fwd <;>
-                simp only [localUniv5, localUniv5Inv, hMode, hM', hr0, hr4, hpBar, hqIn, hPerpF, hP', hQ', hPerp',
-                  Bool.false_eq_true, ↓reduceIte] <;>
-                (funext i; exact congrArg cell (rotQ2_invol a b i))
+              simp only [localUniv5, localUniv5Inv, hMode, hM', hr0, hr4, hpBar, hqIn, hPerpF, hP', hQ', hPerp',
+                Bool.false_eq_true, ↓reduceIte]
+              funext i; exact congrArg cell (rotQ2_invol a b i)
 
 /-- **Headline Theorem 4 (5-Symbol Homogeneous `W(F_4)^+`-Equivariant Universal CA):**
     Universally across ALL `cell : Fin 24 → Sym5`:
@@ -1756,7 +1741,7 @@ theorem thm_univ5_bijective_equivariant_conservative :
       actSym5 g (localUniv5 cell) = localUniv5 (actSym5 g cell)) ∧
     (∀ (s : Sym5) (cell : Fin 24 → Sym5), countSym5 s (localUniv5 cell) = countSym5 s cell) ∧
     (localUniv5 (fun _ => .empty) = fun _ => .empty) := by
-  refine ⟨fun cell => univ5_step_inv true cell, fun cell => univ5_step_inv false cell, ?_, ?_, ?_⟩
+  refine ⟨univ5_inv_left, univ5_inv_right, ?_, ?_, ?_⟩
   · intro g hg cell
     have hM := gateMode5_equivariant g cell
     cases hMode : gateMode5 cell with
@@ -1789,22 +1774,25 @@ theorem thm_univ5_bijective_equivariant_conservative :
             rotPInv_equivariant g hg, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 i).2]
       by_cases hr0 : r = 0
       · simp only [localUniv5, hMode, hM, hr0, ↓reduceIte]
-        funext i; unfold actSym5 rotQ2Equiv; dsimp only; rw [hRotQ2Inv]
+        funext i
+        change cell (rotQ a b (rotQ a b (wf4PermInv g i))) =
+          cell (wf4PermInv g (rotQ (wf4Perm g a) (wf4Perm g b) (rotQ (wf4Perm g a) (wf4Perm g b) i)))
+        rw [hRotQ2Inv]
       · by_cases hr4 : r = 4
-        · simp only [localUniv5, hMode, hM, hr0, hr4, ↓reduceIte]
-          funext i; unfold actSym5 rotQEquiv; dsimp only; rw [hRotQInv]
+        · simp only [localUniv5, hMode, hM, hr4, ↓reduceIte]
+          funext i
+          change cell (rotQInv a b (wf4PermInv g i)) = cell (wf4PermInv g (rotQInv (wf4Perm g a) (wf4Perm g b) i))
+          rw [hRotQInv]
         · have hP : uniquePred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (actSym5 g cell i == .rotR)) =
               (uniquePred24 (fun i => isInP a b i && (cell i == .rotR))).map (wf4Perm g) := by
-            rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-              have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-              simpa [actSym5] using congrArg (fun x => x && (cell (wf4PermInv g i) == .rotR)) this)]
-            exact uniquePred24_comp_equiv (wf4Equiv g) _
+            rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR))
+                  (fun i => by rw [isInP_wf4_symm]; rfl)]
+            exact uniquePred24_comp_equiv (wf4Equiv g) (fun i => isInP a b i && (cell i == .rotR))
           have hQ : uniquePred24 (fun i => isInQ (wf4Perm g a) (wf4Perm g b) i && (actSym5 g cell i == .pulse)) =
               (uniquePred24 (fun i => isInQ a b i && (cell i == .pulse))).map (wf4Perm g) := by
-            rw [uniquePred24_congr _ (fun i => isInQ a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .pulse)) (fun i => by
-              have := isInQ_wf4 g a b ((wf4Equiv g).symm i)
-              simpa [actSym5] using congrArg (fun x => x && (cell (wf4PermInv g i) == .pulse)) this)]
-            exact uniquePred24_comp_equiv (wf4Equiv g) _
+            rw [uniquePred24_congr _ (fun i => isInQ a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .pulse))
+                  (fun i => by rw [isInQ_wf4_symm]; rfl)]
+            exact uniquePred24_comp_equiv (wf4Equiv g) (fun i => isInQ a b i && (cell i == .pulse))
           simp only [localUniv5, hMode, hM, hr0, hr4, hP, hQ, ↓reduceIte]
           cases uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
           | none => rfl
@@ -1814,8 +1802,14 @@ theorem thm_univ5_bijective_equivariant_conservative :
             | some qIn =>
               simp only [Option.map_some, isPerpQ_equivariant g hg]
               split_ifs
-              · funext i; unfold actSym5; rw [rotQP_symm_eq, rotQP_symm_eq, hRotPInv, hRotQInv]
-              · funext i; unfold actSym5 rotQ2Equiv; dsimp only; rw [hRotQ2Inv]
+              · funext i
+                change cell (rotPInv a b (rotQInv a b (wf4PermInv g i))) =
+                  cell (wf4PermInv g (rotPInv (wf4Perm g a) (wf4Perm g b) (rotQInv (wf4Perm g a) (wf4Perm g b) i)))
+                rw [hRotPInv, hRotQInv]
+              · funext i
+                change cell (rotQ a b (rotQ a b (wf4PermInv g i))) =
+                  cell (wf4PermInv g (rotQ (wf4Perm g a) (wf4Perm g b) (rotQ (wf4Perm g a) (wf4Perm g b) i)))
+                rw [hRotQ2Inv]
   · intro s cell
     cases hMode : gateMode5 cell with
     | none =>
@@ -1825,17 +1819,18 @@ theorem thm_univ5_bijective_equivariant_conservative :
       rcases abr with ⟨a, b, r⟩
       simp only [localUniv5, hMode]
       split_ifs
-      · exact countPred24_comp_equiv (rotQ2Equiv a b).symm _
-      · exact countPred24_comp_equiv (rotQEquiv a b).symm _
+      · unfold countSym5; exact countPred24_comp_equiv (rotQ2Equiv a b).symm (fun i => cell i == s)
+      · unfold countSym5; exact countPred24_comp_equiv (rotQEquiv a b).symm (fun i => cell i == s)
       · cases uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
         | none => rfl
         | some pBar =>
           cases uniquePred24 (fun i => isInQ a b i && (cell i == .pulse)) with
           | none => rfl
           | some qIn =>
+            dsimp only
             split_ifs
-            · exact countPred24_comp_equiv (rotQPEquiv a b).symm _
-            · exact countPred24_comp_equiv (rotQ2Equiv a b).symm _
+            · unfold countSym5; exact countPred24_comp_equiv (rotQPEquiv a b).symm (fun i => cell i == s)
+            · unfold countSym5; exact countPred24_comp_equiv (rotQ2Equiv a b).symm (fun i => cell i == s)
   · have hNone : gateMode5 (fun _ => .empty) = none := by decide
     funext s
     simp [localUniv5, hNone, bgStep5, isCat5]
@@ -1874,7 +1869,6 @@ def actSym15 (g : WF4Elem) (cell : Fin 24 → Sym15) : Fin 24 → Sym15 :=
 
 /-- Paper 0020 Table-6 geodesic-frame `12`-symbol line bijection `L_line` extended as identity on catalysts. -/
 def lineRev12Geo : Sym15 × Sym15 → Sym15 × Sym15
-  -- 1-particle sector
   | (.M, .empty) => (.empty, .M)
   | (.empty, .M) => (.M, .empty)
   | (.W0, .empty) => (.empty, .W1)
@@ -1883,7 +1877,6 @@ def lineRev12Geo : Sym15 × Sym15 → Sym15 × Sym15
   | (.empty, .W1) => (.W2, .empty)
   | (.W2, .empty) => (.W0, .empty)
   | (.empty, .W2) => (.empty, .W0)
-  -- 2-particle involutions (INC, DEC, ZERO_TEST + reflections)
   | (.F, .M) => (.W0, .Fr)   | (.W0, .Fr) => (.F, .M)
   | (.M, .F) => (.Fr, .W0)   | (.Fr, .W0) => (.M, .F)
   | (.G, .W1) => (.M, .Gr)   | (.M, .Gr) => (.G, .W1)
@@ -1941,8 +1934,6 @@ private theorem lineRev12_exch_all_laws :
     (∀ a b : Sym15, lineRev12_exch (b, a) = ((lineRev12_exch (a, b)).2, (lineRev12_exch (a, b)).1)) ∧
     (∀ a b : Sym15, lineRev12_exchInv (b, a) = ((lineRev12_exchInv (a, b)).2, (lineRev12_exchInv (a, b)).1)) ∧
     (∀ a b : Sym15, occ15 (lineRev12_exch (a, b)).1 + occ15 (lineRev12_exch (a, b)).2 = occ15 a + occ15 b) ∧
-    (∀ a b : Sym15, isCat15 (lineRev12_exch (a, b)).1 = isCat15 a ∧
-                    (lineRev12_exch (a, b)).1 = .ancA ↔ a = .ancA) ∧
     (∀ a b : Sym15, ((lineRev12_exch (a, b)).1 == .ancA) = (a == .ancA) ∧
                     ((lineRev12_exch (a, b)).1 == .ancB) = (a == .ancB) ∧
                     ((lineRev12_exch (a, b)).1 == .rotR) = (a == .rotR) ∧
@@ -1964,130 +1955,90 @@ private theorem lineRev12_exch_all_laws :
     intro p h a b
     have h1 := List.all_eq_true.mp h a (mem_allSym15 a)
     exact List.all_eq_true.mp h1 b (mem_allSym15 b)
-  refine ⟨fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b),
-          fun a b => of_decide_eq_true (hL _ (by decide) a b)⟩
+  refine ⟨fun a b => of_decide_eq_true (hL (fun a b => decide (lineRev12_exchInv (lineRev12_exch (a, b)) = (a, b))) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (lineRev12_exch (lineRev12_exchInv (a, b)) = (a, b))) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (lineRev12_exch (b, a) = ((lineRev12_exch (a, b)).2, (lineRev12_exch (a, b)).1))) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (lineRev12_exchInv (b, a) = ((lineRev12_exchInv (a, b)).2, (lineRev12_exchInv (a, b)).1))) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (occ15 (lineRev12_exch (a, b)).1 + occ15 (lineRev12_exch (a, b)).2 = occ15 a + occ15 b)) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (((lineRev12_exch (a, b)).1 == .ancA) = (a == .ancA) ∧ ((lineRev12_exch (a, b)).1 == .ancB) = (a == .ancB) ∧ ((lineRev12_exch (a, b)).1 == .rotR) = (a == .rotR) ∧ isCat15 (lineRev12_exch (a, b)).1 = isCat15 a)) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide (((lineRev12_exchInv (a, b)).1 == .ancA) = (a == .ancA) ∧ ((lineRev12_exchInv (a, b)).1 == .ancB) = (a == .ancB) ∧ ((lineRev12_exchInv (a, b)).1 == .rotR) = (a == .rotR) ∧ isCat15 (lineRev12_exchInv (a, b)).1 = isCat15 a)) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide ((((lineRev12_exch (a, b)).1 == .empty || (lineRev12_exch (a, b)).1 == .rotR) && ((lineRev12_exch (a, b)).2 == .empty || (lineRev12_exch (a, b)).2 == .rotR)) = ((a == .empty || a == .rotR) && (b == .empty || b == .rotR)))) (by decide) a b),
+          fun a b => of_decide_eq_true (hL (fun a b => decide ((((lineRev12_exchInv (a, b)).1 == .empty || (lineRev12_exchInv (a, b)).1 == .rotR) && ((lineRev12_exchInv (a, b)).2 == .empty || (lineRev12_exchInv (a, b)).2 == .rotR)) = ((a == .empty || a == .rotR) && (b == .empty || b == .rotR)))) (by decide) a b)⟩
 
 /-- Exact `11`-state (`3 + 3 + 3 + 2`) single-particle horosphere-to-bulk launcher bijection on
     `(q0, q1, q2, q3, pEmpty)`. -/
-def launch5 : Sym15 × Sym15 × Sym15 × Sym15 × Sym15 → Sym15 × Sym15 × Sym15 × Sym15 × Sym15
-  -- 3-cycle 0: (q0=P) -> (p=F) -> (p=Fr) -> (q0=P)
-  | (.P, .empty, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .F)
-  | (.empty, .empty, .empty, .empty, .F) => (.empty, .empty, .empty, .empty, .Fr)
-  | (.empty, .empty, .empty, .empty, .Fr) => (.P, .empty, .empty, .empty, .empty)
-  -- 3-cycle 1: (q1=P) -> (p=G) -> (p=Gr) -> (q1=P)
-  | (.empty, .P, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .G)
-  | (.empty, .empty, .empty, .empty, .G) => (.empty, .empty, .empty, .empty, .Gr)
-  | (.empty, .empty, .empty, .empty, .Gr) => (.empty, .P, .empty, .empty, .empty)
-  -- 3-cycle 2: (q2=P) -> (p=H) -> (p=Hr) -> (q2=P)
-  | (.empty, .empty, .P, .empty, .empty) => (.empty, .empty, .empty, .empty, .H)
-  | (.empty, .empty, .empty, .empty, .H) => (.empty, .empty, .empty, .empty, .Hr)
-  | (.empty, .empty, .empty, .empty, .Hr) => (.empty, .empty, .P, .empty, .empty)
-  -- 2-cycle 3: (q3=P) <-> (p=P)
-  | (.empty, .empty, .empty, .P, .empty) => (.empty, .empty, .empty, .empty, .P)
-  | (.empty, .empty, .empty, .empty, .P) => (.empty, .empty, .empty, .P, .empty)
-  | t => t
+def launch5 (t : Sym15 × Sym15 × Sym15 × Sym15 × Sym15) : Sym15 × Sym15 × Sym15 × Sym15 × Sym15 :=
+  if t = (.P, .empty, .empty, .empty, .empty) then (.empty, .empty, .empty, .empty, .F)
+  else if t = (.empty, .empty, .empty, .empty, .F) then (.empty, .empty, .empty, .empty, .Fr)
+  else if t = (.empty, .empty, .empty, .empty, .Fr) then (.P, .empty, .empty, .empty, .empty)
+  else if t = (.empty, .P, .empty, .empty, .empty) then (.empty, .empty, .empty, .empty, .G)
+  else if t = (.empty, .empty, .empty, .empty, .G) then (.empty, .empty, .empty, .empty, .Gr)
+  else if t = (.empty, .empty, .empty, .empty, .Gr) then (.empty, .P, .empty, .empty, .empty)
+  else if t = (.empty, .empty, .P, .empty, .empty) then (.empty, .empty, .empty, .empty, .H)
+  else if t = (.empty, .empty, .empty, .empty, .H) then (.empty, .empty, .empty, .empty, .Hr)
+  else if t = (.empty, .empty, .empty, .empty, .Hr) then (.empty, .empty, .P, .empty, .empty)
+  else if t = (.empty, .empty, .empty, .P, .empty) then (.empty, .empty, .empty, .empty, .P)
+  else if t = (.empty, .empty, .empty, .empty, .P) then (.empty, .empty, .empty, .P, .empty)
+  else t
 
 /-- Exact inverse of `launch5`. -/
-def launch5Inv : Sym15 × Sym15 × Sym15 × Sym15 × Sym15 → Sym15 × Sym15 × Sym15 × Sym15 × Sym15
-  | (.empty, .empty, .empty, .empty, .F) => (.P, .empty, .empty, .empty, .empty)
-  | (.empty, .empty, .empty, .empty, .Fr) => (.empty, .empty, .empty, .empty, .F)
-  | (.P, .empty, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .Fr)
-  | (.empty, .empty, .empty, .empty, .G) => (.empty, .P, .empty, .empty, .empty)
-  | (.empty, .empty, .empty, .empty, .Gr) => (.empty, .empty, .empty, .empty, .G)
-  | (.empty, .P, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .Gr)
-  | (.empty, .empty, .empty, .empty, .H) => (.empty, .empty, .P, .empty, .empty)
-  | (.empty, .empty, .empty, .empty, .Hr) => (.empty, .empty, .empty, .empty, .H)
-  | (.empty, .empty, .P, .empty, .empty) => (.empty, .empty, .empty, .empty, .Hr)
-  | (.empty, .empty, .empty, .empty, .P) => (.empty, .empty, .empty, .P, .empty)
-  | (.empty, .empty, .empty, .P, .empty) => (.empty, .empty, .empty, .empty, .P)
-  | t => t
+def launch5Inv (t : Sym15 × Sym15 × Sym15 × Sym15 × Sym15) : Sym15 × Sym15 × Sym15 × Sym15 × Sym15 :=
+  if t = (.empty, .empty, .empty, .empty, .F) then (.P, .empty, .empty, .empty, .empty)
+  else if t = (.empty, .empty, .empty, .empty, .Fr) then (.empty, .empty, .empty, .empty, .F)
+  else if t = (.P, .empty, .empty, .empty, .empty) then (.empty, .empty, .empty, .empty, .Fr)
+  else if t = (.empty, .empty, .empty, .empty, .G) then (.empty, .P, .empty, .empty, .empty)
+  else if t = (.empty, .empty, .empty, .empty, .Gr) then (.empty, .empty, .empty, .empty, .G)
+  else if t = (.empty, .P, .empty, .empty, .empty) then (.empty, .empty, .empty, .empty, .Gr)
+  else if t = (.empty, .empty, .empty, .empty, .H) then (.empty, .empty, .P, .empty, .empty)
+  else if t = (.empty, .empty, .empty, .empty, .Hr) then (.empty, .empty, .empty, .empty, .H)
+  else if t = (.empty, .empty, .P, .empty, .empty) then (.empty, .empty, .empty, .empty, .Hr)
+  else if t = (.empty, .empty, .empty, .empty, .P) then (.empty, .empty, .empty, .P, .empty)
+  else if t = (.empty, .empty, .empty, .P, .empty) then (.empty, .empty, .empty, .empty, .P)
+  else t
 
 private theorem launch5_laws (t : Sym15 × Sym15 × Sym15 × Sym15 × Sym15) :
     launch5Inv (launch5 t) = t ∧
     launch5 (launch5Inv t) = t ∧
-    (let u := launch5 t
-     occ15 u.1 + occ15 u.2.1 + occ15 u.2.2.1 + occ15 u.2.2.2.1 + occ15 u.2.2.2.2 =
-       occ15 t.1 + occ15 t.2.1 + occ15 t.2.2.1 + occ15 t.2.2.2.1 + occ15 t.2.2.2.2) ∧
+    (occ15 (launch5 t).1 + occ15 (launch5 t).2.1 + occ15 (launch5 t).2.2.1 +
+       occ15 (launch5 t).2.2.2.1 + occ15 (launch5 t).2.2.2.2 =
+     occ15 t.1 + occ15 t.2.1 + occ15 t.2.2.1 + occ15 t.2.2.2.1 + occ15 t.2.2.2.2) ∧
     (isCat15 t.1 = false → isCat15 t.2.1 = false → isCat15 t.2.2.1 = false →
       isCat15 t.2.2.2.1 = false → isCat15 t.2.2.2.2 = false →
-      let u := launch5 t
-      isCat15 u.1 = false ∧ isCat15 u.2.1 = false ∧ isCat15 u.2.2.1 = false ∧
-      isCat15 u.2.2.2.1 = false ∧ isCat15 u.2.2.2.2 = false) ∧
+      isCat15 (launch5 t).1 = false ∧ isCat15 (launch5 t).2.1 = false ∧
+      isCat15 (launch5 t).2.2.1 = false ∧ isCat15 (launch5 t).2.2.2.1 = false ∧
+      isCat15 (launch5 t).2.2.2.2 = false) ∧
     (isCat15 t.1 = false → isCat15 t.2.1 = false → isCat15 t.2.2.1 = false →
       isCat15 t.2.2.2.1 = false → isCat15 t.2.2.2.2 = false →
-      let u := launch5Inv t
-      isCat15 u.1 = false ∧ isCat15 u.2.1 = false ∧ isCat15 u.2.2.1 = false ∧
-      isCat15 u.2.2.2.1 = false ∧ isCat15 u.2.2.2.2 = false) := by
-  rcases t with ⟨a, b, c, d, e⟩
-  unfold launch5 launch5Inv
-  split <;>
-    (try exact ⟨rfl, rfl, rfl, fun _ _ _ _ _ => ⟨rfl, rfl, rfl, rfl, rfl⟩,
-                fun _ _ _ _ _ => ⟨rfl, rfl, rfl, rfl, rfl⟩⟩)
-  -- Wildcard branch: prove `launch5Inv` also hits wildcard!
-  rename_i h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11
-  have hInv : (match (a, b, c, d, e) with
-    | (.empty, .empty, .empty, .empty, .F) => (.P, .empty, .empty, .empty, .empty)
-    | (.empty, .empty, .empty, .empty, .Fr) => (.empty, .empty, .empty, .empty, .F)
-    | (.P, .empty, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .Fr)
-    | (.empty, .empty, .empty, .empty, .G) => (.empty, .P, .empty, .empty, .empty)
-    | (.empty, .empty, .empty, .empty, .Gr) => (.empty, .empty, .empty, .empty, .G)
-    | (.empty, .P, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .Gr)
-    | (.empty, .empty, .empty, .empty, .H) => (.empty, .empty, .P, .empty, .empty)
-    | (.empty, .empty, .empty, .empty, .Hr) => (.empty, .empty, .empty, .empty, .H)
-    | (.empty, .empty, .P, .empty, .empty) => (.empty, .empty, .empty, .empty, .Hr)
-    | (.empty, .empty, .empty, .empty, .P) => (.empty, .empty, .empty, .P, .empty)
-    | (.empty, .empty, .empty, .P, .empty) => (.empty, .empty, .empty, .empty, .P)
-    | t => t) = (a, b, c, d, e) := by
-    split
-    · exact absurd rfl h2
-    · exact absurd rfl h3
-    · exact absurd rfl h1
-    · exact absurd rfl h5
-    · exact absurd rfl h6
-    · exact absurd rfl h4
-    · exact absurd rfl h8
-    · exact absurd rfl h9
-    · exact absurd rfl h7
-    · exact absurd rfl h11
-    · exact absurd rfl h10
-    · rfl
-  have hFwd : (match (a, b, c, d, e) with
-    | (.P, .empty, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .F)
-    | (.empty, .empty, .empty, .empty, .F) => (.empty, .empty, .empty, .empty, .Fr)
-    | (.empty, .empty, .empty, .empty, .Fr) => (.P, .empty, .empty, .empty, .empty)
-    | (.empty, .P, .empty, .empty, .empty) => (.empty, .empty, .empty, .empty, .G)
-    | (.empty, .empty, .empty, .empty, .G) => (.empty, .empty, .empty, .empty, .Gr)
-    | (.empty, .empty, .empty, .empty, .Gr) => (.empty, .P, .empty, .empty, .empty)
-    | (.empty, .empty, .P, .empty, .empty) => (.empty, .empty, .empty, .empty, .H)
-    | (.empty, .empty, .empty, .empty, .H) => (.empty, .empty, .empty, .empty, .Hr)
-    | (.empty, .empty, .empty, .empty, .Hr) => (.empty, .empty, .P, .empty, .empty)
-    | (.empty, .empty, .empty, .P, .empty) => (.empty, .empty, .empty, .empty, .P)
-    | (.empty, .empty, .empty, .empty, .P) => (.empty, .empty, .empty, .P, .empty)
-    | t => t) = (a, b, c, d, e) := by
-    split
-    · exact absurd rfl h1
-    · exact absurd rfl h2
-    · exact absurd rfl h3
-    · exact absurd rfl h4
-    · exact absurd rfl h5
-    · exact absurd rfl h6
-    · exact absurd rfl h7
-    · exact absurd rfl h8
-    · exact absurd rfl h9
-    · exact absurd rfl h10
-    · exact absurd rfl h11
-    · rfl
-  refine ⟨hInv, ?_, rfl, fun ha hb hc hd he => ⟨ha, hb, hc, hd, he⟩, ?_⟩
-  · rw [hInv]; exact hFwd
-  · rw [hInv]; exact fun ha hb hc hd he => ⟨ha, hb, hc, hd, he⟩
+      isCat15 (launch5Inv t).1 = false ∧ isCat15 (launch5Inv t).2.1 = false ∧
+      isCat15 (launch5Inv t).2.2.1 = false ∧ isCat15 (launch5Inv t).2.2.2.1 = false ∧
+      isCat15 (launch5Inv t).2.2.2.2 = false) := by
+  by_cases h1 : t = (.P, .empty, .empty, .empty, .empty)
+  · subst h1; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h2 : t = (.empty, .empty, .empty, .empty, .F)
+  · subst h2; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h3 : t = (.empty, .empty, .empty, .empty, .Fr)
+  · subst h3; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h4 : t = (.empty, .P, .empty, .empty, .empty)
+  · subst h4; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h5 : t = (.empty, .empty, .empty, .empty, .G)
+  · subst h5; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h6 : t = (.empty, .empty, .empty, .empty, .Gr)
+  · subst h6; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h7 : t = (.empty, .empty, .P, .empty, .empty)
+  · subst h7; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h8 : t = (.empty, .empty, .empty, .empty, .H)
+  · subst h8; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h9 : t = (.empty, .empty, .empty, .empty, .Hr)
+  · subst h9; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h10 : t = (.empty, .empty, .empty, .P, .empty)
+  · subst h10; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  by_cases h11 : t = (.empty, .empty, .empty, .empty, .P)
+  · subst h11; exact ⟨by decide, by decide, by decide, fun _ _ _ _ _ => by decide, fun _ _ _ _ _ => by decide⟩
+  have hF : launch5 t = t := by simp [launch5, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11]
+  have hI : launch5Inv t = t := by simp [launch5Inv, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11]
+  simp only [hF, hI]
+  exact ⟨trivial, trivial, trivial, fun ha hb hc hd he => ⟨ha, hb, hc, hd, he⟩,
+         fun ha hb hc hd he => ⟨ha, hb, hc, hd, he⟩⟩
 
 /-- Overwrite 5 ports `(q0, q1, q2, q3, p)` of a `Sym15` cell simultaneously. -/
 def write5 (q0 q1 q2 q3 p : Fin 24) (vs : Sym15 × Sym15 × Sym15 × Sym15 × Sym15)
@@ -2204,32 +2155,31 @@ private theorem bgStep15_inv_right (cell : Fin 24 → Sym15) : bgStep15 (bgStep1
 
 private theorem bgStep15_equivariant (g : WF4Elem) (cell : Fin 24 → Sym15) :
     actSym15 g (bgStep15 cell) = bgStep15 (actSym15 g cell) := by
-  funext i; unfold actSym15 bgStep15; rw [cu_wf4PermInv_opp]
+  funext i; simp only [actSym15, bgStep15, cu_wf4PermInv_opp]
 
-/-- Canonical 12 half-slots choosing one endpoint from each antipodal pair `(s, oppSlot s)`. -/
 private def halfSlots12 : List (Fin 24) :=
   [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨4, by decide⟩, ⟨5, by decide⟩,
    ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨12, by decide⟩, ⟨13, by decide⟩,
    ⟨16, by decide⟩, ⟨17, by decide⟩, ⟨20, by decide⟩, ⟨21, by decide⟩]
 
 private theorem sum24_eq_pairs (f : Fin 24 → Nat) :
-    (∑ i : Fin 24, f i) = (halfSlots12.map (fun s => f s + f (oppSlot s))).sum := by
-  have hL : (∑ i : Fin 24, f i) = ((List.finRange 24).map f).sum := by
-    rw [Fin.sum_univ_def]; rfl
-  rw [hL]
-  -- Explicit 24-term permutation identity via `omega`
-  dsimp [List.finRange, halfSlots12, oppSlot]
-  omega
+    (∑ i : Fin 24, f i) = ∑ s ∈ halfSlots12.toFinset, (f s + f (oppSlot s)) := by
+  have hDisj : Disjoint halfSlots12.toFinset (halfSlots12.toFinset.image oppSlot) := by decide
+  have hUniv : halfSlots12.toFinset ∪ halfSlots12.toFinset.image oppSlot = Finset.univ := by decide
+  have hInj : Set.InjOn oppSlot (halfSlots12.toFinset : Set (Fin 24)) := fun x _ y _ h => by
+    have := congrArg oppSlot h
+    rwa [(thm_24_facets_geometry.2.1 x).1, (thm_24_facets_geometry.2.1 y).1] at this
+  rw [← hUniv, Finset.sum_union hDisj, Finset.sum_image hInj, ← Finset.sum_add_distrib]
 
 private theorem bgStep15_countOcc15 (cell : Fin 24 → Sym15) :
     countOcc15 (bgStep15 cell) = countOcc15 cell := by
   unfold countOcc15
   rw [sum24_eq_pairs, sum24_eq_pairs]
-  congr 1
-  refine List.map_congr_left fun s _ => ?_
+  refine Finset.sum_congr rfl fun s _ => ?_
   have hPair := bgStep15_pair cell s
-  have h1 : bgStep15 cell s = (lineRev12_exch (cell s, cell (oppSlot s))).1 := congrArg Prod.fst hPair
-  have h2 : bgStep15 cell (oppSlot s) = (lineRev12_exch (cell s, cell (oppSlot s))).2 := congrArg Prod.snd hPair
+  have h1 : bgStep15 cell s = (lineRev12_exch (cell s, cell (oppSlot s))).1 := rfl
+  have h2 : bgStep15 cell (oppSlot s) = (lineRev12_exch (cell s, cell (oppSlot s))).2 :=
+    congrArg Prod.snd hPair
   rw [h1, h2, lineRev12_exch_all_laws.2.2.2.2.1]
 
 private theorem bgStep15_preserves_gateMode15 (cell : Fin 24 → Sym15) :
@@ -2253,6 +2203,7 @@ private theorem bgStep15_preserves_gateMode15 (cell : Fin 24 → Sym15) :
       cases uniquePred24 (fun i => cell i == .ancB) with
       | none => rfl
       | some b =>
+        dsimp only
         have hQ : allPred24 (fun i => !isInQ a b i || !isCat15 (f cell i)) =
             allPred24 (fun i => !isInQ a b i || !isCat15 (cell i)) :=
           allPred24_congr _ _ fun i => by rw [hCat i]
@@ -2268,13 +2219,25 @@ private theorem bgStep15_preserves_gateMode15 (cell : Fin 24 → Sym15) :
               · have h1 := hAll i; have h2 := hAll (oppSlot i)
                 have hip' : isInP a b (oppSlot i) = true := by rw [isInP_opp]; exact hip
                 simp [hip] at h1; simp [hip'] at h2
-                have hb := hPR i; simp [h1, h2] at hb; simp [hip, hb.1]
+                have hb := hPR i
+                have hbL : ((f cell i == .empty || f cell i == .rotR) &&
+                            (f cell (oppSlot i) == .empty || f cell (oppSlot i) == .rotR)) = true := by
+                  simp [h1, h2]
+                rw [hbL] at hb
+                have hbR := (Bool.and_eq_true _ _).mp hb.symm
+                simp [hip, hbR.1]
               · simp [Bool.eq_false_iff.mpr hip]
             · by_cases hip : isInP a b i = true
               · have h1 := hAll i; have h2 := hAll (oppSlot i)
                 have hip' : isInP a b (oppSlot i) = true := by rw [isInP_opp]; exact hip
                 simp [hip] at h1; simp [hip'] at h2
-                have hb := hPR i; simp [h1, h2] at hb; simp [hip, hb.1]
+                have hb := hPR i
+                have hbR : ((cell i == .empty || cell i == .rotR) &&
+                            (cell (oppSlot i) == .empty || cell (oppSlot i) == .rotR)) = true := by
+                  simp [h1, h2]
+                rw [hbR] at hb
+                have hbL := (Bool.and_eq_true _ _).mp hb
+                simp [hip, hbL.1]
               · simp [Bool.eq_false_iff.mpr hip]
           cases h1 : allPred24 (fun i => !isInP a b i || (f cell i == .empty || f cell i == .rotR)) with
           | true => exact ((allPred24_eq_true_iff _).mpr (hIff.mp ((allPred24_eq_true_iff _).mp h1))).symm
@@ -2283,28 +2246,28 @@ private theorem bgStep15_preserves_gateMode15 (cell : Fin 24 → Sym15) :
             | false => rfl
             | true =>
               have h3 := (allPred24_eq_true_iff _).mpr (hIff.mpr ((allPred24_eq_true_iff _).mp h2))
-              rw [h3] at h1; exact Bool.noConfusion h1
+              rw [h3] at h1; cases h1
         rw [hQ, hRC, hP]
   refine ⟨hHelper bgStep15
+    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).1)
+    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.1)
+    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.1)
+    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.2)
+    (fun i => by
+      have hp := bgStep15_pair cell i
+      have h1 : bgStep15 cell i = (lineRev12_exch (cell i, cell (oppSlot i))).1 := rfl
+      have h2 : bgStep15 cell (oppSlot i) = (lineRev12_exch (cell i, cell (oppSlot i))).2 := congrArg Prod.snd hp
+      rw [h1, h2]; exact lineRev12_exch_all_laws.2.2.2.2.2.2.2.1 _ _),
+    hHelper bgStep15Inv
     (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).1)
     (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.1)
     (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.1)
     (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.2)
     (fun i => by
-      have hp := bgStep15_pair cell i
-      have h1 : bgStep15 cell i = (lineRev12_exch (cell i, cell (oppSlot i))).1 := congrArg Prod.fst hp
-      have h2 : bgStep15 cell (oppSlot i) = (lineRev12_exch (cell i, cell (oppSlot i))).2 := congrArg Prod.snd hp
-      rw [h1, h2]; exact lineRev12_exch_all_laws.2.2.2.2.2.2.2.2.1 _ _),
-    hHelper bgStep15Inv
-    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).1)
-    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.1)
-    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.1)
-    (fun i => (lineRev12_exch_all_laws.2.2.2.2.2.2.2.1 (cell i) (cell (oppSlot i))).2.2.2)
-    (fun i => by
       have hp := bgStep15Inv_pair cell i
-      have h1 : bgStep15Inv cell i = (lineRev12_exchInv (cell i, cell (oppSlot i))).1 := congrArg Prod.fst hp
+      have h1 : bgStep15Inv cell i = (lineRev12_exchInv (cell i, cell (oppSlot i))).1 := rfl
       have h2 : bgStep15Inv cell (oppSlot i) = (lineRev12_exchInv (cell i, cell (oppSlot i))).2 := congrArg Prod.snd hp
-      rw [h1, h2]; exact lineRev12_exch_all_laws.2.2.2.2.2.2.2.2.2 _ _)⟩
+      rw [h1, h2]; exact lineRev12_exch_all_laws.2.2.2.2.2.2.2.2 _ _)⟩
 
 private theorem launcher_ports_distinct (a b pEmpty : Fin 24)
     (hab : isOrthPair a b = true) (hp : isInP a b pEmpty = true) :
@@ -2326,7 +2289,7 @@ private theorem launcher_ports_distinct (a b pEmpty : Fin 24)
       q2 ≠ q3 ∧ q2 ≠ p ∧ q3 ≠ p ∧
       isInQ canonA canonB q0 = true ∧ isInQ canonA canonB q1 = true ∧
       isInQ canonA canonB q2 = true ∧ isInQ canonA canonB q3 = true := by decide
-  let g := mapOrthPairToCanon a b
+  set g := mapOrthPairToCanon a b
   obtain ⟨hDet, hA, hB⟩ := mapOrthPairToCanon_spec a b hab
   have hp0 : isInP canonA canonB (wf4Perm g pEmpty) = true := by rw [← hA, ← hB, isInP_wf4]; exact hp
   have hC := hCanon (wf4Perm g pEmpty) hp0
@@ -2388,7 +2351,7 @@ private theorem write5_actSym15 (g : WF4Elem) (q0 q1 q2 q3 p : Fin 24)
     (vs : Sym15 × Sym15 × Sym15 × Sym15 × Sym15) (cell : Fin 24 → Sym15) :
     actSym15 g (write5 q0 q1 q2 q3 p vs cell) =
       write5 (wf4Perm g q0) (wf4Perm g q1) (wf4Perm g q2) (wf4Perm g q3) (wf4Perm g p) vs (actSym15 g cell) := by
-  funext i; unfold actSym15 write5
+  funext i; unfold actSym15 write5; dsimp only
   have hIff : ∀ x : Fin 24, wf4PermInv g i = x ↔ i = wf4Perm g x := fun x =>
     ⟨fun h => by rw [← h, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 i).2],
      fun h => by rw [h, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 x).1]⟩
@@ -2435,67 +2398,101 @@ private theorem gateMode15_preserved_by_QP_equiv (cell : Fin 24 → Sym15) (a b 
   have hMode' := hMode
   unfold gateMode15 at hMode'
   cases hA : uniquePred24 (fun i => cell i == .ancA) with
-  | none => rw [hA] at hMode'; exact Option.noConfusion hMode'
+  | none => simp [hA] at hMode'
   | some a0 =>
     cases hB : uniquePred24 (fun i => cell i == .ancB) with
-    | none => rw [hA, hB] at hMode'; exact Option.noConfusion hMode'
+    | none => simp [hA, hB] at hMode'
     | some b0 =>
       rw [hA, hB] at hMode'
+      dsimp only at hMode'
       split_ifs at hMode' with hCond hR3 hR014
       · simp only [Option.some.injEq, Prod.mk.injEq] at hMode'
-        rcases hMode' with ⟨rfl, rfl, rfl⟩
+        obtain ⟨ha0, hb0, hr0⟩ := hMode'
+        subst ha0; subst hb0; subst hr0
         simp only [Bool.and_eq_true] at hCond
         rcases hCond with ⟨hOrth, hQNoCat⟩
-        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hOrth).2.2
-        have hea : e a = a := heOut a
-          (by cases h : isInQ a b a <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).1])
-          (by cases h : isInP a b a <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).2.1])
-        have heb : e b = b := heOut b
-          (by cases h : isInQ a b b <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).1])
-          (by cases h : isInP a b b <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).2.1])
-        have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a := by
-          simpa [hA, show e.symm a = a from by simpa [hea] using e.symm_apply_apply a] using
-            uniquePred24_comp_equiv e.symm (fun i => cell i == .ancA)
-        have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b := by
-          simpa [hB, show e.symm b = b from by simpa [heb] using e.symm_apply_apply b] using
-            uniquePred24_comp_equiv e.symm (fun i => cell i == .ancB)
-        have hQ' : allPred24 (fun i => !isInQ a b i || !isCat15 (cell (e i))) = true := by
-          rw [allPred24_congr _ (fun i => !isInQ a b (e i) || !isCat15 (cell (e i))) (fun i => by rw [heQ]),
-              allPred24_comp_equiv e]; exact hQNoCat
-        have hR' : countPred24 (fun i => isInP a b i && (cell (e i) == .rotR)) =
-            countPred24 (fun i => isInP a b i && (cell i == .rotR)) := by
-          rw [countPred24_congr _ (fun i => isInP a b (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
-          exact countPred24_comp_equiv e _
-        unfold gateMode15; rw [hA', hB', hR']; simp [hOrth, hQ', hR3]
+        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a0 b0 hOrth).2.2
+        have hea : e a0 = a0 := heOut a0
+          (by cases h : isInQ a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).1])
+          (by cases h : isInP a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).2.1])
+        have heb : e b0 = b0 := heOut b0
+          (by cases h : isInQ a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).1])
+          (by cases h : isInP a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).2.1])
+        have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a0 := by
+          simpa [hA, show e.symm a0 = a0 from by simpa [hea] using e.symm_apply_apply a0] using
+            uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancA)
+        have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b0 := by
+          simpa [hB, show e.symm b0 = b0 from by simpa [heb] using e.symm_apply_apply b0] using
+            uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancB)
+        have hQ' : allPred24 (fun i => !isInQ a0 b0 i || !isCat15 (cell (e i))) = true := by
+          rw [allPred24_congr _ (fun i => !isInQ a0 b0 (e i) || !isCat15 (cell (e i))) (fun i => by rw [heQ]),
+              allPred24_comp_equiv e (fun i => !isInQ a0 b0 i || !isCat15 (cell i))]
+          exact hQNoCat
+        have hR' : countPred24 (fun i => isInP a0 b0 i && (cell (e i) == .rotR)) =
+            countPred24 (fun i => isInP a0 b0 i && (cell i == .rotR)) := by
+          rw [countPred24_congr _ (fun i => isInP a0 b0 (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
+          exact countPred24_comp_equiv e (fun i => isInP a0 b0 i && (cell i == .rotR))
+        unfold gateMode15; rw [hA', hB']; dsimp only; rw [hQ', hR']
+        simp only [hOrth, Bool.and_self, ↓reduceIte, hR3]
       · simp only [Option.some.injEq, Prod.mk.injEq] at hMode'
-        rcases hMode' with ⟨rfl, rfl, rfl⟩
+        obtain ⟨ha0, hb0, hr0⟩ := hMode'
+        subst ha0; subst hb0; subst hr0
         simp only [Bool.and_eq_true] at hCond hR014
         rcases hCond with ⟨hOrth, hQNoCat⟩
         rcases hR014 with ⟨hRCase, hPOnly⟩
-        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hOrth).2.2
-        have hea : e a = a := heOut a
-          (by cases h : isInQ a b a <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).1])
-          (by cases h : isInP a b a <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a).2.1])
-        have heb : e b = b := heOut b
-          (by cases h : isInQ a b b <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).1])
-          (by cases h : isInP a b b <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b).2.1])
-        have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a := by
-          simpa [hA, show e.symm a = a from by simpa [hea] using e.symm_apply_apply a] using
-            uniquePred24_comp_equiv e.symm (fun i => cell i == .ancA)
-        have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b := by
-          simpa [hB, show e.symm b = b from by simpa [heb] using e.symm_apply_apply b] using
-            uniquePred24_comp_equiv e.symm (fun i => cell i == .ancB)
-        have hQ' : allPred24 (fun i => !isInQ a b i || !isCat15 (cell (e i))) = true := by
-          rw [allPred24_congr _ (fun i => !isInQ a b (e i) || !isCat15 (cell (e i))) (fun i => by rw [heQ]),
-              allPred24_comp_equiv e]; exact hQNoCat
-        have hP' : allPred24 (fun i => !isInP a b i || (cell (e i) == .empty || cell (e i) == .rotR)) = true := by
-          rw [allPred24_congr _ (fun i => !isInP a b (e i) || (cell (e i) == .empty || cell (e i) == .rotR)) (fun i => by rw [heP]),
-              allPred24_comp_equiv e]; exact hPOnly
-        have hR' : countPred24 (fun i => isInP a b i && (cell (e i) == .rotR)) =
-            countPred24 (fun i => isInP a b i && (cell i == .rotR)) := by
-          rw [countPred24_congr _ (fun i => isInP a b (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
-          exact countPred24_comp_equiv e _
-        unfold gateMode15; rw [hA', hB', hR']; simp [hOrth, hQ', hR3, hRCase, hP']
+        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a0 b0 hOrth).2.2
+        have hea : e a0 = a0 := heOut a0
+          (by cases h : isInQ a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).1])
+          (by cases h : isInP a0 b0 a0 <;> [rfl; exact absurd ⟨Or.inl rfl, h⟩ (hDisj a0).2.1])
+        have heb : e b0 = b0 := heOut b0
+          (by cases h : isInQ a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).1])
+          (by cases h : isInP a0 b0 b0 <;> [rfl; exact absurd ⟨Or.inr rfl, h⟩ (hDisj b0).2.1])
+        have hA' : uniquePred24 (fun i => cell (e i) == .ancA) = some a0 := by
+          simpa [hA, show e.symm a0 = a0 from by simpa [hea] using e.symm_apply_apply a0] using
+            uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancA)
+        have hB' : uniquePred24 (fun i => cell (e i) == .ancB) = some b0 := by
+          simpa [hB, show e.symm b0 = b0 from by simpa [heb] using e.symm_apply_apply b0] using
+            uniquePred24_comp_equiv_fwd e (fun i => cell i == .ancB)
+        have hQ' : allPred24 (fun i => !isInQ a0 b0 i || !isCat15 (cell (e i))) = true := by
+          rw [allPred24_congr _ (fun i => !isInQ a0 b0 (e i) || !isCat15 (cell (e i))) (fun i => by rw [heQ]),
+              allPred24_comp_equiv e (fun i => !isInQ a0 b0 i || !isCat15 (cell i))]
+          exact hQNoCat
+        have hP' : allPred24 (fun i => !isInP a0 b0 i || (cell (e i) == .empty || cell (e i) == .rotR)) = true := by
+          rw [allPred24_congr _ (fun i => !isInP a0 b0 (e i) || (cell (e i) == .empty || cell (e i) == .rotR)) (fun i => by rw [heP]),
+              allPred24_comp_equiv e (fun i => !isInP a0 b0 i || (cell i == .empty || cell i == .rotR))]
+          exact hPOnly
+        have hR' : countPred24 (fun i => isInP a0 b0 i && (cell (e i) == .rotR)) =
+            countPred24 (fun i => isInP a0 b0 i && (cell i == .rotR)) := by
+          rw [countPred24_congr _ (fun i => isInP a0 b0 (e i) && (cell (e i) == .rotR)) (fun i => by rw [heP])]
+          exact countPred24_comp_equiv e (fun i => isInP a0 b0 i && (cell i == .rotR))
+        unfold gateMode15; rw [hA', hB']; dsimp only; rw [hQ', hP', hR']
+        simp only [hOrth, Bool.and_self, ↓reduceIte, hR3, hRCase]
+
+private theorem gateMode15_orth (cell : Fin 24 → Sym15) (a b : Fin 24) (r : Nat)
+    (hMode : gateMode15 cell = some (a, b, r)) : isOrthPair a b = true := by
+  unfold gateMode15 at hMode
+  cases hA : uniquePred24 (fun i => cell i == .ancA) with
+  | none => simp [hA] at hMode
+  | some a0 =>
+    cases hB : uniquePred24 (fun i => cell i == .ancB) with
+    | none => simp [hA, hB] at hMode
+    | some b0 =>
+      rw [hA, hB] at hMode; dsimp only at hMode
+      split_ifs at hMode with hC
+      · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
+        obtain ⟨ha0, hb0, _⟩ := hMode; subst ha0; subst hb0
+        exact ((Bool.and_eq_true _ _).mp hC).1
+      · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
+        obtain ⟨ha0, hb0, _⟩ := hMode; subst ha0; subst hb0
+        exact ((Bool.and_eq_true _ _).mp hC).1
+
+private theorem sym15_noncat_eq (x : Sym15) (hx : isCat15 x = false) :
+    (x == .ancA) = false ∧ (x == .ancB) = false ∧ (x == .rotR) = false := by
+  cases x <;> first | exact ⟨rfl, rfl, rfl⟩ | cases hx
+
+private theorem sym15_isCat15_false_of_ne (x : Sym15)
+    (hA : x ≠ .ancA) (hB : x ≠ .ancB) (hR : x ≠ .rotR) : isCat15 x = false := by
+  cases x <;> first | rfl | exact absurd rfl hA | exact absurd rfl hB | exact absurd rfl hR
 
 private theorem gateMode15_preserved_by_launcher (cell : Fin 24 → Sym15) (a b pEmpty : Fin 24)
     (hMode : gateMode15 cell = some (a, b, 3))
@@ -2513,45 +2510,46 @@ private theorem gateMode15_preserved_by_launcher (cell : Fin 24 → Sym15) (a b 
   have hMode' := hMode
   unfold gateMode15 at hMode'
   cases hA : uniquePred24 (fun i => cell i == .ancA) with
-  | none => rw [hA] at hMode'; exact Option.noConfusion hMode'
+  | none => simp [hA] at hMode'
   | some a0 =>
     cases hB : uniquePred24 (fun i => cell i == .ancB) with
-    | none => rw [hA, hB] at hMode'; exact Option.noConfusion hMode'
+    | none => simp [hA, hB] at hMode'
     | some b0 =>
-      rw [hA, hB] at hMode'
+      rw [hA, hB] at hMode'; dsimp only at hMode'
       split_ifs at hMode' with hCond hR3 hR014
       · simp only [Option.some.injEq, Prod.mk.injEq] at hMode'
-        rcases hMode' with ⟨rfl, rfl, _⟩
+        obtain ⟨ha0, hb0, _⟩ := hMode'
+        subst ha0; subst hb0
         simp only [Bool.and_eq_true] at hCond
         rcases hCond with ⟨hOrth, hQNoCat⟩
-        have hpInP : isInP a b pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
+        have hpInP : isInP a0 b0 pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
         have hpNotR : (cell pEmpty == .rotR) = false := by
           have := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).2
           simpa using this
-        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hOrth).2.2
-        have hL := launcher_ports_distinct a b pEmpty hOrth hpInP
-        set q0 := qNorth a b pEmpty
-        set q1 := rotQ a b q0
-        set q2 := rotQ a b q1
-        set q3 := rotQ a b q2
+        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a0 b0 hOrth).2.2
+        have hL := launcher_ports_distinct a0 b0 pEmpty hOrth hpInP
+        set q0 := qNorth a0 b0 pEmpty
+        set q1 := rotQ a0 b0 q0
+        set q2 := rotQ a0 b0 q1
+        set q3 := rotQ a0 b0 q2
         set cell' := write5 q0 q1 q2 q3 pEmpty vs cell
-        have hQIn : isInQ a b q0 = true ∧ isInQ a b q1 = true ∧ isInQ a b q2 = true ∧ isInQ a b q3 = true :=
+        have hQIn : isInQ a0 b0 q0 = true ∧ isInQ a0 b0 q1 = true ∧ isInQ a0 b0 q2 = true ∧ isInQ a0 b0 q3 = true :=
           ⟨hL.2.2.2.2.2.2.2.2.2.2.1, hL.2.2.2.2.2.2.2.2.2.2.2.1,
            hL.2.2.2.2.2.2.2.2.2.2.2.2.1, hL.2.2.2.2.2.2.2.2.2.2.2.2.2⟩
         have hNoCatCell : isCat15 (cell q0) = false ∧ isCat15 (cell q1) = false ∧
             isCat15 (cell q2) = false ∧ isCat15 (cell q3) = false ∧ isCat15 (cell pEmpty) = false := by
           have hAllQ := (allPred24_eq_true_iff _).mp hQNoCat
-          have hqnc : ∀ q, isInQ a b q = true → isCat15 (cell q) = false := fun q hq => by
+          have hqnc : ∀ q, isInQ a0 b0 q = true → isCat15 (cell q) = false := fun q hq => by
             have := hAllQ q; simp [hq] at this; exact this
-          have hpNeA : pEmpty ≠ a := fun h => (hDisj a).2.1 ⟨Or.inl rfl, h ▸ hpInP⟩
-          have hpNeB : pEmpty ≠ b := fun h => (hDisj b).2.1 ⟨Or.inr rfl, h ▸ hpInP⟩
-          have hAuniq := ((uniquePred24_eq_some_iff _ a).mp hA).2
-          have hBuniq := ((uniquePred24_eq_some_iff _ b).mp hB).2
+          have hpNeA : pEmpty ≠ a0 := fun h => (hDisj a0).2.1 ⟨Or.inl rfl, h ▸ hpInP⟩
+          have hpNeB : pEmpty ≠ b0 := fun h => (hDisj b0).2.1 ⟨Or.inr rfl, h ▸ hpInP⟩
+          have hAuniq := ((uniquePred24_eq_some_iff _ a0).mp hA).2
+          have hBuniq := ((uniquePred24_eq_some_iff _ b0).mp hB).2
           have hpNotA : cell pEmpty ≠ .ancA := fun h => hpNeA (hAuniq pEmpty (by simp [h]))
           have hpNotB : cell pEmpty ≠ .ancB := fun h => hpNeB (hBuniq pEmpty (by simp [h]))
           have hpNotR' : cell pEmpty ≠ .rotR := fun h => by simp [h] at hpNotR
-          have hpNC : isCat15 (cell pEmpty) = false := by
-            cases hc : cell pEmpty <;> simp_all [isCat15]
+          have hpNC : isCat15 (cell pEmpty) = false :=
+            sym15_isCat15_false_of_ne (cell pEmpty) hpNotA hpNotB hpNotR'
           exact ⟨hqnc q0 hQIn.1, hqnc q1 hQIn.2.1, hqnc q2 hQIn.2.2.1, hqnc q3 hQIn.2.2.2, hpNC⟩
         have hCatEq : ∀ i : Fin 24,
             isCat15 (cell' i) = isCat15 (cell i) ∧
@@ -2561,28 +2559,31 @@ private theorem gateMode15_preserved_by_launcher (cell : Fin 24 → Sym15) (a b 
           intro i
           have hFalseCat : ∀ x y : Sym15, isCat15 x = false → isCat15 y = false →
               isCat15 x = isCat15 y ∧ (x == .ancA) = (y == .ancA) ∧
-              (x == .ancB) = (y == .ancB) ∧ (x == .rotR) = (y == .rotR) := by
-            intro x y hx hy; cases x <;> cases y <;> simp_all [isCat15]
+              (x == .ancB) = (y == .ancB) ∧ (x == .rotR) = (y == .rotR) := fun x y hx hy => by
+            obtain ⟨xA, xB, xR⟩ := sym15_noncat_eq x hx
+            obtain ⟨yA, yB, yR⟩ := sym15_noncat_eq y hy
+            exact ⟨hx.trans hy.symm, xA.trans yA.symm, xB.trans yB.symm, xR.trans yR.symm⟩
           dsimp only [cell', write5]
           split_ifs with h0 h1 h2 h3 hp
           · subst h0; exact hFalseCat vs.1 (cell q0) hNoCat.1 hNoCatCell.1
           · subst h1; exact hFalseCat vs.2.1 (cell q1) hNoCat.2.1 hNoCatCell.2.1
           · subst h2; exact hFalseCat vs.2.2.1 (cell q2) hNoCat.2.2.1 hNoCatCell.2.2.1
           · subst h3; exact hFalseCat vs.2.2.2.1 (cell q3) hNoCat.2.2.2.1 hNoCatCell.2.2.2.1
-          · subst hp; exact hFalseCat vs.2.2.2.2 (cell pEmpty) hNoCat.2.2.2.2 hNoCatCell.2.2.2.2
+          · rw [hp]; exact hFalseCat vs.2.2.2.2 (cell pEmpty) hNoCat.2.2.2.2 hNoCatCell.2.2.2.2
           · exact ⟨rfl, rfl, rfl, rfl⟩
-        have hA' : uniquePred24 (fun i => cell' i == .ancA) = some a := by
+        have hA' : uniquePred24 (fun i => cell' i == .ancA) = some a0 := by
           rw [uniquePred24_congr _ _ (fun i => (hCatEq i).2.1)]; exact hA
-        have hB' : uniquePred24 (fun i => cell' i == .ancB) = some b := by
+        have hB' : uniquePred24 (fun i => cell' i == .ancB) = some b0 := by
           rw [uniquePred24_congr _ _ (fun i => (hCatEq i).2.2.1)]; exact hB
-        have hQ' : allPred24 (fun i => !isInQ a b i || !isCat15 (cell' i)) = true := by
+        have hQ' : allPred24 (fun i => !isInQ a0 b0 i || !isCat15 (cell' i)) = true := by
           rw [allPred24_congr _ _ (fun i => by rw [(hCatEq i).1])]; exact hQNoCat
-        have hR' : countPred24 (fun i => isInP a b i && (cell' i == .rotR)) = 3 := by
+        have hR' : countPred24 (fun i => isInP a0 b0 i && (cell' i == .rotR)) = 3 := by
           rw [countPred24_congr _ _ (fun i => by rw [(hCatEq i).2.2.2])]; exact hR3
-        have hpEmpty' : uniquePred24 (fun i => isInP a b i && !(cell' i == .rotR)) = some pEmpty := by
+        have hpEmpty' : uniquePred24 (fun i => isInP a0 b0 i && !(cell' i == .rotR)) = some pEmpty := by
           rw [uniquePred24_congr _ _ (fun i => by rw [(hCatEq i).2.2.2])]; exact hpEmpty
         refine ⟨?_, hpEmpty'⟩
-        unfold gateMode15; rw [hA', hB', hR']; simp [hOrth, hQ']
+        unfold gateMode15; rw [hA', hB']; dsimp only; rw [hQ', hR']
+        simp only [hOrth, Bool.and_self, ↓reduceIte]
       · simp only [Option.some.injEq, Prod.mk.injEq] at hMode'
         exact absurd hMode'.2.2 hR3
 
@@ -2601,28 +2602,25 @@ private theorem gateMode15_equivariant (g : WF4Elem) (cell : Fin 24 → Sym15) :
     cases uniquePred24 (fun i => cell i == .ancB) with
     | none => rfl
     | some b =>
-      simp only [Option.map_some]
+      dsimp only [Option.map_some]
       have hOrth : isOrthPair (wf4Perm g a) (wf4Perm g b) = isOrthPair a b := isOrthPair_wf4 g a b
       have hQ : allPred24 (fun i => !isInQ (wf4Perm g a) (wf4Perm g b) i || !isCat15 (cell ((wf4Equiv g).symm i))) =
           allPred24 (fun i => !isInQ a b i || !isCat15 (cell i)) := by
-        rw [allPred24_congr _ (fun i => !isInQ a b ((wf4Equiv g).symm i) || !isCat15 (cell ((wf4Equiv g).symm i))) (fun i => by
-          have := isInQ_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => !x || !isCat15 (cell ((wf4Equiv g).symm i))) this)]
-        exact allPred24_comp_equiv (wf4Equiv g).symm _
+        rw [allPred24_congr _ (fun i => !isInQ a b ((wf4Equiv g).symm i) || !isCat15 (cell ((wf4Equiv g).symm i)))
+              (fun i => by rw [isInQ_wf4_symm])]
+        exact allPred24_comp_equiv (wf4Equiv g).symm (fun i => !isInQ a b i || !isCat15 (cell i))
       have hP : allPred24 (fun i => !isInP (wf4Perm g a) (wf4Perm g b) i ||
             (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) =
           allPred24 (fun i => !isInP a b i || (cell i == .empty || cell i == .rotR)) := by
         rw [allPred24_congr _ (fun i => !isInP a b ((wf4Equiv g).symm i) ||
-            (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-          have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => !x || (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR)) this)]
-        exact allPred24_comp_equiv (wf4Equiv g).symm _
+              (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .rotR))
+              (fun i => by rw [isInP_wf4_symm])]
+        exact allPred24_comp_equiv (wf4Equiv g).symm (fun i => !isInP a b i || (cell i == .empty || cell i == .rotR))
       have hR : countPred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (cell ((wf4Equiv g).symm i) == .rotR)) =
           countPred24 (fun i => isInP a b i && (cell i == .rotR)) := by
-        rw [countPred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-          have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-          simpa using congrArg (fun x => x && (cell ((wf4Equiv g).symm i) == .rotR)) this)]
-        exact countPred24_comp_equiv (wf4Equiv g).symm _
+        rw [countPred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR))
+              (fun i => by rw [isInP_wf4_symm])]
+        exact countPred24_comp_equiv (wf4Equiv g).symm (fun i => isInP a b i && (cell i == .rotR))
       change (if isOrthPair (wf4Perm g a) (wf4Perm g b) &&
           allPred24 (fun i => !isInQ (wf4Perm g a) (wf4Perm g b) i || !isCat15 (cell ((wf4Equiv g).symm i))) then
         let r := countPred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (cell ((wf4Equiv g).symm i) == .rotR))
@@ -2633,246 +2631,285 @@ private theorem gateMode15_equivariant (g : WF4Elem) (cell : Fin 24 → Sym15) :
           some (wf4Perm g a, wf4Perm g b, r)
         else none else none) = _
       rw [hOrth, hQ, hP, hR]
-      split_ifs <;> simp
+      dsimp only
+      split_ifs <;> rfl
 
-private theorem strong15_step_inv (fwd : Bool) (cell : Fin 24 → Sym15) :
-    (if fwd then localStrong15Inv (localStrong15 cell) else localStrong15 (localStrong15Inv cell)) = cell := by
+private theorem launcher_ports_noCat (cell : Fin 24 → Sym15) (a b pEmpty : Fin 24)
+    (hMode : gateMode15 cell = some (a, b, 3))
+    (hpEmpty : uniquePred24 (fun i => isInP a b i && !(cell i == .rotR)) = some pEmpty) :
+    let q0 := qNorth a b pEmpty
+    let q1 := rotQ a b q0
+    let q2 := rotQ a b q1
+    let q3 := rotQ a b q2
+    isCat15 (cell q0) = false ∧ isCat15 (cell q1) = false ∧
+    isCat15 (cell q2) = false ∧ isCat15 (cell q3) = false ∧ isCat15 (cell pEmpty) = false := by
+  have hOrth := gateMode15_orth cell a b 3 hMode
+  have hpInP : isInP a b pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
+  have hL := launcher_ports_distinct a b pEmpty hOrth hpInP
+  unfold gateMode15 at hMode
+  cases hA : uniquePred24 (fun i => cell i == .ancA) with
+  | none => simp [hA] at hMode
+  | some a0 =>
+    cases hB : uniquePred24 (fun i => cell i == .ancB) with
+    | none => simp [hA, hB] at hMode
+    | some b0 =>
+      rw [hA, hB] at hMode; dsimp only at hMode
+      split_ifs at hMode with hC hR3
+      · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
+        obtain ⟨ha0, hb0, _⟩ := hMode; subst ha0; subst hb0
+        have hAllQ := (allPred24_eq_true_iff _).mp ((Bool.and_eq_true _ _).mp hC).2
+        have hqnc : ∀ q, isInQ a0 b0 q = true → isCat15 (cell q) = false := fun q hq => by
+          have := hAllQ q; simp [hq] at this; exact this
+        have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a0 b0 hOrth).2.2
+        have hpNotA : cell pEmpty ≠ .ancA := fun h =>
+          (hDisj a0).2.1 ⟨Or.inl rfl, (((uniquePred24_eq_some_iff _ a0).mp hA).2 pEmpty (by simp [h])) ▸ hpInP⟩
+        have hpNotB : cell pEmpty ≠ .ancB := fun h =>
+          (hDisj b0).2.1 ⟨Or.inr rfl, (((uniquePred24_eq_some_iff _ b0).mp hB).2 pEmpty (by simp [h])) ▸ hpInP⟩
+        have hpNotR : cell pEmpty ≠ .rotR := by
+          have := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).2
+          intro h; simp [h] at this
+        have hpNC : isCat15 (cell pEmpty) = false := by cases hc : cell pEmpty <;> simp_all [isCat15]
+        exact ⟨hqnc _ hL.2.2.2.2.2.2.2.2.2.2.1, hqnc _ hL.2.2.2.2.2.2.2.2.2.2.2.1,
+               hqnc _ hL.2.2.2.2.2.2.2.2.2.2.2.2.1, hqnc _ hL.2.2.2.2.2.2.2.2.2.2.2.2.2, hpNC⟩
+      · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
+        exact absurd hMode.2.2 hR3
+
+private theorem strong15_inv_left (cell : Fin 24 → Sym15) : localStrong15Inv (localStrong15 cell) = cell := by
   cases hMode : gateMode15 cell with
   | none =>
-    cases fwd
-    · simp only [localStrong15, localStrong15Inv, hMode, (bgStep15_preserves_gateMode15 cell).2, bgStep15_inv_right]
-    · simp only [localStrong15, localStrong15Inv, hMode, (bgStep15_preserves_gateMode15 cell).1, bgStep15_inv_left]
+    simp only [localStrong15, localStrong15Inv, hMode, (bgStep15_preserves_gateMode15 cell).1, bgStep15_inv_left]
   | some abr =>
     rcases abr with ⟨a, b, r⟩
     by_cases hr0 : r = 0
     · subst hr0
-      obtain ⟨hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
-      have hM' := gateMode15_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b) hQ hP hOut
-      cases fwd <;> simp only [localStrong15, localStrong15Inv, hMode, hM', ↓reduceIte] <;>
-        (funext i; exact congrArg cell (rotQ2_invol a b i))
+      obtain ⟨_, _, _, hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+      have hM' := gateMode15_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b).symm hQ hP hOut
+      simp only [localStrong15, localStrong15Inv, hMode, hM', ↓reduceIte]
+      funext i; exact congrArg cell (rotQ2_invol a b i)
     · by_cases hr4 : r = 4
       · subst hr4
-        obtain ⟨hQ, hQInv, hP, hPInv, hOut, hOutInv⟩ := rotQEquiv_invariants a b
+        obtain ⟨_, hQInv, _, hPInv, _, hOutInv⟩ := rotQ_invariants a b
         have hM1 := gateMode15_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b).symm hQInv hPInv hOutInv
-        have hM2 := gateMode15_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b) hQ hP hOut
-        cases fwd
-        · simp only [localStrong15, localStrong15Inv, hMode, hM2, hr0, ↓reduceIte]
-          funext i; exact congrArg cell ((rotQEquiv a b).apply_symm_apply i)
-        · simp only [localStrong15, localStrong15Inv, hMode, hM1, hr0, ↓reduceIte]
-          funext i; exact congrArg cell ((rotQEquiv a b).symm_apply_apply i)
+        simp only [localStrong15, localStrong15Inv, hMode, hM1, hr0, ↓reduceIte]
+        funext i; exact congrArg cell ((rotQEquiv a b).symm_apply_apply i)
       · by_cases hr3 : r = 3
         · subst hr3
           cases hpEmpty : uniquePred24 (fun i => isInP a b i && !(cell i == .rotR)) with
-          | none =>
-            cases fwd <;> simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hpEmpty, ↓reduceIte]
+          | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hpEmpty, ↓reduceIte]
           | some pEmpty =>
-            have hOrth : isOrthPair a b = true := by
-              unfold gateMode15 at hMode
-              cases hA : uniquePred24 (fun i => cell i == .ancA) with
-              | none => rw [hA] at hMode; exact Option.noConfusion hMode
-              | some a0 =>
-                cases hB : uniquePred24 (fun i => cell i == .ancB) with
-                | none => rw [hA, hB] at hMode; exact Option.noConfusion hMode
-                | some b0 =>
-                  rw [hA, hB] at hMode
-                  split_ifs at hMode with hC
-                  · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                    rcases hMode with ⟨rfl, rfl, _⟩
-                    exact (Bool.and_eq_true _ _).mp hC |>.1
-                  · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                    rcases hMode with ⟨rfl, rfl, _⟩
-                    exact (Bool.and_eq_true _ _).mp hC |>.1
+            have hOrth := gateMode15_orth cell a b 3 hMode
             have hpInP : isInP a b pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
             have hL := launcher_ports_distinct a b pEmpty hOrth hpInP
+            have hNC := launcher_ports_noCat cell a b pEmpty hMode hpEmpty
             set q0 := qNorth a b pEmpty
             set q1 := rotQ a b q0
             set q2 := rotQ a b q1
             set q3 := rotQ a b q2
-            have hNoCatCell : isCat15 (cell q0) = false ∧ isCat15 (cell q1) = false ∧
-                isCat15 (cell q2) = false ∧ isCat15 (cell q3) = false ∧ isCat15 (cell pEmpty) = false := by
-              unfold gateMode15 at hMode
-              cases hA : uniquePred24 (fun i => cell i == .ancA) with
-              | none => rw [hA] at hMode; exact Option.noConfusion hMode
-              | some a0 =>
-                cases hB : uniquePred24 (fun i => cell i == .ancB) with
-                | none => rw [hA, hB] at hMode; exact Option.noConfusion hMode
-                | some b0 =>
-                  rw [hA, hB] at hMode
-                  split_ifs at hMode with hC hR3
-                  · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                    rcases hMode with ⟨rfl, rfl, _⟩
-                    have hAllQ := (allPred24_eq_true_iff _).mp ((Bool.and_eq_true _ _).mp hC).2
-                    have hqnc : ∀ q, isInQ a b q = true → isCat15 (cell q) = false := fun q hq => by
-                      have := hAllQ q; simp [hq] at this; exact this
-                    have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hOrth).2.2
-                    have hpNotA : cell pEmpty ≠ .ancA := fun h =>
-                      (hDisj a).2.1 ⟨Or.inl rfl, (((uniquePred24_eq_some_iff _ a).mp hA).2 pEmpty (by simp [h])) ▸ hpInP⟩
-                    have hpNotB : cell pEmpty ≠ .ancB := fun h =>
-                      (hDisj b).2.1 ⟨Or.inr rfl, (((uniquePred24_eq_some_iff _ b).mp hB).2 pEmpty (by simp [h])) ▸ hpInP⟩
-                    have hpNotR : cell pEmpty ≠ .rotR := by
-                      have := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).2
-                      intro h; simp [h] at this
-                    have hpNC : isCat15 (cell pEmpty) = false := by cases hc : cell pEmpty <;> simp_all [isCat15]
-                    exact ⟨hqnc q0 hL.2.2.2.2.2.2.2.2.2.2.1, hqnc q1 hL.2.2.2.2.2.2.2.2.2.2.2.1,
-                           hqnc q2 hL.2.2.2.2.2.2.2.2.2.2.2.2.1, hqnc q3 hL.2.2.2.2.2.2.2.2.2.2.2.2.2, hpNC⟩
-                  · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                    exact absurd hMode.2.2 hR3
             set t := (cell q0, cell q1, cell q2, cell q3, cell pEmpty)
             have hT := launch5_laws t
-            have hNoCatFwd := hT.2.2.2.1 hNoCatCell.1 hNoCatCell.2.1 hNoCatCell.2.2.1 hNoCatCell.2.2.2.1 hNoCatCell.2.2.2.2
-            have hNoCatInv := hT.2.2.2.2 hNoCatCell.1 hNoCatCell.2.1 hNoCatCell.2.2.1 hNoCatCell.2.2.2.1 hNoCatCell.2.2.2.2
-            have hPresFwd := gateMode15_preserved_by_launcher cell a b pEmpty hMode hpEmpty (launch5 t) hNoCatFwd
-            have hPresInv := gateMode15_preserved_by_launcher cell a b pEmpty hMode hpEmpty (launch5Inv t) hNoCatInv
-            have hRB_fwd := write5_read_back q0 q1 q2 q3 pEmpty hL.1 hL.2.1 hL.2.2.1 hL.2.2.2.1
+            have hPres := gateMode15_preserved_by_launcher cell a b pEmpty hMode hpEmpty (launch5 t)
+              (hT.2.2.2.1 hNC.1 hNC.2.1 hNC.2.2.1 hNC.2.2.2.1 hNC.2.2.2.2)
+            have hPres1 : gateMode15 (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell) = some (a, b, 3) := hPres.1
+            have hPres2 : uniquePred24 (fun i => isInP a b i &&
+                !(write5 q0 q1 q2 q3 pEmpty (launch5 t) cell i == .rotR)) = some pEmpty := hPres.2
+            have hRB := write5_read_back q0 q1 q2 q3 pEmpty hL.1 hL.2.1 hL.2.2.1 hL.2.2.2.1
               hL.2.2.2.2.1 hL.2.2.2.2.2.1 hL.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.2.1
               (launch5 t) cell
-            have hRB_inv := write5_read_back q0 q1 q2 q3 pEmpty hL.1 hL.2.1 hL.2.2.1 hL.2.2.2.1
-              hL.2.2.2.2.1 hL.2.2.2.2.2.1 hL.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.2.1
-              (launch5Inv t) cell
-            cases fwd
-            · simp only [localStrong15, localStrong15Inv, hMode, hPresInv.1, hPresInv.2, hr0, hr4, hpEmpty, ↓reduceIte]
-              change write5 q0 q1 q2 q3 pEmpty
-                (launch5 (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q0,
-                          write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q1,
-                          write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q2,
-                          write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q3,
-                          write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell pEmpty))
-                (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell) = cell
-              rw [hRB_inv.1, hRB_inv.2.1, hRB_inv.2.2.1, hRB_inv.2.2.2.1, hRB_inv.2.2.2.2,
-                  write5_overwrite, hT.2.1, write5_self]
-            · simp only [localStrong15, localStrong15Inv, hMode, hPresFwd.1, hPresFwd.2, hr0, hr4, hpEmpty, ↓reduceIte]
-              change write5 q0 q1 q2 q3 pEmpty
-                (launch5Inv (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q0,
-                             write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q1,
-                             write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q2,
-                             write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q3,
-                             write5 q0 q1 q2 q3 pEmpty (launch5 t) cell pEmpty))
-                (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell) = cell
-              rw [hRB_fwd.1, hRB_fwd.2.1, hRB_fwd.2.2.1, hRB_fwd.2.2.2.1, hRB_fwd.2.2.2.2,
-                  write5_overwrite, hT.1, write5_self]
+            simp only [localStrong15, hMode, hr0, hr4, hpEmpty, ↓reduceIte]
+            change localStrong15Inv (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell) = cell
+            simp only [localStrong15Inv, hPres1, hr0, hr4, hPres2, ↓reduceIte]
+            change write5 q0 q1 q2 q3 pEmpty
+              (launch5Inv (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q0,
+                           write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q1,
+                           write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q2,
+                           write5 q0 q1 q2 q3 pEmpty (launch5 t) cell q3,
+                           write5 q0 q1 q2 q3 pEmpty (launch5 t) cell pEmpty))
+              (write5 q0 q1 q2 q3 pEmpty (launch5 t) cell) = cell
+            rw [hRB.1, hRB.2.1, hRB.2.2.1, hRB.2.2.2.1, hRB.2.2.2.2, write5_overwrite, hT.1, write5_self]
         · by_cases hQOnly : allPred24 (fun i => !isInQ a b i || (cell i == .empty || cell i == .P)) = true
           · cases hpBar : uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
-            | none =>
-              cases fwd <;> simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, ↓reduceIte]
+            | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, ↓reduceIte]
             | some pBar =>
               cases hqIn : uniquePred24 (fun i => isInQ a b i && (cell i == .P)) with
-              | none =>
-                cases fwd <;> simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, hqIn, ↓reduceIte]
+              | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, hqIn, ↓reduceIte]
               | some qIn =>
+                have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
+                have hqInQ : isInQ a b qIn = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1).1
                 by_cases hPerp : isPerpQ a b pBar qIn = true
-                · obtain ⟨hQ, hQInv, hP, hPInv, hOut, hOutInv⟩ := rotQPEquiv_invariants a b
+                · obtain ⟨_, hQInv, _, hPInv, _, hOutInv⟩ := rotQPEquiv_invariants a b
                   have hM1 := gateMode15_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b).symm hQInv hPInv hOutInv
-                  have hM2 := gateMode15_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b) hQ hP hOut
                   have hQO1 : allPred24 (fun i => !isInQ a b i || (cell ((rotQPEquiv a b).symm i) == .empty || cell ((rotQPEquiv a b).symm i) == .P)) = true := by
                     rw [allPred24_congr _ (fun i => !isInQ a b ((rotQPEquiv a b).symm i) ||
                         (cell ((rotQPEquiv a b).symm i) == .empty || cell ((rotQPEquiv a b).symm i) == .P)) (fun i => by rw [hQInv]),
-                        allPred24_comp_equiv (rotQPEquiv a b).symm]; exact hQOnly
-                  have hQO2 : allPred24 (fun i => !isInQ a b i || (cell (rotQPEquiv a b i) == .empty || cell (rotQPEquiv a b i) == .P)) = true := by
-                    rw [allPred24_congr _ (fun i => !isInQ a b (rotQPEquiv a b i) ||
-                        (cell (rotQPEquiv a b i) == .empty || cell (rotQPEquiv a b i) == .P)) (fun i => by rw [hQ]),
-                        allPred24_comp_equiv (rotQPEquiv a b)]; exact hQOnly
+                        allPred24_comp_equiv (rotQPEquiv a b).symm (fun i => !isInQ a b i || (cell i == .empty || cell i == .P))]
+                    exact hQOnly
                   have hP1 : uniquePred24 (fun i => isInP a b i && (cell ((rotQPEquiv a b).symm i) == .rotR)) =
                       some (rotQPEquiv a b pBar) := by
                     rw [uniquePred24_congr _ (fun i => isInP a b ((rotQPEquiv a b).symm i) &&
                         (cell ((rotQPEquiv a b).symm i) == .rotR)) (fun i => by rw [hPInv]),
-                        uniquePred24_comp_equiv (rotQPEquiv a b), hpBar]; rfl
+                        uniquePred24_comp_equiv (rotQPEquiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
                   have hQ1 : uniquePred24 (fun i => isInQ a b i && (cell ((rotQPEquiv a b).symm i) == .P)) =
                       some (rotQPEquiv a b qIn) := by
                     rw [uniquePred24_congr _ (fun i => isInQ a b ((rotQPEquiv a b).symm i) &&
                         (cell ((rotQPEquiv a b).symm i) == .P)) (fun i => by rw [hQInv]),
-                        uniquePred24_comp_equiv (rotQPEquiv a b), hqIn]; rfl
+                        uniquePred24_comp_equiv (rotQPEquiv a b) (fun i => isInQ a b i && (cell i == .P)), hqIn]; rfl
+                  have hab : isOrthPair a b = true := gateMode15_orth cell a b r hMode
+                  have hMH := morita_perp_helpers a b pBar qIn hpInP hqInQ hab
+                  have hPerp1 : isPerpQ a b (rotQPEquiv a b pBar) (rotQPEquiv a b qIn) = true := by
+                    rw [hMH.1, hMH.2.1, isPerpQ_rot_preserved]; exact hPerp
+                  simp only [localStrong15, localStrong15Inv, hMode, hM1, hr0, hr4, hr3, hQOnly, hQO1,
+                    hpBar, hqIn, hPerp, hP1, hQ1, hPerp1, ↓reduceIte]
+                  funext i; exact congrArg cell ((rotQPEquiv a b).symm_apply_apply i)
+                · have hPerpF : isPerpQ a b pBar qIn = false := Bool.eq_false_iff.mpr hPerp
+                  obtain ⟨_, _, _, hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+                  have hM' := gateMode15_preserved_by_QP_equiv cell a b r hMode (rotQ2Equiv a b).symm hQ hP hOut
+                  have hQO' : allPred24 (fun i => !isInQ a b i || (cell ((rotQ2Equiv a b).symm i) == .empty || cell ((rotQ2Equiv a b).symm i) == .P)) = true := by
+                    rw [allPred24_congr _ (fun i => !isInQ a b ((rotQ2Equiv a b).symm i) ||
+                        (cell ((rotQ2Equiv a b).symm i) == .empty || cell ((rotQ2Equiv a b).symm i) == .P)) (fun i => by rw [hQ]),
+                        allPred24_comp_equiv (rotQ2Equiv a b).symm (fun i => !isInQ a b i || (cell i == .empty || cell i == .P))]
+                    exact hQOnly
+                  have hP' : uniquePred24 (fun i => isInP a b i && (cell ((rotQ2Equiv a b).symm i) == .rotR)) =
+                      some (rotQ2Equiv a b pBar) := by
+                    rw [uniquePred24_congr _ (fun i => isInP a b ((rotQ2Equiv a b).symm i) &&
+                        (cell ((rotQ2Equiv a b).symm i) == .rotR)) (fun i => by rw [hP]),
+                        uniquePred24_comp_equiv (rotQ2Equiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
+                  have hQ' : uniquePred24 (fun i => isInQ a b i && (cell ((rotQ2Equiv a b).symm i) == .P)) =
+                      some (rotQ2Equiv a b qIn) := by
+                    rw [uniquePred24_congr _ (fun i => isInQ a b ((rotQ2Equiv a b).symm i) &&
+                        (cell ((rotQ2Equiv a b).symm i) == .P)) (fun i => by rw [hQ]),
+                        uniquePred24_comp_equiv (rotQ2Equiv a b) (fun i => isInQ a b i && (cell i == .P)), hqIn]; rfl
+                  have hab : isOrthPair a b = true := gateMode15_orth cell a b r hMode
+                  have hPFix : rotQ2Equiv a b pBar = pBar := (morita_perp_helpers a b pBar qIn hpInP hqInQ hab).2.2.2.2
+                  have hPerp' : isPerpQ a b (rotQ2Equiv a b pBar) (rotQ2Equiv a b qIn) = false := by
+                    rw [hPFix]; change isPerpQ a b pBar (rotQ a b (rotQ a b qIn)) = false
+                    rw [isPerpQ_rotQ2_preserved]; exact hPerpF
+                  simp only [localStrong15, localStrong15Inv, hMode, hM', hr0, hr4, hr3, hQOnly, hQO',
+                    hpBar, hqIn, hPerpF, hP', hQ', hPerp', Bool.false_eq_true, ↓reduceIte]
+                  funext i; exact congrArg cell (rotQ2_invol a b i)
+          · have hQOF : allPred24 (fun i => !isInQ a b i || (cell i == .empty || cell i == .P)) = false :=
+              Bool.eq_false_iff.mpr hQOnly
+            simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOF, Bool.false_eq_true, ↓reduceIte]
+
+private theorem strong15_inv_right (cell : Fin 24 → Sym15) : localStrong15 (localStrong15Inv cell) = cell := by
+  cases hMode : gateMode15 cell with
+  | none =>
+    simp only [localStrong15, localStrong15Inv, hMode, (bgStep15_preserves_gateMode15 cell).2, bgStep15_inv_right]
+  | some abr =>
+    rcases abr with ⟨a, b, r⟩
+    by_cases hr0 : r = 0
+    · subst hr0
+      obtain ⟨hQ, hP, hOut, _, _, _⟩ := rotQ2Equiv_invariants a b
+      have hM' := gateMode15_preserved_by_QP_equiv cell a b 0 hMode (rotQ2Equiv a b) hQ hP hOut
+      simp only [localStrong15, localStrong15Inv, hMode, hM', ↓reduceIte]
+      funext i; exact congrArg cell (rotQ2_invol a b i)
+    · by_cases hr4 : r = 4
+      · subst hr4
+        obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQ_invariants a b
+        have hM2 := gateMode15_preserved_by_QP_equiv cell a b 4 hMode (rotQEquiv a b) hQ hP hOut
+        simp only [localStrong15, localStrong15Inv, hMode, hM2, hr0, ↓reduceIte]
+        funext i; exact congrArg cell ((rotQEquiv a b).apply_symm_apply i)
+      · by_cases hr3 : r = 3
+        · subst hr3
+          cases hpEmpty : uniquePred24 (fun i => isInP a b i && !(cell i == .rotR)) with
+          | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hpEmpty, ↓reduceIte]
+          | some pEmpty =>
+            have hOrth := gateMode15_orth cell a b 3 hMode
+            have hpInP : isInP a b pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
+            have hL := launcher_ports_distinct a b pEmpty hOrth hpInP
+            have hNC := launcher_ports_noCat cell a b pEmpty hMode hpEmpty
+            set q0 := qNorth a b pEmpty
+            set q1 := rotQ a b q0
+            set q2 := rotQ a b q1
+            set q3 := rotQ a b q2
+            set t := (cell q0, cell q1, cell q2, cell q3, cell pEmpty)
+            have hT := launch5_laws t
+            have hPres := gateMode15_preserved_by_launcher cell a b pEmpty hMode hpEmpty (launch5Inv t)
+              (hT.2.2.2.2 hNC.1 hNC.2.1 hNC.2.2.1 hNC.2.2.2.1 hNC.2.2.2.2)
+            have hPres1 : gateMode15 (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell) = some (a, b, 3) := hPres.1
+            have hPres2 : uniquePred24 (fun i => isInP a b i &&
+                !(write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell i == .rotR)) = some pEmpty := hPres.2
+            have hRB := write5_read_back q0 q1 q2 q3 pEmpty hL.1 hL.2.1 hL.2.2.1 hL.2.2.2.1
+              hL.2.2.2.2.1 hL.2.2.2.2.2.1 hL.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.2.1
+              (launch5Inv t) cell
+            simp only [localStrong15Inv, hMode, hr0, hr4, hpEmpty, ↓reduceIte]
+            change localStrong15 (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell) = cell
+            simp only [localStrong15, hPres1, hr0, hr4, hPres2, ↓reduceIte]
+            change write5 q0 q1 q2 q3 pEmpty
+              (launch5 (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q0,
+                        write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q1,
+                        write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q2,
+                        write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell q3,
+                        write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell pEmpty))
+              (write5 q0 q1 q2 q3 pEmpty (launch5Inv t) cell) = cell
+            rw [hRB.1, hRB.2.1, hRB.2.2.1, hRB.2.2.2.1, hRB.2.2.2.2, write5_overwrite, hT.2.1, write5_self]
+        · by_cases hQOnly : allPred24 (fun i => !isInQ a b i || (cell i == .empty || cell i == .P)) = true
+          · cases hpBar : uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
+            | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, ↓reduceIte]
+            | some pBar =>
+              cases hqIn : uniquePred24 (fun i => isInQ a b i && (cell i == .P)) with
+              | none => simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOnly, hpBar, hqIn, ↓reduceIte]
+              | some qIn =>
+                have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
+                have hqInQ : isInQ a b qIn = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1).1
+                by_cases hPerp : isPerpQ a b pBar qIn = true
+                · obtain ⟨hQ, _, hP, _, hOut, _⟩ := rotQPEquiv_invariants a b
+                  have hM2 := gateMode15_preserved_by_QP_equiv cell a b r hMode (rotQPEquiv a b) hQ hP hOut
+                  have hQO2 : allPred24 (fun i => !isInQ a b i || (cell (rotQPEquiv a b i) == .empty || cell (rotQPEquiv a b i) == .P)) = true := by
+                    rw [allPred24_congr _ (fun i => !isInQ a b (rotQPEquiv a b i) ||
+                        (cell (rotQPEquiv a b i) == .empty || cell (rotQPEquiv a b i) == .P)) (fun i => by rw [hQ]),
+                        allPred24_comp_equiv (rotQPEquiv a b) (fun i => !isInQ a b i || (cell i == .empty || cell i == .P))]
+                    exact hQOnly
                   have hP2 : uniquePred24 (fun i => isInP a b i && (cell (rotQPEquiv a b i) == .rotR)) =
                       some ((rotQPEquiv a b).symm pBar) := by
                     rw [uniquePred24_congr _ (fun i => isInP a b (rotQPEquiv a b i) &&
                         (cell (rotQPEquiv a b i) == .rotR)) (fun i => by rw [hP]),
-                        uniquePred24_comp_equiv (rotQPEquiv a b).symm, hpBar]; rfl
+                        uniquePred24_comp_equiv_fwd (rotQPEquiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
                   have hQ2 : uniquePred24 (fun i => isInQ a b i && (cell (rotQPEquiv a b i) == .P)) =
                       some ((rotQPEquiv a b).symm qIn) := by
                     rw [uniquePred24_congr _ (fun i => isInQ a b (rotQPEquiv a b i) &&
                         (cell (rotQPEquiv a b i) == .P)) (fun i => by rw [hQ]),
-                        uniquePred24_comp_equiv (rotQPEquiv a b).symm, hqIn]; rfl
-                  have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
-                  have hqInQ : isInQ a b qIn = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ qIn).mp hqIn).1).1
-                  have hab : isOrthPair a b = true := by
-                    unfold isPerpQ at hPerp; simp only [Bool.and_eq_true] at hPerp; exact hPerp.1.1.1
-                  have hDisj := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-                  have hQP_p : rotQPEquiv a b pBar = rotP a b pBar := by
-                    change rotQ a b (rotP a b pBar) = rotP a b pBar
-                    have hp' : isInP a b (rotP a b pBar) = true := by rw [isInP_rotP]; exact hpInP
-                    have hqf : isInQ a b (rotP a b pBar) = false := by
-                      cases h : isInQ a b (rotP a b pBar) <;> [rfl; exact absurd ⟨h, hp'⟩ (hDisj _).2.2]
-                    exact rotQ_outside a b _ hqf
-                  have hQP_q : rotQPEquiv a b qIn = rotQ a b qIn := by
-                    change rotQ a b (rotP a b qIn) = rotQ a b qIn
-                    have hpf : isInP a b qIn = false := by
-                      cases h : isInP a b qIn <;> [rfl; exact absurd ⟨hqInQ, h⟩ (hDisj qIn).2.2]
-                    rw [rotP_outside a b qIn hpf]
-                  have hPerp1 : isPerpQ a b (rotQPEquiv a b pBar) (rotQPEquiv a b qIn) = true := by
-                    rw [hQP_p, hQP_q, isPerpQ_rot_preserved]; exact hPerp
-                  have hQPs_p : (rotQPEquiv a b).symm pBar = rotPInv a b pBar := by
-                    change rotPInv a b (rotQInv a b pBar) = rotPInv a b pBar
-                    have hqf : isInQ a b pBar = false := by
-                      cases h : isInQ a b pBar <;> [rfl; exact absurd ⟨h, hpInP⟩ (hDisj pBar).2.2]
-                    have hQI : rotQInv a b pBar = pBar := by
-                      unfold rotQInv; rw [rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf]
-                    rw [hQI]
-                  have hQPs_q : (rotQPEquiv a b).symm qIn = rotQInv a b qIn := by
-                    rw [rotQP_symm_eq, rotQP_comm]
-                    have hpf : isInP a b qIn = false := by
-                      cases h : isInP a b qIn <;> [rfl; exact absurd ⟨hqInQ, h⟩ (hDisj qIn).2.2]
-                    have hPI : rotPInv a b qIn = qIn := by
-                      unfold rotPInv; rw [rotP_outside a b qIn hpf, rotP_outside a b qIn hpf, rotP_outside a b qIn hpf]
-                    rw [hPI]
+                        uniquePred24_comp_equiv_fwd (rotQPEquiv a b) (fun i => isInQ a b i && (cell i == .P)), hqIn]; rfl
+                  have hab : isOrthPair a b = true := gateMode15_orth cell a b r hMode
+                  have hMH := morita_perp_helpers a b pBar qIn hpInP hqInQ hab
                   have hPerp2 : isPerpQ a b ((rotQPEquiv a b).symm pBar) ((rotQPEquiv a b).symm qIn) = true := by
-                    rw [hQPs_p, hQPs_q, ← isPerpQ_rot_preserved a b (rotPInv a b pBar) (rotQInv a b qIn),
+                    rw [hMH.2.2.1, hMH.2.2.2.1, ← isPerpQ_rot_preserved a b (rotPInv a b pBar) (rotQInv a b qIn),
                         rotP_inv_right, rotQ_inv_right]; exact hPerp
-                  cases fwd
-                  · simp only [localStrong15, localStrong15Inv, hMode, hM2, hr0, hr4, hr3, hQOnly, hQO2,
-                      hpBar, hqIn, hPerp, hP2, hQ2, hPerp2, ↓reduceIte]
-                    funext i; exact congrArg cell ((rotQPEquiv a b).apply_symm_apply i)
-                  · simp only [localStrong15, localStrong15Inv, hMode, hM1, hr0, hr4, hr3, hQOnly, hQO1,
-                      hpBar, hqIn, hPerp, hP1, hQ1, hPerp1, ↓reduceIte]
-                    funext i; exact congrArg cell ((rotQPEquiv a b).symm_apply_apply i)
+                  simp only [localStrong15, localStrong15Inv, hMode, hM2, hr0, hr4, hr3, hQOnly, hQO2,
+                    hpBar, hqIn, hPerp, hP2, hQ2, hPerp2, ↓reduceIte]
+                  funext i; exact congrArg cell ((rotQPEquiv a b).apply_symm_apply i)
                 · have hPerpF : isPerpQ a b pBar qIn = false := Bool.eq_false_iff.mpr hPerp
-                  obtain ⟨hQ, hP, hOut⟩ := rotQ2Equiv_invariants a b
+                  obtain ⟨hQ, hP, hOut, _, _, _⟩ := rotQ2Equiv_invariants a b
                   have hM' := gateMode15_preserved_by_QP_equiv cell a b r hMode (rotQ2Equiv a b) hQ hP hOut
                   have hQO' : allPred24 (fun i => !isInQ a b i || (cell (rotQ2Equiv a b i) == .empty || cell (rotQ2Equiv a b i) == .P)) = true := by
                     rw [allPred24_congr _ (fun i => !isInQ a b (rotQ2Equiv a b i) ||
                         (cell (rotQ2Equiv a b i) == .empty || cell (rotQ2Equiv a b i) == .P)) (fun i => by rw [hQ]),
-                        allPred24_comp_equiv (rotQ2Equiv a b)]; exact hQOnly
+                        allPred24_comp_equiv (rotQ2Equiv a b) (fun i => !isInQ a b i || (cell i == .empty || cell i == .P))]
+                    exact hQOnly
                   have hP' : uniquePred24 (fun i => isInP a b i && (cell (rotQ2Equiv a b i) == .rotR)) =
                       some ((rotQ2Equiv a b).symm pBar) := by
                     rw [uniquePred24_congr _ (fun i => isInP a b (rotQ2Equiv a b i) &&
                         (cell (rotQ2Equiv a b i) == .rotR)) (fun i => by rw [hP]),
-                        uniquePred24_comp_equiv (rotQ2Equiv a b).symm, hpBar]; rfl
+                        uniquePred24_comp_equiv_fwd (rotQ2Equiv a b) (fun i => isInP a b i && (cell i == .rotR)), hpBar]; rfl
                   have hQ' : uniquePred24 (fun i => isInQ a b i && (cell (rotQ2Equiv a b i) == .P)) =
                       some ((rotQ2Equiv a b).symm qIn) := by
                     rw [uniquePred24_congr _ (fun i => isInQ a b (rotQ2Equiv a b i) &&
                         (cell (rotQ2Equiv a b i) == .P)) (fun i => by rw [hQ]),
-                        uniquePred24_comp_equiv (rotQ2Equiv a b).symm, hqIn]; rfl
-                  have hpInP : isInP a b pBar = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pBar).mp hpBar).1).1
-                  have hPFix : (rotQ2Equiv a b).symm pBar = pBar := by
-                    change rotQ a b (rotQ a b pBar) = pBar
-                    by_cases hab : isOrthPair a b = true
-                    · have hD := (thm_wf4plus_orth_pair_orbit_and_c4_stabilizer.2.2.2.2 a b hab).2.2
-                      have hqf : isInQ a b pBar = false := by
-                        cases h : isInQ a b pBar <;> [rfl; exact absurd ⟨h, hpInP⟩ (hD pBar).2.2]
-                      rw [rotQ_outside a b pBar hqf, rotQ_outside a b pBar hqf]
-                    · simp [rotQ, Bool.eq_false_iff.mpr hab]
+                        uniquePred24_comp_equiv_fwd (rotQ2Equiv a b) (fun i => isInQ a b i && (cell i == .P)), hqIn]; rfl
+                  have hab : isOrthPair a b = true := gateMode15_orth cell a b r hMode
+                  have hPFix : (rotQ2Equiv a b).symm pBar = pBar := (morita_perp_helpers a b pBar qIn hpInP hqInQ hab).2.2.2.2
                   have hPerp' : isPerpQ a b ((rotQ2Equiv a b).symm pBar) ((rotQ2Equiv a b).symm qIn) = false := by
                     rw [hPFix]; change isPerpQ a b pBar (rotQ a b (rotQ a b qIn)) = false
                     rw [isPerpQ_rotQ2_preserved]; exact hPerpF
-                  cases fwd <;>
-                    simp only [localStrong15, localStrong15Inv, hMode, hM', hr0, hr4, hr3, hQOnly, hQO',
-                      hpBar, hqIn, hPerpF, hP', hQ', hPerp', Bool.false_eq_true, ↓reduceIte] <;>
-                    (funext i; exact congrArg cell (rotQ2_invol a b i))
+                  simp only [localStrong15, localStrong15Inv, hMode, hM', hr0, hr4, hr3, hQOnly, hQO',
+                    hpBar, hqIn, hPerpF, hP', hQ', hPerp', Bool.false_eq_true, ↓reduceIte]
+                  funext i; exact congrArg cell (rotQ2_invol a b i)
           · have hQOF : allPred24 (fun i => !isInQ a b i || (cell i == .empty || cell i == .P)) = false :=
               Bool.eq_false_iff.mpr hQOnly
-            cases fwd <;> simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOF, Bool.false_eq_true, ↓reduceIte]
+            simp only [localStrong15, localStrong15Inv, hMode, hr0, hr4, hr3, hQOF, Bool.false_eq_true, ↓reduceIte]
 
 /-- **Headline Theorem 5 (15-Symbol Strong Universality: `S_exch` Ray Counter, `3-R` Launcher & Unified Bijection):**
     Universally across ALL `cell : Fin 24 → Sym15`:
-    1. Exact `225`-pair bijection, reflection symmetry, catalyst invariance, and occupation conservation of `lineRev12_exch`.
+    1. Exact `225`-pair bijection, reflection symmetry, and occupation conservation of `lineRev12_exch`.
     2. Exact `11`-state (`3 + 3 + 3 + 2`) bijection and occupation conservation of `launch5` on all `Sym15^5`.
     3. Exact two-sided bijection `localStrong15Inv (localStrong15 cell) = cell` and
        `localStrong15 (localStrong15Inv cell) = cell`.
@@ -2886,9 +2923,9 @@ theorem thm_strong15_launcher_and_unified_bijection :
                     occ15 (lineRev12_exch (a, b)).1 + occ15 (lineRev12_exch (a, b)).2 = occ15 a + occ15 b) ∧
     (∀ t : Sym15 × Sym15 × Sym15 × Sym15 × Sym15,
       launch5Inv (launch5 t) = t ∧ launch5 (launch5Inv t) = t ∧
-      (let u := launch5 t
-       occ15 u.1 + occ15 u.2.1 + occ15 u.2.2.1 + occ15 u.2.2.2.1 + occ15 u.2.2.2.2 =
-         occ15 t.1 + occ15 t.2.1 + occ15 t.2.2.1 + occ15 t.2.2.2.1 + occ15 t.2.2.2.2)) ∧
+      (occ15 (launch5 t).1 + occ15 (launch5 t).2.1 + occ15 (launch5 t).2.2.1 +
+         occ15 (launch5 t).2.2.2.1 + occ15 (launch5 t).2.2.2.2 =
+       occ15 t.1 + occ15 t.2.1 + occ15 t.2.2.1 + occ15 t.2.2.2.1 + occ15 t.2.2.2.2)) ∧
     (∀ cell : Fin 24 → Sym15, localStrong15Inv (localStrong15 cell) = cell) ∧
     (∀ cell : Fin 24 → Sym15, localStrong15 (localStrong15Inv cell) = cell) ∧
     (∀ (g : WF4Elem), wf4Det g = 1 → ∀ cell : Fin 24 → Sym15,
@@ -2898,8 +2935,7 @@ theorem thm_strong15_launcher_and_unified_bijection :
   refine ⟨fun a b => ⟨lineRev12_exch_all_laws.1 a b, lineRev12_exch_all_laws.2.1 a b,
                       lineRev12_exch_all_laws.2.2.1 a b, lineRev12_exch_all_laws.2.2.2.2.1 a b⟩,
           fun t => ⟨(launch5_laws t).1, (launch5_laws t).2.1, (launch5_laws t).2.2.1⟩,
-          fun cell => strong15_step_inv true cell,
-          fun cell => strong15_step_inv false cell, ?_, ?_, ?_⟩
+          strong15_inv_left, strong15_inv_right, ?_, ?_, ?_⟩
   · intro g hg cell
     have hM := gateMode15_equivariant g cell
     cases hMode : gateMode15 cell with
@@ -2932,18 +2968,23 @@ theorem thm_strong15_launcher_and_unified_bijection :
             rotPInv_equivariant g hg, ((thm_wf4_action_orthogonal_and_bijective g).2.2.1 i).2]
       by_cases hr0 : r = 0
       · simp only [localStrong15, hMode, hM, hr0, ↓reduceIte]
-        funext i; unfold actSym15 rotQ2Equiv; dsimp only; rw [hRotQ2Inv]
+        funext i
+        change cell (rotQ a b (rotQ a b (wf4PermInv g i))) =
+          cell (wf4PermInv g (rotQ (wf4Perm g a) (wf4Perm g b) (rotQ (wf4Perm g a) (wf4Perm g b) i)))
+        rw [hRotQ2Inv]
       · by_cases hr4 : r = 4
-        · simp only [localStrong15, hMode, hM, hr0, hr4, ↓reduceIte]
-          funext i; unfold actSym15 rotQEquiv; dsimp only; rw [hRotQInv]
+        · simp only [localStrong15, hMode, hM, hr4, ↓reduceIte]
+          funext i
+          change cell (rotQInv a b (wf4PermInv g i)) = cell (wf4PermInv g (rotQInv (wf4Perm g a) (wf4Perm g b) i))
+          rw [hRotQInv]
         · by_cases hr3 : r = 3
           · have hPE : uniquePred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && !(actSym15 g cell i == .rotR)) =
                 (uniquePred24 (fun i => isInP a b i && !(cell i == .rotR))).map (wf4Perm g) := by
-              rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && !(cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-                have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-                simpa [actSym15] using congrArg (fun x => x && !(cell (wf4PermInv g i) == .rotR)) this)]
-              exact uniquePred24_comp_equiv (wf4Equiv g) _
-            simp only [localStrong15, hMode, hM, hr0, hr4, hr3, hPE, ↓reduceIte]
+              rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && !(cell ((wf4Equiv g).symm i) == .rotR))
+                    (fun i => by rw [isInP_wf4_symm]; rfl)]
+              exact uniquePred24_comp_equiv (wf4Equiv g) (fun i => isInP a b i && !(cell i == .rotR))
+            subst hr3
+            simp only [localStrong15, hMode, hM, hr0, hr4, hPE, ↓reduceIte]
             cases uniquePred24 (fun i => isInP a b i && !(cell i == .rotR)) with
             | none => rfl
             | some pEmpty =>
@@ -2963,22 +3004,19 @@ theorem thm_strong15_launcher_and_unified_bijection :
                 (actSym15 g cell i == .empty || actSym15 g cell i == .P)) =
                 allPred24 (fun i => !isInQ a b i || (cell i == .empty || cell i == .P)) := by
               rw [allPred24_congr _ (fun i => !isInQ a b ((wf4Equiv g).symm i) ||
-                  (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .P)) (fun i => by
-                have := isInQ_wf4 g a b ((wf4Equiv g).symm i)
-                simpa [actSym15] using congrArg (fun x => !x || (cell (wf4PermInv g i) == .empty || cell (wf4PermInv g i) == .P)) this)]
-              exact allPred24_comp_equiv (wf4Equiv g).symm _
+                    (cell ((wf4Equiv g).symm i) == .empty || cell ((wf4Equiv g).symm i) == .P))
+                    (fun i => by rw [isInQ_wf4_symm]; rfl)]
+              exact allPred24_comp_equiv (wf4Equiv g).symm (fun i => !isInQ a b i || (cell i == .empty || cell i == .P))
             have hP : uniquePred24 (fun i => isInP (wf4Perm g a) (wf4Perm g b) i && (actSym15 g cell i == .rotR)) =
                 (uniquePred24 (fun i => isInP a b i && (cell i == .rotR))).map (wf4Perm g) := by
-              rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR)) (fun i => by
-                have := isInP_wf4 g a b ((wf4Equiv g).symm i)
-                simpa [actSym15] using congrArg (fun x => x && (cell (wf4PermInv g i) == .rotR)) this)]
-              exact uniquePred24_comp_equiv (wf4Equiv g) _
+              rw [uniquePred24_congr _ (fun i => isInP a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .rotR))
+                    (fun i => by rw [isInP_wf4_symm]; rfl)]
+              exact uniquePred24_comp_equiv (wf4Equiv g) (fun i => isInP a b i && (cell i == .rotR))
             have hQ : uniquePred24 (fun i => isInQ (wf4Perm g a) (wf4Perm g b) i && (actSym15 g cell i == .P)) =
                 (uniquePred24 (fun i => isInQ a b i && (cell i == .P))).map (wf4Perm g) := by
-              rw [uniquePred24_congr _ (fun i => isInQ a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .P)) (fun i => by
-                have := isInQ_wf4 g a b ((wf4Equiv g).symm i)
-                simpa [actSym15] using congrArg (fun x => x && (cell (wf4PermInv g i) == .P)) this)]
-              exact uniquePred24_comp_equiv (wf4Equiv g) _
+              rw [uniquePred24_congr _ (fun i => isInQ a b ((wf4Equiv g).symm i) && (cell ((wf4Equiv g).symm i) == .P))
+                    (fun i => by rw [isInQ_wf4_symm]; rfl)]
+              exact uniquePred24_comp_equiv (wf4Equiv g) (fun i => isInQ a b i && (cell i == .P))
             simp only [localStrong15, hMode, hM, hr0, hr4, hr3, hQO, hP, hQ, ↓reduceIte]
             split_ifs
             · cases uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
@@ -2989,8 +3027,14 @@ theorem thm_strong15_launcher_and_unified_bijection :
                 | some qIn =>
                   simp only [Option.map_some, isPerpQ_equivariant g hg]
                   split_ifs
-                  · funext i; unfold actSym15; rw [rotQP_symm_eq, rotQP_symm_eq, hRotPInv, hRotQInv]
-                  · funext i; unfold actSym15 rotQ2Equiv; dsimp only; rw [hRotQ2Inv]
+                  · funext i
+                    change cell (rotPInv a b (rotQInv a b (wf4PermInv g i))) =
+                      cell (wf4PermInv g (rotPInv (wf4Perm g a) (wf4Perm g b) (rotQInv (wf4Perm g a) (wf4Perm g b) i)))
+                    rw [hRotPInv, hRotQInv]
+                  · funext i
+                    change cell (rotQ a b (rotQ a b (wf4PermInv g i))) =
+                      cell (wf4PermInv g (rotQ (wf4Perm g a) (wf4Perm g b) (rotQ (wf4Perm g a) (wf4Perm g b) i)))
+                    rw [hRotQ2Inv]
             · rfl
   · intro cell
     cases hMode : gateMode15 cell with
@@ -2999,42 +3043,30 @@ theorem thm_strong15_launcher_and_unified_bijection :
     | some abr =>
       rcases abr with ⟨a, b, r⟩
       simp only [localStrong15, hMode]
-      split_ifs with hr0 hr4 hr3
+      split_ifs
       · unfold countOcc15; exact Equiv.sum_comp (rotQ2Equiv a b).symm (fun i => occ15 (cell i))
       · unfold countOcc15; exact Equiv.sum_comp (rotQEquiv a b).symm (fun i => occ15 (cell i))
       · cases hpEmpty : uniquePred24 (fun i => isInP a b i && !(cell i == .rotR)) with
         | none => rfl
         | some pEmpty =>
-          have hOrth : isOrthPair a b = true := by
-            unfold gateMode15 at hMode
-            cases hA : uniquePred24 (fun i => cell i == .ancA) with
-            | none => rw [hA] at hMode; exact Option.noConfusion hMode
-            | some a0 =>
-              cases hB : uniquePred24 (fun i => cell i == .ancB) with
-              | none => rw [hA, hB] at hMode; exact Option.noConfusion hMode
-              | some b0 =>
-                rw [hA, hB] at hMode
-                split_ifs at hMode with hC
-                · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                  rcases hMode with ⟨rfl, rfl, _⟩; exact (Bool.and_eq_true _ _).mp hC |>.1
-                · simp only [Option.some.injEq, Prod.mk.injEq] at hMode
-                  rcases hMode with ⟨rfl, rfl, _⟩; exact (Bool.and_eq_true _ _).mp hC |>.1
+          dsimp only
+          have hOrth := gateMode15_orth cell a b r hMode
           have hpInP : isInP a b pEmpty = true := ((Bool.and_eq_true _ _).mp ((uniquePred24_eq_some_iff _ pEmpty).mp hpEmpty).1).1
           have hL := launcher_ports_distinct a b pEmpty hOrth hpInP
           exact write5_countOcc15 _ _ _ _ pEmpty hL.1 hL.2.1 hL.2.2.1 hL.2.2.2.1
             hL.2.2.2.2.1 hL.2.2.2.2.2.1 hL.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.1 hL.2.2.2.2.2.2.2.2.2.1
             _ cell (launch5_laws _).2.2.1
-      · split_ifs
-        · cases uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
+      · cases uniquePred24 (fun i => isInP a b i && (cell i == .rotR)) with
+        | none => rfl
+        | some pBar =>
+          cases uniquePred24 (fun i => isInQ a b i && (cell i == .P)) with
           | none => rfl
-          | some pBar =>
-            cases uniquePred24 (fun i => isInQ a b i && (cell i == .P)) with
-            | none => rfl
-            | some qIn =>
-              split_ifs
-              · unfold countOcc15; exact Equiv.sum_comp (rotQPEquiv a b).symm (fun i => occ15 (cell i))
-              · unfold countOcc15; exact Equiv.sum_comp (rotQ2Equiv a b).symm (fun i => occ15 (cell i))
-        · rfl
+          | some qIn =>
+            dsimp only
+            split_ifs
+            · unfold countOcc15; exact Equiv.sum_comp (rotQPEquiv a b).symm (fun i => occ15 (cell i))
+            · unfold countOcc15; exact Equiv.sum_comp (rotQ2Equiv a b).symm (fun i => occ15 (cell i))
+      · rfl
   · have hNone : gateMode15 (fun _ => .empty) = none := by decide
     funext s
     simp [localStrong15, hNone, bgStep15, lineRev12_exch, lineRev12Geo, isCat15]
@@ -3080,7 +3112,7 @@ def coxeterStep (w : Mat5) (s : Fin 24) : Mat5 :=
 
 private theorem mat5_reflection_comm_of_orth (u v : Vec5) (huv : twiceForm u v = ZSqrt2.zero) :
     mat5Mul (reflectionIn u) (reflectionIn v) = mat5Mul (reflectionIn v) (reflectionIn u) := by
-  have hSym : (Matrix.of twiceGram)ᵀ = Matrix.of twiceGram := by
+  have hSym : Matrix.transpose (Matrix.of twiceGram) = Matrix.of twiceGram := by
     rw [← toMat5_transpose]; exact congrArg Matrix.of thm_coxeter_gram_and_center.1
   have hDotUV : dotProduct ((Matrix.of twiceGram).mulVec u) v = 0 := by
     rw [dotProduct_comm]
@@ -3113,9 +3145,11 @@ private theorem mat5_reflection_comm_of_orth (u v : Vec5) (huv : twiceForm u v =
       rw [dotProduct, Finset.mul_sum, Finset.sum_mul]
       exact Finset.sum_congr rfl fun k _ => by ring
     rw [hFac, h0]; ring
-  rw [Matrix.mul_sub, Matrix.sub_mul, Matrix.sub_mul, one_mul, mul_one,
+  simp only [Matrix.mul_sub, Matrix.sub_mul, one_mul, mul_one,
       hProd u v ru rv hDotUV, hProd v u rv ru hDotVU]
-  abel
+  apply Matrix.ext; intro i j
+  simp only [Matrix.sub_apply, Matrix.zero_apply]
+  ring
 
 private theorem cusp_layer_fix_iff (a : Fin 24) :
     mat5Vec (facetRefl a) cuspVertex = cuspVertex ↔ a ∈ cuspLayerFacets := by
@@ -3135,7 +3169,7 @@ private theorem cusp_layer_fix_iff (a : Fin 24) :
       split_ifs <;> rfl
     rw [hToRefl, Matrix.sub_mulVec, Matrix.one_mulVec]
     change cuspVertex i - ∑ k : Fin 5, facetNormal a i * ((Matrix.of twiceGram).mulVec (facetNormal a) k) * cuspVertex k = _
-    have hSym : (Matrix.of twiceGram)ᵀ = Matrix.of twiceGram := by
+    have hSym : Matrix.transpose (Matrix.of twiceGram) = Matrix.of twiceGram := by
       rw [← toMat5_transpose]; exact congrArg Matrix.of thm_coxeter_gram_and_center.1
     have hDot : ∑ k : Fin 5, facetNormal a i * ((Matrix.of twiceGram).mulVec (facetNormal a) k) * cuspVertex k =
         facetNormal a i * dot5 (facetNormal a) (twiceGramVecFast cuspVertex) := by
@@ -3151,14 +3185,15 @@ private theorem cusp_layer_fix_iff (a : Fin 24) :
     have h4 := congrFun hFix ⟨4, by decide⟩
     rw [hAct ⟨4, by decide⟩, hLast a] at h4
     have hZ : dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = ZSqrt2.zero := by
-      have hSub : cuspVertex ⟨4, by decide⟩ - (1 : ZSqrt2) * dot5 (facetNormal a) (twiceGramVecFast cuspVertex) =
-          cuspVertex ⟨4, by decide⟩ := h4
-      have hEq0 : dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = 0 := by
-        have h1 : cuspVertex ⟨4, by decide⟩ - dot5 (facetNormal a) (twiceGramVecFast cuspVertex) =
-            cuspVertex ⟨4, by decide⟩ := by simpa using hSub
-        have h2 := congrArg (fun z : ZSqrt2 => cuspVertex ⟨4, by decide⟩ - z) h1
-        simpa using h2
-      exact hEq0
+      set d := dot5 (facetNormal a) (twiceGramVecFast cuspVertex)
+      have ha : (ZSqrt2.sub (cuspVertex ⟨4, by decide⟩) (ZSqrt2.mul ZSqrt2.one d)).a = (cuspVertex ⟨4, by decide⟩).a :=
+        congrArg ZSqrt2.a h4
+      have hb : (ZSqrt2.sub (cuspVertex ⟨4, by decide⟩) (ZSqrt2.mul ZSqrt2.one d)).b = (cuspVertex ⟨4, by decide⟩).b :=
+        congrArg ZSqrt2.b h4
+      simp only [ZSqrt2.sub, ZSqrt2.mul, ZSqrt2.one] at ha hb
+      ext
+      · change d.a = 0; omega
+      · change d.b = 0; omega
     exact (hZeroIff a).mp (by simp [hZ])
   · intro hMem
     have hZ : dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = ZSqrt2.zero := by
@@ -3185,20 +3220,20 @@ theorem thm_global_pca_bijection {W α : Type}
     (hStep : ∀ w s, step (step w s) s = w)
     (hL : ∀ c, LInv (L c) = c)
     (hR : ∀ c, L (LInv c) = c) :
-    (∀ cfg, streamExch step (streamExch step cfg) = cfg) ∧
-    (∀ cfg, globalPCAInv step LInv (globalPCA step L cfg) = cfg) ∧
-    (∀ cfg, globalPCA step L (globalPCAInv step LInv cfg) = cfg) ∧
+    (∀ cfg : W → Fin 24 → α, streamExch step (streamExch step cfg) = cfg) ∧
+    (∀ cfg : W → Fin 24 → α, globalPCAInv step LInv (globalPCA step L cfg) = cfg) ∧
+    (∀ cfg : W → Fin 24 → α, globalPCA step L (globalPCAInv step LInv cfg) = cfg) ∧
     Function.Bijective (globalPCA step L) := by
-  have hS : ∀ cfg, streamExch step (streamExch step cfg) = cfg := fun cfg => by
+  have hS : ∀ cfg : W → Fin 24 → α, streamExch step (streamExch step cfg) = cfg := fun cfg => by
     funext w s; unfold streamExch; rw [hStep w s]
   have hLeft : ∀ cfg, globalPCAInv step LInv (globalPCA step L cfg) = cfg := fun cfg => by
     unfold globalPCAInv globalPCA
     rw [hS]
-    funext w; exact congrFun (hL (cfg w))
+    funext w; exact hL (cfg w)
   have hRight : ∀ cfg, globalPCA step L (globalPCAInv step LInv cfg) = cfg := fun cfg => by
     unfold globalPCAInv globalPCA
     have hLift : liftLocal L (liftLocal LInv (streamExch step cfg)) = streamExch step cfg := by
-      funext w; exact congrFun (hR (streamExch step cfg w))
+      funext w; exact hR (streamExch step cfg w)
     rw [hLift, hS]
   exact ⟨hS, hLeft, hRight,
     ⟨Function.LeftInverse.injective hLeft, Function.RightInverse.surjective hRight⟩⟩
@@ -3253,11 +3288,11 @@ theorem thm_horosphere_flat_z2_and_global_bijection :
     have m2 := congrArg Matrix.of cEPNN
     have m3 := congrArg Matrix.of cENNP
     have m4 := congrArg Matrix.of cENNN
-    simp only [horoTransE, horoTransN, toMat5_mul] at m1 m2 m3 m4 ⊢
-    set EP := Matrix.of (facetRefl slotEPos)
-    set EN := Matrix.of (facetRefl slotENeg)
-    set NP := Matrix.of (facetRefl slotNPos)
-    set NN := Matrix.of (facetRefl slotNNeg)
+    simp only [horoTransE, horoTransN, facetRefl, faceReflection, toMat5_mul] at m1 m2 m3 m4 ⊢
+    set EP := Matrix.of (reflectionIn (facetNormal slotEPos))
+    set EN := Matrix.of (reflectionIn (facetNormal slotENeg))
+    set NP := Matrix.of (reflectionIn (facetNormal slotNPos))
+    set NN := Matrix.of (reflectionIn (facetNormal slotNNeg))
     calc EP * EN * (NP * NN)
         = EP * (EN * NP) * NN := by simp only [mul_assoc]
       _ = EP * (NP * EN) * NN := by rw [m3]
@@ -3269,13 +3304,17 @@ theorem thm_horosphere_flat_z2_and_global_bijection :
   have hFixE : mat5Vec horoTransE cuspVertex = cuspVertex := by
     unfold horoTransE
     rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec,
-        ← mat5Vec_eq_mulVec, (cusp_layer_fix_iff slotENeg).mpr (by decide),
-        ← mat5Vec_eq_mulVec, (cusp_layer_fix_iff slotEPos).mpr (by decide)]
+        ← mat5Vec_eq_mulVec (facetRefl slotENeg) cuspVertex,
+        (cusp_layer_fix_iff slotENeg).mpr (by decide),
+        ← mat5Vec_eq_mulVec (facetRefl slotEPos) cuspVertex,
+        (cusp_layer_fix_iff slotEPos).mpr (by decide)]
   have hFixN : mat5Vec horoTransN cuspVertex = cuspVertex := by
     unfold horoTransN
     rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec,
-        ← mat5Vec_eq_mulVec, (cusp_layer_fix_iff slotNNeg).mpr (by decide),
-        ← mat5Vec_eq_mulVec, (cusp_layer_fix_iff slotNPos).mpr (by decide)]
+        ← mat5Vec_eq_mulVec (facetRefl slotNNeg) cuspVertex,
+        (cusp_layer_fix_iff slotNNeg).mpr (by decide),
+        ← mat5Vec_eq_mulVec (facetRefl slotNPos) cuspVertex,
+        (cusp_layer_fix_iff slotNPos).mpr (by decide)]
   have hU5 := thm_global_pca_bijection coxeterStep localUniv5 localUniv5Inv
     coxeterStep_invol thm_univ5_bijective_equivariant_conservative.1
     thm_univ5_bijective_equivariant_conservative.2.1

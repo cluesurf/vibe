@@ -1,7 +1,7 @@
-// m1 OF F35 ON A FINE FILL GRID (item vibe-roadmap-board-0041). Every gate was written into the item's `what` before
+// m1 OF F35 ON A FINE FILL GRID. Every gate was registered before
 // this file existed (gate 8056266ef710, 2026-11-16T22:39:42Z), and every run goes through task/pre-register.
 //
-// THE QUESTION. Board-0035 (E-FRC-0317 gauge/demon-link-family) found a confining string with an unbroken Z3 centre at
+// THE QUESTION. E-FRC-0317 (gauge/demon-link-family) found a confining string with an unbroken Z3 centre at
 // 3 of 20 period-8 cusp points, all in m2 to m4, and none for m1 (E-FRC-0110 itself): m1's registered fills jump from
 // melted at f = 0.2 (chi22 1.94 +- 0.67, too noisy for S2) to frozen at f = 0.08, so its floor stability was never
 // read and 0035's verdict stayed partial. This file reruns m1 alone on the 13 fills 0.08, 0.09, ..., 0.20 on the
@@ -14,7 +14,7 @@
 // READ-ACROSS, fixed before the run: F35 cannot fail by 0035's rule any more (m2 to m4 already pass at 3 points).
 // With this item PASS, F35 meets 0035's PASS rule; otherwise F35 stays partial. Orientation joining is not claimed.
 //
-// GRADE mirrored (the floor is felt; honeycomb decision 002). Depth L2.
+// GRADE mirrored (the floor is felt). Depth L2.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -226,14 +226,14 @@ export function m1FineVerdict(input: { grid: FinePart; floor: FinePart }): Verdi
 
   return verdict({
     status,
-    claim: `V0 (the empty mesh) is frozen under m1 (board-0035, not rerun). Transition of m1 (cold start): ${bracketText('I-B', b)}; ${bracketText('I-A', brackets['I-A'])}; ${bracketText('I-C', brackets['I-C'])}. ${
+    claim: `V0 (the empty mesh) is frozen under m1 (not rerun). Transition of m1 (cold start): ${bracketText('I-B', b)}; ${bracketText('I-A', brackets['I-A'])}; ${bracketText('I-C', brackets['I-C'])}. ${
       passing.length > 0
         ? `A confining string with an unbroken Z3 centre (S0, S2 to S4) holds for m1 on the period-8 cusp at ${passing.length} of ${ib.length} fills (${passing.map(r => `f ${r.fill} chi22 ${r.chi22.value.toFixed(3)} +- ${r.chi22.error.toFixed(3)}`).join(', ')}), only at energy per link >= ${lowestPassing.toFixed(3)}`
         : 'No settled m1 fill on the period-8 cusp gives a confining string with a Z3 centre'
     }; ${floorStable.length} floor-stable (${floorRows.map(x => `f ${x.fill}: I-A chi22 ${fmt(x.a?.chi22.value ?? null)} string ${x.ga?.string ? 1 : 0}, I-C chi22 ${fmt(x.c?.chi22.value ?? null)} string ${x.gc?.string ? 1 : 0}, shift ${fmt(x.shift)}`).join('; ')}); ${unsettledPasses.length} unsettled would-be passes; instruments ${instrumentsHold ? 'hold' : 'FAIL'}. Orientation joining not tested and not claimed`,
     metrics,
     control: { c1: c1 ? 1 : 0 },
-    notes: `L2, mirrored grade. Gates: board-0041 what, gate 8056266ef710. Instruments: ${JSON.stringify({ 'I-B': grid.instruments['I-B'], 'I-A': floor.instruments['I-A'], 'I-C': floor.instruments['I-C'] })}. Reversal: ${JSON.stringify(floor.reversal)}.`,
+    notes: `L2, mirrored grade. Gates registered before the run, gate 8056266ef710. Instruments: ${JSON.stringify({ 'I-B': grid.instruments['I-B'], 'I-A': floor.instruments['I-A'], 'I-C': floor.instruments['I-C'] })}. Reversal: ${JSON.stringify(floor.reversal)}.`,
   })
 }
 

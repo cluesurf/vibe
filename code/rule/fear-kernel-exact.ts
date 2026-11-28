@@ -5,7 +5,7 @@
 // singlet phase from Math.cos and Math.sin, forms the Wigner kernel K(x, y) = Tr(A(x) U A(y) U^dagger) / 9 in
 // floating point, and then searches for the smallest divisor d with every d K within 1e-9 of an integer and
 // rounds. The result is exact, but it is reached through continuity and a rounding, which the base may not do
-// (the user's rule of 2026-09-26). The E-MTH-0025 audit finds it: the fear port (code/measure/fear-port)
+// (the author's rule of 2026-09-26). The E-MTH-0025 audit finds it: the fear port (code/measure/fear-port)
 // hands these tables to the knit's fear beat.
 //
 // Here every angle the fear beat uses is a cube root of unity, so the angle is a trit k in Z_3 and the phase

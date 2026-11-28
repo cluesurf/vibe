@@ -1,4 +1,4 @@
-// PBR'S READING FROM THE RULE'S OWN FEAR-BEAT WORDS, EXACT IN Q(w) (E-QTM-0191, quantum-coverage-0020, decision 001,
+// PBR'S READING FROM THE RULE'S OWN FEAR-BEAT WORDS, EXACT IN Q(w) (E-QTM-0191,
 // OPEN-QTM-15). E-QTM-0170: no Clifford reading is a PBR reading, so in the model PBR can bite only through a fear
 // beat. E-QTM-0180 (floats, zero test at 1e-12): no word of X, Z, S, F on each role and the like meeting U to length 7
 // is a PBR reading for two roles prepared in |0> or |+>, the least largest leftover falling 0.111 to 0.021. This file

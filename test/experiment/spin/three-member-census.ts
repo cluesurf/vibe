@@ -1,6 +1,6 @@
 // THE THREE-MEMBER CENSUS ON THE REGISTER, BY THE RULE'S OWN CHARGE AND SPIN (E-SPN-0192, OPEN-MAT-01, E-SPN-0189's open
-// census; note/project/vibe/roadmap/moving-matter item 0003, spec row B1). RULE: the candidate (register) rule, so the
-// result is provisional until the rule is adopted (moving-matter item 0006).
+// census; the moving-matter roadmap, spec row B1). RULE: the candidate (register) rule, so the
+// result is provisional until the rule is adopted.
 //
 // E-SPN-0189 found that one register member carries (love - fear)/3 = -1/3 or +1/3 in each half and spin one half, so
 // charge one needs three like-tone members. This file asks the next question: which three-member states does the
@@ -10,7 +10,7 @@
 // over the husk planes 01, 02, 12), the chirality is each member's J half. Everything is integer and every
 // multiplicity an exact rank.
 //
-// STATISTICS. Item 0002 (the exchange sign from the rule) has not landed, so the gate runs on the fermionic default
+// STATISTICS. An earlier step (the exchange sign from the rule) has not landed, so the gate runs on the fermionic default
 // (wedges) and the bosonic table (monomials) is read beside it, gating nothing.
 //
 // DERIVED BEFORE THE GATE RUN (L1).
@@ -45,7 +45,7 @@
 //  table, and the two-member fermionic rows (the |Q| = 2/3 and 0 states).
 //
 // WHAT THIS CAN AND CANNOT SHOW. It counts which (Q, J, chirality) a three-member state on one level can have, by the
-// rule's own charge and rotation. It does not bind them (item 0004), does not place members on different levels (with
+// rule's own charge and rotation. It does not bind them, does not place members on different levels (with
 // distinct orbitals any spatial symmetry is available and the table is the unprojected one, C1), and does not count the
 // slot structure of a level beyond the register: the member's level is the register's 8-fold copy (E-SPN-0160), which
 // is what the spin acts on here.
@@ -55,7 +55,7 @@
 //    and 2 at n+ = 2, 1; 56 states per tone. Under Gauss (n+ even): 8 doublets at n+ = 2 and 2 at n+ = 0.
 //  - |Q| = 1/3: 448 states (J = 1/2 and 3/2 at every n+). |Q| = 2/3: 0 three-member states, the gap; two members carry
 //    it (56 states, J = 0 and 1).
-//  - Bosonic, read: the same 10 J = 1/2 doublets per tone, more J = 3/2 (816 states), so B1 does not hang on item 0002.
+//  - Bosonic, read: the same 10 J = 1/2 doublets per tone, more J = 3/2 (816 states), so B1 does not hang on an earlier step.
 //  - I1 holds, C1 (unprojected 512 states of |Q| = 1, J = 1/2 against 80) and C2 (48 twisted rows, none half-integer).
 //
 // DETERMINISM: no random numbers. EXACT: integer matrices, BigInt ranks.
@@ -195,7 +195,7 @@ export function threeMemberCensusRun(): Verdict {
       twistedHalfIntegerRows: twistedHalfInteger.length,
       twistedRows: twisted.rows.length,
     },
-    notes: `L1, exact. Fermionic default (item 0002 not landed). |Q| = 1 per tone (Q = -1, love-sea holes): ${fermiOne
+    notes: `L1, exact. Fermionic default (an earlier step not landed). |Q| = 1 per tone (Q = -1, love-sea holes): ${fermiOne
       .filter(r => r.charge3 === -3)
       .map(formatRow)
       .join('; ')}. Under Gauss (n+ even): ${gauss.map(formatRow).join('; ')}. Quark rows, Q = +1/3: ${quarkRows

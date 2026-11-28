@@ -20,6 +20,8 @@ case "$1" in
     cd "$W/test" || exit 2
     run "$2" > "$L" 2>&1
     echo "exit=$?" >> "$L"
+    # the log is committed: a crash's stack trace must not name this machine's paths
+    node "$W/node_modules/tsx/dist/cli.mjs" --tsconfig "$W/tsconfig.json" --no-warnings=ExperimentalWarning "$W/task/scrub-log.ts" "$L"
     head -2 "$L" ;;
   rerun) cd "$W/test" || exit 2; run "$2" ;;
   *) echo "usage: spn219.sh verdict 1|2 | rerun 1|2"; exit 2 ;;

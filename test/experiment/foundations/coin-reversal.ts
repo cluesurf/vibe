@@ -1,4 +1,4 @@
-// THE COIN'S PLACE AND THE MOTION REVERSAL (item vibe-roadmap-grounding-0014). The working rule (coined, veto 'none',
+// THE COIN'S PLACE AND THE MOTION REVERSAL. The working rule (coined, veto 'none',
 // contact 'pass', trivial links) fails T = K S R (code/measure/locked-parity motionReversal) on E-FND-0178's X1 start
 // and nowhere else. This file asks why, and whether another antiunitary is kept.
 //
@@ -583,7 +583,7 @@ export function coinReversal(
           ? `a coin-dressed antiunitary is kept on every start: ${found.join(', ')}`
           : `gates failing: ${failing.join(', ')}`,
     metrics,
-    notes: `Gates: grounding-0014 what. First witness: ${JSON.stringify(box?.first)}. ${readings
+    notes: `Gates registered before the run. First witness: ${JSON.stringify(box?.first)}. ${readings
       .map(x => `${x.r.name} (${x.spec.gated ? 'gated' : 'reported'}, ${x.r.seconds.toFixed(0)} s): ${JSON.stringify(x.gates)}`)
       .join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })

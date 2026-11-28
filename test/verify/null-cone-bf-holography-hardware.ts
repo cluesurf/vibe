@@ -14,7 +14,7 @@
 //   G6: Parabolic-Cusp No-Shortcut (0/300 on D = 0 cap B_2) vs Outer-Shell Hyperbolic Shortcuts
 //       (C_2, C_3 in B_3) & 4-Qubit Bare-U M_meet Double-Bell-Pair Cross-Talk Witness.
 //
-// Strictly deterministic (ZERO Math.random()), standalone (ZERO external imports), laptop-safe
+// Strictly deterministic (ZERO Math.random()), standalone (ZERO external imports), fast
 // (< 6.0 s, < 200 MB RSS), fail-closed (exit code 1 on any failure), strict TypeScript
 // (noUncheckedIndexedAccess-safe), ending with `export {}`.
 

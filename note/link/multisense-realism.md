@@ -63,4 +63,3 @@ rightly rejects.
 
 - [../triangulating-invariants.md](../triangulating-invariants.md), the method and the full list of recurring invariants across theories.
 - [readme.md](readme.md), the index of every theory map.
-- Fuller by-author treatment: `deck/note/base/multisenserealism.com/notes/` (with `s33light` as the secondary Substack source).

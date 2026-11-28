@@ -34,7 +34,7 @@
 //             and diagonal-only 8-Majorana/site sector (4-fold atomic degeneracy, gap collapses, chi diverges)
 //
 // Modes:
-//   --smoke (default; laptop-safe < 6 s, < 300 MB RAM, saves tmp/d4-qcd-smg-smoke.json)
+//   --smoke (default; fast < 6 s, < 300 MB RAM, saves tmp/d4-qcd-smg-smoke.json)
 //   --full  (full multi-threaded production run; saves tmp/d4-qcd-smg-results.json)
 //
 // Strictly deterministic (Mulberry32 PRNG, ZERO Math.random()), zero external packages,

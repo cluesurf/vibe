@@ -36,7 +36,7 @@
 //             truncation sum d_R^2 and explicit scope of finite-L G_0 vs inductive-limit Gamma symmetry.
 //
 // Standalone, zero external imports, zero Math.random (deterministic LCG used only for SU(3) Haar probes),
-// strict TypeScript (--strict --noUncheckedIndexedAccess clean), laptop-safe (< 8 s, < 200 MB RSS).
+// strict TypeScript (--strict --noUncheckedIndexedAccess clean), fast (< 8 s, < 200 MB RSS).
 
 const T0_MS = performance.now()
 const PI = Math.PI

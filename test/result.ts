@@ -30,6 +30,7 @@ import {
   challengeId,
 } from '@/code/research/index'
 import type { Check, Result } from '@/code/research/index'
+import { scrubPrivate } from '@/code/tool/private-path'
 import '@/test/experiment/all'
 
 const [command, ...rest] = process.argv.slice(2)
@@ -227,7 +228,8 @@ function audit({
     passed: failed === 0,
   }
 
-  const json = JSON.stringify(record, null, 2)
+  // the capsule is committed: a verdict's claim or an experiment's file can carry an absolute path, scrubbed here
+  const json = scrubPrivate(JSON.stringify(record, null, 2))
 
   if (commit) {
     const path = `${CAPSULE_DIRECTORY}/${result.code}.json`

@@ -1,4 +1,4 @@
-// THE COLD BULK ON THE LIGHT CONE (item vibe-roadmap-grounding-0019; B3's engine; grounding decisions 002, 003, 004).
+// THE COLD BULK ON THE LIGHT CONE (B3's engine).
 // B3 (E-SLF-0183) put B1's bound cluster (E-SLF-0182, E-SPN-0093's level) and its bath on an open honeycomb line that
 // runs into the calm vacuum, and found the open line loses the cluster's excess only about 20 percent slower than B1's
 // closed ring. Its dense engine held every configuration of 32 docks, exact for 4 beats at W 12, so the keeping time
@@ -7,11 +7,11 @@
 //
 // WHY A LINE IS THE HONEYCOMB HERE (E-SLF-0183): the working rule's beat is a product of line maps, a state on one line
 // stays on it, and a honeycomb line is an open geodesic; E-SLF-0183's L1 checked the line law on the exact ball and O1
-// that ODD (decision 003) is silent on a line (at most 2 vibes a dock, under ODD's k* = 4). The line here is long
+// that ODD is silent on a line (at most 2 vibes a dock, under ODD's k* = 4). The line here is long
 // enough that no love reaches its ends in the run (E3), so it is the infinite line of empty docks exactly.
 //
-// THE RULE: B1's line sector (E-SPN-0103 cost and sign, pass contact, flat links) in floats with the split coin D P D
-// (decision 004). E1 checks the sparse engine against cold-line.ts (itself checked against E-SPN-0104's ring form,
+// THE RULE: B1's line sector (E-SPN-0103 cost and sign, pass contact, flat links) in floats with the split coin D P D.
+// E1 checks the sparse engine against cold-line.ts (itself checked against E-SPN-0104's ring form,
 // pointBeatWith, in E-SLF-0182 and E-SLF-0183) amplitude for amplitude, with the split coin and the coin-before beat.
 //
 // GATES, fixed in the item's what before this file existed (2026-11-15): C1, E1, E2, E3, I4, C2, the growth law, the
@@ -22,10 +22,10 @@
 // PREDICTION (before the first run): n 6 reaches 12 to 20 beats (N near t^5), n 9 only 2 to 4; tau_open is measured
 // between 5 and 12 beats at W 12 k 3, so (b) fails measured.
 //
-// SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, Lo 24, CAP 2e6, 32 beats; seconds on the laptop).
-// CONE_SWEEP=full for the M3 (box-12 level, W 12 and W 15, k 3 and 6, 256 beats, CAP 1.5e8).
+// SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, Lo 24, CAP 2e6, 32 beats; seconds on a small machine).
+// CONE_SWEEP=full for a large machine (box-12 level, W 12 and W 15, k 3 and 6, 256 beats, CAP 1.5e8).
 //
-// SMOKE (laptop, 2026-11-15, no evidence): the first probe stopped at E3 (4 reversal beats pass the 2e6 smoke cap; the
+// SMOKE (small machine, 2026-11-15, no evidence): the first probe stopped at E3 (4 reversal beats pass the 2e6 smoke cap; the
 // smoke reversal is now 3 beats); the second ran, open by rule.
 //
 // FULL RUN (M3, 2026-11-15, clone cone-bulk, 5,653 s, light slot, gate e0f91c26f6f8): OPEN. C1 exact, E1 0 (all

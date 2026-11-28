@@ -1,4 +1,4 @@
-// EXACT DISCRETE-TIME UNITARY CUSP DOMAIN WALL IN Z[zeta_9][1/6] (E-SPN-0222, gaps B-23, B-55).
+// EXACT DISCRETE-TIME UNITARY CUSP DOMAIN WALL IN Z[zeta_9][1/6] (E-SPN-0222).
 // Lifts E-SPN-0221's Hermitian Kaplan/Shamir domain wall to a true discrete-time split-step unitary quantum walk
 // U(k) = (V_1(k) V_2(k) V_1(k) (x) I_2) * S_husk(k) on a one-sided cusp column D = 0..23 (matching {3,4,3,4}'s
 // 18-down / 0-up cusp boundary).
@@ -25,7 +25,7 @@ export default experiment({
   id: 'spin/unitary-cusp-domain-wall',
   code: 'E-SPN-0222',
   title:
-    'Exact discrete-time split-step unitary cusp domain wall in Z[zeta_9][1/6] localizes one chiral Weyl cone at D=0, gaps all 7 3D doublers, and verifies symbolic Q(zeta_9) unitarity (B-23, B-55)',
+    'Exact discrete-time split-step unitary cusp domain wall in Z[zeta_9][1/6] localizes one chiral Weyl cone at D=0, gaps all 7 3D doublers, and verifies symbolic Q(zeta_9) unitarity',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

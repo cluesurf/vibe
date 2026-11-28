@@ -1,4 +1,4 @@
-// A STATIC Z3 CAGE ON LARGER CELLS, OR FROM THE GRID MOVES? (note/project/vibe/roadmap/moving-matter item 0082,
+// A STATIC Z3 CAGE ON LARGER CELLS, OR FROM THE GRID MOVES? (the moving-matter roadmap,
 // research/outside-the-box.md 3.2). Explores whether any uniform static colour field could stop a lone third exactly:
 // all-non-flat centre fields on 2- and 3-dock cells (family B), or grid-move fields whose links are the qutrit Weyl
 // displacements D(v_d) of a linear v: D4 -> Z3^2 (family G), read with 0074's cage engine and velocity carried to any
@@ -12,7 +12,7 @@
 //  plain and Wilson sets (half +); a class is kept when the start weight on phases that move by 1e-9 or more is under
 //  1e-6 (the flat-weight tolerance of the gate) on both. STEP 2: survivors get C_inf and flat weight on nk 20 and 40.
 //
-// GATES, fixed 2026-10-09 before any read (item 0082):
+// GATES, fixed 2026-10-09 before any read:
 //  CONFINED  some class reads C_inf under 1e-6 with flat weight within 1e-6 of 1 on BOTH sets
 //  NONE      no class does
 //  OPEN      STEP 0 fails, or a family is not fully screened (the covered fraction reported)

@@ -1,4 +1,4 @@
-// Which mesh does an experiment build? (vibe-roadmap-board-0024)
+// Which mesh does an experiment build?
 //
 // The `3434` tag and an experiment's title say nothing reliable about the mesh it runs on: on 2026-11-12 1,016 files
 // carried the tag, box runs included. This module reads the code instead. It parses every module under code/ and

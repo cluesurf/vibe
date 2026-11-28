@@ -1,6 +1,6 @@
 // FULL COSMIC HISTORY (RADIATION w = +1/3 -> MATTER w = 0 -> DARK ENERGY w = -1)
 // VIA REVERSIBLE MULTI-VIBE DENSITY BACKREACTION ON THE FIXED {3,4,3,4} HONEYCOMB
-// (E-CSM-0065, gaps B-18, B-42; follow-up to E-CSM-0064 and E-GRV-0157).
+// (E-CSM-0065; follow-up to E-CSM-0064 and E-GRV-0157).
 //
 // In E-CSM-0064, a single dilute disturbance on the fixed infinite {3,4,3,4} honeycomb (N_D = 1, 18, 330, 6034;
 // r_vol = 6034/330 = 18.28485; zero mesh growth) immediately enters pure de Sitter expansion (H_inf, q = -1,

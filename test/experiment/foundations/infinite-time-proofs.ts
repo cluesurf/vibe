@@ -1,4 +1,4 @@
-// INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
+// INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185).
 // Verifies the six core infinite-time (forall t : Nat / forall F : Nat) BigInt algebraic proof certificates
 // (T1-T6) in code/measure/infinite-time-proofs.ts alongside an audit of the full Lean 4 proof suite
 // (code/proof/Vibe.lean + code/proof/Vibe/*.lean) and its compiled .olean build artifacts (pnpm check:lean
@@ -6,13 +6,13 @@
 //   1. V1 eternal stationarity (forall t : Nat) + zero entropy export outside light cone
 //   2. forall t : Nat unitarity & exact reversibility + exact Z[zeta_9][1/6] gate unitarity
 //      for C, D, F-G, M_pair(zeta_18), ODD value phase, and ODD-octet G_8
-//   3. SU(2) gate density & infinite order (B-07, forall n >= 1) via elementary 2-adic parity
+//   3. SU(2) gate density & infinite order (forall n >= 1) via elementary 2-adic parity
 //      2^n Tr(W^n) = 1 (mod 2) (zero Kronecker/Niven black box)
 //   4. M_pair(u) exact unitarity, forall t 4D s-wave eigenstate, forall t transverse fixation,
 //      and exact irreducible cubic spectral gap at u = zeta_18 = -zeta_9^5
-//   5. 1/N_D^2 column resistance divergence 17 R(F) + 1 >= 18^F (forall F : Nat, B-14, B-52)
+//   5. 1/N_D^2 column resistance divergence 17 R(F) + 1 >= 18^F (forall F : Nat)
 //   6. Universal speed lock c_grav^2 = c_light^2 = c_matter^2 = K_eff / M_eff (forall F >= 1,
-//      B-41, m-29) and strict subluminal causality for all F >= 2 on the {3,4,3,4} cusp.
+//      B-41) and strict subluminal causality for all F >= 2 on the {3,4,3,4} cusp.
 //
 // Depth L2: pure exact BigInt algebra + Lean 4 source and .olean build-artifact audit. Zero floats, zero RNG.
 

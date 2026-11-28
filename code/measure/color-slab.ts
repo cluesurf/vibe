@@ -1,4 +1,4 @@
-// THE RULE'S OWN COLOUR ON THE WALL SLAB (moving-matter item 0049, key 1 of research/mass-inputs.md). The register member
+// THE RULE'S OWN COLOUR ON THE WALL SLAB (key 1 of research/mass-inputs.md). The register member
 // of E-FRC-0267's chiral slab (code/measure/anomaly-matching-walls chiralSlab: one sector half, 96 modes a dock, the
 // Wilson set on the depth classes below L / 2 and the plain set above) carried as a colour triplet: the slot crossing link
 // (x, d) turns the colour by the link's Sigma(648) matrix (code/measure/holonomy-caging roleLinks, E-SPN-0132's frozen
@@ -29,7 +29,7 @@
 //                        cluster at pi (STEP 2's 24 wall levels: +delta and -delta are degenerate in A, and the cluster's
 //                        spread in A, delta^2 / 2, is below what a single-vector Krylov space resolves)
 //   colorClusterU        the same filter, with the Rayleigh-Ritz, window, guard and stop all on U over the whole block
-//                        (item 0072: A squares the offset, so a split cluster near pi merges in A's eigHermitian)
+//                        (A squares the offset, so a split cluster near pi merges in A's eigHermitian)
 //   d3Read               the wall-A window projector diagonalized in the window levels' span, M the A-to-B block of
 //                        H_eff = -wrap(phase - pi), D3 = |det M|^(1/4), the singular values of M
 //
@@ -1513,12 +1513,12 @@ export function colorCluster(op: ColorOp, opt: ClusterOptions): ColorCluster {
   }
 }
 
-// ---- the same cluster, resolved on U itself (item 0072, after 0070's diagnosis) ----
+// ---- the same cluster, resolved on U itself (after the earlier diagnosis) ----
 //
 // colorCluster resolves its window in A = -(U + U^dag) / 2, which squares a level's offset from pi: at slab L 12 the 24
 // wall levels sit near 1.2e-4, so A holds them within 8e-9 of its edge, and a field that splits them leaves A gaps near
 // eigHermitian's absolute merge tolerance (1e-10). Its window vectors then come back inexact and the block residual floors
-// (note/project/vibe/traps.md, 2026-10-09). colorClusterU keeps the start, the Chebyshev filter on A (the filter treats the
+// (the traps notes, 2026-10-09). colorClusterU keeps the start, the Chebyshev filter on A (the filter treats the
 // cluster as one, which is fine) and orthonormalBlock, and then each pass runs the Rayleigh-Ritz on U over the WHOLE
 // orthonormal block, which is linear in the offset. A level's offset is its U-Ritz phase. Window membership, the guard and
 // aboveCut come from each U-Ritz vector's chord distance acos(-Re <x|U x>), which equals |offset| on a converged level and
@@ -1584,7 +1584,7 @@ export function colorClusterU(op: ColorOp, opt: ClusterOptions): ColorClusterU {
     // each Ritz vector's chord distance from pi, acos(-Re <x|U x> / <x|x>): a converged level has |rho| = 1 and reads its
     // own |offset|, while an unconverged mix of levels on both sides of pi has its phase near pi but |rho| < 1, and its
     // -Re rho is at most the largest cos(offset) among the levels it mixes (the numerical range of U on them is their
-    // convex hull), so the chord test keeps it outside the window (item 0072, first frozen L 8 run: 2 and 3 such mixes
+    // convex hull), so the chord test keeps it outside the window (first frozen L 8 run: 2 and 3 such mixes
     // read inside the window by phase, residual 0.75 and 0.82)
     const chord = rr.levels.map(l => {
       const [r] = dotM(op, l.vector, applyU(op, l.vector))

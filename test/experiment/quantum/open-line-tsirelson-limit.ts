@@ -1,4 +1,4 @@
-// OPEN-LINE TSIRELSON LIMIT & RING-MADE OBSERVABLE BOUND (E-QTM-0202, item vibe-roadmap-board-0046, gap B-08).
+// OPEN-LINE TSIRELSON LIMIT & RING-MADE OBSERVABLE BOUND (E-QTM-0202).
 // Extends E-QTM-0199's open-line two-love FULL CHSH series to beats 32, 64, 128, 256, and 512 without any wrap,
 // and tests constructive Z[w][1/6] unit observables on both the one-meeting point knot (ceiling sqrt 7) and a
 // maximally entangled singlet (ceiling 2 sqrt 2).

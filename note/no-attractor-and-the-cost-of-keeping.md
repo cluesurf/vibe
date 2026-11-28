@@ -9,18 +9,16 @@ attract, repair, capture or select restates theorem 1. Cite this note instead an
 run on what the theorems leave open (the last section but one).
 
 **Scope, first.** Both theorems are proved for a finite box. The model's mesh is the whole
-infinite {3,4,3,4} honeycomb, and its present is an amplitude state (board decisions 001 and
-003). Neither theorem carries over to it as stated: on an infinite set a bijection can map a
+infinite {3,4,3,4} honeycomb, and its present is an amplitude state (the board's
+decisions). Neither theorem carries over to it as stated: on an infinite set a bijection can map a
 set strictly into itself, and what a region can lose is bounded by its surface instead
 ([reversible-lean-and-the-open-mesh.md](reversible-lean-and-the-open-mesh.md), section 5). A
 finite box is still the right setting for every run on a flat or wrapped box, which is every
 run the simulator makes today.
 
-Written 2026-11-12 from research 21
-(`note/project/vibe/research/21-intention-and-grounding.md` in the ClueSurf repo, section 1
+Written 2026-11-12 from the intention and grounding research (section 1
 and the G4 row of section 4). Amended the same day after the advisory board's round 01 to 03
-(objections S-3, S-6, S-12, Q-10, G-8, S2-4, S3-1; records in
-`note/project/vibe/roadmap/board/` in the ClueSurf repo): the unitary form of theorem 1, the
+(objections S-3, S-6, S-12, Q-10, G-8, S2-4, S3-1): the unitary form of theorem 1, the
 mutual-information form of theorem 2, the lean cap's true reach, and growth marked as an
 injection outside both theorems.
 
@@ -141,9 +139,9 @@ whole entropy. The independent case above is I(S : E) = 0
 twice the entropy of S, and a global unitary can restore S while the entropy of E falls (del
 Rio, Åberg, Renner, Dahlsten and Vedral, Nature 474, 2011). A cost appears only when the
 repair's reach is limited: it is the conditional entropy of S given the part of E inside the
-repair's light cone. Under board decision 001 the present is one pure amplitude state, so
+repair's light cone. Under the board's decision the present is one pure amplitude state, so
 this is the form that applies to the model, and the classical theorem holds only for errors
-whose correlations have left the repair's reach. Under decisions 001 and 007 the target also
+whose correlations have left the repair's reach. Under the decisions the target also
 depends on the record branch, since a repair to one fixed p would count a self's own records
 as errors: the cost of keeping a form F is H(F | R, E_R), with R the self's records and E_R
 the part of the rest within reach (objection S3-1, the same section 4).
@@ -162,7 +160,7 @@ of how strongly a pattern is grounded (research 21, G4).
 **Growth is outside both theorems** (objections S-6, G-8). Research 21 named growth (born
 docks written in a known state) as the cold reservoir. As sketched, growth is an injection,
 never run backward, so it is not a bijection of any finite X and neither theorem applies to a
-box that grows. It is not a base thing either: board decision 003 removed it, and the mesh is
+box that grows. It is not a base thing either: the board's decision removed it, and the mesh is
 the whole infinite honeycomb, on which the rule is a bijection of the states that differ from
 a known vacuum on a finite set. Whether that infinite mesh supplies a cold channel is
 conditional, not given. It needs reach (a line mixer), a vacuum that is locally cold and
@@ -210,9 +208,8 @@ times, overlaps), not the yes or no.
   reservoir is needed and how much it must take. It does not say which register can carry the
   export without screening gravity (E-GRV-0094 took content and screened it). That is
   research 21's B3.
-- **A value arrow.** A piece that treats love and fear differently, as grounding decision 001
-  asks (`note/project/vibe/roadmap/grounding/decision/001-the-rule-tells-pleasure-from-pain.md`
-  in the ClueSurf repo), is still reversible, so on a closed box it cannot be a downhill flow
+- **A value arrow.** A piece that treats love and fear differently, as the
+  grounding decisions ask, is still reversible, so on a closed box it cannot be a downhill flow
   toward pleasure. On a finite box the lean of a C-odd reading is capped by
   M · √(2 (ln|X| − H)), but that cap binds only an ensemble close to uniform. It limits
   nothing for one history, one configuration, one pure present or the infinite mesh, so the
