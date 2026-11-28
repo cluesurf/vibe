@@ -30,9 +30,11 @@ is exported from the TypeScript module itself (task/lean-export.ts). This module
 5. `thm_beat_link_q0_gates` (B6): on the family the code's beat output has norm exactly 1, keeps the
    charge, the excitation count and the `+1` count of every configuration, and `fockBeatDag`
    inverts it exactly.
-6. `gen_bare_beat_walk_eq` and `thm_beat_link_q5_walk` (B12): the lone vibe (slot 0, `+1`, role 0)
-   under `fockBeat χ` for beats 0 to 16 is bare-beat's walk on line 0, and its second moments and
-   returns to the start dock are q-ladder Q5's printed table.
+
+**Not here: B12.** The Q5 lone walk to beat 16 is exported (`bareBeatWalk`, `bareBeatLineCenters`,
+`bareBeatWalkMoments`, `bareBeatWalkReturns`; the exporter checks them against q-ladder Q5's printed
+table) but not bridged: frames `k_0^m` up to `m = 16` built as `Mat5` closures cost the kernel about
+3.6 GB for the 33 centers alone, too heavy for the laptop. A follow-up item bridges them.
 
 **The family.** At the base dock (frame `mat5Id`, bare-beat's dock 0): every one-excitation state
 (96), every two-excitation state with an excitation on line 0, slot 0 or its opposite (720), and
@@ -44,7 +46,7 @@ carries a role number per vibe and uses up to 9 in the Q1 and Q3b experiments. E
 is about roles 0 and 1 (`false`, `true`). Roles 2 and above are outside the Lean Fock model, so the
 role-SWAP of Q1, the three-role Yang-Baxter of Q3b and the 216-parity count stay TypeScript-only.
 
-**Limits.** Equality with the code holds on the exported family and walk, not on every state.
+**Limits.** Equality with the code holds on the exported family, not on every state.
 `Φ_odd` is checked silent there for any silent `χ`; its 4-vibe orbit sign is not linked. Two
 excitations on two lines that both miss line 0 are left out of the family (the layers act on them
 as on two lone lines, but no theorem here says so).
@@ -821,17 +823,11 @@ theorem bl_step {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 Hon
   obtain ⟨r, hr, rfl⟩ := List.mem_map.mp hpq
   exact hc q.1 (hxs q hq) r hr
 
-/-- The table-wide check for a layer. -/
-def blTableOk (L : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig)
-    (T : List (List Nat)) : Bool :=
-  (List.range blN).all (blLayerOk L T)
-
 theorem bl_table_of_ok (U : FockUnitary NinthLoc6 HoneycombConfig) (T : List (List Nat))
-    (h : blTableOk U.op T = true) :
+    (h : ∀ k < blN, blLayerOk U.op T k = true) :
     (∀ k < blN, U.op (ket (blCfgF k)) = blComboR blCfgF (blRowsR T k)) ∧ BlClosed T := by
-  rw [blTableOk, List.all_eq_true] at h
-  refine ⟨fun k hk => bl_layer_of_ok U T k (h k (List.mem_range.mpr hk)), fun k hk q hq => ?_⟩
-  have hk' := h k (List.mem_range.mpr hk)
+  refine ⟨fun k hk => bl_layer_of_ok U T k (h k hk), fun k hk q hq => ?_⟩
+  have hk' := h k hk
   simp only [blLayerOk, Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq] at hk'
   exact (hk'.1.1 (q.1, blToN q.2) (List.mem_map_of_mem hq)).1
 
@@ -1056,37 +1052,7 @@ theorem gen_bare_beat_layers_eq :
         (fockHalfCoin (fockPhiOdd χ ψ))))))) :=
   ⟨by decide, by decide, fun _ _ => rfl⟩
 
-/-! ## The bridges: the five dock-local layers on the family -/
-
-theorem bl_coin_ok : blTableOk fockHalfCoin Generated.bareBeatLayer_coin = true := by decide +kernel
-
-theorem bl_bounce_ok : blTableOk fockBounceK Generated.bareBeatLayer_bounce = true := by decide +kernel
-
-theorem bl_pair_ok : blTableOk fockMPair Generated.bareBeatLayer_pair = true := by decide +kernel
-
-theorem bl_meet_ok : blTableOk fockMeet Generated.bareBeatLayer_meet = true := by decide +kernel
-
-theorem bl_phi_ok : (List.range blN).all (blPhiRowOk Generated.bareBeatLayer_phi) = true := by decide +kernel
-
-/-- **Layer bridge.** On every family state, each dock-local layer of bare-beat.ts (its exported table)
-    is the Lean layer, as a vector of the Fock space: `fockHalfCoin` (D), `fockBounceK` (K), `fockMPair`
-    (`M_pair(ζ_18)`), `fockMeet` (`M_meet`), and `fockPhiOdd χ` for every silent `χ` (`Φ_odd`, the identity
-    on the family). -/
-theorem gen_bare_beat_family_eq (χ : ChiralInvariant) (hχ : BlSilent χ) (k : Nat) (hk : k < blN) :
-    fockHalfCoin (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_coin k) ∧
-    fockBounceK (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_bounce k) ∧
-    fockMPair (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_pair k) ∧
-    fockMeet (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_meet k) ∧
-    fockPhiOdd χ (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_phi k) := by
-  have hphi := bl_phi_ok
-  rw [List.all_eq_true] at hphi
-  refine ⟨(bl_table_of_ok fockHalfCoinUnit _ bl_coin_ok).1 k hk,
-    (bl_table_of_ok fockBounceKUnit _ bl_bounce_ok).1 k hk,
-    (bl_table_of_ok fockMPairUnit _ bl_pair_ok).1 k hk,
-    (bl_table_of_ok fockMeetUnit _ bl_meet_ok).1 k hk, ?_⟩
-  rw [bl_phi_family χ hχ k hk, (bl_phi_row _ k (hphi k (List.mem_range.mpr hk))).1]
-
-/-! ## The bridge: the whole beat on the family -/
+/-! ## The family checks, in chunks of 20 states (one kernel check each keeps memory small) -/
 
 /-- The seven dock-local layer tables of the code, composed in `BEAT_LAYERS` order on family state `i`
     (repeated configurations are not merged). -/
@@ -1102,9 +1068,528 @@ def blBeatOk (i : Nat) : Bool :=
   blSameR (blChain i) (blRowsR Generated.bareBeatBeat i) &&
     (blRowsR Generated.bareBeatBeat i).all fun q => decide (q.1 < blN)
 
+/-- Excitations of sign `+1` in a dock. -/
+def blPlus (d : FullDock) : Nat :=
+  ((List.finRange 24).filter fun s => match d s with | .occ .pos _ => true | _ => false).length
+
+/-- Squared norm of a superposition of representatives. -/
+def blNormR {α : Type} : List (α × NinthRaw6) → NinthRaw6
+  | [] => ⟨Ninth.zero, 0⟩
+  | p :: r => blRAdd (blRMul ⟨Ninth.conj p.2.num, p.2.exp⟩ p.2) (blNormR r)
+
+private theorem bl_normR_eq {α : Type} (cf : α → HoneycombConfig) (xs : List (α × NinthRaw6)) :
+    blToN (blNormR xs) = blNormSum (xs.map fun p => (cf p.1, blToN p.2)) := by
+  induction xs with
+  | nil => rfl
+  | cons p r ih =>
+    show blToN (blRAdd _ _) = NinthLoc6.conj (blToN p.2) * blToN p.2 + blNormSum _
+    rw [bl_toN_add, ih]; rfl
+
+/-- The Q0 check of one family state: the code's beat output has norm exactly 1, and every output
+    configuration keeps the charge, the excitation count and the `+1` count. -/
+def blQ0Ok (i : Nat) : Bool :=
+  let rows := blRowsR Generated.bareBeatBeat i
+  decide (NinthRaw6.equiv (blNormR rows) ⟨Ninth.one, 0⟩) &&
+    rows.all fun q =>
+      decide (totalCharge (blCfgF q.1) = totalCharge (blCfgF i)) &&
+      decide (blOcc (blDock (blFam q.1)) = blOcc (blDock (blFam i))) &&
+      decide (blPlus (blDock (blFam q.1)) = blPlus (blDock (blFam i)))
+
+/-- Every check of family state `k`: the four computed layers against their tables, the `phi` table,
+    the composed tables against the beat table, and the Q0 gates. -/
+def blAllOk (k : Nat) : Bool :=
+  blLayerOk fockHalfCoin Generated.bareBeatLayer_coin k &&
+    blLayerOk fockBounceK Generated.bareBeatLayer_bounce k &&
+    blLayerOk fockMPair Generated.bareBeatLayer_pair k &&
+    blLayerOk fockMeet Generated.bareBeatLayer_meet k &&
+    blPhiRowOk Generated.bareBeatLayer_phi k && blBeatOk k && blQ0Ok k
+
+theorem bl_N_eq : blN = 860 := by decide +kernel
+
+private theorem bl_chunk (f : Nat → Bool) (a n : Nat) (h : (List.range' a n).all f = true) (k : Nat)
+    (h1 : a ≤ k) (h2 : k < a + n) : f k = true :=
+  List.all_eq_true.mp h k (List.mem_range'_1.mpr ⟨h1, h2⟩)
+
+theorem bl_all_ok_00 : (List.range' 0 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_01 : (List.range' 8 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_02 : (List.range' 16 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_03 : (List.range' 24 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_04 : (List.range' 32 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_05 : (List.range' 40 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_06 : (List.range' 48 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_07 : (List.range' 56 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_08 : (List.range' 64 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_09 : (List.range' 72 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_10 : (List.range' 80 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_11 : (List.range' 88 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_12 : (List.range' 96 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_13 : (List.range' 104 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_14 : (List.range' 112 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_15 : (List.range' 120 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_16 : (List.range' 128 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_17 : (List.range' 136 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_18 : (List.range' 144 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_19 : (List.range' 152 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_20 : (List.range' 160 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_21 : (List.range' 168 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_22 : (List.range' 176 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_23 : (List.range' 184 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_24 : (List.range' 192 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_25 : (List.range' 200 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_26 : (List.range' 208 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_27 : (List.range' 216 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_28 : (List.range' 224 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_29 : (List.range' 232 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_30 : (List.range' 240 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_31 : (List.range' 248 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_32 : (List.range' 256 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_33 : (List.range' 264 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_34 : (List.range' 272 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_35 : (List.range' 280 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_36 : (List.range' 288 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_37 : (List.range' 296 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_38 : (List.range' 304 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_39 : (List.range' 312 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_40 : (List.range' 320 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_41 : (List.range' 328 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_42 : (List.range' 336 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_43 : (List.range' 344 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_44 : (List.range' 352 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_45 : (List.range' 360 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_46 : (List.range' 368 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_47 : (List.range' 376 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_48 : (List.range' 384 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_49 : (List.range' 392 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_50 : (List.range' 400 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_51 : (List.range' 408 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_52 : (List.range' 416 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_53 : (List.range' 424 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_54 : (List.range' 432 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_55 : (List.range' 440 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_56 : (List.range' 448 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_57 : (List.range' 456 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_58 : (List.range' 464 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_59 : (List.range' 472 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_60 : (List.range' 480 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_61 : (List.range' 488 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_62 : (List.range' 496 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_63 : (List.range' 504 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_64 : (List.range' 512 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_65 : (List.range' 520 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_66 : (List.range' 528 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_67 : (List.range' 536 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_68 : (List.range' 544 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_69 : (List.range' 552 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_70 : (List.range' 560 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_71 : (List.range' 568 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_72 : (List.range' 576 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_73 : (List.range' 584 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_74 : (List.range' 592 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_75 : (List.range' 600 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_76 : (List.range' 608 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_77 : (List.range' 616 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_78 : (List.range' 624 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_79 : (List.range' 632 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_80 : (List.range' 640 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_81 : (List.range' 648 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_82 : (List.range' 656 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_83 : (List.range' 664 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_84 : (List.range' 672 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_85 : (List.range' 680 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_86 : (List.range' 688 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_87 : (List.range' 696 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_88 : (List.range' 704 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_89 : (List.range' 712 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_90 : (List.range' 720 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_91 : (List.range' 728 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_92 : (List.range' 736 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_93 : (List.range' 744 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_94 : (List.range' 752 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_95 : (List.range' 760 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_96 : (List.range' 768 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_97 : (List.range' 776 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_98 : (List.range' 784 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_99 : (List.range' 792 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_100 : (List.range' 800 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_101 : (List.range' 808 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_102 : (List.range' 816 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_103 : (List.range' 824 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_104 : (List.range' 832 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_105 : (List.range' 840 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_106 : (List.range' 848 8).all blAllOk = true := by decide +kernel
+
+theorem bl_all_ok_107 : (List.range' 856 4).all blAllOk = true := by decide +kernel
+
+/-- Every family state passes every check. -/
+theorem bl_all_ok (k : Nat) (hk : k < blN) : blAllOk k = true := by
+  rw [bl_N_eq] at hk
+  have hc : (0 ≤ k ∧ k < 8) ∨
+      (8 ≤ k ∧ k < 16) ∨
+      (16 ≤ k ∧ k < 24) ∨
+      (24 ≤ k ∧ k < 32) ∨
+      (32 ≤ k ∧ k < 40) ∨
+      (40 ≤ k ∧ k < 48) ∨
+      (48 ≤ k ∧ k < 56) ∨
+      (56 ≤ k ∧ k < 64) ∨
+      (64 ≤ k ∧ k < 72) ∨
+      (72 ≤ k ∧ k < 80) ∨
+      (80 ≤ k ∧ k < 88) ∨
+      (88 ≤ k ∧ k < 96) ∨
+      (96 ≤ k ∧ k < 104) ∨
+      (104 ≤ k ∧ k < 112) ∨
+      (112 ≤ k ∧ k < 120) ∨
+      (120 ≤ k ∧ k < 128) ∨
+      (128 ≤ k ∧ k < 136) ∨
+      (136 ≤ k ∧ k < 144) ∨
+      (144 ≤ k ∧ k < 152) ∨
+      (152 ≤ k ∧ k < 160) ∨
+      (160 ≤ k ∧ k < 168) ∨
+      (168 ≤ k ∧ k < 176) ∨
+      (176 ≤ k ∧ k < 184) ∨
+      (184 ≤ k ∧ k < 192) ∨
+      (192 ≤ k ∧ k < 200) ∨
+      (200 ≤ k ∧ k < 208) ∨
+      (208 ≤ k ∧ k < 216) ∨
+      (216 ≤ k ∧ k < 224) ∨
+      (224 ≤ k ∧ k < 232) ∨
+      (232 ≤ k ∧ k < 240) ∨
+      (240 ≤ k ∧ k < 248) ∨
+      (248 ≤ k ∧ k < 256) ∨
+      (256 ≤ k ∧ k < 264) ∨
+      (264 ≤ k ∧ k < 272) ∨
+      (272 ≤ k ∧ k < 280) ∨
+      (280 ≤ k ∧ k < 288) ∨
+      (288 ≤ k ∧ k < 296) ∨
+      (296 ≤ k ∧ k < 304) ∨
+      (304 ≤ k ∧ k < 312) ∨
+      (312 ≤ k ∧ k < 320) ∨
+      (320 ≤ k ∧ k < 328) ∨
+      (328 ≤ k ∧ k < 336) ∨
+      (336 ≤ k ∧ k < 344) ∨
+      (344 ≤ k ∧ k < 352) ∨
+      (352 ≤ k ∧ k < 360) ∨
+      (360 ≤ k ∧ k < 368) ∨
+      (368 ≤ k ∧ k < 376) ∨
+      (376 ≤ k ∧ k < 384) ∨
+      (384 ≤ k ∧ k < 392) ∨
+      (392 ≤ k ∧ k < 400) ∨
+      (400 ≤ k ∧ k < 408) ∨
+      (408 ≤ k ∧ k < 416) ∨
+      (416 ≤ k ∧ k < 424) ∨
+      (424 ≤ k ∧ k < 432) ∨
+      (432 ≤ k ∧ k < 440) ∨
+      (440 ≤ k ∧ k < 448) ∨
+      (448 ≤ k ∧ k < 456) ∨
+      (456 ≤ k ∧ k < 464) ∨
+      (464 ≤ k ∧ k < 472) ∨
+      (472 ≤ k ∧ k < 480) ∨
+      (480 ≤ k ∧ k < 488) ∨
+      (488 ≤ k ∧ k < 496) ∨
+      (496 ≤ k ∧ k < 504) ∨
+      (504 ≤ k ∧ k < 512) ∨
+      (512 ≤ k ∧ k < 520) ∨
+      (520 ≤ k ∧ k < 528) ∨
+      (528 ≤ k ∧ k < 536) ∨
+      (536 ≤ k ∧ k < 544) ∨
+      (544 ≤ k ∧ k < 552) ∨
+      (552 ≤ k ∧ k < 560) ∨
+      (560 ≤ k ∧ k < 568) ∨
+      (568 ≤ k ∧ k < 576) ∨
+      (576 ≤ k ∧ k < 584) ∨
+      (584 ≤ k ∧ k < 592) ∨
+      (592 ≤ k ∧ k < 600) ∨
+      (600 ≤ k ∧ k < 608) ∨
+      (608 ≤ k ∧ k < 616) ∨
+      (616 ≤ k ∧ k < 624) ∨
+      (624 ≤ k ∧ k < 632) ∨
+      (632 ≤ k ∧ k < 640) ∨
+      (640 ≤ k ∧ k < 648) ∨
+      (648 ≤ k ∧ k < 656) ∨
+      (656 ≤ k ∧ k < 664) ∨
+      (664 ≤ k ∧ k < 672) ∨
+      (672 ≤ k ∧ k < 680) ∨
+      (680 ≤ k ∧ k < 688) ∨
+      (688 ≤ k ∧ k < 696) ∨
+      (696 ≤ k ∧ k < 704) ∨
+      (704 ≤ k ∧ k < 712) ∨
+      (712 ≤ k ∧ k < 720) ∨
+      (720 ≤ k ∧ k < 728) ∨
+      (728 ≤ k ∧ k < 736) ∨
+      (736 ≤ k ∧ k < 744) ∨
+      (744 ≤ k ∧ k < 752) ∨
+      (752 ≤ k ∧ k < 760) ∨
+      (760 ≤ k ∧ k < 768) ∨
+      (768 ≤ k ∧ k < 776) ∨
+      (776 ≤ k ∧ k < 784) ∨
+      (784 ≤ k ∧ k < 792) ∨
+      (792 ≤ k ∧ k < 800) ∨
+      (800 ≤ k ∧ k < 808) ∨
+      (808 ≤ k ∧ k < 816) ∨
+      (816 ≤ k ∧ k < 824) ∨
+      (824 ≤ k ∧ k < 832) ∨
+      (832 ≤ k ∧ k < 840) ∨
+      (840 ≤ k ∧ k < 848) ∨
+      (848 ≤ k ∧ k < 856) ∨
+      (856 ≤ k ∧ k < 860) := by omega
+  rcases hc with h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h | h
+  · exact bl_chunk _ 0 8 bl_all_ok_00 k h.1 h.2
+  · exact bl_chunk _ 8 8 bl_all_ok_01 k h.1 h.2
+  · exact bl_chunk _ 16 8 bl_all_ok_02 k h.1 h.2
+  · exact bl_chunk _ 24 8 bl_all_ok_03 k h.1 h.2
+  · exact bl_chunk _ 32 8 bl_all_ok_04 k h.1 h.2
+  · exact bl_chunk _ 40 8 bl_all_ok_05 k h.1 h.2
+  · exact bl_chunk _ 48 8 bl_all_ok_06 k h.1 h.2
+  · exact bl_chunk _ 56 8 bl_all_ok_07 k h.1 h.2
+  · exact bl_chunk _ 64 8 bl_all_ok_08 k h.1 h.2
+  · exact bl_chunk _ 72 8 bl_all_ok_09 k h.1 h.2
+  · exact bl_chunk _ 80 8 bl_all_ok_10 k h.1 h.2
+  · exact bl_chunk _ 88 8 bl_all_ok_11 k h.1 h.2
+  · exact bl_chunk _ 96 8 bl_all_ok_12 k h.1 h.2
+  · exact bl_chunk _ 104 8 bl_all_ok_13 k h.1 h.2
+  · exact bl_chunk _ 112 8 bl_all_ok_14 k h.1 h.2
+  · exact bl_chunk _ 120 8 bl_all_ok_15 k h.1 h.2
+  · exact bl_chunk _ 128 8 bl_all_ok_16 k h.1 h.2
+  · exact bl_chunk _ 136 8 bl_all_ok_17 k h.1 h.2
+  · exact bl_chunk _ 144 8 bl_all_ok_18 k h.1 h.2
+  · exact bl_chunk _ 152 8 bl_all_ok_19 k h.1 h.2
+  · exact bl_chunk _ 160 8 bl_all_ok_20 k h.1 h.2
+  · exact bl_chunk _ 168 8 bl_all_ok_21 k h.1 h.2
+  · exact bl_chunk _ 176 8 bl_all_ok_22 k h.1 h.2
+  · exact bl_chunk _ 184 8 bl_all_ok_23 k h.1 h.2
+  · exact bl_chunk _ 192 8 bl_all_ok_24 k h.1 h.2
+  · exact bl_chunk _ 200 8 bl_all_ok_25 k h.1 h.2
+  · exact bl_chunk _ 208 8 bl_all_ok_26 k h.1 h.2
+  · exact bl_chunk _ 216 8 bl_all_ok_27 k h.1 h.2
+  · exact bl_chunk _ 224 8 bl_all_ok_28 k h.1 h.2
+  · exact bl_chunk _ 232 8 bl_all_ok_29 k h.1 h.2
+  · exact bl_chunk _ 240 8 bl_all_ok_30 k h.1 h.2
+  · exact bl_chunk _ 248 8 bl_all_ok_31 k h.1 h.2
+  · exact bl_chunk _ 256 8 bl_all_ok_32 k h.1 h.2
+  · exact bl_chunk _ 264 8 bl_all_ok_33 k h.1 h.2
+  · exact bl_chunk _ 272 8 bl_all_ok_34 k h.1 h.2
+  · exact bl_chunk _ 280 8 bl_all_ok_35 k h.1 h.2
+  · exact bl_chunk _ 288 8 bl_all_ok_36 k h.1 h.2
+  · exact bl_chunk _ 296 8 bl_all_ok_37 k h.1 h.2
+  · exact bl_chunk _ 304 8 bl_all_ok_38 k h.1 h.2
+  · exact bl_chunk _ 312 8 bl_all_ok_39 k h.1 h.2
+  · exact bl_chunk _ 320 8 bl_all_ok_40 k h.1 h.2
+  · exact bl_chunk _ 328 8 bl_all_ok_41 k h.1 h.2
+  · exact bl_chunk _ 336 8 bl_all_ok_42 k h.1 h.2
+  · exact bl_chunk _ 344 8 bl_all_ok_43 k h.1 h.2
+  · exact bl_chunk _ 352 8 bl_all_ok_44 k h.1 h.2
+  · exact bl_chunk _ 360 8 bl_all_ok_45 k h.1 h.2
+  · exact bl_chunk _ 368 8 bl_all_ok_46 k h.1 h.2
+  · exact bl_chunk _ 376 8 bl_all_ok_47 k h.1 h.2
+  · exact bl_chunk _ 384 8 bl_all_ok_48 k h.1 h.2
+  · exact bl_chunk _ 392 8 bl_all_ok_49 k h.1 h.2
+  · exact bl_chunk _ 400 8 bl_all_ok_50 k h.1 h.2
+  · exact bl_chunk _ 408 8 bl_all_ok_51 k h.1 h.2
+  · exact bl_chunk _ 416 8 bl_all_ok_52 k h.1 h.2
+  · exact bl_chunk _ 424 8 bl_all_ok_53 k h.1 h.2
+  · exact bl_chunk _ 432 8 bl_all_ok_54 k h.1 h.2
+  · exact bl_chunk _ 440 8 bl_all_ok_55 k h.1 h.2
+  · exact bl_chunk _ 448 8 bl_all_ok_56 k h.1 h.2
+  · exact bl_chunk _ 456 8 bl_all_ok_57 k h.1 h.2
+  · exact bl_chunk _ 464 8 bl_all_ok_58 k h.1 h.2
+  · exact bl_chunk _ 472 8 bl_all_ok_59 k h.1 h.2
+  · exact bl_chunk _ 480 8 bl_all_ok_60 k h.1 h.2
+  · exact bl_chunk _ 488 8 bl_all_ok_61 k h.1 h.2
+  · exact bl_chunk _ 496 8 bl_all_ok_62 k h.1 h.2
+  · exact bl_chunk _ 504 8 bl_all_ok_63 k h.1 h.2
+  · exact bl_chunk _ 512 8 bl_all_ok_64 k h.1 h.2
+  · exact bl_chunk _ 520 8 bl_all_ok_65 k h.1 h.2
+  · exact bl_chunk _ 528 8 bl_all_ok_66 k h.1 h.2
+  · exact bl_chunk _ 536 8 bl_all_ok_67 k h.1 h.2
+  · exact bl_chunk _ 544 8 bl_all_ok_68 k h.1 h.2
+  · exact bl_chunk _ 552 8 bl_all_ok_69 k h.1 h.2
+  · exact bl_chunk _ 560 8 bl_all_ok_70 k h.1 h.2
+  · exact bl_chunk _ 568 8 bl_all_ok_71 k h.1 h.2
+  · exact bl_chunk _ 576 8 bl_all_ok_72 k h.1 h.2
+  · exact bl_chunk _ 584 8 bl_all_ok_73 k h.1 h.2
+  · exact bl_chunk _ 592 8 bl_all_ok_74 k h.1 h.2
+  · exact bl_chunk _ 600 8 bl_all_ok_75 k h.1 h.2
+  · exact bl_chunk _ 608 8 bl_all_ok_76 k h.1 h.2
+  · exact bl_chunk _ 616 8 bl_all_ok_77 k h.1 h.2
+  · exact bl_chunk _ 624 8 bl_all_ok_78 k h.1 h.2
+  · exact bl_chunk _ 632 8 bl_all_ok_79 k h.1 h.2
+  · exact bl_chunk _ 640 8 bl_all_ok_80 k h.1 h.2
+  · exact bl_chunk _ 648 8 bl_all_ok_81 k h.1 h.2
+  · exact bl_chunk _ 656 8 bl_all_ok_82 k h.1 h.2
+  · exact bl_chunk _ 664 8 bl_all_ok_83 k h.1 h.2
+  · exact bl_chunk _ 672 8 bl_all_ok_84 k h.1 h.2
+  · exact bl_chunk _ 680 8 bl_all_ok_85 k h.1 h.2
+  · exact bl_chunk _ 688 8 bl_all_ok_86 k h.1 h.2
+  · exact bl_chunk _ 696 8 bl_all_ok_87 k h.1 h.2
+  · exact bl_chunk _ 704 8 bl_all_ok_88 k h.1 h.2
+  · exact bl_chunk _ 712 8 bl_all_ok_89 k h.1 h.2
+  · exact bl_chunk _ 720 8 bl_all_ok_90 k h.1 h.2
+  · exact bl_chunk _ 728 8 bl_all_ok_91 k h.1 h.2
+  · exact bl_chunk _ 736 8 bl_all_ok_92 k h.1 h.2
+  · exact bl_chunk _ 744 8 bl_all_ok_93 k h.1 h.2
+  · exact bl_chunk _ 752 8 bl_all_ok_94 k h.1 h.2
+  · exact bl_chunk _ 760 8 bl_all_ok_95 k h.1 h.2
+  · exact bl_chunk _ 768 8 bl_all_ok_96 k h.1 h.2
+  · exact bl_chunk _ 776 8 bl_all_ok_97 k h.1 h.2
+  · exact bl_chunk _ 784 8 bl_all_ok_98 k h.1 h.2
+  · exact bl_chunk _ 792 8 bl_all_ok_99 k h.1 h.2
+  · exact bl_chunk _ 800 8 bl_all_ok_100 k h.1 h.2
+  · exact bl_chunk _ 808 8 bl_all_ok_101 k h.1 h.2
+  · exact bl_chunk _ 816 8 bl_all_ok_102 k h.1 h.2
+  · exact bl_chunk _ 824 8 bl_all_ok_103 k h.1 h.2
+  · exact bl_chunk _ 832 8 bl_all_ok_104 k h.1 h.2
+  · exact bl_chunk _ 840 8 bl_all_ok_105 k h.1 h.2
+  · exact bl_chunk _ 848 8 bl_all_ok_106 k h.1 h.2
+  · exact bl_chunk _ 856 4 bl_all_ok_107 k h.1 h.2
+
+theorem bl_coin_ok (k : Nat) (hk : k < blN) : blLayerOk fockHalfCoin Generated.bareBeatLayer_coin k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.1.1
+
+theorem bl_bounce_ok (k : Nat) (hk : k < blN) :
+    blLayerOk fockBounceK Generated.bareBeatLayer_bounce k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.1.2
+
+theorem bl_pair_ok (k : Nat) (hk : k < blN) : blLayerOk fockMPair Generated.bareBeatLayer_pair k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.2
+
+theorem bl_meet_ok (k : Nat) (hk : k < blN) : blLayerOk fockMeet Generated.bareBeatLayer_meet k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.2
+
+theorem bl_phi_ok (k : Nat) (hk : k < blN) : blPhiRowOk Generated.bareBeatLayer_phi k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.2
+
 /-- **Beat bridge (data).** On every family state the composed layer tables equal bare-beat's
     `applyBeat` output (before the stream moves each vibe to the neighbour its slot points to). -/
-theorem gen_bare_beat_beat_eq : (List.range blN).all blBeatOk = true := by decide +kernel
+theorem gen_bare_beat_beat_eq (k : Nat) (hk : k < blN) : blBeatOk k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.2
+
+theorem bl_q0_ok (k : Nat) (hk : k < blN) : blQ0Ok k = true := by
+  have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.2
+
+/-! ## The bridges: the five dock-local layers on the family -/
+
+/-- **Layer bridge.** On every family state, each dock-local layer of bare-beat.ts (its exported table)
+    is the Lean layer, as a vector of the Fock space: `fockHalfCoin` (D), `fockBounceK` (K), `fockMPair`
+    (`M_pair(ζ_18)`), `fockMeet` (`M_meet`), and `fockPhiOdd χ` for every silent `χ` (`Φ_odd`, the identity
+    on the family). -/
+theorem gen_bare_beat_family_eq (χ : ChiralInvariant) (hχ : BlSilent χ) (k : Nat) (hk : k < blN) :
+    fockHalfCoin (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_coin k) ∧
+    fockBounceK (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_bounce k) ∧
+    fockMPair (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_pair k) ∧
+    fockMeet (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_meet k) ∧
+    fockPhiOdd χ (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_phi k) := by
+  refine ⟨(bl_table_of_ok fockHalfCoinUnit _ bl_coin_ok).1 k hk,
+    (bl_table_of_ok fockBounceKUnit _ bl_bounce_ok).1 k hk,
+    (bl_table_of_ok fockMPairUnit _ bl_pair_ok).1 k hk,
+    (bl_table_of_ok fockMeetUnit _ bl_meet_ok).1 k hk, ?_⟩
+  rw [bl_phi_family χ hχ k hk, (bl_phi_row _ k (bl_phi_ok k hk)).1]
+
+/-! ## The bridge: the whole beat on the family -/
 
 /-- A stream of a superposition streams each configuration. -/
 theorem bl_stream_combo (xs : List (HoneycombConfig × NinthLoc6)) :
@@ -1154,12 +1639,10 @@ theorem gen_bare_beat_neighbours_eq :
 theorem thm_beat_link_family (χ : ChiralInvariant) (hχ : BlSilent χ) (i : Nat) (hi : i < blN) :
     fockBeat χ (ket (blCfgF i)) =
       blCombo ((blRowsR Generated.bareBeatBeat i).map fun p => (streamConfig (blCfgF p.1), blToN p.2)) := by
-  have hphi := bl_phi_ok
-  rw [List.all_eq_true] at hphi
   have hphiT : ∀ k < blN, fockPhiOdd χ (ket (blCfgF k)) = blComboR blCfgF (blRowsR Generated.bareBeatLayer_phi k) :=
     fun k hk => (gen_bare_beat_family_eq χ hχ k hk).2.2.2.2
   have cphi : BlClosed Generated.bareBeatLayer_phi := fun k hk q hq => by
-    rw [(bl_phi_row _ k (hphi k (List.mem_range.mpr hk))).2 q hq]; exact hk
+    rw [(bl_phi_row _ k (bl_phi_ok k hk)).2 q hq]; exact hk
   obtain ⟨hcoin, ccoin⟩ := bl_table_of_ok fockHalfCoinUnit _ bl_coin_ok
   obtain ⟨hbounce, cbounce⟩ := bl_table_of_ok fockBounceKUnit _ bl_bounce_ok
   obtain ⟨hpair, cpair⟩ := bl_table_of_ok fockMPairUnit _ bl_pair_ok
@@ -1176,9 +1659,7 @@ theorem thm_beat_link_family (χ : ChiralInvariant) (hχ : BlSilent χ) (i : Nat
   have s5 := bl_step bl_lin_meet _ hmeet cmeet _ s4.2
   have s6 := bl_step bl_lin_halfCoin _ hcoin ccoin _ s5.2
   have s7 := bl_step (bl_lin_phi χ) _ hphiT cphi _ s6.2
-  have hb := gen_bare_beat_beat_eq
-  rw [List.all_eq_true] at hb
-  have hbi := hb i (List.mem_range.mpr hi)
+  have hbi := gen_bare_beat_beat_eq i hi
   simp only [blBeatOk, Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq] at hbi
   have hsame : blComboR blCfgF (blChain i) = blComboR blCfgF (blRowsR Generated.bareBeatBeat i) :=
     bl_comboR_eq_of_same blCfgF (fun j => j < blN) bl_cfg_inj _ _ s7.2 hbi.2 hbi.1
@@ -1197,35 +1678,6 @@ theorem thm_beat_link_family (χ : ChiralInvariant) (hχ : BlSilent χ) (i : Nat
 
 /-! ## B6: the Q0 gates on the family -/
 
-/-- Excitations of sign `+1` in a dock. -/
-def blPlus (d : FullDock) : Nat :=
-  ((List.finRange 24).filter fun s => match d s with | .occ .pos _ => true | _ => false).length
-
-/-- Squared norm of a superposition of representatives. -/
-def blNormR {α : Type} : List (α × NinthRaw6) → NinthRaw6
-  | [] => ⟨Ninth.zero, 0⟩
-  | p :: r => blRAdd (blRMul ⟨Ninth.conj p.2.num, p.2.exp⟩ p.2) (blNormR r)
-
-private theorem bl_normR_eq {α : Type} (cf : α → HoneycombConfig) (xs : List (α × NinthRaw6)) :
-    blToN (blNormR xs) = blNormSum (xs.map fun p => (cf p.1, blToN p.2)) := by
-  induction xs with
-  | nil => rfl
-  | cons p r ih =>
-    show blToN (blRAdd _ _) = NinthLoc6.conj (blToN p.2) * blToN p.2 + blNormSum _
-    rw [bl_toN_add, ih]; rfl
-
-/-- The Q0 check of one family state: the code's beat output has norm exactly 1, and every output
-    configuration keeps the charge, the excitation count and the `+1` count. -/
-def blQ0Ok (i : Nat) : Bool :=
-  let rows := blRowsR Generated.bareBeatBeat i
-  decide (NinthRaw6.equiv (blNormR rows) ⟨Ninth.one, 0⟩) &&
-    rows.all fun q =>
-      decide (totalCharge (blCfgF q.1) = totalCharge (blCfgF i)) &&
-      decide (blOcc (blDock (blFam q.1)) = blOcc (blDock (blFam i))) &&
-      decide (blPlus (blDock (blFam q.1)) = blPlus (blDock (blFam i)))
-
-theorem bl_q0_ok : (List.range blN).all blQ0Ok = true := by decide +kernel
-
 /-- **B6, the Q0 gates (q-ladder Q0), on the family.** For every silent `χ` and family state: bare-beat's
     beat output has squared norm exactly `1`; every output configuration keeps the total charge, the
     excitation count and the `+1` count of the input; `fockBeatDag` inverts the beat exactly; and the beat
@@ -1238,9 +1690,7 @@ theorem thm_beat_link_q0_gates (χ : ChiralInvariant) (hχ : BlSilent χ) (i : N
       blPlus (blDock (blFam q.1)) = blPlus (blDock (blFam i))) ∧
     fockBeatDag χ (blCombo ((blRowsR Generated.bareBeatBeat i).map
       fun p => (streamConfig (blCfgF p.1), blToN p.2))) = ket (blCfgF i) := by
-  have h := bl_q0_ok
-  rw [List.all_eq_true] at h
-  have hi' := h i (List.mem_range.mpr hi)
+  have hi' := bl_q0_ok i hi
   simp only [blQ0Ok, Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq] at hi'
   refine ⟨?_, fun q hq => ?_, ?_⟩
   · rw [← bl_normR_eq (fun j => streamConfig (blCfgF j))]

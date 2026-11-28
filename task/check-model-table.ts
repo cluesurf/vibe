@@ -7,8 +7,12 @@
 // - every number 1 to 227 present exactly once (a missing number fails unless --allow-missing is passed)
 // - each part file holds only the numbers its name spans, and each number sits in its source family
 // - every value inside its column's vocabulary (milestone: m1..m12, the quantum ladder q0..q7, or none)
-// - every experiment code in `evidence` exists in test/registry.csv, every `lean:<name>` is a theorem under
-//   code/proof
+// - every experiment code in `evidence` exists in test/registry.csv, and the registry holds no repeated code and
+//   no blank claim (title)
+// - every `lean:<name>` is declared as a theorem under code/proof outside comments (read from the .lean text, no
+//   Lean build) AND is listed in REQUIRED_THEOREMS of task/check-lean.ts, whose fail-closed #print axioms audit
+//   is what rules out sorry
+// - the count of rows backed by argument only (no experiment code, no lean: theorem) is printed as information
 // - `emerges_with_structure` names its ingredients in `added_structure`, and no other verdict names any
 // - a verdict other than `open` cites something: an experiment code, a Lean theorem, a published result
 //   (`cite:<author-year>`), or for `excluded` the base property it contradicts (`base:<property>`)
@@ -17,9 +21,10 @@
 //   pnpm check:model-table                         every part file, all 227 numbers required
 //   pnpm check:model-table --allow-missing         tolerate numbers no part file holds yet
 //   pnpm check:model-table --dir <path>            read the part files from another directory
+//   pnpm check:model-table --registry <path>       read the registry from another file (planted-failure tests)
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 
 const MODEL_COUNT = 227
 
@@ -47,7 +52,7 @@ type Column = (typeof COLUMNS)[number]
 type Row = Record<Column, string>
 
 // the source's family boundaries (source/models-of-computing.md headings 1 to 12)
-const FAMILIES: Array<{ name: string; first: number; last: number }> = [
+const FAMILIES: { name: string; first: number; last: number }[] = [
   { name: 'classical_symbolic', first: 1, last: 14 },
   { name: 'automata_rewriting', first: 15, last: 29 },
   { name: 'cellular_spatial', first: 30, last: 55 },
@@ -174,8 +179,13 @@ const tableDir =
   dirFlag >= 0 && args[dirFlag + 1]
     ? resolve(args[dirFlag + 1]!)
     : join(root, 'test/model-table')
-const registryPath = join(root, 'test/registry.csv')
+const registryFlag = args.indexOf('--registry')
+const registryPath =
+  registryFlag >= 0 && args[registryFlag + 1]
+    ? resolve(args[registryFlag + 1]!)
+    : join(root, 'test/registry.csv')
 const proofDir = join(root, 'code/proof')
+const checkLeanPath = join(root, 'task/check-lean.ts')
 
 const errors: string[] = []
 
@@ -186,6 +196,7 @@ function fail(message: string): void {
 // RFC 4180 fields: quoted fields may hold commas and doubled quotes, never a newline in this table
 function parseCsvLine(line: string): string[] {
   const fields: string[] = []
+
   let field = ''
   let quoted = false
 
@@ -216,6 +227,7 @@ function parseCsvLine(line: string): string[] {
   }
 
   fields.push(field)
+
   return fields
 }
 
@@ -225,13 +237,47 @@ function readRegistryCodes(): Set<string> {
   }
 
   const codes = new Set<string>()
-  const lines = readFileSync(registryPath, 'utf8').split('\n').slice(1)
+  const lines = readFileSync(registryPath, 'utf8').split('\n')
+  const header = parseCsvLine(lines[0] ?? '')
+  const titleIndex = header.indexOf('title')
 
-  for (const line of lines) {
-    const code = line.split(',')[0]?.trim()
+  if (header[0] !== 'code' || titleIndex < 0) {
+    throw new Error(`registry header must start with code and hold title: ${registryPath}`)
+  }
 
-    if (code) {
-      codes.add(code)
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i]!
+
+    if (line.trim() === '') {
+      continue
+    }
+
+    const where = `${relative(root, registryPath)}:${i + 1}`
+
+    let fields: string[]
+
+    try {
+      fields = parseCsvLine(line)
+    } catch (error) {
+      fail(`${where}: ${(error as Error).message}`)
+      continue
+    }
+
+    const code = fields[0]?.trim() ?? ''
+
+    if (code === '') {
+      fail(`${where}: blank code`)
+      continue
+    }
+
+    if (codes.has(code)) {
+      fail(`${where}: duplicate registry code ${code}`)
+    }
+
+    codes.add(code)
+
+    if ((fields[titleIndex] ?? '').trim() === '') {
+      fail(`${where}: ${code} has a blank claim (title)`)
     }
   }
 
@@ -270,13 +316,99 @@ function readLeanTheorems(): Set<string> {
     /^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+)?(?:theorem|lemma)\s+([A-Za-z_][A-Za-z0-9_.']*)/gm
 
   for (const path of walkLean(proofDir)) {
-    for (const match of readFileSync(path, 'utf8').matchAll(declaration)) {
+    const text = stripLeanComments(readFileSync(path, 'utf8'))
+
+    for (const match of text.matchAll(declaration)) {
       names.add(match[1]!)
     }
   }
 
   if (names.size === 0) {
     throw new Error(`no Lean theorems found under ${proofDir}`)
+  }
+
+  return names
+}
+
+// Lean source with its comments blanked: nested block comments (doc comments `/-- -/` included) and line comments,
+// so a theorem named only inside a comment is not taken as declared. String literals are kept whole.
+function stripLeanComments(text: string): string {
+  let out = ''
+  let depth = 0
+  let i = 0
+
+  while (i < text.length) {
+    const pair = text.slice(i, i + 2)
+
+    if (depth > 0) {
+      if (pair === '/-') {
+        depth++
+        i += 2
+      } else if (pair === '-/') {
+        depth--
+        i += 2
+      } else {
+        out += text[i] === '\n' ? '\n' : ' '
+        i++
+      }
+    } else if (pair === '/-') {
+      depth = 1
+      i += 2
+    } else if (pair === '--') {
+      while (i < text.length && text[i] !== '\n') {
+        i++
+      }
+    } else if (text.slice(i, i + 3) === `'"'`) {
+      // the character literal of a double quote opens no string
+      out += `'"'`
+      i += 3
+    } else if (text[i] === '"') {
+      const start = i
+
+      i++
+
+      while (i < text.length && text[i] !== '"') {
+        i += text[i] === '\\' ? 2 : 1
+      }
+
+      i++
+      out += text.slice(start, i)
+    } else {
+      out += text[i]
+      i++
+    }
+  }
+
+  return out
+}
+
+// the REQUIRED_THEOREMS list of task/check-lean.ts, read as text (importing the file would run its build)
+function readRequiredTheorems(): Set<string> {
+  if (!existsSync(checkLeanPath)) {
+    throw new Error(`check-lean missing: ${checkLeanPath}`)
+  }
+
+  const text = readFileSync(checkLeanPath, 'utf8')
+  const start = text.indexOf('const REQUIRED_THEOREMS = [')
+  const end = start < 0 ? -1 : text.indexOf('\n]', start)
+
+  if (start < 0 || end < 0) {
+    throw new Error(`no REQUIRED_THEOREMS array in ${checkLeanPath}`)
+  }
+
+  const names = new Set<string>()
+  const body = text
+    .slice(start, end)
+    .split('\n')
+    .map(line => line.replace(/\/\/.*$/, ''))
+    .join('\n')
+
+  for (const match of body.matchAll(/'([^'\n]+)'/g)) {
+    names.add(match[1]!)
+  }
+
+  if (names.size === 0) {
+    throw new Error(`REQUIRED_THEOREMS in ${checkLeanPath} lists no names`)
   }
 
   return names
@@ -293,7 +425,8 @@ function checkRow(
   row: Row,
   registry: Set<string>,
   theorems: Set<string>,
-): void {
+  required: Set<string>,
+): boolean {
   for (const column of COLUMNS) {
     const allowed = VOCABULARY[column]
 
@@ -351,7 +484,11 @@ function checkRow(
 
   for (const name of leanNames) {
     if (!theorems.has(name)) {
-      fail(`${where}: Lean theorem '${name}' not found under code/proof`)
+      fail(`${where}: Lean theorem '${name}' is not declared (outside comments) under code/proof`)
+    }
+
+    if (!required.has(name)) {
+      fail(`${where}: Lean theorem '${name}' is not in REQUIRED_THEOREMS of task/check-lean.ts, so no axiom audit covers it`)
     }
   }
 
@@ -393,6 +530,9 @@ function checkRow(
   if (row.verdict === 'excluded' && row.milestone !== 'none') {
     fail(`${where}: excluded row has milestone '${row.milestone}', expected none`)
   }
+
+  // backed by argument only: neither an experiment nor a Lean theorem stands behind the row
+  return codes.length === 0 && leanNames.length === 0
 }
 
 function main(): void {
@@ -402,6 +542,7 @@ function main(): void {
 
   const registry = readRegistryCodes()
   const theorems = readLeanTheorems()
+  const required = readRequiredTheorems()
   const parts = readdirSync(tableDir)
     .filter(name => name.endsWith('.csv'))
     .sort()
@@ -412,7 +553,9 @@ function main(): void {
 
   const seen = new Map<number, string>()
   const verdicts = new Map<string, number>()
+
   let rowCount = 0
+  let argumentOnly = 0
 
   for (const part of parts) {
     const span = PART_FILE.exec(part)
@@ -435,6 +578,7 @@ function main(): void {
 
     for (let i = 1; i < lines.length; i++) {
       const where = `${part}:${i + 1}`
+
       let fields: string[]
 
       try {
@@ -471,7 +615,10 @@ function main(): void {
         seen.set(number, where)
       }
 
-      checkRow(where, row, registry, theorems)
+      if (checkRow(where, row, registry, theorems, required)) {
+        argumentOnly++
+      }
+
       verdicts.set(row.verdict, (verdicts.get(row.verdict) ?? 0) + 1)
       rowCount++
     }
@@ -496,6 +643,7 @@ function main(): void {
 
   console.log(`model table: ${parts.length} part files, ${rowCount} rows, ${missing.length} missing${allowMissing ? ' (allowed)' : ''}`)
   console.log(`verdicts: ${tally || 'none'}`)
+  console.log(`argument only (no experiment code, no lean: theorem): ${argumentOnly} of ${rowCount} rows (information, not a failure)`)
 
   if (errors.length > 0) {
     for (const error of errors) {
