@@ -75,7 +75,7 @@ open Vibe.LineScattering
 
 section Ring
 
-variable {α : Type} [CommRing α]
+variable {α : Type} [Lean.Grind.CommRing α]
 
 /-! ### Units on the curve -/
 
@@ -559,7 +559,7 @@ end Ring
 
 section Braid
 
-variable {α β : Type} [CommRing α]
+variable {α β : Type} [Lean.Grind.CommRing α]
 
 /-- **Door B, both orientations.** A like pair `p, q` beside an opposite tone `r` misses Yang-Baxter by
 `-x y (x + y) (I + P)` with the wall on the right `(+, +, -)` and by `+x y (x + y) (I + P)` with it on the left
@@ -590,7 +590,7 @@ end Braid
 
 section Field
 
-variable {α : Type} [Field α]
+variable {α : Type} [Lean.Grind.Field α]
 
 -- [helper]
 theorem field_mul_eq_zero (x y : α) (e : x * y = 0) : x = 0 ∨ y = 0 := by
@@ -598,8 +598,8 @@ theorem field_mul_eq_zero (x y : α) (e : x * y = 0) : x = 0 ∨ y = 0 := by
   · exact Or.inl hx
   · right
     have : y = x⁻¹ * (x * y) := by
-      rw [← Semiring.mul_assoc, Field.inv_mul_cancel hx, Semiring.one_mul]
-    rw [this, e, Semiring.mul_zero]
+      rw [← Lean.Grind.Semiring.mul_assoc, Lean.Grind.Field.inv_mul_cancel hx, Lean.Grind.Semiring.one_mul]
+    rw [this, e, Lean.Grind.Semiring.mul_zero]
 
 -- [helper]
 theorem field_mul_ne_zero (x y : α) (hx : x ≠ 0) (hy : y ≠ 0) : x * y ≠ 0 := fun e =>
@@ -609,7 +609,7 @@ theorem field_mul_ne_zero (x y : α) (hx : x ≠ 0) (hy : y ≠ 0) : x * y ≠ 0
 theorem field_sub_ne_zero (x y : α) (hxy : x ≠ y) : x - y ≠ 0 := fun e => hxy (ring_eq_of_sub x y e)
 
 -- [helper]
-theorem field_one_ne_zero : (1 : α) ≠ 0 := fun e => Field.zero_ne_one e.symm
+theorem field_one_ne_zero : (1 : α) ≠ 0 := fun e => Lean.Grind.Field.zero_ne_one e.symm
 
 /-- On a moving mode (`a ≠ ab`) with `3 ≠ 0`: `rapNum ≠ 0` and `rapDen ≠ 0`. -/
 -- [helper]
@@ -622,7 +622,7 @@ theorem field_rap_ne_zero (ω i h a ab μ : α) (hω : ω * ω + ω + 1 = 0) (hi
     exact field_mul_ne_zero _ _ sub sub (thm_lsx_rapidity_nonzero ω i h a ab μ hω hi hh ha hμ e)
   · intro e
     have sq : rapDen ω i a ab * rapDen ω i a ab = 3 * ((a - ab) * (a - ab)) := fact_rapDen_sq ω i a ab hω hi
-    rw [e, Semiring.zero_mul] at sq
+    rw [e, Lean.Grind.Semiring.zero_mul] at sq
     exact field_mul_ne_zero _ _ h3 (field_mul_ne_zero _ _ sub sub) sq.symm
 
 /-- **Where `det(left) ≠ 0`, `S` is Yang's closed form**: `(W + i D) S = W P - i D I`. -/

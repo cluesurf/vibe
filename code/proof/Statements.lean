@@ -3,7 +3,7 @@ import Vibe
 /-!
 # Vibe Theory: Frozen Headline Theorem Manifest (`Statements.lean`)
 
-Referee-auditable manifest referencing all `882` public headline theorems exported by the
+Referee-auditable manifest referencing all `721` public headline theorems exported by the
 `Vibe` Lean `4.35.0` + Mathlib `v4.35.0` formal proof suite across all `83` library modules
 (`85` `.lean` files total including `Vibe.lean` and `Statements.lean`).
 
@@ -575,6 +575,90 @@ public def vibeHeadlineManifestCount : Nat :=
    manifest_LogicEmergence ++
    manifest_PlebanskiDarkFlux).length
 
+/-- `Vibe.LineScattering` (7 headline theorems). -/
+private def manifest_LineScattering : List Unit := [
+  checkHeadline (@Vibe.LineScattering.thm_line_mode_eigenvector),
+  checkHeadline (@Vibe.LineScattering.thm_line_s_is_yang),
+  checkHeadline (@Vibe.LineScattering.thm_line_opposite_reflects),
+  checkHeadline (@Vibe.LineScattering.thm_line_spectator_symmetric),
+  checkHeadline (@Vibe.LineScattering.thm_line_yang_baxter_one_tone),
+  checkHeadline (@Vibe.LineScattering.thm_line_mixed_tone_defect),
+  checkHeadline (@Vibe.LineScattering.thm_line_opposite_between_factorizes)
+]
+
+/-- `Vibe.NoContraction` (3 headline theorems). -/
+private def manifest_NoContraction : List Unit := [
+  checkHeadline (@Vibe.thm_ms_no_strict_contraction_of_surjective),
+  checkHeadline (@Vibe.thm_ms_reversible_no_global_contraction),
+  checkHeadline (@Vibe.thm_ms_reversible_some_pair_not_shrunk)
+]
+
+/-- `Vibe.PairRules` (10 headline theorems). -/
+private def manifest_PairRules : List Unit := [
+  checkHeadline (@Vibe.pr_mem_allPairs),
+  checkHeadline (@Vibe.pr_table_sumPres),
+  checkHeadline (@Vibe.pr_table_code),
+  checkHeadline (@Vibe.pr_code_table),
+  checkHeadline (@Vibe.pr_rule_codes_eq),
+  checkHeadline (@Vibe.thm_pair_rules_card),
+  checkHeadline (@Vibe.pr_rule_of),
+  checkHeadline (@Vibe.thm_pair_rule_classes),
+  checkHeadline (@Vibe.thm_pair_rule_vacuum_iff),
+  checkHeadline (@Vibe.thm_pair_rule_inverse)
+]
+
+/-- `Vibe.PartitionedStep` (2 headline theorems). -/
+private def manifest_PartitionedStep : List Unit := [
+  checkHeadline (@Vibe.thm_cf_partitioned_block_global_invariants),
+  checkHeadline (@Vibe.thm_cf_partitioned_rule_step_bijective)
+]
+
+/-- `Vibe.QuantumBoundary` (2 headline theorems). -/
+private def manifest_QuantumBoundary : List Unit := [
+  checkHeadline (@Vibe.QuantumBoundary.thm_q_dephased_unitary_doubly_stochastic),
+  checkHeadline (@Vibe.QuantumBoundary.thm_q_dephased_line_coin)
+]
+
+/-- `Vibe.QuantumGates` (3 headline theorems). -/
+private def manifest_QuantumGates : List Unit := [
+  checkHeadline (@Vibe.QuantumGates.thm_q_meet_gates_unitary),
+  checkHeadline (@Vibe.QuantumGates.thm_q_role_swap_two_thirds),
+  checkHeadline (@Vibe.QuantumGates.thm_q_sym3_cz_minus_one)
+]
+
+/-- `Vibe.QuantumMemory` (2 headline theorems). -/
+private def manifest_QuantumMemory : List Unit := [
+  checkHeadline (@Vibe.QuantumMemory.thm_q_code_space_invariant),
+  checkHeadline (@Vibe.QuantumMemory.thm_q_pair_mixer_breaks_dfs)
+]
+
+/-- `Vibe.SimulationContract` (8 headline theorems). -/
+private def manifest_SimulationContract : List Unit := [
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_commutes_composition),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_composition),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_power),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_identity),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_subset_invariant),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_rule_unique),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_full_swap_brick2_contract),
+  checkHeadline (@Vibe.SimulationContract.thm_cf_full_swap_brick2_contract_two_rounds)
+]
+
+/-- `Vibe.WireInvariant` (11 headline theorems). -/
+private def manifest_WireInvariant : List Unit := [
+  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_passengers),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_passengers),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_backward),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_no_forward),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_rays),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_rays),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_left_ray),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_no_neg),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_no_neg),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_no_min_max),
+  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_no_min_max)
+]
+
 /-- `Vibe.Compute.Association` (6 headline theorems). -/
 private def manifest_Compute_Association : List Unit := [
   checkHeadline (@Vibe.Compute.thm_cmp_completion_charges),
@@ -712,173 +796,12 @@ private def manifest_Compute_Frontier : List Unit := [
   checkHeadline (@Vibe.Compute.Frontier.thm_frontier_readback_simple_graph)
 ]
 
-/-- `Vibe.Compute.GateSetRank` (167 headline theorems). -/
+/-- `Vibe.Compute.GateSetRank` (6 headline theorems). -/
 private def manifest_Compute_GateSetRank : List Unit := [
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_zero),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_succ),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_zero_left),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_add),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_mul),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_sum),
-  checkHeadline (@Vibe.Compute.GateSetRank.dig_eq_zero_of_lt),
-  checkHeadline (@Vibe.Compute.GateSetRank.getD_mem),
-  checkHeadline (@Vibe.Compute.GateSetRank.sum_map_getD),
-  checkHeadline (@Vibe.Compute.GateSetRank.everyOther_getD),
-  checkHeadline (@Vibe.Compute.GateSetRank.tget_build),
-  checkHeadline (@Vibe.Compute.GateSetRank.nbSum_eq),
-  checkHeadline (@Vibe.Compute.GateSetRank.seriesOk_spec),
-  checkHeadline (@Vibe.Compute.GateSetRank.annSum_eq),
-  checkHeadline (@Vibe.Compute.GateSetRank.cellsOk_spec),
-  checkHeadline (@Vibe.Compute.GateSetRank.cellRange_spec),
-  checkHeadline (@Vibe.Compute.GateSetRank.sumY_eq),
-  checkHeadline (@Vibe.Compute.GateSetRank.deltaOk_spec),
-  checkHeadline (@Vibe.Compute.GateSetRank.dualOk_spec),
-  checkHeadline (@Vibe.Compute.GateSetRank.nbList_length),
-  checkHeadline (@Vibe.Compute.GateSetRank.cast_dig_mod),
-  checkHeadline (@Vibe.Compute.GateSetRank.sum_le_mul),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cert_sound),
-  checkHeadline (@Vibe.Compute.GateSetRank.globalOk_lengths),
-  checkHeadline (@Vibe.Compute.GateSetRank.cells_step),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_0_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_1_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_2_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_3_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_4_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_5_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_6_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_6_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_7_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_7_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_8),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_8_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_8),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_8),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_9),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_9_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_9),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_9),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_10),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_10_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_10),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_10),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_11),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_11_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_11),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_11),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_12),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_12_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_12),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_12),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_13),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_13_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_13),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_13),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_14),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_14_8),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_14),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_14),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_15),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_5),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_6),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_7),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_15_8),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_15),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_15),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_16),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_16_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_16),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_16),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_17),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_17_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_17),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_17),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_18),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_18_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_18_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_18_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_18),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_18),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_19),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_19_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_19_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_19_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_19),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_19),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_20),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_20_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_20),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_20),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_21),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_21_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_21),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_21),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_22),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_22_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_22_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_22_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_22_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_22_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_22),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_22),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_glob_23),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_23_0),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_23_1),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_23_2),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_23_3),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_cells_23_4),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_dual_23),
-  checkHeadline (@Vibe.Compute.GateSetRank.krylov_degree_23),
+  checkHeadline (@Vibe.Compute.GateSetRank.thm_gsr_transpositions_involutive),
+  checkHeadline (@Vibe.Compute.GateSetRank.gen_gsr_generators_eq),
+  checkHeadline (@Vibe.Compute.GateSetRank.thm_gsr_sector_projector),
+  checkHeadline (@Vibe.Compute.GateSetRank.thm_gsr_generators_in_sector),
   checkHeadline (@Vibe.Compute.GateSetRank.gen_gsr_krylov_degrees_eq),
   checkHeadline (@Vibe.Compute.GateSetRank.thm_gsr_krylov_degrees)
 ]
@@ -1115,88 +1038,4 @@ private def manifest_Compute_SpinOneQ2R : List Unit := [
   checkHeadline (@Vibe.Compute.thm_q2r_odd_degree_frozen),
   checkHeadline (@Vibe.Compute.thm_q2r_vacancy_needs_ratio),
   checkHeadline (@Vibe.Compute.gen_q2r_move_eq)
-]
-
-/-- `Vibe.LineScattering` (7 headline theorems). -/
-private def manifest_LineScattering : List Unit := [
-  checkHeadline (@Vibe.LineScattering.thm_line_mode_eigenvector),
-  checkHeadline (@Vibe.LineScattering.thm_line_s_is_yang),
-  checkHeadline (@Vibe.LineScattering.thm_line_opposite_reflects),
-  checkHeadline (@Vibe.LineScattering.thm_line_spectator_symmetric),
-  checkHeadline (@Vibe.LineScattering.thm_line_yang_baxter_one_tone),
-  checkHeadline (@Vibe.LineScattering.thm_line_mixed_tone_defect),
-  checkHeadline (@Vibe.LineScattering.thm_line_opposite_between_factorizes)
-]
-
-/-- `Vibe.NoContraction` (3 headline theorems). -/
-private def manifest_NoContraction : List Unit := [
-  checkHeadline (@Vibe.thm_ms_no_strict_contraction_of_surjective),
-  checkHeadline (@Vibe.thm_ms_reversible_no_global_contraction),
-  checkHeadline (@Vibe.thm_ms_reversible_some_pair_not_shrunk)
-]
-
-/-- `Vibe.PairRules` (10 headline theorems). -/
-private def manifest_PairRules : List Unit := [
-  checkHeadline (@Vibe.pr_mem_allPairs),
-  checkHeadline (@Vibe.pr_table_sumPres),
-  checkHeadline (@Vibe.pr_table_code),
-  checkHeadline (@Vibe.pr_code_table),
-  checkHeadline (@Vibe.pr_rule_codes_eq),
-  checkHeadline (@Vibe.thm_pair_rules_card),
-  checkHeadline (@Vibe.pr_rule_of),
-  checkHeadline (@Vibe.thm_pair_rule_classes),
-  checkHeadline (@Vibe.thm_pair_rule_vacuum_iff),
-  checkHeadline (@Vibe.thm_pair_rule_inverse)
-]
-
-/-- `Vibe.PartitionedStep` (2 headline theorems). -/
-private def manifest_PartitionedStep : List Unit := [
-  checkHeadline (@Vibe.thm_cf_partitioned_block_global_invariants),
-  checkHeadline (@Vibe.thm_cf_partitioned_rule_step_bijective)
-]
-
-/-- `Vibe.QuantumBoundary` (2 headline theorems). -/
-private def manifest_QuantumBoundary : List Unit := [
-  checkHeadline (@Vibe.QuantumBoundary.thm_q_dephased_unitary_doubly_stochastic),
-  checkHeadline (@Vibe.QuantumBoundary.thm_q_dephased_line_coin)
-]
-
-/-- `Vibe.QuantumGates` (3 headline theorems). -/
-private def manifest_QuantumGates : List Unit := [
-  checkHeadline (@Vibe.QuantumGates.thm_q_meet_gates_unitary),
-  checkHeadline (@Vibe.QuantumGates.thm_q_role_swap_two_thirds),
-  checkHeadline (@Vibe.QuantumGates.thm_q_sym3_cz_minus_one)
-]
-
-/-- `Vibe.QuantumMemory` (2 headline theorems). -/
-private def manifest_QuantumMemory : List Unit := [
-  checkHeadline (@Vibe.QuantumMemory.thm_q_code_space_invariant),
-  checkHeadline (@Vibe.QuantumMemory.thm_q_pair_mixer_breaks_dfs)
-]
-
-/-- `Vibe.SimulationContract` (8 headline theorems). -/
-private def manifest_SimulationContract : List Unit := [
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_commutes_composition),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_composition),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_power),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_identity),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_subset_invariant),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_simulation_contract_rule_unique),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_full_swap_brick2_contract),
-  checkHeadline (@Vibe.SimulationContract.thm_cf_full_swap_brick2_contract_two_rounds)
-]
-
-/-- `Vibe.WireInvariant` (11 headline theorems). -/
-private def manifest_WireInvariant : List Unit := [
-  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_passengers),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_passengers),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_backward),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_no_forward),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_rays),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_rays),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_id_left_ray),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_no_neg),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_no_neg),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_bca_no_min_max),
-  checkHeadline (@Vibe.WireInvariant.thm_wire_cab_no_min_max)
 ]

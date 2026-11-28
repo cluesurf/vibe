@@ -1858,6 +1858,20 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridges: ['gen_quantum_coarse_maps_eq'],
     render: exportQuantumCoarse,
   },
+  {
+    name: 'CertificatesGateSet',
+    sources: GATE_SET_SOURCES,
+    bridgeModule: 'Vibe.Compute.GateSetRank',
+    bridges: ['gen_gsr_generators_eq'],
+    render: exportCertificatesGateSet,
+  },
+  {
+    name: 'CertificatesKrylov',
+    sources: KRYLOV_SOURCES,
+    bridgeModule: 'Vibe.Compute.GateSetRank',
+    bridges: ['gen_gsr_krylov_degrees_eq'],
+    render: exportCertificatesKrylov,
+  },
 ]
 
 export function renderLeanExports(): RenderedExport[] {

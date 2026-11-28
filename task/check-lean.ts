@@ -801,6 +801,13 @@ const REQUIRED_THEOREMS = [
   'thm_qc_declared_maps_lone',
   'thm_qc_declared_maps_nogo',
   'thm_qc_paired_sign_nogo',
+  // Vibe.Compute.GateSetRank (6 headline, L21: B10 every Krylov degree of M8's mode table, 12 graphs x 2 laws, is the exact minimal-polynomial degree of A + sigma I on delta_0 over ZMod 3, from the code's tables in Generated/CertificatesKrylov; B7 partial: Q1's eight generators rebuilt in Lean from the S = 1 sector and equal to tripleGenerators, symmetric, traceless, on the rank-9 sector; the rank 80 of their Lie closure and B11 are follow-up items)
+  'thm_gsr_krylov_degrees',
+  'gen_gsr_krylov_degrees_eq',
+  'gen_gsr_generators_eq',
+  'thm_gsr_sector_projector',
+  'thm_gsr_generators_in_sector',
+  'thm_gsr_transpositions_involutive',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

@@ -156,6 +156,7 @@ const SLICE_VARIANT_COLUMNS: ReadonlySet<string> = new Set(['{4,4}', '{4,5}', '{
 // {4,5} 30, {8,3} 42), each under both colorings; the {3,7} surface (56) and the flat tori of 30 and 56 cells took about
 // 9 minutes per reading under the harness's extended census and go to the M3 item with the larger instances
 const CLOSED_SLICE_MAX_CELLS = 48
+
 let progressSink: ((line: string) => void) | null = null
 let lastFull: Z3Run | null = null
 
@@ -167,6 +168,7 @@ export function setZ3Progress(sink: ((line: string) => void) | null): void {
 export function lastFullZ3Run(): Z3Run | null {
   return lastFull
 }
+
 const INSTANCE_ROUNDS = 6
 
 // the negative controls
