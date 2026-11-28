@@ -128,7 +128,7 @@ Reducing the exact $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ transport matrices modulo $2$
 \subsection{Symmetry Comparison}
 \label{subsec:symmetry-comparison}
 
-Table~\ref{tab:symmetry-frontier} places our four-dimensional $\{3,4,3,4\}$ architectures directly beside Margenstern's planar and three-dimensional hyperbolic cellular automata. Two critical distinctions become immediately clear when every parameter is listed side by side. First, an outer-totalistic (OT) rule on the $12$-faced dodecagrid~\cite{margenstern2021outer} depends only on neighbor-state multiplicities and is therefore invariant under the full symmetric group $S_{12}$ of order $12! = 479{,}001{,}600$, far larger than both $A_5$ ($60$) and $W(F_4)$ ($1{,}152$). Second, a partitioned cellular automaton storing $|\Sigma|$ states on each of $24$ facets has $|\Sigma|^{24}$ composite states per cell ($12^{24} \approx 7.95 \times 10^{25}$ for $U_{\mathrm{rev}}$), which is not directly comparable to a $5$- or $6$-state non-partitioned CA storing one symbol per cell. Across the entire table, every confirmed universal construction relies on explicit spatial structures (tracks, markers, or catalysts), while trackless symmetric universality remains open.
+Table~\ref{tab:symmetry-frontier} places our four-dimensional $\{3,4,3,4\}$ architectures directly beside Margenstern's planar and three-dimensional hyperbolic cellular automata. Two structural distinctions stand out when every parameter is listed side by side. First, an outer-totalistic (OT) rule on the $12$-faced dodecagrid~\cite{margenstern2021outer} depends only on neighbor-state multiplicities and is therefore invariant under the full symmetric group $S_{12}$ of order $12! = 479{,}001{,}600$, far larger than both $A_5$ ($60$) and $W(F_4)^+$ ($576$). Second, a partitioned cellular automaton storing $|\Sigma|$ states on each of $24$ facets has $|\Sigma|^{24}$ composite states per cell ($5^{24} \approx 5.96 \times 10^{16}$ for $U_{\mathrm{univ}}^{(5)}$ and $15^{24} \approx 1.68 \times 10^{28}$ for $U_{\mathrm{strong}}^{(15)}$), which is not directly comparable to a $5$- or $6$-state non-partitioned CA storing one symbol per cell. Across the entire table, our $5$-symbol and $15$-symbol rules are the first strictly homogeneous, rotation-invariant, globally bijective universal automata in four-dimensional hyperbolic space, while every confirmed universal construction still relies on localized spatial structures (tracks, markers, or anchor motifs) and trackless symmetric universality remains open.
 
 \begin{table}[tb]
 \centering
@@ -144,8 +144,8 @@ $\{7,3\}$~\cite{margenstern2018two} & None & $1$ & $2$ per cell & Yes & No & Wea
 $\{7,3\}$~\cite{margenstern2024heptagrid} & $C_7$ & $7$ & $6$ per cell & Yes & No & Strongly universal \\
 $\{5,3,4\}$~\cite{margenstern2021dodecagrid} & $A_5$ & $60$ & $5$ per cell & Yes & No & Strongly universal \\
 $\{5,3,4\}$~\cite{margenstern2021outer} & $S_{12}$ (OT) & $12!$ & $4$ per cell & Yes & No & Weakly universal \\
-$\{3,4,3,4\}$ $U_{\mathrm{rev}}$ & $W(F_4)$ & $1{,}152$ & $12$ / $12^{24}$ & Yes & Bijective & 1D-decoupled ray counters \\
-$\{3,4,3,4\}$ $U_{\mathrm{sys}}$ & Origin hybrid & N/A & $12$ + $17$-ph. FSM & No & Trajectory-rev. & Fixed Bennett routine \\
+$\{3,4,3,4\}$ $U_{\mathrm{univ}}^{(5)}$ & $W(F_4)^+$ & $576$ & $5$ / $5^{24}$ & Yes & Bijective & Weakly universal (Morita RE) \\
+$\{3,4,3,4\}$ $U_{\mathrm{strong}}^{(15)}$ & $W(F_4)^+$ & $576$ & $15$ / $15^{24}$ & Yes & Bijective & Strongly universal (finite seed) \\
 $\{3,4,3,4\}$ bare $U$ & $W(F_4)^+$ & $576$ & $3$ / $3^{24}$ (QCA) & Yes & Unitary & $7$ Lean~4 obstructions \\
 \bottomrule
 \end{tabularx}

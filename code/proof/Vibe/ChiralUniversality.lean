@@ -255,11 +255,20 @@ private theorem swapAt0_spec :
       wf4Perm (swapAt0 p q) q = p := by
   decide
 
+private theorem exists_nondeg_det4_at0 :
+    ∀ p q : Fin 24,
+      dot4 (d4RootOf canonA) (d4RootOf p) = 0 →
+      dot4 (d4RootOf canonA) (d4RootOf q) = 0 →
+      dot4 (d4RootOf p) (d4RootOf q) = 0 →
+      ∃ b : Fin 24, det4 (d4RootOf canonA) (d4RootOf b) (d4RootOf p) (d4RootOf q) ≠ 0 := by
+  decide
+
 /-- **Headline Theorem 1 (Chiral `k = 1` Single-Line Obstruction & Sharp Chirality Hierarchy):**
     1. Under proper chiral rotations `W(F_4)^+`, for EVERY facet `a : Fin 24` and EVERY orthogonal
        pair `(p, q)` perpendicular to `a`, there exists an explicit proper rotation `g ∈ W(F_4)^+`
        (`wf4Det g = 1`) fixing `a` pointwise while swapping `p ↔ q` and reversing 2D orientation in
-       the `(p, q)` plane (`det4(a, b, g p, g q) = -det4(a, b, p, q)`).
+       the `(p, q)` plane (`det4(a, b, g p, g q) = -det4(a, b, p, q)`, witnessed non-zero by an
+       explicit orthogonal `b`).
     2. Paired with `Vibe.thm_k3_pointwise_improper_stabilizer`: under full `W(F_4)`, every triple
        `(a, b, c)` has a pointwise improper mirror (`wf4Det g = -1`), so `k = 1` fails even under
        `W(F_4)^+`, ordered orthogonal `k = 2` anchors succeed under `W(F_4)^+`, and full `W(F_4)`
@@ -276,7 +285,8 @@ theorem thm_chiral_k1_single_line_obstruction :
         wf4Perm g q = p ∧
         (∀ b : Fin 24,
           det4 (d4RootOf a) (d4RootOf b) (d4RootOf (wf4Perm g p)) (d4RootOf (wf4Perm g q)) =
-            -det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf q))) ∧
+            -det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf q)) ∧
+        (∃ b : Fin 24, det4 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf q) ≠ 0)) ∧
     (∀ a b c : Fin 24,
       ∃ g : WF4Elem, wf4Det g = -1 ∧ wf4Perm g a = a ∧ wf4Perm g b = b ∧ wf4Perm g c = c) := by
   refine ⟨?_, thm_k3_pointwise_improper_stabilizer⟩
@@ -306,9 +316,20 @@ theorem thm_chiral_k1_single_line_obstruction :
   have hGq : wf4Perm g q = p := by
     rw [cu_wf4Perm_mul, cu_wf4Perm_mul, cu_wf4Perm_wf4Inv, hHq,
         ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 p).1]
-  refine ⟨g, hDetG, hGa, hGp, hGq, fun b => ?_⟩
-  rw [hGp, hGq]
-  exact cu_det4_swap34 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf q)
+  obtain ⟨b', hb'⟩ := exists_nondeg_det4_at0 p' q' h0p' h0q' hp'q'
+  refine ⟨g, hDetG, hGa, hGp, hGq, fun b => ?_, wf4Perm (wf4Inv u) b', ?_⟩
+  · rw [hGp, hGq]
+    exact cu_det4_swap34 (d4RootOf a) (d4RootOf b) (d4RootOf p) (d4RootOf q)
+  · have hTr := cu_det4_wf4 (wf4Inv u) canonA b' p' q'
+    have hInvA : wf4Perm (wf4Inv u) canonA = a := by
+      rw [← hu0, cu_wf4Perm_wf4Inv, ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 a).1]
+    have hInvP : wf4Perm (wf4Inv u) p' = p := by
+      rw [cu_wf4Perm_wf4Inv, ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 p).1]
+    have hInvQ : wf4Perm (wf4Inv u) q' = q := by
+      rw [cu_wf4Perm_wf4Inv, ((thm_wf4_action_orthogonal_and_bijective u).2.2.1 q).1]
+    rw [hInvA, hInvP, hInvQ, cu_wf4Det_inv, mapTo0Proper_spec.1 a, one_mul] at hTr
+    rw [hTr]
+    exact hb'
 
 
 /-! ## Section 2: Theorem 2 — `W(F_4)^+` Transitivity on `144` Orthogonal Pairs & `C_4` Stabilizer -/
@@ -3258,7 +3279,12 @@ theorem thm_horosphere_flat_z2_and_global_bijection :
      mat5Mul (facetRefl slotENeg) (facetRefl slotNNeg) = mat5Mul (facetRefl slotNNeg) (facetRefl slotENeg) ∧
      mat5Mul horoTransE horoTransN = mat5Mul horoTransN horoTransE ∧
      mat5Vec horoTransE cuspVertex = cuspVertex ∧
-     mat5Vec horoTransN cuspVertex = cuspVertex) ∧
+     mat5Vec horoTransN cuspVertex = cuspVertex ∧
+     twiceForm (mat5Vec horoTransE baseCenter) baseCenter = ZSqrt2.ofInt (-18) ∧
+     twiceForm (mat5Vec horoTransN baseCenter) baseCenter = ZSqrt2.ofInt (-18) ∧
+     horoTransE ≠ mat5Id ∧
+     horoTransN ≠ mat5Id ∧
+     horoTransE ≠ horoTransN) ∧
     (∀ (W α : Type) (step : W → Fin 24 → W) (L LInv : (Fin 24 → α) → (Fin 24 → α)),
       (∀ w s, step (step w s) s = w) →
       (∀ c, LInv (L c) = c) →
@@ -3315,6 +3341,33 @@ theorem thm_horosphere_flat_z2_and_global_bijection :
         (cusp_layer_fix_iff slotNNeg).mpr (by decide),
         ← mat5Vec_eq_mulVec (facetRefl slotNPos) cuspVertex,
         (cusp_layer_fix_iff slotNPos).mpr (by decide)]
+  have hVecE : mat5Vec horoTransE baseCenter =
+      mat5Vec (facetRefl slotEPos) (mat5Vec (facetRefl slotENeg) baseCenter) := by
+    unfold horoTransE
+    rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec, ← mat5Vec_eq_mulVec, ← mat5Vec_eq_mulVec]
+  have hVecN : mat5Vec horoTransN baseCenter =
+      mat5Vec (facetRefl slotNPos) (mat5Vec (facetRefl slotNNeg) baseCenter) := by
+    unfold horoTransN
+    rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec, ← mat5Vec_eq_mulVec, ← mat5Vec_eq_mulVec]
+  have hDispE : twiceForm (mat5Vec horoTransE baseCenter) baseCenter = ZSqrt2.ofInt (-18) := by
+    rw [hVecE]; decide
+  have hDispN : twiceForm (mat5Vec horoTransN baseCenter) baseCenter = ZSqrt2.ofInt (-18) := by
+    rw [hVecN]; decide
+  have hENeId : horoTransE ≠ mat5Id := by
+    intro h
+    have h0 : twiceForm (mat5Vec mat5Id baseCenter) baseCenter = ZSqrt2.ofInt (-2) := by decide
+    rw [h] at hDispE
+    exact absurd (hDispE.symm.trans h0) (by decide)
+  have hNNeId : horoTransN ≠ mat5Id := by
+    intro h
+    have h0 : twiceForm (mat5Vec mat5Id baseCenter) baseCenter = ZSqrt2.ofInt (-2) := by decide
+    rw [h] at hDispN
+    exact absurd (hDispN.symm.trans h0) (by decide)
+  have hENeN : horoTransE ≠ horoTransN := by
+    intro h
+    have hEq := congrArg (fun M => twiceForm (mat5Vec M baseCenter) (facetNormal slotEPos)) h
+    rw [hVecE, hVecN] at hEq
+    exact absurd hEq (by decide)
   have hU5 := thm_global_pca_bijection coxeterStep localUniv5 localUniv5Inv
     coxeterStep_invol thm_univ5_bijective_equivariant_conservative.1
     thm_univ5_bijective_equivariant_conservative.2.1
@@ -3322,7 +3375,7 @@ theorem thm_horosphere_flat_z2_and_global_bijection :
     coxeterStep_invol thm_strong15_launcher_and_unified_bijection.2.2.1
     thm_strong15_launcher_and_unified_bijection.2.2.2.1
   refine ⟨cusp_layer_fix_iff, facetRefl_invol,
-    ⟨cEPNP, cEPNN, cENNP, cENNN, hTransComm, hFixE, hFixN⟩,
+    ⟨cEPNP, cEPNN, cENNP, cENNN, hTransComm, hFixE, hFixN, hDispE, hDispN, hENeId, hNNeId, hENeN⟩,
     fun W α step L LInv hS hL hR => (thm_global_pca_bijection step L LInv hS hL hR).2,
     ⟨fun cfg => ⟨hU5.2.1 cfg, hU5.2.2.1 cfg⟩, hU5.2.2.2,
      fun cfg => ⟨hU15.2.1 cfg, hU15.2.2.1 cfg⟩, hU15.2.2.2⟩⟩
