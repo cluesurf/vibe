@@ -661,12 +661,12 @@ private def manifest_WireInvariant : List Unit := [
 
 /-- `Vibe.Compute.Association` (6 headline theorems). -/
 private def manifest_Compute_Association : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_cmp_completion_charges),
-  checkHeadline (@Vibe.Compute.thm_cmp_vacuum_rule_completion_bound),
-  checkHeadline (@Vibe.Compute.thm_cmp_no_erase_flip_completion),
-  checkHeadline (@Vibe.Compute.thm_cmp_vacuum_rule_no_erase_flip),
-  checkHeadline (@Vibe.Compute.thm_cmp_closed_coincidence_transient),
-  checkHeadline (@Vibe.Compute.thm_cmp_closed_box_completion_transient)
+  checkHeadline (@Vibe.Compute.thm_cmp_completion_charges.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_vacuum_rule_completion_bound.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_no_erase_flip_completion.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_vacuum_rule_no_erase_flip.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_closed_coincidence_transient.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_closed_box_completion_transient.{0})
 ]
 
 /-- `Vibe.Compute.BeatLink` (7 headline theorems). -/
@@ -682,16 +682,16 @@ private def manifest_Compute_BeatLink : List Unit := [
 
 /-- `Vibe.Compute.Boundary` (10 headline theorems). -/
 private def manifest_Compute_Boundary : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_cmp_perturbation_never_meets),
-  checkHeadline (@Vibe.Compute.thm_cmp_finite_perm_return),
-  checkHeadline (@Vibe.Compute.thm_cmp_closed_box_no_repair),
-  checkHeadline (@Vibe.Compute.thm_cmp_export_injective),
-  checkHeadline (@Vibe.Compute.thm_cmp_landauer_export),
-  checkHeadline (@Vibe.Compute.thm_cmp_d_theorem_abstract),
-  checkHeadline (@Vibe.Compute.thm_cmp_d_theorem),
-  checkHeadline (@Vibe.Compute.thm_cmp_d_no_repair_of_erase),
+  checkHeadline (@Vibe.Compute.thm_cmp_perturbation_never_meets.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_finite_perm_return.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_closed_box_no_repair.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_export_injective.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_landauer_export.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_d_theorem_abstract.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_d_theorem.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_d_no_repair_of_erase.{0}),
   checkHeadline (@Vibe.Compute.thm_cmp_z3_linear_additive),
-  checkHeadline (@Vibe.Compute.thm_cmp_z3_superposition)
+  checkHeadline (@Vibe.Compute.thm_cmp_z3_superposition.{0})
 ]
 
 /-- `Vibe.Compute.Canon` (14 headline theorems). -/
@@ -705,42 +705,42 @@ private def manifest_Compute_Canon : List Unit := [
   checkHeadline (@Vibe.Compute.Canon.thm_canon_rule_classes),
   checkHeadline (@Vibe.Compute.Canon.thm_canon_block_eq_core),
   checkHeadline (@Vibe.Compute.Canon.thm_canon_block_perm),
-  checkHeadline (@Vibe.Compute.Canon.thm_canon_round_perm),
-  checkHeadline (@Vibe.Compute.Canon.thm_canon_round_eq_core),
-  checkHeadline (@Vibe.Compute.Canon.thm_canon_no_strict_contraction),
+  checkHeadline (@Vibe.Compute.Canon.thm_canon_round_perm.{0}),
+  checkHeadline (@Vibe.Compute.Canon.thm_canon_round_eq_core.{0}),
+  checkHeadline (@Vibe.Compute.Canon.thm_canon_no_strict_contraction.{0}),
   checkHeadline (@Vibe.Compute.Canon.thm_canon_no_contraction_int_iff),
-  checkHeadline (@Vibe.Compute.Canon.thm_canon_bijection_no_collapse)
+  checkHeadline (@Vibe.Compute.Canon.thm_canon_bijection_no_collapse.{0})
 ]
 
 /-- `Vibe.Compute.Charge` (8 headline theorems). -/
 private def manifest_Compute_Charge : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_cmp_relcharge_conserved),
+  checkHeadline (@Vibe.Compute.thm_cmp_relcharge_conserved.{0}),
   checkHeadline (@Vibe.Compute.thm_cmp_relcharge_one_sign),
-  checkHeadline (@Vibe.Compute.thm_cmp_offcount_charge_bound),
-  checkHeadline (@Vibe.Compute.thm_cmp_species_never_grow),
-  checkHeadline (@Vibe.Compute.thm_cmp_copies_need_charge),
-  checkHeadline (@Vibe.Compute.thm_cmp_copies_need_species),
+  checkHeadline (@Vibe.Compute.thm_cmp_offcount_charge_bound.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_species_never_grow.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_copies_need_charge.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_copies_need_species.{0}),
   checkHeadline (@Vibe.Compute.thm_cmp_quiet_cells),
-  checkHeadline (@Vibe.Compute.thm_cmp_no_copy_without_food)
+  checkHeadline (@Vibe.Compute.thm_cmp_no_copy_without_food.{0})
 ]
 
 /-- `Vibe.Compute.CoverDistance` (15 headline theorems). -/
 private def manifest_Compute_CoverDistance : List Unit := [
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_exists_lift),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lift_unique),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_le),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_eq),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_injOn_ball),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_adj_ball),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_ball_iso),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lifts_of_injOn),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lifts_of_ball_embeds),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_le),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_sharp),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_gap),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_even),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_odd),
-  checkHeadline (@Vibe.Compute.GraphCover.thm_surface_limited_reads)
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_exists_lift.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lift_unique.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_le.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_eq.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_injOn_ball.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_adj_ball.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_ball_iso.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lifts_of_injOn.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_lifts_of_ball_embeds.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_le.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_sharp.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_dist_gap.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_even.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_cover_systole_odd.{0, 0}),
+  checkHeadline (@Vibe.Compute.GraphCover.thm_surface_limited_reads.{0, 0})
 ]
 
 /-- `Vibe.Compute.Devices` (16 headline theorems). -/
@@ -749,17 +749,17 @@ private def manifest_Compute_Devices : List Unit := [
   checkHeadline (@Vibe.Compute.Devices.gen_devices_rule_eq),
   checkHeadline (@Vibe.Compute.Devices.gen_devices_word_index_eq),
   checkHeadline (@Vibe.Compute.Devices.gen_devices_identity_census_eq),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_developments_distinct),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_one_input),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_realizes_one_input),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_exactly_one_input),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_capacity_ceiling),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_template_no_go),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_credit_needs_both_inputs),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_collective_one_device),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_apart_one_input),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_apart_any_entities),
-  checkHeadline (@Vibe.Compute.Devices.thm_dev_interaction_headroom),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_developments_distinct.{0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_one_input.{0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_realizes_one_input.{0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_identity_exactly_one_input.{0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_capacity_ceiling.{0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_template_no_go.{0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_credit_needs_both_inputs.{0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_collective_one_device.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_apart_one_input.{0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_apart_any_entities.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.Devices.thm_dev_interaction_headroom.{0, 0}),
   checkHeadline (@Vibe.Compute.Devices.thm_dev_primitive_developments_distinct)
 ]
 
@@ -811,8 +811,8 @@ private def manifest_Compute_KleeneCertificates : List Unit := [
   checkHeadline (@Vibe.Compute.Kleene.gen_kleene_layouts_eq),
   checkHeadline (@Vibe.Compute.Kleene.thm_kleene_neg_width_nine),
   checkHeadline (@Vibe.Compute.Kleene.thm_kleene_min_max_width_twelve),
-  checkHeadline (@Vibe.Compute.Kleene.thm_kleene_register_move),
-  checkHeadline (@Vibe.Compute.Kleene.thm_kleene_register_stay),
+  checkHeadline (@Vibe.Compute.Kleene.thm_kleene_register_move.{0}),
+  checkHeadline (@Vibe.Compute.Kleene.thm_kleene_register_stay.{0}),
   checkHeadline (@Vibe.Compute.Kleene.thm_kleene_counter_add_sub),
   checkHeadline (@Vibe.Compute.Kleene.gen_kleene_counter_eq),
   checkHeadline (@Vibe.Compute.Kleene.thm_kleene_counter_cases)
@@ -852,16 +852,16 @@ private def manifest_Compute_LinesMeetOnce : List Unit := [
 
 /-- `Vibe.Compute.Lumpability` (14 headline theorems). -/
 private def manifest_Compute_Lumpability : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_lump_iff_no_conflict),
-  checkHeadline (@Vibe.Compute.thm_lump_window_conflict),
-  checkHeadline (@Vibe.Compute.thm_lump_round_window_conflict),
-  checkHeadline (@Vibe.Compute.thm_lump_mate_path_orientation_free),
+  checkHeadline (@Vibe.Compute.thm_lump_iff_no_conflict.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_lump_window_conflict.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_lump_round_window_conflict.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_lump_mate_path_orientation_free.{0}),
   checkHeadline (@Vibe.Compute.thm_lump_lone_rule_dichotomy),
   checkHeadline (@Vibe.Compute.thm_lump_lone_hypotheses_of_charge),
-  checkHeadline (@Vibe.Compute.thm_lump_lone_track),
-  checkHeadline (@Vibe.Compute.thm_lump_lone_split_nogo),
-  checkHeadline (@Vibe.Compute.thm_lump_full_swap_transport),
-  checkHeadline (@Vibe.Compute.thm_lump_split_decided_by_quotient),
+  checkHeadline (@Vibe.Compute.thm_lump_lone_track.{0}),
+  checkHeadline (@Vibe.Compute.thm_lump_lone_split_nogo.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_lump_full_swap_transport.{0, 0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_lump_split_decided_by_quotient.{0, 0, 0}),
   checkHeadline (@Vibe.Compute.thm_lump_line_witness_sound),
   checkHeadline (@Vibe.Compute.thm_lump_line_conflict_witnesses),
   checkHeadline (@Vibe.Compute.gen_lump_block_maps_eq),
@@ -870,13 +870,13 @@ private def manifest_Compute_Lumpability : List Unit := [
 
 /-- `Vibe.Compute.MeshNoGo` (7 headline theorems). -/
 private def manifest_Compute_MeshNoGo : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_nogo_layer_transport),
-  checkHeadline (@Vibe.Compute.thm_nogo_transport_test),
-  checkHeadline (@Vibe.Compute.thm_nogo_no_hereditary),
-  checkHeadline (@Vibe.Compute.thm_nogo_feedback_cells),
-  checkHeadline (@Vibe.Compute.thm_nogo_write_impossible),
-  checkHeadline (@Vibe.Compute.thm_nogo_species_cells),
-  checkHeadline (@Vibe.Compute.thm_nogo_hereditary_cells)
+  checkHeadline (@Vibe.Compute.thm_nogo_layer_transport.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_transport_test.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_no_hereditary.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_feedback_cells.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_write_impossible.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_species_cells.{0}),
+  checkHeadline (@Vibe.Compute.thm_nogo_hereditary_cells.{0})
 ]
 
 /-- `Vibe.Compute.PairRuleLink` (2 headline theorems). -/
@@ -901,30 +901,30 @@ private def manifest_Compute_QuantumCoarse : List Unit := [
 
 /-- `Vibe.Compute.QuantumWalk` (24 headline theorems). -/
 private def manifest_Compute_QuantumWalk : List Unit := [
-  checkHeadline (@Vibe.Compute.groverCoin_apply),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_transpose),
-  checkHeadline (@Vibe.Compute.groverCoin_mul_self),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_sq_eq_one_iff),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_orthogonal_iff),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_orthogonal_iff_domain),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_exists_iff),
-  checkHeadline (@Vibe.Compute.thm_qw_grover_coin_orthogonal),
-  checkHeadline (@Vibe.Compute.thm_qw_coin_two_is_swap),
+  checkHeadline (@Vibe.Compute.groverCoin_apply.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_transpose.{0}),
+  checkHeadline (@Vibe.Compute.groverCoin_mul_self.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_sq_eq_one_iff.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_orthogonal_iff.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_orthogonal_iff_domain.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_exists_iff.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_grover_coin_orthogonal.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_coin_two_is_swap.{0}),
   checkHeadline (@Vibe.Compute.thm_qw_two_div_mem_z_sixth_iff),
   checkHeadline (@Vibe.Compute.thm_qw_exact_degrees_le_24),
   checkHeadline (@Vibe.Compute.thm_qw_lab_degrees),
-  checkHeadline (@Vibe.Compute.coinStep_eq_mulVec),
-  checkHeadline (@Vibe.Compute.thm_qw_walk_sum_sq),
-  checkHeadline (@Vibe.Compute.thm_qw_unmarked_uniform_fixed),
-  checkHeadline (@Vibe.Compute.thm_qw_unmarked_prob),
-  checkHeadline (@Vibe.Compute.thm_qw_amplitudes_integral),
-  checkHeadline (@Vibe.Compute.thm_qw_two_regular_amplitudes_unit),
+  checkHeadline (@Vibe.Compute.coinStep_eq_mulVec.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_walk_sum_sq.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_unmarked_uniform_fixed.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_unmarked_prob.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_amplitudes_integral.{0}),
+  checkHeadline (@Vibe.Compute.thm_qw_two_regular_amplitudes_unit.{0, 0}),
   checkHeadline (@Vibe.Compute.cycleFlip_involutive),
   checkHeadline (@Vibe.Compute.thm_qw_cycle_prob),
-  checkHeadline (@Vibe.Compute.thm_qw_off_sector_never_reaches),
-  checkHeadline (@Vibe.Compute.thm_qw_sector_bound),
-  checkHeadline (@Vibe.Compute.thm_qw_line_confined_search_bound),
-  checkHeadline (@Vibe.Compute.thm_qw_bare_u_search_bound)
+  checkHeadline (@Vibe.Compute.thm_qw_off_sector_never_reaches.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_sector_bound.{0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_line_confined_search_bound.{0, 0, 0}),
+  checkHeadline (@Vibe.Compute.thm_qw_bare_u_search_bound.{0, 0, 0})
 ]
 
 /-- `Vibe.Compute.Resonance` (10 headline theorems). -/
@@ -943,10 +943,10 @@ private def manifest_Compute_Resonance : List Unit := [
 
 /-- `Vibe.Compute.Round` (4 headline theorems). -/
 private def manifest_Compute_Round : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_cmp_round_perm_charge_negation),
+  checkHeadline (@Vibe.Compute.thm_cmp_round_perm_charge_negation.{0}),
   checkHeadline (@Vibe.Compute.thm_cmp_pair_rule_perm),
-  checkHeadline (@Vibe.Compute.thm_cmp_recurrence_is_periodic),
-  checkHeadline (@Vibe.Compute.thm_cmp_confined_period)
+  checkHeadline (@Vibe.Compute.thm_cmp_recurrence_is_periodic.{0}),
+  checkHeadline (@Vibe.Compute.thm_cmp_confined_period.{0})
 ]
 
 /-- `Vibe.Compute.RuleCensus` (12 headline theorems). -/
@@ -980,62 +980,62 @@ private def manifest_Compute_SecondOrderZ3 : List Unit := [
 
 /-- `Vibe.Compute.SelectSteer` (13 headline theorems). -/
 private def manifest_Compute_SelectSteer : List Unit := [
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_no_selector_of_pinned),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_of_moved),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_of_fixed),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_fixed_cells),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_t4_still),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_t5_free_flight),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_cells),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_none_of_occ),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_none_blind_cells),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_presence_blind_cells),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_no_selector_of_pinned.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_of_moved.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_of_fixed.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_fixed_cells.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_t4_still.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_t5_free_flight.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_pinned_cells.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_none_of_occ.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_none_blind_cells.{0}),
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_steer_presence_blind_cells.{0}),
   checkHeadline (@Vibe.Compute.SelectSteer.thm_select_t1_t2_select),
   checkHeadline (@Vibe.Compute.SelectSteer.thm_select_value_presence_t45),
-  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_steer_cells)
+  checkHeadline (@Vibe.Compute.SelectSteer.thm_select_steer_cells.{0})
 ]
 
 /-- `Vibe.Compute.Selection` (16 headline theorems). -/
 private def manifest_Compute_Selection : List Unit := [
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_s),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_s_two_levels),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_k),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_k_card),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_s.{0, 0}),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_s_two_levels.{0}),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_k.{0, 0}),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_k_card.{0, 0}),
   checkHeadline (@Vibe.Selection.thm_sel_lemma_k_attained),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_k_attained_card),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_k_attained_card.{0, 0}),
   checkHeadline (@Vibe.Selection.thm_sel_blind_levels),
   checkHeadline (@Vibe.Selection.thm_sel_trit_levels),
   checkHeadline (@Vibe.Selection.thm_sel_lemma_k_blind_three_seven),
   checkHeadline (@Vibe.Selection.thm_sel_lemma_k_trit_five_seventeen),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_injective),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_t),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_card),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_injective.{0, 0}),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_t.{0, 0}),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_card.{0, 0}),
   checkHeadline (@Vibe.Selection.thm_sel_lemma_t_blind),
-  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_bijective),
+  checkHeadline (@Vibe.Selection.thm_sel_lemma_t_bijective.{0, 0}),
   checkHeadline (@Vibe.Selection.thm_sel_lemma_t_attained)
 ]
 
 /-- `Vibe.Compute.SpeciesTransport` (7 headline theorems). -/
 private def manifest_Compute_SpeciesTransport : List Unit := [
-  checkHeadline (@Vibe.Compute.thm_species_transport),
-  checkHeadline (@Vibe.Compute.thm_species_pull_back),
-  checkHeadline (@Vibe.Compute.thm_species_output_copy),
-  checkHeadline (@Vibe.Compute.thm_species_no_kleene),
+  checkHeadline (@Vibe.Compute.thm_species_transport.{0}),
+  checkHeadline (@Vibe.Compute.thm_species_pull_back.{0}),
+  checkHeadline (@Vibe.Compute.thm_species_output_copy.{0}),
+  checkHeadline (@Vibe.Compute.thm_species_no_kleene.{0}),
   checkHeadline (@Vibe.Compute.thm_species_transport_cells),
   checkHeadline (@Vibe.Compute.thm_species_blind_cells),
-  checkHeadline (@Vibe.Compute.thm_species_point_mutation)
+  checkHeadline (@Vibe.Compute.thm_species_point_mutation.{0})
 ]
 
 /-- `Vibe.Compute.SpinOneQ2R` (10 headline theorems). -/
 private def manifest_Compute_SpinOneQ2R : List Unit := [
   checkHeadline (@Vibe.Compute.thm_q2r_move_local),
-  checkHeadline (@Vibe.Compute.q2rSetStep_involutive),
-  checkHeadline (@Vibe.Compute.q2rEnergy_setStep),
-  checkHeadline (@Vibe.Compute.thm_q2r_round_general),
-  checkHeadline (@Vibe.Compute.thm_q2r_round),
-  checkHeadline (@Vibe.Compute.thm_q2r_delta_zero_keeps_d),
+  checkHeadline (@Vibe.Compute.q2rSetStep_involutive.{0}),
+  checkHeadline (@Vibe.Compute.q2rEnergy_setStep.{0}),
+  checkHeadline (@Vibe.Compute.thm_q2r_round_general.{0}),
+  checkHeadline (@Vibe.Compute.thm_q2r_round.{0}),
+  checkHeadline (@Vibe.Compute.thm_q2r_delta_zero_keeps_d.{0}),
   checkHeadline (@Vibe.Compute.thm_q2r_delta_zero_chiral),
-  checkHeadline (@Vibe.Compute.thm_q2r_odd_degree_frozen),
-  checkHeadline (@Vibe.Compute.thm_q2r_vacancy_needs_ratio),
+  checkHeadline (@Vibe.Compute.thm_q2r_odd_degree_frozen.{0}),
+  checkHeadline (@Vibe.Compute.thm_q2r_vacancy_needs_ratio.{0}),
   checkHeadline (@Vibe.Compute.gen_q2r_move_eq)
 ]
