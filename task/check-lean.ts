@@ -28,6 +28,7 @@ import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
+import { checkLeanLink } from './check-lean-link'
 
 const MIN_HEADLINE_THEOREM_COUNT = 400
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
@@ -448,6 +449,328 @@ const REQUIRED_THEOREMS = [
   'thm_ml_z6_sm_quotient_and_baryon_quantization',
   'thm_ml_steinberg_cubic_and_zeta18_gap_real',
   'thm_ml_d4_outer_triality_fprim_det',
+  // Vibe.NoContraction (3 headline: no bijection of a finite metric space is a strict contraction)
+  'thm_ms_no_strict_contraction_of_surjective',
+  'thm_ms_reversible_no_global_contraction',
+  'thm_ms_reversible_some_pair_not_shrunk',
+  // Vibe.PairRules (4 headline: the 24 conservative reversible pair rules, 12 classes, vacuum/D/swap coincidence, inverses)
+  'thm_pair_rules_card',
+  'thm_pair_rule_classes',
+  'thm_pair_rule_vacuum_iff',
+  'thm_pair_rule_inverse',
+  // Vibe.Compute.PairRuleLink (2 headline: bridges of Generated/PairRuleTable, the code's pair index and 24 rule tables equal PairRules)
+  'gen_pair_tones_eq',
+  'gen_pair_rules_eq',
+  // Vibe.PartitionedStep (2 headline: the partitioned global step is a charge-conserving bijection)
+  'thm_cf_partitioned_block_global_invariants',
+  'thm_cf_partitioned_rule_step_bijective',
+  // Vibe.Compute.Round (4 headline, L02: the round over any graph and schedule is an Equiv.Perm keeping Q, D and negation; confined)
+  'thm_cmp_round_perm_charge_negation',
+  'thm_cmp_pair_rule_perm',
+  'thm_cmp_recurrence_is_periodic',
+  'thm_cmp_confined_period',
+  // Vibe.QuantumGates (3 headline: the bare beat's meeting is unitary, the 2/3 role-SWAP, the Sym^3 CZ is exactly -1)
+  'thm_q_meet_gates_unitary',
+  'thm_q_role_swap_two_thirds',
+  'thm_q_sym3_cz_minus_one',
+  // Vibe.QuantumBoundary (2 headline: the dephased unitary is doubly stochastic, the dephased line coins)
+  'thm_q_dephased_unitary_doubly_stochastic',
+  'thm_q_dephased_line_coin',
+  // Vibe.QuantumMemory (2 headline: the code spaces U's layers keep, and the layer that breaks the DFS)
+  'thm_q_code_space_invariant',
+  'thm_q_pair_mixer_breaks_dfs',
+  // Vibe.LineScattering (7 headline: the one-line S-matrix of bare U as an identity in the momenta)
+  'thm_line_mode_eigenvector',
+  'thm_line_s_is_yang',
+  'thm_line_opposite_reflects',
+  'thm_line_spectator_symmetric',
+  'thm_line_yang_baxter_one_tone',
+  'thm_line_mixed_tone_defect',
+  'thm_line_opposite_between_factorizes',
+  // Vibe.Compute.LineScatteringExt (17 headline, L13: det(left) factors and is nonzero on the curve, S unique there, the rapidity identities, the bridge to UniversalityObstructions' 2-to-1 law, door B)
+  'thm_lsx_det_left_factor',
+  'thm_lsx_det_left_nonzero_point',
+  'thm_lsx_s_unique',
+  'thm_lsx_s_unique_field',
+  'thm_lsx_im_product',
+  'thm_lsx_rapidity_square',
+  'thm_lsx_rapidity_square_injective',
+  'thm_lsx_rapidity_nonzero',
+  'thm_lsx_equal_rapidity_iff',
+  'thm_lsx_velocity_rapidity',
+  'thm_lsx_two_to_one_factor',
+  'thm_lsx_rapidity_bridge',
+  'thm_lsx_equal_velocity_iff',
+  'thm_lsx_doorb_orientations',
+  'thm_lsx_doorb_symmetric_diffracts',
+  'thm_lsx_doorb_mismatch_denominator',
+  'thm_lsx_doorb_coincidence',
+  // Vibe.WireInvariant (6 headline: passenger laws of the 3-cycle wire rules and the Kleene no-go they give)
+  'thm_wire_bca_passengers',
+  'thm_wire_cab_id_backward',
+  'thm_wire_cab_id_no_forward',
+  'thm_wire_bca_rays',
+  'thm_wire_bca_no_neg',
+  'thm_wire_bca_no_min_max',
+  // Vibe.SimulationContract (8 headline: exact simulation contracts compose, powers, identity, invariant subset, unique coarse rule, full-swap instance)
+  'thm_cf_simulation_contract_composition',
+  'thm_cf_simulation_contract_commutes_composition',
+  'thm_cf_simulation_contract_power',
+  'thm_cf_simulation_contract_identity',
+  'thm_cf_simulation_contract_subset_invariant',
+  'thm_cf_simulation_contract_rule_unique',
+  'thm_cf_full_swap_brick2_contract',
+  'thm_cf_full_swap_brick2_contract_two_rounds',
+  // Vibe.Compute.SecondOrderZ3 (9 headline, L18: second-order Z3 waves are bijective for every f, exactly time-reversible, superpose for linear laws, and the front tone is the geodesic count mod 3)
+  'thm_soz3_time_reversal',
+  'thm_soz3_step_bijective',
+  'thm_soz3_slice_pairs_permuted',
+  'thm_soz3_linear_superposition',
+  'thm_soz3_square_breaks_superposition',
+  'thm_soz3_light_cone',
+  'thm_soz3_front_geodesic_count',
+  'thm_soz3_front_all_laws',
+  'thm_soz3_front_simple_graph',
+  // Vibe.Compute.Selection (16 headline, I01: level 6 Lemma S, Lemma K with attainment and the 3/7 and 5/17 corollaries, Lemma T)
+  'thm_sel_lemma_s',
+  'thm_sel_lemma_s_two_levels',
+  'thm_sel_lemma_k',
+  'thm_sel_lemma_k_card',
+  'thm_sel_lemma_k_attained',
+  'thm_sel_lemma_k_attained_card',
+  'thm_sel_blind_levels',
+  'thm_sel_trit_levels',
+  'thm_sel_lemma_k_blind_three_seven',
+  'thm_sel_lemma_k_trit_five_seventeen',
+  'thm_sel_lemma_t_injective',
+  'thm_sel_lemma_t',
+  'thm_sel_lemma_t_card',
+  'thm_sel_lemma_t_blind',
+  'thm_sel_lemma_t_bijective',
+  'thm_sel_lemma_t_attained',
+  // Vibe.Compute.Boundary (10 headline, L10: M9 A20 closed-box no-repair and return, A21 Landauer export, A22 the D theorem, A23 Z3 superposition)
+  'thm_cmp_perturbation_never_meets',
+  'thm_cmp_finite_perm_return',
+  'thm_cmp_closed_box_no_repair',
+  'thm_cmp_export_injective',
+  'thm_cmp_landauer_export',
+  'thm_cmp_d_theorem_abstract',
+  'thm_cmp_d_theorem',
+  'thm_cmp_d_no_repair_of_erase',
+  'thm_cmp_z3_linear_additive',
+  'thm_cmp_z3_superposition',
+  // Vibe.Compute.Association (6 headline, L06: M7 A18 the completion bound D(c) - D(p) >= |Q(c) - Q(p)| with equal parity and the erase/flip no-go for the 8 vacuum-fixing rules, A19 closed-box coincidences are transient)
+  'thm_cmp_completion_charges',
+  'thm_cmp_vacuum_rule_completion_bound',
+  'thm_cmp_no_erase_flip_completion',
+  'thm_cmp_vacuum_rule_no_erase_flip',
+  'thm_cmp_closed_coincidence_transient',
+  'thm_cmp_closed_box_completion_transient',
+  // Vibe.Compute.RuleCensus (12 headline, L03: B1 coincidences and time reversal, B2 passenger laws and sided closures, B3 the 72 M6 cells, WireInvariant.T and Tone, with bridges of Generated/RuleCensus)
+  'gen_rule_census_meta_eq',
+  'gen_rule_census_passengers_eq',
+  'gen_rule_census_cells_eq',
+  'gen_rule_census_closures_eq',
+  'thm_rule_census_vacuum_classes',
+  'thm_rule_census_time_reversal',
+  'thm_rule_census_passengers',
+  'thm_rule_census_sided_closure',
+  'thm_rule_census_cells',
+  'thm_rule_census_blind',
+  'thm_rule_census_wire_cells',
+  'thm_rule_census_wire_tone_equiv',
+  // Vibe.Compute.QuantumWalk (20 headline, L14: Q5 A14 the Grover coin cJ - I orthogonal iff c(cd - 2) = 0, 2/d in Z[1/6] iff d = 2^a 3^b, integral amplitudes, norm, P = 1/N unmarked and on the cycle; A15 the line-confined search bound P <= (1 + 2R)/|B_R|)
+  'thm_qw_coin_transpose',
+  'thm_qw_coin_sq_eq_one_iff',
+  'thm_qw_coin_orthogonal_iff',
+  'thm_qw_coin_orthogonal_iff_domain',
+  'thm_qw_coin_exists_iff',
+  'thm_qw_grover_coin_orthogonal',
+  'thm_qw_coin_two_is_swap',
+  'thm_qw_two_div_mem_z_sixth_iff',
+  'thm_qw_exact_degrees_le_24',
+  'thm_qw_lab_degrees',
+  'thm_qw_walk_sum_sq',
+  'thm_qw_unmarked_uniform_fixed',
+  'thm_qw_unmarked_prob',
+  'thm_qw_amplitudes_integral',
+  'thm_qw_two_regular_amplitudes_unit',
+  'thm_qw_cycle_prob',
+  'thm_qw_off_sector_never_reaches',
+  'thm_qw_sector_bound',
+  'thm_qw_line_confined_search_bound',
+  'thm_qw_bare_u_search_bound',
+  // Vibe.Compute.LinesMeetOnce (7 headline, L12: Q3c point 1 / A13, two lines of the whole mesh meet at most once, from make's lines through c_0, with bridges of Generated/BeatSlots)
+  'thm_lines_meet_once_at_dock',
+  'thm_lines_meet_once_lorentz',
+  'thm_lines_meet_once',
+  'gen_beat_roots_eq',
+  'gen_beat_opposite_eq',
+  'gen_beat_lines_eq',
+  'gen_beat_line_centers_eq',
+  // Vibe.Compute.BeatLink (L15: bare-beat.ts is the Lean Fock beat on the declared 860-state family, roles 0 and 1; B6 the Q0 gates there; bridges of Generated/BareBeat)
+  'gen_bare_beat_coeffs_eq',
+  'gen_bare_beat_layers_eq',
+  'gen_bare_beat_family_eq',
+  'gen_bare_beat_beat_eq',
+  'gen_bare_beat_neighbours_eq',
+  'thm_beat_link_family',
+  'thm_beat_link_q0_gates',
+  // Vibe.Compute.Canon (14 headline, L22: PairRules, PartitionedStep, the L02 round and NoContraction restated in Mathlib terms, each with a bridge to the core statement; the 24 rules as a Subgroup of Equiv.Perm of card 24, the 12 classes as orbits of the swap-and-negation Klein group; the M1 audit's corrected no-collapse claim)
+  'thm_canon_rule_group_iff_core',
+  'thm_canon_rule_code_equiv',
+  'thm_canon_rule_group_card',
+  'thm_canon_rule_group_gen',
+  'thm_canon_klein',
+  'thm_canon_orbit_iff_core',
+  'thm_canon_rule_classes',
+  'thm_canon_block_eq_core',
+  'thm_canon_block_perm',
+  'thm_canon_round_perm',
+  'thm_canon_round_eq_core',
+  'thm_canon_no_strict_contraction',
+  'thm_canon_no_contraction_int_iff',
+  'thm_canon_bijection_no_collapse',
+  // Vibe.Compute.SpinOneQ2R (8 headline, L07: M2 A2 an energy-keeping involutive local rule on any schedule of independent sets of any finite SimpleGraph keeps E, is a bijection and is undone by the reverse round, Delta 0 keeps D and a D-changing rule there is chiral; A3 odd degree freezes the vacancy-free Ising limit, a vacancy move needs Delta = J k with |k| <= degree; bridge of Generated/SpinOneQ2R)
+  'thm_q2r_move_local',
+  'thm_q2r_round_general',
+  'thm_q2r_round',
+  'thm_q2r_delta_zero_keeps_d',
+  'thm_q2r_delta_zero_chiral',
+  'thm_q2r_odd_degree_frozen',
+  'thm_q2r_vacancy_needs_ratio',
+  'gen_q2r_move_eq',
+  // Vibe.Compute.CoverDistance (15 headline, L20: A32 for any graph covering map: walks lift uniquely, quotient distance <= cover distance and equal when 2 d <= L (loop systole), injective on balls with 2r < L, induced-graph ball isomorphism when 2r + 1 < L, the lower-bound logic L >= 2r + 1 / 2r + 2 and the lab's L = 2r + 2 or 2r + 3 rule, sharpness at L, and what the surface_limited systole gate reads)
+  'thm_cover_exists_lift',
+  'thm_cover_lift_unique',
+  'thm_cover_dist_le',
+  'thm_cover_dist_eq',
+  'thm_cover_injOn_ball',
+  'thm_cover_adj_ball',
+  'thm_cover_ball_iso',
+  'thm_cover_lifts_of_injOn',
+  'thm_cover_lifts_of_ball_embeds',
+  'thm_cover_systole_le',
+  'thm_cover_systole_sharp',
+  'thm_cover_dist_gap',
+  'thm_cover_systole_even',
+  'thm_cover_systole_odd',
+  'thm_surface_limited_reads',
+  // Vibe.Compute.SpeciesTransport (7 headline, L04: A4 the M6 no-feedback lemma on any graph and schedule, the pull-back lemma, B15 the lemma table over the 24 species cells and genTable, A5 output copy and no Kleene gate on the 12 occupancy-blind cells, A25 M10 P2 a point mutation marks exactly one cell)
+  'thm_species_transport',
+  'thm_species_pull_back',
+  'thm_species_output_copy',
+  'thm_species_no_kleene',
+  'thm_species_transport_cells',
+  'thm_species_blind_cells',
+  'thm_species_point_mutation',
+  // Vibe.Compute.Resonance (10 headline, L17: M8 A29 the Lucas front on {4,4} and {6,3} for every t >= 1 and every law with h 0 = 0, lit(t) = k (L3(t) - 1) with k = 4, 6, shells of k t tiles, walk distance = taxicab / hexagonal norm, Lucas's count of C(n, k) not divisible by 3, base 2 fails; A30 a uniform start stays uniform on any degree-p graph and returns exactly at multiples of 4, 6, 3 as p + sigma = 0, 1, 2 mod 3)
+  'thm_res_lucas_count',
+  'thm_res_lit_of_front',
+  'thm_res_square_distance',
+  'thm_res_square_lucas_front',
+  'thm_res_tri_distance',
+  'thm_res_tri_lucas_front',
+  'thm_res_lucas_base_two_fails',
+  'thm_res_uniform_field',
+  'thm_res_uniform_mode',
+  'thm_res_uniform_period_injective',
+  // Vibe.Compute.Frontier (9 headline, I02: level 4 L4-Exact; the discovered-graph wave equals the whole-graph field, the front lights exactly the states with a geodesic count nonzero mod 3, and the code's read-back is a shortest path when no Lucas hole lies inside the goal's distance)
+  'thm_frontier_discovered_field',
+  'thm_frontier_lights_iff',
+  'thm_frontier_never_early',
+  'thm_frontier_unreachable_dark',
+  'thm_frontier_readback_shortest',
+  'thm_frontier_readback_earlier',
+  'thm_frontier_readback_lucas',
+  'thm_frontier_isDist_simple_graph',
+  'thm_frontier_readback_simple_graph',
+  // Vibe.Compute.Charge (8 headline, L05: A24 M10 P1, Q_rel conserved and of one sign on b = +-1, no copy without food on all 56 quiet cells, copies bounded by charge or species counts with food; I-a4 N(t) <= |Q_rel| <= 2 N(0), a lit frontier of width w needs w <= |Q_rel|, species cells never grow)
+  'thm_cmp_relcharge_conserved',
+  'thm_cmp_relcharge_one_sign',
+  'thm_cmp_offcount_charge_bound',
+  'thm_cmp_species_never_grow',
+  'thm_cmp_copies_need_charge',
+  'thm_cmp_copies_need_species',
+  'thm_cmp_quiet_cells',
+  'thm_cmp_no_copy_without_food',
+  // Vibe.Compute.FiniteInteractionWire (6 headline, L09: A8 the brick line is the ray grid, the deficit step, finitely many interactions for every finite start of any sum-keeping rule with a one-sided wire on b = +-1, free flight after them, and all 8 one-sided-wire cells)
+  'thm_fiw_ray_bridge',
+  'thm_fiw_deficit_two_steps',
+  'thm_fiw_grid_finite',
+  'thm_fiw_line_finite',
+  'thm_fiw_free_flight',
+  'thm_fiw_wire_cells',
+  // Vibe.Compute.FiniteInteractionSpecies (6 headline, L08: A7 the species cells T2 to T5 on the brick line finish interacting by round w - 2 from a start of width w, 4t + 2 <= w in T2/T3, 2t + 2 <= w in T4 (outside the cavity) and T5, from L04's transport; T0/T1 meet forever)
+  'thm_fis_occupancy_meetings',
+  'thm_fis_mover_meetings',
+  'thm_fis_mirror_meetings',
+  'thm_fis_static_meet_forever',
+  'thm_fis_species_cells',
+  'thm_fis_static_cells',
+  // Vibe.Compute.Lumpability (14 headline, L11: M11 A26 a coarse conflict rules out every coarse rule, the padded-window and round-cone forms on any graph; A27 lone mover steps 1 to 4 on any graph, schedule and orientation (rule dichotomy from charge, track P^tau, split no-go, full-swap transport iff no split, decided by the deck quotient), step 5 deferred; B9 a kernel-checked witness for every non-identity rule, line schedule, b 2 to 4, tau 1 to 2 and reading map; bridges of Generated/Lumpability and Generated/PartitionedRing)
+  'thm_lump_iff_no_conflict',
+  'thm_lump_window_conflict',
+  'thm_lump_round_window_conflict',
+  'thm_lump_mate_path_orientation_free',
+  'thm_lump_lone_rule_dichotomy',
+  'thm_lump_lone_hypotheses_of_charge',
+  'thm_lump_lone_track',
+  'thm_lump_lone_split_nogo',
+  'thm_lump_full_swap_transport',
+  'thm_lump_split_decided_by_quotient',
+  'thm_lump_line_witness_sound',
+  'thm_lump_line_conflict_witnesses',
+  'gen_lump_block_maps_eq',
+  'gen_partitioned_ring_eq',
+  // Vibe.Compute.KleeneCertificates (8 headline, L19: B4 the four one-law cells compute neg in a width-9 window and min, max in width-12 windows on the Lean brick round, every input, from the code's layouts; A9 the T5 counter ADD and SUB for every a : Int and n, from the register step on any matching; B5 the code's 162 cases; bridges of Generated/Kleene)
+  'thm_kleene_neg_width_nine',
+  'thm_kleene_min_max_width_twelve',
+  'thm_kleene_register_move',
+  'thm_kleene_register_stay',
+  'thm_kleene_counter_add_sub',
+  'thm_kleene_counter_cases',
+  'gen_kleene_layouts_eq',
+  'gen_kleene_counter_eq',
+  // Vibe.Compute.MeshNoGo (7 headline, I05: level 4 L4-NoFeedback, a laid-out output's driving bit is one fixed cell's start bit, so in the 12 occupancy-blind cells its occupancy is one input's or a constant; L4-WriteImpossible, the transport test, so no 0/1 expand gate, gated write or merge write; the level-5 no-go in the 24 species cells, T0/T1/T4 driving layer still, T2/T3/T5 full-swap free flight; level 8 C5 species part, counts conserved and no point mutation marks two cells; all corollaries of L04 and L05)
+  'thm_nogo_layer_transport',
+  'thm_nogo_transport_test',
+  'thm_nogo_no_hereditary',
+  'thm_nogo_feedback_cells',
+  'thm_nogo_write_impossible',
+  'thm_nogo_species_cells',
+  'thm_nogo_hereditary_cells',
+  // Vibe.Compute.SelectSteer (13 headline, I04: level 6 Lemma P, a pinned read admits no selector at any L >= 2 levels and any score cells, the 18 T0/T3/T4/T5 cells pinned (T0 identity, T3 full swap, T4 still tone, T5 mover in free flight); Lemma X, no steering in T0 to T3 (occupancy fixes the read), presence pinned there, T4/T5 turn a value into presence, T1/T2 select on three cells, so every species cell has no steering or no selecting layout)
+  'thm_select_no_selector_of_pinned',
+  'thm_select_pinned_of_moved',
+  'thm_select_pinned_of_fixed',
+  'thm_select_fixed_cells',
+  'thm_select_t4_still',
+  'thm_select_t5_free_flight',
+  'thm_select_pinned_cells',
+  'thm_steer_none_of_occ',
+  'thm_steer_none_blind_cells',
+  'thm_steer_presence_blind_cells',
+  'thm_select_t1_t2_select',
+  'thm_select_value_presence_t45',
+  'thm_select_steer_cells',
+  // Vibe.Compute.Devices (16 headline, I03: level 7 D2 developments of distinct starts stay distinct on any graph and on the census's primitive line starts; D3 the identity device realizes exactly F1 on any window, inputs and rounds, F1 is 10 of 64; D4 no device of any rule beats the best of all 64 functions, the template no-go and credit only through both inputs; level 8 C1 a collective is one device, C2 devices run apart realize only F1 for any number of entities, the interaction headroom; bridges of Generated/Devices: id.ABC.id, wordIndex, the code's identity census equals F1)
+  'thm_dev_one_input_card',
+  'gen_devices_rule_eq',
+  'gen_devices_word_index_eq',
+  'gen_devices_identity_census_eq',
+  'thm_dev_developments_distinct',
+  'thm_dev_primitive_developments_distinct',
+  'thm_dev_identity_one_input',
+  'thm_dev_identity_realizes_one_input',
+  'thm_dev_identity_exactly_one_input',
+  'thm_dev_capacity_ceiling',
+  'thm_dev_template_no_go',
+  'thm_dev_credit_needs_both_inputs',
+  'thm_dev_collective_one_device',
+  'thm_dev_apart_one_input',
+  'thm_dev_apart_any_entities',
+  'thm_dev_interaction_headroom',
   'thm_ml_d4_honeycomb_duality_and_villain_sd',
   'thm_ml_2tr_character_table_and_rank1_origin',
   // Vibe.LogicEmergence (7 headline: Logic of emergence & dynamical instantiations on Z_2^48, ZMod 6, D_4/3D_4)
@@ -467,6 +790,24 @@ const REQUIRED_THEOREMS = [
   'thm_q8_witten_z2_flux_parity',
   'thm_zero_veto_3smooth_closure',
   'thm_wf4_spin2_diffeo_uniqueness',
+  // Vibe.Compute.QuantumCoarse (10 headline, L16: Q6 on the 2-role Fock beat; A16 the lone split k e_(k_a, a) + f e_(k_opp a, opp a), weights 1/4 and 3/4, the walk to beat 3, no dock map that tells a lone vibe from an empty dock makes U, U^2 or U^3 a coarse function; A17 U fixes the vacuum and mixes a one-dock state in every sector of 1..24 excitations; B8 the four declared tone maps tied to DECLARED_TONE_MAPS by Generated/QuantumCoarse, three see a lone vibe, pairedSign blind and still no function under U)
+  'thm_qc_lone_split',
+  'thm_qc_lone_targets',
+  'thm_qc_lone_walk',
+  'thm_qc_lone_branch',
+  'thm_qc_coarse_nogo',
+  'thm_qc_monomial_only_vacuum',
+  'gen_quantum_coarse_maps_eq',
+  'thm_qc_declared_maps_lone',
+  'thm_qc_declared_maps_nogo',
+  'thm_qc_paired_sign_nogo',
+  // Vibe.Compute.GateSetRank (6 headline, L21: B10 every Krylov degree of M8's mode table, 12 graphs x 2 laws, is the exact minimal-polynomial degree of A + sigma I on delta_0 over ZMod 3, from the code's tables in Generated/CertificatesKrylov; B7 partial: Q1's eight generators rebuilt in Lean from the S = 1 sector and equal to tripleGenerators, symmetric, traceless, on the rank-9 sector; the rank 80 of their Lie closure and B11 are follow-up items)
+  'thm_gsr_krylov_degrees',
+  'gen_gsr_krylov_degrees_eq',
+  'gen_gsr_generators_eq',
+  'thm_gsr_sector_projector',
+  'thm_gsr_generators_in_sector',
+  'thm_gsr_transpositions_involutive',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -813,13 +1154,14 @@ function auditPrintAxioms(
   const axiomUsage = new Map<string, number>()
 
   for (const line of outputLines) {
-    const noneMatch = /^'([^']+)' does not depend on any axioms$/.exec(line)
+    // Names may contain an apostrophe (primed names), so match up to the fixed phrase, not the first quote.
+    const noneMatch = /^'(.+)' does not depend on any axioms$/.exec(line)
     if (noneMatch) {
       seenNames.add(noneMatch[1]!)
       continue
     }
 
-    const depMatch = /^'([^']+)' depends on axioms: \[([^\]]*)\]$/.exec(line)
+    const depMatch = /^'(.+)' depends on axioms: \[([^\]]*)\]$/.exec(line)
     if (depMatch) {
       const name = depMatch[1]!
       seenNames.add(name)
@@ -1244,6 +1586,15 @@ function main(): void {
       `check:lean    ${s.label.padEnd(32)} headline=${String(s.headline).padStart(2)}  exportedHelpers=${String(s.exportedHelper).padStart(2)}  privateHelpers=${String(s.privateHelper).padStart(3)}`,
     )
   }
+
+  // the TypeScript-to-Lean link: every Generated/ file equals a fresh export and has its bridge theorems
+  const link = checkLeanLink({ requiredTheorems: REQUIRED_THEOREMS })
+
+  for (const line of link.lines) {
+    console.log(`check:lean  ${line}`)
+  }
+
+  failures.push(...link.failures)
 
   if (failures.length > 0) {
     for (const f of failures) {
