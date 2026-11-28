@@ -58,6 +58,8 @@ import '@/test/code/coarse/two-self'
 import '@/test/code/coarse/valence-drift'
 import '@/test/code/coarse/validator'
 
+import '@/test/code/compute/counter-ray'
+
 import '@/test/code/control/lossy-collision'
 import '@/test/code/control/null'
 
@@ -341,4 +343,4 @@ import '@/test/code/tool/poset'
 import '@/test/code/tool/weyl'
 import '@/test/code/tool/substrate'
 
-// total suites files: 325
+// total suites files: 326

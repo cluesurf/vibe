@@ -57,6 +57,14 @@ import {
 } from '@/code/rule/bare-beat'
 import { q2rMove } from '@/code/rule/spin-one-q2r'
 import {
+  LINES as COUNTER_LINES,
+  OPPOSITE_SLOT as COUNTER_OPPOSITE_SLOT,
+  SYMBOL_COUNT as COUNTER_SYMBOL_COUNT,
+  TRANSPORTS as COUNTER_TRANSPORTS,
+  lineMap as counterLineMap,
+  lineMapInverse as counterLineMapInverse,
+} from '@/code/compute/counter-ray'
+import {
   LINE_SCHEDULES,
   LumpWitness,
   blockMap,
@@ -1774,6 +1782,76 @@ export function exportCertificatesKrylov(): string {
   })
 }
 
+// The reversible counter rule of counter-ray.ts: the line map and its inverse on all 144 symbol pairs (entry
+// 12 a + b codes the image 12 a' + b'), the 12 lines (plus port, minus port), and the 24 transport frames k_s, each
+// packed into one Nat (50 signed entries, row-major, a then b of a + b sqrt 2, base CERT_BASE shifted by
+// CERT_OFFSET, lowest first). The export refuses unless the two line tables are inverse to each other.
+const COUNTER_RAY_SOURCES = ['code/compute/counter-ray.ts'] as const
+
+export function exportCounterRay(): string {
+  const n = COUNTER_SYMBOL_COUNT
+  const forward: string[] = []
+  const inverse: string[] = []
+
+  for (let a = 0; a < n; a++) {
+    for (let b = 0; b < n; b++) {
+      const [oa, ob] = counterLineMap(a, b)
+      const [ia, ib] = counterLineMapInverse(a, b)
+      const [ra, rb] = counterLineMapInverse(oa, ob)
+      const [fa, fb] = counterLineMap(ia, ib)
+
+      if (ra !== a || rb !== b || fa !== a || fb !== b) {
+        throw new Error(`counter-ray line tables are not inverse at (${a}, ${b})`)
+      }
+
+      forward.push(String(oa * n + ob))
+      inverse.push(String(ia * n + ib))
+    }
+  }
+
+  const lines = COUNTER_LINES.map(([a, b]) => {
+    if (COUNTER_OPPOSITE_SLOT[a] !== b || a >= b) {
+      throw new Error(`counter-ray line (${a}, ${b}) is not (s, opp s) with s < opp s`)
+    }
+
+    return `(${a}, ${b})`
+  })
+  const frames = COUNTER_TRANSPORTS.map(frame => packSigned(frame.flatMap(row => row.flatMap(([x, y]) => [x, y]))))
+
+  const body = [
+    ...chunkedNats(
+      'counterLineTable',
+      '/-- `lineMap a b` of counter-ray.ts at entry `12 a + b`, coded `12 a\' + b\'`. -/',
+      forward,
+    ),
+    ...chunkedNats(
+      'counterLineInverseTable',
+      '/-- `lineMapInverse a b` of counter-ray.ts at entry `12 a + b`, coded `12 a\' + b\'`. -/',
+      inverse,
+    ),
+    '/-- `LINES` of counter-ray.ts: the 12 lines (plus port, minus port). -/',
+    `def counterLines : List (Nat × Nat) :=\n  ${leanList(lines, '  ')}`,
+    '',
+    '/-- `TRANSPORTS` of counter-ray.ts: frame `k_s` of slot `s`, 50 signed entries packed base `2 ^ 32`',
+    '    (shifted by `2 ^ 31`, lowest first): entry `(i, j)` of `k_s` is `a + b √2` with `a` at digit',
+    '    `2 (5 i + j)` and `b` at digit `2 (5 i + j) + 1`. -/',
+    `def counterFrameCodes : List Nat :=\n  ${leanList(frames, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: [...COUNTER_RAY_SOURCES],
+      lines: [
+        'Exports the line map and its inverse on all 144 symbol pairs, the 12 lines and the 24 transport',
+        'frames of the reversible counter rule, after checking the two line tables are inverse.',
+        'Bridge: Vibe.Compute.ReversibleCounter3434 (gen_counter_line_eq, gen_counter_lines_eq,',
+        'gen_counter_frames_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -1874,6 +1952,13 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridgeModule: 'Vibe.Compute.GateSetRank',
     bridges: ['gen_gsr_krylov_degrees_eq'],
     render: exportCertificatesKrylov,
+  },
+  {
+    name: 'CounterRay',
+    sources: COUNTER_RAY_SOURCES,
+    bridgeModule: 'Vibe.Compute.ReversibleCounter3434',
+    bridges: ['gen_counter_line_eq', 'gen_counter_lines_eq', 'gen_counter_frames_eq'],
+    render: exportCounterRay,
   },
 ]
 
