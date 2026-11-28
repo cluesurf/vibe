@@ -151,9 +151,10 @@ function packedCocycles(c: ToricComplex, root = 0, descending = false): Packed {
     }
   }
 
+  const symbolOf = new Int32Array(E).fill(-1)
+
   let symbols = 0
   let cursor = 0
-  const symbolOf = new Int32Array(E).fill(-1)
 
   for (;;) {
     while (worklist.length > 0) {
@@ -217,6 +218,7 @@ function packedCocycles(c: ToricComplex, root = 0, descending = false): Packed {
 
   // the echelon basis: pivot column -> row (normalized to 1 at its pivot), every entry below its pivot 0
   const basis = new Map<number, Uint32Array>()
+
   let residualRows = 0
 
   const trit = (r: Uint32Array, i: number): number =>
@@ -398,9 +400,11 @@ for (const mesh of meshes) {
     failures.push(`${c.name}: complex gate`)
   }
 
+  const complexRss = sampleRss()
+
   out.complexSeconds = seconds(t0)
-  out.complexRssGB = sampleRss()
-  console.log(`${c.name}: ${c.docks} docks, complex ${complexOk ? 'ok' : 'FAILED'} (${seconds(t0)} s, rss ${out.complexRssGB} GB)`)
+  out.complexRssGB = complexRss
+  console.log(`${c.name}: ${c.docks} docks, complex ${complexOk ? 'ok' : 'FAILED'} (${seconds(t0)} s, rss ${complexRss} GB)`)
 
   const routes: [string, number, boolean][] = [['root0', 0, false]]
 
@@ -453,7 +457,7 @@ for (const mesh of meshes) {
 
   out.seconds = seconds(t0)
   results.push(out)
-  console.log(`${c.name}: logical qutrits ${String(out.root0Logical)} (${seconds(t0)} s)`)
+  console.log(`${c.name}: logical qutrits ${JSON.stringify(out.root0Logical)} (${seconds(t0)} s)`)
 }
 
 console.log(`failures: ${failures.length === 0 ? 'none' : failures.join('; ')}`)

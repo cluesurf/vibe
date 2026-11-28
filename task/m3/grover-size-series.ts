@@ -53,7 +53,7 @@ import {
   type FlatTorus,
 } from '@/code/substrate/tiling-quotient'
 import { flags, intFlag, intListFlag, listFlag, seconds, summary } from './args'
-import { flatPartnerOf, HYPERBOLIC_REFERENCE_CELLS, regularMapSeries } from './q2r-size-series-quotients'
+import { flatPartnerOf, regularMapSeries } from './q2r-size-series-quotients'
 
 const NO_ORACLE_BEATS = 20
 
@@ -271,6 +271,7 @@ const report: Report = { ok: {} }
 const failures: string[] = []
 const pairs: Pair[] = []
 const catalog = closedQuotients().map(e => e.quotient)
+
 const named = (name: string): ClosedQuotient => {
   const q = catalog.find(e => e.name === name)
 
@@ -299,6 +300,13 @@ for (const def of PAIRS.filter(d => pairKeys.includes(d.key))) {
     const cells = map.analysis.faces
 
     if (onlyCells.size > 0 && !onlyCells.has(cells)) {
+      continue
+    }
+
+    // the catalog's map is the reference pair already (same size, genus, r and L)
+    const ref = pairs.find(p => p.key === def.key && p.reference)!.hyperbolic
+
+    if (cells === ref.cells && map.analysis.genus === ref.genus && map.systole === ref.systole && map.loopSystole === ref.loopSystole) {
       continue
     }
 
@@ -331,6 +339,7 @@ for (const def of PAIRS.filter(d => pairKeys.includes(d.key))) {
 
 // one row per graph, run once per distinct graph name (a flat torus can partner several maps of one size)
 const rows = new Map<string, Row>()
+
 const rowFor = (side: Side): Row => {
   const known = rows.get(side.name)
 

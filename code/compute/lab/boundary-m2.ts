@@ -36,11 +36,17 @@ export const START_CELLS_MAX_SMALL = 4
 export const START_CELLS_MAX_LARGE = 8
 export const MAX_STRUCTURES_PER_SIZE = 8
 export const WALL_RADIUS = 6
+// a lazy space that has created more cells than this is replaced by a fresh one between runs (results compare by address)
+export const CELL_BUDGET = 4_000_000
+// the largest support allowed after any piece of a round (roundWithin)
+export const PIECE_CAP = 100_000
 
 // ---- spaces and dynamics ----
 
 export type BoxSpace = PairSpace & {
   readonly degree: number
+  // cells created so far, for lazy spaces
+  cells?(): number
   compare(a: number, b: number): number
   address(cell: number): string
   fromAddress(address: string): number
@@ -69,6 +75,22 @@ export function round(dyn: Dynamics, state: Tones): void {
   for (let k = 0; k < dyn.pieces; k++) {
     dyn.piece(state, k)
   }
+}
+
+// One round that stops (false, the state left mid-round and never read) once the support passes PIECE_CAP after a
+// piece. A memory guard: on the 4D boxes a spreading rule doubles its support at each of 24 pieces and would fill
+// 2^24 cells inside one round. For a pair rule with at most 7 pieces it changes nothing, since a piece can at most
+// halve the support (no nonzero pair maps to the vacuum pair) and the round end would pass SUPPORT_CAP anyway.
+export function roundWithin(dyn: Dynamics, state: Tones): boolean {
+  for (let k = 0; k < dyn.pieces; k++) {
+    dyn.piece(state, k)
+
+    if (state.size > PIECE_CAP) {
+      return false
+    }
+  }
+
+  return true
 }
 
 // A pair rule on matchings: piece k is the matching colors[k] (slice 1's sparseRound, one color at a time).
@@ -274,20 +296,25 @@ function ballAround(space: BoxSpace, cell: number, depth: number): number[] {
 }
 
 // The structure a start makes: localized (one cluster, at most maxCells) at every round end and back exactly within
-// MAX_PERIOD rounds (read over STRUCTURE_ROUNDS); its region is every cell occupied after any piece of one period.
+// MAX_PERIOD rounds; its region is every cell occupied after any piece of one period. Slice 1 reads to
+// STRUCTURE_ROUNDS = 100 but accepts only a return by MAX_PERIOD, so a start not back by MAX_PERIOD is refused there
+// either way: stopping at MAX_PERIOD gives the same structures, and a mover no longer runs 100 rounds into a lazy
+// tiling that keeps every cell it creates.
 export function structureOf(dyn: Dynamics, start: Tones, maxCells: number): Structure | null {
   const state = new Map(start)
   const orbit: Tones[] = [new Map(start)]
   const region = new Set<number>(start.keys())
 
-  for (let t = 1; t <= STRUCTURE_ROUNDS; t++) {
+  for (let t = 1; t <= Math.min(MAX_PERIOD, STRUCTURE_ROUNDS); t++) {
     for (let k = 0; k < dyn.pieces; k++) {
       dyn.piece(state, k)
 
-      if (t <= MAX_PERIOD) {
-        for (const c of state.keys()) {
-          region.add(c)
-        }
+      if (state.size > PIECE_CAP) {
+        return null
+      }
+
+      for (const c of state.keys()) {
+        region.add(c)
       }
     }
 
@@ -296,9 +323,7 @@ export function structureOf(dyn: Dynamics, start: Tones, maxCells: number): Stru
     }
 
     if (sameTones(state, start)) {
-      return t <= MAX_PERIOD
-        ? { start: new Map(start), period: t, orbit, region: [...region].sort(byDistance(dyn.space)) }
-        : null
+      return { start: new Map(start), period: t, orbit, region: [...region].sort(byDistance(dyn.space)) }
     }
 
     orbit.push(new Map(state))
@@ -306,6 +331,20 @@ export function structureOf(dyn: Dynamics, start: Tones, maxCells: number): Stru
 
   return null
 }
+
+// cells a lazy space has created so far (0 for a space that does not count)
+export const createdCells = (dyn: Dynamics): number => dyn.space.cells?.() ?? 0
+
+// A state carried from one space to another through addresses.
+export function carry(state: Tones, from: BoxSpace, to: BoxSpace): Tones {
+  return new Map([...state].map(([c, t]) => [to.fromAddress(from.address(c)), t]))
+}
+
+const addressStateKey = (space: BoxSpace, state: Tones): string =>
+  [...state]
+    .map(([c, t]) => `${space.address(c)}=${t}`)
+    .sort()
+    .join(';')
 
 // k-subsets of `items` (as index lists, lexicographic)
 function subsets(n: number, k: number): number[][] {
@@ -334,7 +373,16 @@ function subsets(n: number, k: number): number[][] {
 // Every start of each size in `sizes` holding the origin, all cells within SEED_RADIUS, every off-background tone; sizes
 // ascending, cells breadth first, tones -1, 0, +1; a start that is a round-end state of a structure already found is
 // skipped (same orbit); at most MAX_STRUCTURES_PER_SIZE per size.
-export function findStructures(dyn: Dynamics, sizes: readonly number[]): { seeds: Record<number, number>; structures: SizedStructure[] } {
+//
+// With `fresh`, the candidate runs go to a scratch copy of the dynamics, rebuilt whenever its lazy space has created more
+// than CELL_BUDGET cells (a mover on the 4D hyperbolic tiling creates a new cell at nearly every piece, and hundreds of
+// thousands of three-cell starts overflow one space's tables). Starts and orbits are compared by address, and a found
+// structure is rebuilt on `dyn`, so the result is the same as without `fresh`.
+export function findStructures(
+  dyn: Dynamics,
+  sizes: readonly number[],
+  fresh?: () => Dynamics,
+): { seeds: Record<number, number>; structures: SizedStructure[] } {
   const cells = ballAround(dyn.space, 0, SEED_RADIUS)
     .sort(byDistance(dyn.space))
     .filter(c => c !== 0)
@@ -343,8 +391,11 @@ export function findStructures(dyn: Dynamics, sizes: readonly number[]): { seeds
   const seeds: Record<number, number> = {}
   const structures: SizedStructure[] = []
 
+  let work = dyn
+
   for (const k of [...sizes].sort((a, b) => a - b)) {
     const maxCells = k <= 2 ? START_CELLS_MAX_SMALL : START_CELLS_MAX_LARGE
+
     let found = 0
 
     seeds[k] = 0
@@ -369,18 +420,28 @@ export function findStructures(dyn: Dynamics, sizes: readonly number[]): { seeds
 
         seeds[k]++
 
-        if (seen.has(stateKey(start))) {
+        if (seen.has(addressStateKey(dyn.space, start))) {
           continue
         }
 
-        const s = structureOf(dyn, start, maxCells)
+        if (fresh && createdCells(work) > CELL_BUDGET) {
+          work = fresh()
+        }
+
+        const s = structureOf(work, work === dyn ? start : carry(start, dyn.space, work.space), maxCells)
 
         if (s) {
-          for (const o of s.orbit) {
-            seen.add(stateKey(o))
+          const mine = work === dyn ? s : structureOf(dyn, start, maxCells)
+
+          if (mine?.period !== s.period || mine.region.length !== s.region.length) {
+            throw new Error('boundary-m2: a structure found on the scratch space differs on the main space')
           }
 
-          structures.push({ ...s, size: k })
+          for (const o of s.orbit) {
+            seen.add(addressStateKey(work.space, o))
+          }
+
+          structures.push({ ...mine, size: k })
           found++
         }
       }
@@ -507,7 +568,9 @@ export function readPerturbation(dyn: Dynamics, s: Structure, p: Perturbation): 
   let lastWrong = matches(0) ? -1 : 0
 
   for (let t = 1; t <= HORIZON; t++) {
-    round(dyn, state)
+    if (!roundWithin(dyn, state)) {
+      return { perturbation: p, outcome: 'budget', lastWrong, final: state, kept }
+    }
 
     dyn.ledgers.forEach((l, i) => {
       kept[i] &&= sameMod(l.of(state), values[i]!, l.modulus)
@@ -642,9 +705,7 @@ export function readWalled(walled: Dynamics, s: Structure, p: Perturbation): Wal
   let rebrokenAt = -1
 
   for (let t = 1; t <= RETURN_CAP; t++) {
-    round(walled, state)
-
-    if (state.size > SUPPORT_CAP) {
+    if (!roundWithin(walled, state) || state.size > SUPPORT_CAP) {
       return { rebroken: rebrokenAt > 0, rebrokenAt, returned: 0, budget: true }
     }
 

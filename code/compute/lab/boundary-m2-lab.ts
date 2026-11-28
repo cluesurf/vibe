@@ -11,12 +11,15 @@
 import {
   BoundaryRun,
   HORIZON,
+  SUPPORT_CAP,
+  Structure,
   findStructures as slice1Structures,
   perturbationFamily as slice1Family,
   readPerturbation as slice1Read,
 } from '@/code/compute/lab/boundary'
 import {
   BoxSpace,
+  CELL_BUDGET,
   COUNT_LEDGER,
   CellClass,
   Dynamics,
@@ -28,7 +31,9 @@ import {
   WALL_RADIUS,
   WalledReading,
   addDeviation,
+  carry,
   chargeLedger,
+  createdCells,
   deviationStart,
   energyLedger,
   excitationLedger,
@@ -41,7 +46,7 @@ import {
   readPerturbation,
   readWalled,
   residueSumLedger,
-  round,
+  roundWithin,
   stateKey,
   structureOf,
 } from '@/code/compute/lab/boundary-m2'
@@ -90,14 +95,17 @@ export type SliceSizes = {
 }
 
 export const LAPTOP_SIZES: SliceSizes = {
-  columns: ['line', '{4,4}', '{4,5}'],
+  columns: ['line', '{4,4}', '{4,5}', '{3,6}', '{3,7}', '{6,3}', '{6,4}'],
   families: ['z3', 'q2r', 'm1'],
   lineStart: 3,
-  tilingStart: 2,
+  tilingStart: 3,
   doubles: true,
   walled: true,
   deltas: [1, 2],
 }
+
+// a column as written on a command line: `line`, or the symbol with dots (`4.5`, `3.4.3.4`)
+export const columnName = (word: string): string => (word === 'line' ? word : `{${word.split('.').join(',')}}`)
 
 export const ALL_COLUMNS = ['line', '{4,4}', '{4,5}', '{3,6}', '{3,7}', '{6,3}', '{6,4}', '{3,4,3,3}', '{3,4,3,4}']
 
@@ -124,6 +132,13 @@ function lineBox(): BoxSpace {
 }
 
 const allColors = (space: BoxSpace): number[] => Array.from({ length: space.colorCount }, (_, k) => k)
+
+// a pair schedule using every color of the space, in color order
+const pairBox = (make: () => BoxSpace) => (): PairBox => {
+  const space = make()
+
+  return { space, colors: allColors(space) }
+}
 
 type ColumnDef = {
   column: string
@@ -156,7 +171,7 @@ function columnDef(column: string): ColumnDef {
       curvature,
       pair,
       base: factory,
-      schedules: [{ name, make: () => { const space = factory(); return { space, colors: allColors(space) } } }],
+      schedules: [{ name, make: pairBox(factory) }],
     }
   }
 
@@ -176,7 +191,7 @@ function columnDef(column: string): ColumnDef {
     base: () => coset(0),
     schedules: [0, 1].map(variant => ({
       name: `lifted-${variant}`,
-      make: () => { const space = coset(variant); return { space, colors: allColors(space) } },
+      make: pairBox(() => coset(variant)),
     })),
   }
 }
@@ -270,6 +285,8 @@ type RuleDef = {
   identity: boolean
   kind: 'pair' | 'vertex'
   linear: boolean
+  // the pair rule's decoded table (pair rules), used for the Z3 superposition run
+  census: CensusRule | null
   backgrounds(degree: number): number[]
   // the open dynamics, or the walled one
   dynamics(inst: Instance, background: number, walled: boolean): Dynamics
@@ -290,6 +307,7 @@ function pairRuleDef(input: {
     identity: input.identity,
     kind: 'pair',
     linear: input.linear,
+    census: input.rule,
     backgrounds: () => input.backgrounds,
     dynamics: (inst, background, walled) =>
       pairDynamics({
@@ -387,6 +405,7 @@ function q2rRule(delta: number | null): RuleDef {
     identity: false,
     kind: 'vertex',
     linear: false,
+    census: null,
     backgrounds: degree => [-1, 0, 1].filter(b => q2rMove(b, b * degree, modelFor(degree)) === b),
     dynamics: (inst, background, walled) => {
       const model = modelFor(inst.space.degree)
@@ -470,13 +489,25 @@ function readStructure(input: {
   structure: SizedStructure
   sizes: SliceSizes
 }): StructureResult {
-  const { box, rule, background, inst, dyn, structure: s, sizes } = input
-  const maxCells = s.size <= 2 ? START_CELLS_MAX_SMALL : START_CELLS_MAX_LARGE
+  const { box, rule, background, sizes } = input
+  const maxCells = input.structure.size <= 2 ? START_CELLS_MAX_SMALL : START_CELLS_MAX_LARGE
   const hits = tally()
   const repairedTally = tally()
   const exports: ExportSummary[] = []
   const repairs: RepairNote[] = []
-  const repairedAll: Reading[] = []
+  // each repaired reading with the box instance and structure it was read on
+  const repairedAll: { r: Reading; inst: Instance; s: Structure }[] = []
+
+  // the lone perturbation's run on the vacuum, for Z3 superposition
+  const deviationOf = (on: Instance): Dynamics | null =>
+    rule.linear && rule.census
+      ? pairDynamics({ space: on.space, colors: on.colors!, rule: rule.census, background: 0, ledgers: [] })
+      : null
+
+  let inst = input.inst
+  let dyn = input.dyn
+  let s: Structure = input.structure
+  let deviationDyn = deviationOf(inst)
 
   let immune = 0
   let broken = 0
@@ -490,12 +521,23 @@ function readStructure(input: {
   let superpositionFailures = 0
   let theoremFailures = 0
 
-  // the lone perturbation's run on the vacuum, for Z3 superposition
-  const deviationDyn = rule.linear
-    ? pairDynamics({ space: inst.space, colors: inst.colors!, rule: (dyn as unknown as { rule?: CensusRule }).rule ?? ruleOf(rule, inst), background: 0, ledgers: [] })
-    : null
-
   for (let phase = 0; phase < s.period; phase++) {
+    // a lazy space past its cell budget is replaced between phases, the structure carried by address
+    if (createdCells(dyn) > CELL_BUDGET) {
+      const fresh = box.make()
+      const freshDyn = rule.dynamics(fresh, background, false)
+      const again = structureOf(freshDyn, carry(s.start, inst.space, fresh.space), maxCells)
+
+      if (again?.period !== s.period || again.region.length !== s.region.length) {
+        throw new Error(`boundary-m2-lab: ${box.key} ${rule.name} structure changed on a fresh space`)
+      }
+
+      inst = fresh
+      dyn = freshDyn
+      s = again
+      deviationDyn = deviationOf(inst)
+    }
+
     const family = perturbationFamily(dyn, s, phase, sizes.doubles)
     const readings = family.map(p => readPerturbation(dyn, s, p))
     const nullFinal = s.orbit[(phase + HORIZON) % s.period]!
@@ -532,8 +574,7 @@ function readStructure(input: {
         let over = false
 
         for (let t = 1; t <= HORIZON && !over; t++) {
-          round(deviationDyn, alone)
-          over = alone.size > 600
+          over = !roundWithin(deviationDyn, alone) || alone.size > SUPPORT_CAP
         }
 
         if (!over) {
@@ -559,7 +600,7 @@ function readStructure(input: {
       exportMismatches += e.multiplicities.length === e.ensemble ? 0 : 1
       theoremFailures += e.hits.reduce((t, h) => t + h.positiveChange.filter(ok => !ok).length, 0)
       exports.push({ phase, ensemble: e.ensemble, multiplicities: e.multiplicities, debris: e.hits.map(h => h.debris) })
-      repairedAll.push(...repaired)
+      repairedAll.push(...repaired.map(r => ({ r, inst, s })))
     }
   }
 
@@ -569,34 +610,47 @@ function readStructure(input: {
   if (repairedAll.length > 0) {
     const fresh = box.make()
     const freshDyn = rule.dynamics(fresh, background, false)
-    const map = (c: number): number => fresh.space.fromAddress(inst.space.address(c))
-    const freshStructure = structureOf(freshDyn, new Map([...s.start].map(([c, t]) => [map(c), t])), maxCells)
+    const freshStructure = structureOf(freshDyn, carry(input.structure.start, input.inst.space, fresh.space), maxCells)
 
-    for (const r of repairedAll) {
+    for (const { r, inst: on } of repairedAll) {
       const p = r.perturbation
+      const map = (c: number): number => fresh.space.fromAddress(on.space.address(c))
       const again = freshStructure
         ? readPerturbation(freshDyn, freshStructure, { ...p, changes: p.changes.map(c => ({ ...c, cell: map(c.cell) })) })
         : null
 
-      if (again?.outcome !== r.outcome || addressKey(fresh.space, again.final) !== addressKey(inst.space, r.final)) {
+      if (again?.outcome !== r.outcome || addressKey(fresh.space, again.final) !== addressKey(on.space, r.final)) {
         replayFailures++
       }
     }
   }
 
-  // the sink control behind the wall, under the same coloring
-  let walled: WalledReading[] = []
+  // the sink control behind the wall, under the same coloring (one walled box per instance the readings used)
+  const walled: WalledReading[] = []
+  const walledBoxes = new Map<Instance, { dyn: Dynamics; same: boolean }>()
+
   let walledOrbitSame: boolean | null = null
 
   if (sizes.walled && repairedAll.length > 0) {
-    const walledDyn = rule.dynamics(inst, background, true)
-    const behind = structureOf(walledDyn, s.start, maxCells)
+    for (const { r, inst: on, s: held } of repairedAll) {
+      let wall = walledBoxes.get(on)
 
-    walledOrbitSame =
-      behind !== null && behind.period === s.period && behind.orbit.every((o, i) => sameTones(o, s.orbit[i]!))
+      if (!wall) {
+        const walledDyn = rule.dynamics(on, background, true)
+        const behind = structureOf(walledDyn, held.start, maxCells)
 
-    if (walledOrbitSame) {
-      walled = repairedAll.map(r => readWalled(walledDyn, s, r.perturbation))
+        wall = {
+          dyn: walledDyn,
+          same: behind !== null && behind.period === held.period && behind.orbit.every((o, i) => sameTones(o, held.orbit[i]!)),
+        }
+        walledBoxes.set(on, wall)
+      }
+
+      walledOrbitSame = (walledOrbitSame ?? true) && wall.same
+
+      if (wall.same) {
+        walled.push(readWalled(wall.dyn, held, r.perturbation))
+      }
     }
   }
 
@@ -604,8 +658,8 @@ function readStructure(input: {
   const singlesRepaired = repairedTally.held + repairedTally.orbit + repairedTally.transit
 
   return {
-    start: addressKey(inst.space, s.start),
-    size: s.size,
+    start: addressKey(input.inst.space, input.structure.start),
+    size: input.structure.size,
     period: s.period,
     regionSize: s.region.length,
     hits,
@@ -629,17 +683,6 @@ function readStructure(input: {
     walledOrbitSame,
     phaseAheadMissed: s.period > 1 && !phaseAheadMisreads(dyn, s),
   }
-}
-
-// the census rule of a linear rule definition (Z3 only), rebuilt from its name
-function ruleOf(rule: RuleDef, _inst: Instance): CensusRule {
-  const found = z3Classes().classes.find(r => r.name === rule.name)
-
-  if (!found) {
-    throw new Error(`boundary-m2-lab: ${rule.name} is not a Z3 class representative`)
-  }
-
-  return harnessRule({ name: found.name, table: found.table })
 }
 
 // ---- cells ----
@@ -672,7 +715,9 @@ function startSizes(rule: RuleDef, column: string, sizes: SliceSizes): number[] 
 function readCell(box: BoxDef, rule: RuleDef, background: number, sizes: SliceSizes): Cell {
   const inst = box.make()
   const dyn = rule.dynamics(inst, background, false)
-  const { seeds, structures } = findStructures(dyn, startSizes(rule, box.column, sizes))
+  const { seeds, structures } = findStructures(dyn, startSizes(rule, box.column, sizes), () =>
+    rule.dynamics(box.make(), background, false),
+  )
 
   return {
     box: box.key,
@@ -936,6 +981,7 @@ const bits = (multiplicities: readonly number[]): number => {
 export function familyTotals(cells: readonly Cell[], family: Family | 'all'): FamilyTotals {
   const chosen = cells.filter(c => family === 'all' || c.family === family)
   const live = chosen.filter(c => !c.identity).flatMap(c => c.structures)
+
   const add = (f: (h: HitTally) => void): HitTally => {
     const t = tally()
 
@@ -943,6 +989,7 @@ export function familyTotals(cells: readonly Cell[], family: Family | 'all'): Fa
 
     return t
   }
+
   const sumTally = (pick: (s: StructureResult) => HitTally): HitTally =>
     add(t => {
       for (const s of live) {
@@ -1010,7 +1057,7 @@ export function reproduceSlice1(): { structures: number; readings: number; misma
     const mine = structureOf(dyn, s.start, START_CELLS_MAX_SMALL)
     const theirs = slice1Family(run, s)
 
-    if (!mine || mine.period !== s.period || mine.region.join() !== s.region.join()) {
+    if (mine?.period !== s.period || mine.region.join() !== s.region.join()) {
       mismatches++
       continue
     }
