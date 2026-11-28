@@ -52,6 +52,11 @@ import Vibe.Compute.SpinOneQ2R
 import Vibe.Compute.CoverDistance
 import Vibe.Compute.SpeciesTransport
 import Vibe.Compute.BeatLink
+import Vibe.Compute.Resonance
+import Vibe.Compute.Frontier
+import Vibe.Compute.Charge
+import Vibe.Compute.FiniteInteractionWire
+import Vibe.Compute.FiniteInteractionSpecies
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite

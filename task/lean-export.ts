@@ -18,10 +18,12 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { splitCell } from '@/code/compute/lab/counter'
-import { gateRule, occupancyBlind } from '@/code/compute/lab/gates'
-import { wireSide } from '@/code/compute/lab/ray-search'
+import { registerRun, splitCell } from '@/code/compute/lab/counter'
+import { KLEENE_TARGETS, gateRule, occupancyBlind, tableKey as gateTableKey } from '@/code/compute/lab/gates'
+import { rayLayoutToLine, searchRays, wireSide } from '@/code/compute/lab/ray-search'
 import {
+  type LineLayout,
+  denseLineTable,
   sidedUnaryClosure,
   toneTransport,
   unsidedUnaryClosure,
@@ -715,7 +717,20 @@ function bareBeatFamily(): BareBeatVibe[][] {
     }
   }
 
-  return family
+  // sorted by the flat Lean form (slot, tone 1 or 0, role, ...) in lexicographic order, so Lean proves the states
+  // distinct by one pass over adjacent pairs
+  const flat = (v: readonly BareBeatVibe[]): number[] => v.flatMap(([s, t, r]) => [s, t === 1 ? 1 : 0, r])
+  const lex = (a: readonly number[], b: readonly number[]): number => {
+    for (let k = 0; k < a.length && k < b.length; k++) {
+      if (a[k] !== b[k]) {
+        return a[k]! - b[k]!
+      }
+    }
+
+    return a.length - b.length
+  }
+
+  return family.sort((a, b) => lex(flat(a), flat(b)))
 }
 
 // an integer as a natural number (zigzag: 2c for c >= 0, -2c - 1 for c < 0), so every table is a list of naturals
@@ -1042,6 +1057,186 @@ export function exportBareBeat(): string {
   })
 }
 
+// L19 (models-0092): the Kleene and counter certificates. (1) The four width-9 neg layouts E-CMP-0058 replays, read
+// from the LAYOUTS literal of its experiment file; (2) the neg, min and max layouts of E-CMP-0061 for the four one-law
+// cells, found here by the same ray search and line conversion the experiment runs (searchRays to span 10 for neg and
+// 12 for min and max, rayLayoutToLine); each with the dense runner's table on every input (denseLineTable), which must
+// equal the target or the export refuses. (3) The T5 counter cell and registerRun's ADD and SUB value on all 162 cases
+// a, n in 0..8, the side that adds read from a one-mover run as universality-m1.ts reads it.
+const KLEENE_SOURCES = [
+  'code/rule/pair-rule.ts',
+  'code/compute/lab/gates.ts',
+  'code/compute/lab/ray-search.ts',
+  'code/compute/lab/wire-invariant.ts',
+  'code/compute/lab/counter.ts',
+  'test/experiment/computation/wire-neg.ts',
+] as const
+
+const KLEENE_ONE_LAW: readonly [string, number][] = [
+  ['id.CAB.swap', 1],
+  ['id.BCA.swap', 1],
+  ['swap.BCA.id', -1],
+  ['swap.CAB.id', -1],
+]
+const KLEENE_NEG_SPAN = 10
+const KLEENE_MIN_MAX_SPAN = 12
+const KLEENE_REGISTER_RANGE = 8
+const KLEENE_T5_RULE = 'id.CBA.swap'
+
+// The LAYOUTS literal of wire-neg.ts: one `rule:` line, one `control:` line and one single-line `layout:` object each.
+function wireNegLayouts(): { rule: string; layout: LineLayout }[] {
+  const text = readFileSync(join(WORKTREE_ROOT, 'test/experiment/computation/wire-neg.ts'), 'utf8')
+  const pattern =
+    /rule: '([^']+)',\s*control: '[^']+',\s*layout: \{ background: (-?\d+), start: (-?\d+), window: \[([^\]]*)\], inputs: \[([^\]]*)\], readPosition: (-?\d+), readRound: (\d+) \}/g
+  const ints = (s: string): number[] => s.split(',').map(x => Number(x.trim()))
+  const out = [...text.matchAll(pattern)].map(m => ({
+    rule: m[1]!,
+    layout: {
+      background: Number(m[2]),
+      start: Number(m[3]),
+      window: m[4]!.split(',').map(x => (x.trim() === 'null' ? null : Number(x.trim()))),
+      inputs: ints(m[5]!),
+      readPosition: Number(m[6]),
+      readRound: Number(m[7]),
+    },
+  }))
+
+  if (out.length !== 4) {
+    throw new Error(`wire-neg.ts LAYOUTS: expected 4 layouts, read ${out.length}`)
+  }
+
+  return out
+}
+
+export function exportKleene(): string {
+  const census = pairRuleCensus().rules
+  const indexOf = (name: string): number => {
+    const i = census.findIndex(r => r.name === name)
+
+    if (i < 0) {
+      throw new Error(`no census rule named ${name}`)
+    }
+
+    return i
+  }
+  const gates = census.map(r => gateRule(r.name, r.table))
+  const targetOf = (name: string) => KLEENE_TARGETS.find(t => t.name === name)!
+  const rows: string[] = []
+
+  const addRow = (code: string, rule: string, target: string, layout: LineLayout): void => {
+    const i = indexOf(rule)
+    const dense = denseLineTable(gates[i]!, layout)
+
+    if (gateTableKey(dense) !== gateTableKey(targetOf(target).table)) {
+      throw new Error(`${code} ${rule} ${target}: the dense run does not compute the target`)
+    }
+
+    if (layout.inputs.length !== targetOf(target).arity) {
+      throw new Error(`${code} ${rule} ${target}: ${layout.inputs.length} inputs`)
+    }
+
+    // window cells: the constant tone, or 2 for input x and 3 for input y
+    const window = layout.window.map((v, k) => {
+      const j = layout.inputs.indexOf(k)
+
+      if (j >= 0) {
+        return 2 + j
+      }
+
+      if (v === null) {
+        throw new Error(`${code} ${rule} ${target}: an unplaced input at window cell ${k}`)
+      }
+
+      return v
+    })
+
+    rows.push(
+      `("${code}", ${i}, "${rule}", ${layout.background}, ${layout.start}, [${window.join(', ')}], ${layout.readPosition}, ${layout.readRound}, "${target}", [${Array.from(dense).join(', ')}])`,
+    )
+  }
+
+  for (const { rule, layout } of wireNegLayouts()) {
+    addRow('E-CMP-0058', rule, 'neg', layout)
+  }
+
+  for (const [name, background] of KLEENE_ONE_LAW) {
+    const rule = gates[indexOf(name)]!
+    const side = wireSide(rule, background)
+
+    if (side === null) {
+      throw new Error(`${name} on ${background}: no one-sided wire`)
+    }
+
+    const unary = searchRays({ rule, background, targets: [targetOf('neg')], maxSpan: KLEENE_NEG_SPAN })
+    const binary = searchRays({ rule, background, targets: [targetOf('min'), targetOf('max')], maxSpan: KLEENE_MIN_MAX_SPAN })
+
+    for (const h of [...unary.hits, ...binary.hits]) {
+      addRow('E-CMP-0061', name, h.target, rayLayoutToLine({ rays: h.rays, side, background, inputs: h.inputs }))
+    }
+  }
+
+  if (rows.length !== 16) {
+    throw new Error(`expected 16 Kleene layouts, have ${rows.length}`)
+  }
+
+  // the T5 counter
+  const t5i = indexOf(KLEENE_T5_RULE)
+  const t5 = gates[t5i]!
+  const split = splitCell(t5, 0)
+
+  if (split.type !== 'T5' || split.mover === null || split.still === null) {
+    throw new Error(`${KLEENE_T5_RULE} on 0 is not a T5 cell with a mover and a still tone`)
+  }
+
+  const unit = registerRun({ rule: t5, split, a: 0, n: 1, from: 'right' }).value
+  const addSide: 'left' | 'right' = unit === 1 ? 'right' : 'left'
+  const subSide: 'left' | 'right' = addSide === 'right' ? 'left' : 'right'
+  const counter: string[] = []
+  const bool = (b: boolean): string => (b ? 'true' : 'false')
+
+  for (let a = 0; a <= KLEENE_REGISTER_RANGE; a++) {
+    for (let n = 0; n <= KLEENE_REGISTER_RANGE; n++) {
+      const add = registerRun({ rule: t5, split, a, n, from: addSide })
+      const sub = registerRun({ rule: t5, split, a, n, from: subSide })
+
+      if (add.value === null || sub.value === null) {
+        throw new Error(`register ${a} ${n}: no single still tone at the end`)
+      }
+
+      counter.push(`(${a}, ${n}, ${add.value}, ${sub.value}, ${bool(add.moversFree)}, ${bool(sub.moversFree)})`)
+    }
+  }
+
+  const body = [
+    '/-- Per Kleene layout: experiment code, census rule index and name, background, start position, window cells',
+    '    left to right (a constant tone, or 2 for input x and 3 for input y), read position, read round, target, and',
+    '    the read slot of `denseLineTable` on every input (inputsOf order, x least significant). Rows 0 to 3: the',
+    '    LAYOUTS of wire-neg.ts (E-CMP-0058); then per one-law cell the first hit of `searchRays` for neg (span',
+    `    ${KLEENE_NEG_SPAN}), min and max (span ${KLEENE_MIN_MAX_SPAN}), through \`rayLayoutToLine\` (E-CMP-0061). -/`,
+    `def kleeneLayouts :\n    List (String × Nat × String × Int × Int × List Int × Int × Nat × String × List Int) :=\n  ${leanList(rows, '  ')}`,
+    '',
+    '/-- The T5 counter cell: census rule index and name, background, `splitCell` still and mover tones and type, and',
+    '    the sides `registerRun` adds and subtracts from. -/',
+    `def kleeneCounterCell : Nat × String × Int × Int × Int × String × String × String :=\n  (${t5i}, "${KLEENE_T5_RULE}", ${split.background}, ${split.still}, ${split.mover}, "${split.type}", "${addSide}", "${subSide}")`,
+    '',
+    `/-- \`registerRun\` for a, n in 0 .. ${KLEENE_REGISTER_RANGE} (a outer): (a, n, ADD value, SUB value, ADD movers free,`,
+    '    SUB movers free). -/',
+    `def kleeneCounterRows : List (Nat × Nat × Int × Int × Bool × Bool) :=\n  ${leanList(counter, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: KLEENE_SOURCES,
+      lines: [
+        'Exports the 16 Kleene layouts of E-CMP-0058 and E-CMP-0061 with their dense tables, and the T5 counter',
+        `on all ${2 * (KLEENE_REGISTER_RANGE + 1) ** 2} ADD and SUB cases.`,
+        'Bridge: Vibe.Compute.KleeneCertificates (gen_kleene_layouts_eq, gen_kleene_counter_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -1104,9 +1299,16 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
       'gen_bare_beat_layers_eq',
       'gen_bare_beat_family_eq',
       'gen_bare_beat_beat_eq',
-      'gen_bare_beat_walk_eq',
+      'gen_bare_beat_neighbours_eq',
     ],
     render: exportBareBeat,
+  },
+  {
+    name: 'Kleene',
+    sources: KLEENE_SOURCES,
+    bridgeModule: 'Vibe.Compute.KleeneCertificates',
+    bridges: ['gen_kleene_layouts_eq', 'gen_kleene_counter_eq'],
+    render: exportKleene,
   },
 ]
 

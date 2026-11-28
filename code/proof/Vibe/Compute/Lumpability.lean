@@ -44,11 +44,24 @@ Headline theorems:
    `N` of deck transformations and the blocks are `N`-invariant, `P^τ` commutes with `N` and
    whether it splits a block is decided on one block per `N`-orbit.
 
+9. `thm_lump_line_conflict_witnesses` (B9): for every conservative reversible pair rule other than
+   the identity, every line schedule, `b` in 2 to 4 at every declared offset, `τ` in 1 and 2 and
+   each reading map (majority, netSign, netResidue), the block reading is not lumpable on the
+   whole line. Each of the 2,070 cases is closed by a witness of E-CMP-0066 (generated into
+   `Generated/Lumpability.lean`) checked in the kernel against the Lean round
+   (`thm_lump_line_witness_sound`, through a finite-window evaluator proved equal to the round on
+   the window's interior).
+10. Bridges: `gen_lump_block_maps_eq` (the Lean reading maps equal coarse-block.ts on every block of
+   2 to 4 cells) and `gen_partitioned_ring_eq` (the Lean round equals partitioned-pair.ts's
+   `globalPermutation` on every configuration of the 6-ring under brick2, for all 24 rules: the
+   link is extensional on that family only).
+
 Step 5 (no `P^τ` commutes with every colour matching on a hyperbolic `{p,q}`, by Zariski density)
 is deferred (lean-track.md section 7, claim A28) and is not claimed here.
 
-These theorems speak about the Lean definitions of `Vibe.Compute.Round` (decision 008 point 3).
-Mathlib, zero `sorry`, zero `native_decide`.
+Items 1 to 8 speak about the Lean definitions of `Vibe.Compute.Round`; the bridges of item 10 tie
+that round and the reading maps to the code on the stated finite families (decision 008 point 3).
+Mathlib; the finite checks run in the kernel (`decide +kernel`).
 -/
 
 set_option autoImplicit false
@@ -769,9 +782,112 @@ private theorem windowConfig_out (base : ℤ) (cells : List Tone) (v : ℤ)
   have : ¬ (base ≤ v ∧ v < base + cells.length) := by omega
   simp only [windowConfig, this, ↓reduceIte]
 
+/-- A list of tones read as a configuration from cell `lo` on. -/
+def listFn (lo : ℤ) (L : List Tone) : Config ℤ := fun w => L.getD (w - lo).toNat .zero
+
+/-- `L` holds `x` on the cells `lo .. lo + |L| - 1`. -/
+def Agrees (x : Config ℤ) (lo : ℤ) (L : List Tone) : Prop :=
+  ∀ v, lo ≤ v → v < lo + L.length → listFn lo L v = x v
+
+/-- A matching that pairs every cell with itself or a neighbour on the line. -/
+def Near (M : Matching ℤ) : Prop := ∀ v, M.mate v = v ∨ M.mate v = v + 1 ∨ M.mate v = v - 1
+
+/-- One step on a finite window: the cells whose mate lies in the window, one fewer each end. -/
+def stepWin (f : Pair → Pair) (M : Matching ℤ) (lo : ℤ) (L : List Tone) : List Tone :=
+  (List.range (L.length - 2)).map fun i : Nat => M.step f (listFn lo L) (lo + 1 + (i : ℤ))
+
+/-- One round on a finite window, with the window's new first cell. -/
+def roundWin (f : Pair → Pair) : Schedule ℤ → ℤ → List Tone → ℤ × List Tone
+  | [], lo, L => (lo, L)
+  | M :: s, lo, L => roundWin f s (lo + 1) (stepWin f M lo L)
+
+/-- `t` rounds on a finite window. -/
+def iterWin (f : Pair → Pair) (s : Schedule ℤ) : Nat → ℤ → List Tone → ℤ × List Tone
+  | 0, lo, L => (lo, L)
+  | t + 1, lo, L => iterWin f s t (roundWin f s lo L).1 (roundWin f s lo L).2
+
+private theorem listFn_map (x : Config ℤ) (lo : ℤ) (n : Nat) :
+    Agrees x lo ((List.range n).map fun i : Nat => x (lo + (i : ℤ))) := by
+  intro v h1 h2
+  simp only [List.length_map, List.length_range] at h2
+  have hi : (v - lo).toNat < n := by omega
+  have hv : lo + (((v - lo).toNat : Nat) : ℤ) = v := by omega
+  simp only [listFn, List.getD_eq_getElem?_getD, List.getElem?_map, List.getElem?_range hi,
+    Option.map_some, Option.getD_some, hv]
+
+private theorem stepWin_agree (f : Pair → Pair) (M : Matching ℤ) (hM : Near M) (x : Config ℤ)
+    (lo : ℤ) (L : List Tone) (h : Agrees x lo L) :
+    Agrees (M.step f x) (lo + 1) (stepWin f M lo L) := by
+  intro v h1 h2
+  simp only [stepWin, List.length_map, List.length_range] at h2
+  have hi : (v - (lo + 1)).toNat < L.length - 2 := by omega
+  have hv : lo + 1 + (((v - (lo + 1)).toNat : Nat) : ℤ) = v := by omega
+  have e : listFn (lo + 1) (stepWin f M lo L) v = M.step f (listFn lo L) v := by
+    simp only [listFn, stepWin, List.getD_eq_getElem?_getD, List.getElem?_map,
+      List.getElem?_range hi, Option.map_some, Option.getD_some, hv]
+  rw [e]
+  refine step_agree M f {v} (listFn lo L) x (fun w hw => ?_) v rfl
+  have hw' : w = v ∨ w = M.mate v := by
+    rcases hw with hw | hw
+    · exact Or.inl hw
+    · right
+      rw [← hw, M.mate_mate]
+  have hn := hM v
+  apply h
+  · omega
+  · omega
+
+private theorem roundWin_agree (f : Pair → Pair) (s : Schedule ℤ) (hs : ∀ M ∈ s, Near M)
+    (x : Config ℤ) (lo : ℤ) (L : List Tone) (h : Agrees x lo L) :
+    Agrees (round f s x) (roundWin f s lo L).1 (roundWin f s lo L).2 := by
+  induction s generalizing x lo L with
+  | nil => exact h
+  | cons M s ih =>
+    exact ih (fun M' hM' => hs M' (List.mem_cons_of_mem M hM')) (M.step f x) (lo + 1)
+      (stepWin f M lo L) (stepWin_agree f M (hs M List.mem_cons_self) x lo L h)
+
+private theorem iterWin_agree (f : Pair → Pair) (s : Schedule ℤ) (hs : ∀ M ∈ s, Near M)
+    (t : Nat) (x : Config ℤ) (lo : ℤ) (L : List Tone) (h : Agrees x lo L) :
+    Agrees ((round f s)^[t] x) (iterWin f s t lo L).1 (iterWin f s t lo L).2 := by
+  induction t generalizing x lo L with
+  | zero => exact h
+  | succ t ih =>
+    rw [iterate_succ_apply]
+    exact ih _ _ _ (roundWin_agree f s hs x lo L h)
+
+private theorem read_of_agree (mp : List Tone → Int) (b : Nat) (o : ℤ) (y : Config ℤ) (lo : ℤ)
+    (L : List Tone) (j : ℤ) (h : Agrees y lo L) (h1 : lo ≤ o + j * (b : ℤ))
+    (h2 : o + j * (b : ℤ) + b ≤ lo + L.length) :
+    lineRead mp b o (listFn lo L) j = lineRead mp b o y j := by
+  unfold lineRead
+  apply congrArg mp
+  apply List.map_congr_left
+  intro k hk
+  have hkb := List.mem_range.1 hk
+  apply h
+  · omega
+  · omega
+
+private theorem lineMatching_near (p c : Nat) (hp : 2 ≤ p) : Near (lineMatching p c hp) := by
+  intro v
+  simp only [lineMatching, lineMate]
+  split_ifs <;> omega
+
+private theorem lineSchedule_near (s : Nat) : ∀ M ∈ lineSchedule s, Near M := by
+  intro M hM
+  rcases s with _ | _ | s <;>
+    simp only [lineSchedule, List.mem_cons, List.not_mem_nil, or_false] at hM <;>
+    rcases hM with rfl | rfl | rfl <;> exact lineMatching_near _ _ _
+
+/-- The window of `2R + 1` blocks of cells `w`, padded by `τ c` vacuum cells each side, as a
+    list from its first cell. -/
+def paddedWindow (sch : Schedule ℤ) (τ b R : Nat) (base : ℤ) (code : Nat) : List Tone :=
+  (List.range ((2 * R + 1) * b + 2 * (τ * sch.length))).map fun i : Nat =>
+    windowConfig base (decodeCells code ((2 * R + 1) * b)) (base - (τ * sch.length : Nat) + i)
+
 /-- The check of one witness: the window of `2R + 1` blocks starts on a block boundary, the two
-    windows read alike block for block, and their center blocks read differently after `τ`
-    rounds of the Lean round on the whole line. -/
+    windows read alike block for block, and after `τ` rounds (run on the padded window, whose
+    center the Lean round on the whole line agrees with) their center blocks read differently. -/
 def witnessCheck (f : Pair → Pair) (sch : Schedule ℤ) (τ b : Nat) (o : ℤ)
     (mp : List Tone → Int) (R : Nat) (base : ℤ) (lc rc : Nat) : Bool :=
   decide ((base - o) % (b : ℤ) = 0) &&
@@ -780,10 +896,12 @@ def witnessCheck (f : Pair → Pair) (sch : Schedule ℤ) (τ b : Nat) (o : ℤ)
         ((base - o) / b + i) =
       lineRead mp b o (windowConfig base (decodeCells rc ((2 * R + 1) * b)))
         ((base - o) / b + i))) &&
-  decide (lineRead mp b o ((round f sch)^[τ] (windowConfig base (decodeCells lc ((2 * R + 1) * b))))
-      ((base - o) / b + R) ≠
-    lineRead mp b o ((round f sch)^[τ] (windowConfig base (decodeCells rc ((2 * R + 1) * b))))
-      ((base - o) / b + R))
+  decide (let px := iterWin f sch τ (base - (τ * sch.length : Nat)) (paddedWindow sch τ b R base lc)
+    let py := iterWin f sch τ (base - (τ * sch.length : Nat)) (paddedWindow sch τ b R base rc)
+    let jc := (base - o) / b + (R : ℤ)
+    px.1 ≤ o + jc * (b : ℤ) ∧ o + jc * (b : ℤ) + b ≤ px.1 + px.2.length ∧
+    py.1 ≤ o + jc * (b : ℤ) ∧ o + jc * (b : ℤ) + b ≤ py.1 + py.2.length ∧
+    lineRead mp b o (listFn px.1 px.2) jc ≠ lineRead mp b o (listFn py.1 py.2) jc)
 
 private theorem line_conflict (f : Pair → Pair) (sch : Schedule ℤ) (τ b : Nat) (o : ℤ)
     (mp : List Tone → Int) (R : Nat) (base : ℤ) (x y : Config ℤ)
@@ -828,13 +946,20 @@ private theorem line_conflict (f : Pair → Pair) (sch : Schedule ℤ) (τ b : N
 
 /-- **B9 soundness.** A witness that passes `witnessCheck` is two configurations of the whole line
     with one coarse image and two coarse futures, so the reading is not lumpable at `τ`. -/
-theorem thm_lump_line_witness_sound (f : Pair → Pair) (sch : Schedule ℤ) (τ b : Nat) (o : ℤ)
+theorem thm_lump_line_witness_sound (f : Pair → Pair) (sch : Schedule ℤ)
+    (hsch : ∀ M ∈ sch, Near M) (τ b : Nat) (o : ℤ)
     (mp : List Tone → Int) (R : Nat) (base : ℤ) (lc rc : Nat)
     (h : witnessCheck f sch τ b o mp R base lc rc = true) :
     ¬ Lumpable (round f sch) τ (lineRead mp b o) := by
   simp only [witnessCheck, Bool.and_eq_true, decide_eq_true_eq, List.all_eq_true,
     List.mem_range] at h
-  obtain ⟨⟨hmod, hall⟩, hne⟩ := h
+  obtain ⟨⟨hmod, hall⟩, hx1, hx2, hy1, hy2, hne⟩ := h
+  have pad : ∀ c, Agrees (windowConfig base (decodeCells c ((2 * R + 1) * b)))
+      (base - (τ * sch.length : Nat)) (paddedWindow sch τ b R base c) := fun c =>
+    listFn_map _ _ _
+  have ax := iterWin_agree f sch hsch τ _ _ _ (pad lc)
+  have ay := iterWin_agree f sch hsch τ _ _ _ (pad rc)
+  rw [read_of_agree mp b o _ _ _ _ ax hx1 hx2, read_of_agree mp b o _ _ _ _ ay hy1 hy2] at hne
   refine line_conflict f sch τ b o mp R base _ _ (fun v hv => windowConfig_out _ _ v ?_)
     (fun v hv => windowConfig_out _ _ v ?_) hmod hall hne
   · rwa [decodeCells_length]
@@ -845,31 +970,150 @@ def chunkRows : Nat → List Nat → List (List Nat)
   | 0, _ => []
   | fuel + 1, l => if l.isEmpty then [] else l.take 9 :: chunkRows fuel (l.drop 9)
 
-/-- A generated row is a passing witness for rule `k`, schedule `s`, block `b`, offset `o`, step
-    `τ` and map `m`. -/
-def witnessRowOk (k s b o τ m : Nat) (row : List Nat) : Bool :=
-  row.take 6 == [k, s, b, o, τ, m] &&
-  witnessCheck (decodeRule (Generated.pairRuleTables.getD k [])) (lineSchedule s) τ b o (lumpMap m)
-    ((τ * (lineSchedule s).length + b - 1) / b) ((row.getD 6 0 : ℤ) - 32) (row.getD 7 0)
-    (row.getD 8 0)
+/-- The pair at a code index, by cases (fast in the kernel). -/
+def fastPair (i : Nat) : Pair :=
+  match i with
+  | 0 => (.neg, .neg)
+  | 1 => (.neg, .zero)
+  | 2 => (.neg, .pos)
+  | 3 => (.zero, .neg)
+  | 4 => (.zero, .zero)
+  | 5 => (.zero, .pos)
+  | 6 => (.pos, .neg)
+  | 7 => (.pos, .zero)
+  | _ => (.pos, .pos)
 
-/-- Some generated row of rule `k` is a passing witness for the case. -/
-def hasWitness (k s b o τ m : Nat) : Bool :=
-  (chunkRows 1000 (Generated.lumpWitnesses.getD k [])).any (witnessRowOk k s b o τ m)
+/-- A nine-entry code table as a pair map, by cases (fast in the kernel). -/
+def fastRule : List Nat → Pair → Pair
+  | [a0, a1, a2, a3, a4, a5, a6, a7, a8], p =>
+    match p with
+    | (.neg, .neg) => fastPair a0
+    | (.neg, .zero) => fastPair a1
+    | (.neg, .pos) => fastPair a2
+    | (.zero, .neg) => fastPair a3
+    | (.zero, .zero) => fastPair a4
+    | (.zero, .pos) => fastPair a5
+    | (.pos, .neg) => fastPair a6
+    | (.pos, .zero) => fastPair a7
+    | (.pos, .pos) => fastPair a8
+  | _, p => p
 
-private theorem hasWitness_sound (k s b o τ m : Nat) (h : hasWitness k s b o τ m = true) :
-    ¬ Lumpable (round (decodeRule (Generated.pairRuleTables.getD k [])) (lineSchedule s)) τ
+private theorem fastRule_eq_all :
+    ∀ t ∈ Generated.pairRuleTables, ∀ a b : Tone, fastRule t (a, b) = decodeRule t (a, b) := by
+  intro t ht a b
+  revert t
+  cases a <;> cases b <;> decide
+
+private theorem getD_mem_tables (k : Nat) (hk : k < 24) :
+    Generated.pairRuleTables.getD k [] ∈ Generated.pairRuleTables := by
+  have hlen : Generated.pairRuleTables.length = 24 := gen_pair_rules_eq.1
+  rw [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem (by omega), Option.getD_some]
+  exact List.getElem_mem _
+
+private theorem fastRule_eq (k : Nat) (hk : k < 24) :
+    fastRule (Generated.pairRuleTables.getD k []) = decodeRule (Generated.pairRuleTables.getD k []) := by
+  funext p
+  exact fastRule_eq_all _ (getD_mem_tables k hk) p.1 p.2
+
+/-- A generated row checks: its witness passes `witnessCheck` for its own rule, schedule, block,
+    offset, step and map. -/
+def rowOk (r : List Nat) : Bool :=
+  match r with
+  | [k, s, b, o, τ, m, bs, lc, rc] =>
+    witnessCheck (fastRule (Generated.pairRuleTables.getD k [])) (lineSchedule s) τ b o (lumpMap m)
+      ((τ * (lineSchedule s).length + b - 1) / b) ((bs : ℤ) - 32) lc rc
+  | _ => false
+
+/-- The case a generated row is for. -/
+def rowKey (r : List Nat) : List Nat := r.take 6
+
+private theorem row_sound (r : List Nat) (h : rowOk r = true) (k s b o τ m : Nat)
+    (hk : rowKey r = [k, s, b, o, τ, m]) :
+    ¬ Lumpable (round (fastRule (Generated.pairRuleTables.getD k [])) (lineSchedule s)) τ
       (lineRead (lumpMap m) b o) := by
-  obtain ⟨row, _, hrow⟩ := List.any_eq_true.1 h
-  exact thm_lump_line_witness_sound _ _ τ b o _ _ _ _ _ (Bool.and_eq_true _ _ ▸ hrow).2
+  unfold rowOk at h
+  split at h
+  · simp only [rowKey, List.take_succ_cons, List.take_zero, List.cons.injEq, and_true] at hk
+    obtain ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩ := hk
+    exact thm_lump_line_witness_sound _ _ (lineSchedule_near _) _ _ _ _ _ _ _ _ h
+  · exact absurd h (by simp)
 
-/-- Every case of E-CMP-0066's reading-map lumpability for a non-identity rule. -/
-def allLineCases : Bool :=
-  (List.range' 1 23).all fun k => (List.range 3).all fun s => [2, 3, 4].all fun b =>
-    (lineOffsets s b).all fun o => [1, 2].all fun τ => (List.range 3).all fun m =>
-      hasWitness k s b o τ m
+/-- The cases of rule `k` in the order of the experiment's loops (schedule, block, offset, step,
+    map). -/
+def lineCaseKeys (k : Nat) : List (List Nat) :=
+  (List.range 3).flatMap fun s => [2, 3, 4].flatMap fun b => (lineOffsets s b).flatMap fun o =>
+    [1, 2].flatMap fun τ => (List.range 3).map fun m => [k, s, b, o, τ, m]
 
-private theorem allLineCases_true : allLineCases = true := by sorry
+/-- Rule `k`'s generated rows are exactly its cases, in order, and every one checks. -/
+def ruleRowsOk (k : Nat) : Bool :=
+  let rows := chunkRows 1000 (Generated.lumpWitnesses.getD k [])
+  rows.map rowKey == lineCaseKeys k && rows.all rowOk
+
+private theorem ruleRows_sound (k : Nat) (h : ruleRowsOk k = true) (s b o τ m : Nat) (hs : s < 3)
+    (hb : b ∈ [2, 3, 4]) (ho : o ∈ lineOffsets s b) (hτ : τ ∈ [1, 2]) (hm : m < 3) :
+    ¬ Lumpable (round (fastRule (Generated.pairRuleTables.getD k [])) (lineSchedule s)) τ
+      (lineRead (lumpMap m) b o) := by
+  simp only [ruleRowsOk, Bool.and_eq_true, beq_iff_eq, List.all_eq_true] at h
+  obtain ⟨hkeys, hall⟩ := h
+  have hmem : [k, s, b, o, τ, m] ∈ lineCaseKeys k := by
+    simp only [lineCaseKeys, List.mem_flatMap, List.mem_map, List.mem_range]
+    exact ⟨s, hs, b, hb, o, ho, τ, hτ, m, hm, rfl⟩
+  rw [← hkeys] at hmem
+  obtain ⟨r, hr, hrk⟩ := List.mem_map.1 hmem
+  exact row_sound r (hall r hr) k s b o τ m hrk
+
+private theorem rule01 : ruleRowsOk 1 = true := by decide +kernel
+private theorem rule02 : ruleRowsOk 2 = true := by decide +kernel
+private theorem rule03 : ruleRowsOk 3 = true := by decide +kernel
+private theorem rule04 : ruleRowsOk 4 = true := by decide +kernel
+private theorem rule05 : ruleRowsOk 5 = true := by decide +kernel
+private theorem rule06 : ruleRowsOk 6 = true := by decide +kernel
+private theorem rule07 : ruleRowsOk 7 = true := by decide +kernel
+private theorem rule08 : ruleRowsOk 8 = true := by decide +kernel
+private theorem rule09 : ruleRowsOk 9 = true := by decide +kernel
+private theorem rule10 : ruleRowsOk 10 = true := by decide +kernel
+private theorem rule11 : ruleRowsOk 11 = true := by decide +kernel
+private theorem rule12 : ruleRowsOk 12 = true := by decide +kernel
+private theorem rule13 : ruleRowsOk 13 = true := by decide +kernel
+private theorem rule14 : ruleRowsOk 14 = true := by decide +kernel
+private theorem rule15 : ruleRowsOk 15 = true := by decide +kernel
+private theorem rule16 : ruleRowsOk 16 = true := by decide +kernel
+private theorem rule17 : ruleRowsOk 17 = true := by decide +kernel
+private theorem rule18 : ruleRowsOk 18 = true := by decide +kernel
+private theorem rule19 : ruleRowsOk 19 = true := by decide +kernel
+private theorem rule20 : ruleRowsOk 20 = true := by decide +kernel
+private theorem rule21 : ruleRowsOk 21 = true := by decide +kernel
+private theorem rule22 : ruleRowsOk 22 = true := by decide +kernel
+private theorem rule23 : ruleRowsOk 23 = true := by decide +kernel
+
+private theorem allRules (k : Nat) (h1 : 1 ≤ k) (h2 : k < 24) : ruleRowsOk k = true := by
+  rcases k with _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ |
+    _ | _ | _ | _ | k
+  · omega
+  · exact rule01
+  · exact rule02
+  · exact rule03
+  · exact rule04
+  · exact rule05
+  · exact rule06
+  · exact rule07
+  · exact rule08
+  · exact rule09
+  · exact rule10
+  · exact rule11
+  · exact rule12
+  · exact rule13
+  · exact rule14
+  · exact rule15
+  · exact rule16
+  · exact rule17
+  · exact rule18
+  · exact rule19
+  · exact rule20
+  · exact rule21
+  · exact rule22
+  · exact rule23
+  · omega
 
 private theorem decode_identity : ∀ p, decodeRule (Generated.pairRuleTables.getD 0 []) p = p := by
   intro p
@@ -899,13 +1143,9 @@ theorem thm_lump_line_conflict_witnesses (f : Pair → Pair) (hS : PrSumPres f) 
     obtain ⟨p, hp⟩ := hid
     exact hp (by rw [hf]; exact decode_identity p)
   have hlen : Generated.pairRuleTables.length = 24 := gen_pair_rules_eq.1
-  have hkr : k ∈ List.range' 1 23 := List.mem_range'_1.2 ⟨by omega, by omega⟩
   intro s hs b hb o ho τ hτ m hm
-  have h := allLineCases_true
-  simp only [allLineCases, List.all_eq_true] at h
-  rw [hf]
-  exact hasWitness_sound k s b o τ m
-    (h k hkr s (List.mem_range.2 hs) b hb o ho τ hτ m (List.mem_range.2 hm))
+  rw [hf, ← fastRule_eq k (by omega)]
+  exact ruleRows_sound k (allRules k (by omega) (by omega)) s b o τ m hs hb ho hτ hm
 
 /-- Bridge for `lumpBlockMapTables`: the Lean reading maps equal `read` of majority, netSign and
     netResidue in coarse-block.ts on every block of 2 to 4 cells. -/
@@ -970,11 +1210,81 @@ private theorem encode_lt (y : Config (Fin 6)) : encodeRing y < 729 := by
   unfold encodeRing
   omega
 
-private theorem ring_images_true :
-    ((List.range 24).all fun k => (List.range 729).all fun x =>
-      encodeRing (round (decodeRule (Generated.pairRuleTables.getD k [])) ringBrick (decodeRing x)) ==
-        (Generated.partitionedRingImages.getD k []).getD x 0) = true := by
-  sorry
+/-- The images `ys` are the codes of the round of the configurations `x0, x0 + 1, ...`. -/
+def ringCheck (f : Pair → Pair) : Nat → List Nat → Bool
+  | _, [] => true
+  | x, y :: ys => (encodeRing (round f ringBrick (decodeRing x)) == y) && ringCheck f (x + 1) ys
+
+private theorem ringCheck_sound (f : Pair → Pair) :
+    ∀ (ys : List Nat) (x0 : Nat), ringCheck f x0 ys = true →
+      ∀ i < ys.length, encodeRing (round f ringBrick (decodeRing (x0 + i))) = ys.getD i 0
+  | [], _, _, i, hi => absurd hi (by simp)
+  | y :: ys, x0, h, i, hi => by
+    simp only [ringCheck, Bool.and_eq_true, beq_iff_eq] at h
+    rcases i with _ | i
+    · simpa using h.1
+    · have := ringCheck_sound f ys (x0 + 1) h.2 i (by simpa using hi)
+      rw [show x0 + (i + 1) = x0 + 1 + i by omega, this]
+      rfl
+
+/-- Ring rule `k` checks against its exported images, all 729 of them. -/
+def ringRuleOk (k : Nat) : Bool :=
+  (Generated.partitionedRingImages.getD k []).length == 729 &&
+  ringCheck (fastRule (Generated.pairRuleTables.getD k [])) 0 (Generated.partitionedRingImages.getD k [])
+
+private theorem ring00 : ringRuleOk 0 = true := by decide +kernel
+private theorem ring01 : ringRuleOk 1 = true := by decide +kernel
+private theorem ring02 : ringRuleOk 2 = true := by decide +kernel
+private theorem ring03 : ringRuleOk 3 = true := by decide +kernel
+private theorem ring04 : ringRuleOk 4 = true := by decide +kernel
+private theorem ring05 : ringRuleOk 5 = true := by decide +kernel
+private theorem ring06 : ringRuleOk 6 = true := by decide +kernel
+private theorem ring07 : ringRuleOk 7 = true := by decide +kernel
+private theorem ring08 : ringRuleOk 8 = true := by decide +kernel
+private theorem ring09 : ringRuleOk 9 = true := by decide +kernel
+private theorem ring10 : ringRuleOk 10 = true := by decide +kernel
+private theorem ring11 : ringRuleOk 11 = true := by decide +kernel
+private theorem ring12 : ringRuleOk 12 = true := by decide +kernel
+private theorem ring13 : ringRuleOk 13 = true := by decide +kernel
+private theorem ring14 : ringRuleOk 14 = true := by decide +kernel
+private theorem ring15 : ringRuleOk 15 = true := by decide +kernel
+private theorem ring16 : ringRuleOk 16 = true := by decide +kernel
+private theorem ring17 : ringRuleOk 17 = true := by decide +kernel
+private theorem ring18 : ringRuleOk 18 = true := by decide +kernel
+private theorem ring19 : ringRuleOk 19 = true := by decide +kernel
+private theorem ring20 : ringRuleOk 20 = true := by decide +kernel
+private theorem ring21 : ringRuleOk 21 = true := by decide +kernel
+private theorem ring22 : ringRuleOk 22 = true := by decide +kernel
+private theorem ring23 : ringRuleOk 23 = true := by decide +kernel
+
+private theorem allRing (k : Nat) (h2 : k < 24) : ringRuleOk k = true := by
+  rcases k with _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ |
+    _ | _ | _ | _ | k
+  · exact ring00
+  · exact ring01
+  · exact ring02
+  · exact ring03
+  · exact ring04
+  · exact ring05
+  · exact ring06
+  · exact ring07
+  · exact ring08
+  · exact ring09
+  · exact ring10
+  · exact ring11
+  · exact ring12
+  · exact ring13
+  · exact ring14
+  · exact ring15
+  · exact ring16
+  · exact ring17
+  · exact ring18
+  · exact ring19
+  · exact ring20
+  · exact ring21
+  · exact ring22
+  · exact ring23
+  · omega
 
 /-- Bridge for `partitionedRingImages` (the extensional link of `round` to
     code/rule/partitioned-pair.ts): for every rule of the census and every configuration `y` of
@@ -987,10 +1297,11 @@ theorem gen_partitioned_ring_eq :
       encodeRing (round (decodeRule (Generated.pairRuleTables.getD k [])) ringBrick y) =
         (Generated.partitionedRingImages.getD k []).getD (encodeRing y) 0 := by
   refine ⟨by decide, fun k hk y => ?_⟩
-  have h := ring_images_true
-  simp only [List.all_eq_true, List.mem_range, beq_iff_eq] at h
-  have := h k hk (encodeRing y) (encode_lt y)
-  rwa [decode_encode] at this
+  have h := allRing k hk
+  simp only [ringRuleOk, Bool.and_eq_true, beq_iff_eq] at h
+  have := ringCheck_sound _ _ 0 h.2 (encodeRing y) (by rw [h.1]; exact encode_lt y)
+  rw [Nat.zero_add, decode_encode, fastRule_eq k hk] at this
+  exact this
 
 end Ring
 

@@ -260,7 +260,7 @@ theorem walks_rot_iter (dirs : Finset Cell) (σ : Cell → Cell) (hadd : ∀ a b
 /-- The generic front argument: a step set with a distance `N` that moves by at most 1 per step, a turn `σ`
 permuting the steps, binomial walk counts on the first quadrant, and a shell cut into `k` turned sectors give the
 geodesic count `C(t, a)` on every front tile and `lit(t) = k (L3(t) - 1)`. -/
-theorem lit_of_front (dirs : Finset Cell) (N : Cell → ℕ) (hN0 : N 0 = 0)
+theorem thm_res_lit_of_front (dirs : Finset Cell) (N : Cell → ℕ) (hN0 : N 0 = 0)
     (hstep : ∀ v, ∀ d ∈ dirs, N v ≤ N (v + d) + 1) (σ : Cell → Cell) (hadd : ∀ a b, σ (a + b) = σ a + σ b)
     (hinj : Function.Injective σ) (hdirs : dirs.image σ = dirs) (k : ℕ)
     (hq : ∀ n x y : ℕ, x + y = n → walks (latticeNbr dirs) 0 n ((x : ℤ), (y : ℤ)) = n.choose x)
@@ -471,7 +471,7 @@ theorem thm_res_square_distance (v : Cell) :
   · have hm : v ∈ sphere squareDist (squareDist v) := (square_mem_sphere _ v).2 rfl
     rw [square_sphere_eq_image _ hpos, mem_image] at hm
     obtain ⟨p, hp, hpv⟩ := hm
-    have hw := ((lit_of_front squareDirs squareDist (by simp [squareDist]) square_step squareRot square_rot_add
+    have hw := ((thm_res_lit_of_front squareDirs squareDist (by simp [squareDist]) square_step squareRot square_rot_add
       square_rot_injective square_rot_dirs 4 square_quadrant _ (square_sphere_eq_image _ hpos)
       (square_front_injOn _) (fun _ => 0) rfl).1 p hp).2.1
     rw [hpv] at hw
@@ -484,7 +484,7 @@ theorem thm_res_square_lucas_front (h : ZMod 3 → ZMod 3) (h0 : h 0 = 0) (t : �
     (∀ p ∈ (univ : Finset (Fin 4)) ×ˢ range t, tone squareDirs h t (front squareRot t p) = (t.choose p.2 : ZMod 3)) ∧
     (sphere squareDist t).card = 4 * t ∧
     lit squareDirs squareDist h t = 4 * (lucasCount 3 t - 1) := by
-  obtain ⟨hf, hc, hl⟩ := lit_of_front squareDirs squareDist (by simp [squareDist]) square_step squareRot
+  obtain ⟨hf, hc, hl⟩ := thm_res_lit_of_front squareDirs squareDist (by simp [squareDist]) square_step squareRot
     square_rot_add square_rot_injective square_rot_dirs 4 square_quadrant t (square_sphere_eq_image t ht)
     (square_front_injOn t) h h0
   exact ⟨fun p hp => (hf p hp).2.2, hc, hl⟩
@@ -682,7 +682,7 @@ theorem thm_res_tri_distance (v : Cell) :
   · have hm : v ∈ sphere triDist (triDist v) := (tri_mem_sphere _ v).2 rfl
     rw [tri_sphere_eq_image _ hpos, mem_image] at hm
     obtain ⟨p, hp, hpv⟩ := hm
-    have hw := ((lit_of_front triDirs triDist (by simp [triDist]) tri_step triRot tri_rot_add
+    have hw := ((thm_res_lit_of_front triDirs triDist (by simp [triDist]) tri_step triRot tri_rot_add
       tri_rot_injective tri_rot_dirs 6 tri_quadrant _ (tri_sphere_eq_image _ hpos)
       (tri_front_injOn _) (fun _ => 0) rfl).1 p hp).2.1
     rw [hpv] at hw
@@ -695,7 +695,7 @@ theorem thm_res_tri_lucas_front (h : ZMod 3 → ZMod 3) (h0 : h 0 = 0) (t : ℕ)
     (∀ p ∈ (univ : Finset (Fin 6)) ×ˢ range t, tone triDirs h t (front triRot t p) = (t.choose p.2 : ZMod 3)) ∧
     (sphere triDist t).card = 6 * t ∧
     lit triDirs triDist h t = 6 * (lucasCount 3 t - 1) := by
-  obtain ⟨hf, hc, hl⟩ := lit_of_front triDirs triDist (by simp [triDist]) tri_step triRot
+  obtain ⟨hf, hc, hl⟩ := thm_res_lit_of_front triDirs triDist (by simp [triDist]) tri_step triRot
     tri_rot_add tri_rot_injective tri_rot_dirs 6 tri_quadrant t (tri_sphere_eq_image t ht)
     (tri_front_injOn t) h h0
   exact ⟨fun p hp => (hf p hp).2.2, hc, hl⟩
