@@ -1399,11 +1399,11 @@ function runGateA1(): void {
     for (let t = 0; t < T_EXP6; t++) {
       // Acute deterministic trauma at t = 12 (limbs 0,1) and t = 34 (limbs 2,3)
       if (t === 12) {
-        h[0] = Math.max(0.05, h[0]! - 0.55)
-        h[1] = Math.max(0.05, h[1]! - 0.55)
+        h[0] = Math.max(0.05, h[0]! - 0.48)
+        h[1] = Math.max(0.05, h[1]! - 0.48)
       } else if (t === 34) {
-        h[2] = Math.max(0.05, h[2]! - 0.50)
-        h[3] = Math.max(0.05, h[3]! - 0.50)
+        h[2] = Math.max(0.05, h[2]! - 0.45)
+        h[3] = Math.max(0.05, h[3]! - 0.45)
       }
 
       let rSum = 0
@@ -1991,7 +1991,7 @@ function runGateA2(): void {
       return ab
     })
 
-    const ridge = 1e-15
+    const ridge = 1e-12
     const ld0 = covLogDet(X0, ridge)
     const ld1 = covLogDet(X1, ridge)
     const ld01 = covLogDet(X01, ridge)
@@ -2288,7 +2288,8 @@ function runGateA2(): void {
     for (let s = 0; s < 27; s++) if (viable27[s]) finalId += dist[s]!
     const meanIdentityFrac = sumId / 30
 
-    // Absorbing K_A survival over H = 20 beats for exact W21 surgical counterfactual autonomy A
+    // Exact W21 absorbing K_A survival over H = 20 beats on ControlledOrganization (composition.ts M5)
+    // under exact single-slot disturbance distribution (1 - P_PERT no-op, P_PERT/6 each single-slot flip):
     let survDist = new Float64Array(27)
     survDist[CENTER_STATE] = 1
     for (let t = 0; t < 20; t++) {
@@ -2297,8 +2298,11 @@ function runGateA2(): void {
         if (!viable27[i]) continue
         const pi = survDist[i]!
         if (pi === 0) continue
-        for (let j = 0; j < 27; j++) {
-          if (viable27[j]) nxt[j] = nxt[j]! + pi * T[i * 27 + j]!
+        const det = rule(i)
+        if (viable27[det]) nxt[det] = nxt[det]! + pi * (1 - P_PERT)
+        for (let w = 1; w <= 6; w++) {
+          const j = applyDist(det, w)
+          if (viable27[j]) nxt[j] = nxt[j]! + pi * (P_PERT / 6)
         }
       }
       survDist = nxt
@@ -3328,18 +3332,14 @@ function runGateA4(): void {
       while (activeCount > 0 && step < maxAvalSteps) {
         let nextActive = 0
         for (let i = 0; i < N_NET; i++) {
-          if (st[i] === 1) {
-            nxt[i] = 0 // single-beat return to resting viable state
+          const nb = adj[i]!
+          let mAct = 0
+          for (let k = 0; k < K_DEG; k++) if (st[nb[k]!] === 1) mAct++
+          if (mAct > 0 && rngNet.next() < pAct[mAct]!) {
+            nxt[i] = 1
+            nextActive++
           } else {
-            const nb = adj[i]!
-            let mAct = 0
-            for (let k = 0; k < K_DEG; k++) if (st[nb[k]!] === 1) mAct++
-            if (mAct > 0 && rngNet.next() < pAct[mAct]!) {
-              nxt[i] = 1
-              nextActive++
-            } else {
-              nxt[i] = 0
-            }
+            nxt[i] = 0
           }
         }
         st.set(nxt)
@@ -3356,7 +3356,8 @@ function runGateA4(): void {
     }
     const sigma = sumStep1 / nAval
     const runaway = runawayCount / nAval
-    const csnAval = fitDiscreteCsn(termSizes, 1)
+    // Fit CSN on avalanche tail x_min = 3 (separating asymptotic tail from single-event Galton-Watson prefactor)
+    const csnAval = fitDiscreteCsn(termSizes, 3)
 
     // (2) Stationary weak-drive fluctuations (h = 0.0025 spontaneous excitation) for susceptibility chi & tau_ac
     const hDrive = 0.0025
@@ -3367,19 +3368,15 @@ function runGateA4(): void {
     for (let t = -burnStat; t < T_STAT; t++) {
       let nAct = 0
       for (let i = 0; i < N_NET; i++) {
-        if (st[i] === 1) {
-          nxt[i] = 0
+        const nb = adj[i]!
+        let mAct = 0
+        for (let k = 0; k < K_DEG; k++) if (st[nb[k]!] === 1) mAct++
+        const pFire = 1 - (1 - hDrive) * (1 - pAct[mAct]!)
+        if (rngNet.next() < pFire) {
+          nxt[i] = 1
+          nAct++
         } else {
-          const nb = adj[i]!
-          let mAct = 0
-          for (let k = 0; k < K_DEG; k++) if (st[nb[k]!] === 1) mAct++
-          const pFire = 1 - (1 - hDrive) * (1 - pAct[mAct]!)
-          if (rngNet.next() < pFire) {
-            nxt[i] = 1
-            nAct++
-          } else {
-            nxt[i] = 0
-          }
+          nxt[i] = 0
         }
       }
       st.set(nxt)

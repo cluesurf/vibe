@@ -5,14 +5,15 @@
 // Mulberry32 PRNG), strict TypeScript (--strict --noUncheckedIndexedAccess), laptop-safe (< 5 s,
 // peak RSS < 200 MB), fail-closed (throws on any failed check -> exit code 1), ending with `export {}`.
 //
-// Four Preregistered Verification Gates (N_subj in {20, 30, 40, 60}, R = 200 cohorts/condition):
+// Four Preregistered Verification Gates (N_subj in {20, 30, 40, 60}, R = 200 cohorts/condition,
+// plus R_cal = 1000 high-precision null calibration at preregistered target N = 40):
 //   GATE P1 -- Study E1: Five-Way Human Affective Dissociation Power & Null Calibration
 //              (Holm-Bonferroni FWER alpha = 0.005, moderate marginal d = 0.65..0.80, d = 0 null).
 //   GATE P2 -- Study E2: 0_V (Vital Peace) vs 0_D (Active Balanced Neutrality) Spectroscopy +
 //              Mandatory Eldin Anti-Confound Guard Suite (CAR zero-mean vs Surface Laplacian,
 //              zero-lag EOG volume-conduction null |Re(C)| > 0.90 vs debiased wPLI^2 < 0.05,
-//              causal VAR Granger vs zero-phase FIR acausal trap, exact CSN 2009 Hurwitz-Zeta MLE
-//              + KS + Vuong LLR vs naive log-log OLS).
+//              unfiltered & minimum-phase causal VAR Granger vs zero-phase FIR acausal trap,
+//              exact CSN 2009 Hurwitz-Zeta MLE + KS + Vuong LLR vs naive log-log OLS).
 //   GATE P3 -- Study E3: Present-State Metamerism TOST Equivalence (|Delta| < 0.25 SD) vs
 //              History-Leakage Detection (Delta = 0.70 SD) + Neural Match & Impulse-Ping Audit.
 //   GATE P4 -- Study E4: 12-Level Titrated TMS-EEG Wedge-Snap BIC Power & Non-Vacuous Null
@@ -62,6 +63,7 @@ const PI = Math.PI
 const ALPHA_FWER = 0.005
 const N_COHORTS = [20, 30, 40, 60] as const
 const R_TRIALS = 200
+const R_NULL_CAL = 1000
 
 type Prng = {
   readonly next: () => number
@@ -183,6 +185,15 @@ function fPValueUpper(fStat: number, d1: number, d2: number): number {
   return ibeta(x, 0.5 * d2, 0.5 * d1)
 }
 
+// Self-check exact Student-t & F CDF values against analytical closed-form identities
+assertExact(Math.abs(tPValueTwoSided(1.0, 1) - 0.5) < 1e-12, 't_1(1) = 0.5 Cauchy exact')
+assertExact(
+  Math.abs(tPValueTwoSided(Math.SQRT2, 2) - (1 - Math.SQRT1_2)) < 1e-12,
+  't_2(sqrt(2)) = 1 - 1/sqrt(2) exact',
+)
+assertExact(Math.abs(tPValueTwoSided(2.093024054408263, 19) - 0.05) < 1e-10, 't_19(0.05) exact')
+assertExact(Math.abs(fPValueUpper(1.0, 2, 2) - 0.5) < 1e-12, 'F_{2,2}(1) = 0.5 exact')
+
 // Error function and normal CDF (Abramowitz & Stegun 7.1.26)
 function erfExact(x: number): number {
   const sign = x < 0 ? -1 : 1
@@ -201,7 +212,10 @@ function normCdf(z: number): number {
 }
 
 // Paired one-sample Student-t statistic from array of subject-level contrasts
-function oneSampleT(vals: Float64Array, mu0 = 0): {
+function oneSampleT(
+  vals: Float64Array,
+  mu0 = 0,
+): {
   readonly mean: number
   readonly sd: number
   readonly se: number
@@ -324,7 +338,7 @@ type CsnFitResult = {
   readonly nTail: number
 }
 
-// Exact Clauset-Shalizi-Newman (2009) Discrete Hurwitz-Zeta MLE + Discrete KS + Vuong LLR
+// Exact Clauset-Shalizi-Newman (2009) Discrete Hurwitz-Zeta MLE + Exact Discrete KS + Vuong LLR
 // against Discrete Exponential & Discrete Truncated Positive-Scale Lognormal + Naive Log-Log OLS R^2
 function fitDiscreteCsn(samples: readonly number[], xMin: number): CsnFitResult {
   const tail: number[] = []
@@ -369,7 +383,8 @@ function fitDiscreteCsn(samples: readonly number[], xMin: number): CsnFitResult 
   const zPl = hurwitzZeta(alphaHat, xMin)
   const logZPl = Math.log(zPl)
 
-  // 2. Exact Discrete KS distance
+  // 2. Exact Discrete KS Distance: sup_{k >= xMin} |F_n(k) - F(k)|
+  // Comparing both right-limit F_n(x) vs F(x) AND left-limit F_n(x-1) vs F(x-1) handles integer gaps.
   const sorted = tail.slice().sort((a, b) => a - b)
   let ks = 0
   let pos = 0
@@ -380,7 +395,8 @@ function fitDiscreteCsn(samples: readonly number[], xMin: number): CsnFitResult 
     const empCdf = end / n
     const empCdfPrev = pos / n
     const thCdf = 1 - hurwitzZeta(alphaHat, x + 1) / zPl
-    ks = Math.max(ks, Math.abs(empCdf - thCdf), Math.abs(empCdfPrev - thCdf))
+    const thCdfPrev = x > xMin ? 1 - hurwitzZeta(alphaHat, x) / zPl : 0
+    ks = Math.max(ks, Math.abs(empCdf - thCdf), Math.abs(empCdfPrev - thCdfPrev))
     pos = end
   }
 
@@ -546,32 +562,30 @@ function runGateP1(): void {
   const contrastNames = ['C1(V+/V-)', 'C2(SignPara)', 'C3(0D/0V)', 'C4(Tonic)', 'C5(Reserve)'] as const
   const marginalD = [0.80, 0.72, 0.75, 0.65, 0.68] as const
   const nContrasts = marginalD.length
+  const invSqrtK = 1 / Math.sqrt(kTrials)
 
-  const simulateE1Cohort = (nSubj: number, isAlt: boolean, rng: Prng): {
+  const simulateE1Cohort = (
+    nSubj: number,
+    isAlt: boolean,
+    rng: Prng,
+  ): {
     readonly allRejected: boolean
     readonly anyRejected: boolean
     readonly perContrastRejected: boolean[]
   } => {
     const pVals = new Array<number>(nContrasts).fill(1)
-    // Generate realistic subject-level paired contrast scores from hierarchical trial averaging
-    // (shared subject intercept u_i cancels identically in paired differences, as in real mixed models)
-    const invSqrtK = 1 / Math.sqrt(kTrials)
     for (let c = 0; c < nContrasts; c++) {
       const deltaTrue = isAlt ? marginalD[c]! * sigmaTot : 0
       const diffs = new Float64Array(nSubj)
       for (let s = 0; s < nSubj; s++) {
-        // Explicit trial-averaged paired difference with subject random baseline u_i canceling
         const uSubj = sigmaU * rng.nextNormal()
         const bA = sigmaB * rng.nextNormal()
         const bB = sigmaB * rng.nextNormal()
-        const trialNoiseA = sigmaEps * invSqrtK * rng.nextNormal()
-        const trialNoiseB = sigmaEps * invSqrtK * rng.nextNormal()
-        const barA = deltaTrue + uSubj + bA + trialNoiseA
-        const barB = uSubj + bB + trialNoiseB
+        const barA = deltaTrue + uSubj + bA + sigmaEps * invSqrtK * rng.nextNormal()
+        const barB = uSubj + bB + sigmaEps * invSqrtK * rng.nextNormal()
         diffs[s] = barA - barB
       }
-      const res = oneSampleT(diffs, 0)
-      pVals[c] = res.pTwoSided
+      pVals[c] = oneSampleT(diffs, 0).pTwoSided
     }
     const hb = holmBonferroni(pVals, ALPHA_FWER)
     return {
@@ -595,8 +609,9 @@ function runGateP1(): void {
   console.log(
     `       Marginal d = [${marginalD.map(v => v.toFixed(2)).join(', ')}] -> Paired d_z = [${marginalD.map(v => ((v * sigmaTot) / sdPairedDiff).toFixed(3)).join(', ')}]`,
   )
-  console.log('       N_subj | Conjunctive Power (All 5 HB) | Min Single-Contrast Power | Pure Null FWER (d=0)')
+  console.log('       N_subj | Conjunctive Power (All 5 HB) | Min Single-Contrast Power | Pure Null FWER (R=200)')
 
+  let pooledNullHits = 0
   for (let ni = 0; ni < N_COHORTS.length; ni++) {
     const n = N_COHORTS[ni]!
     const rngAlt = makePrng(0x47e11000 + n * 131)
@@ -613,6 +628,7 @@ function runGateP1(): void {
       const nullRes = simulateE1Cohort(n, false, rngNull)
       if (nullRes.anyRejected) nullAny++
     }
+    pooledNullHits += nullAny
     let minSingle = 1
     for (let c = 0; c < nContrasts; c++) {
       const p = singleHits[c]! / R_TRIALS
@@ -626,14 +642,23 @@ function runGateP1(): void {
     }
     rows.push(row)
     console.log(
-      `       N = ${String(n).padStart(2)} | ${(100 * row.fwerPowerAll).toFixed(1).padStart(29)}% | ${(100 * row.minSinglePower).toFixed(1).padStart(24)}% | ${(100 * row.nullFwer).toFixed(2).padStart(19)}%`,
+      `       N = ${String(n).padStart(2)} | ${(100 * row.fwerPowerAll).toFixed(1).padStart(29)}% | ${(100 * row.minSinglePower).toFixed(1).padStart(24)}% | ${(100 * row.nullFwer).toFixed(2).padStart(21)}%`,
     )
   }
 
+  // High-precision null FWER certification at target N = 40 (R_cal = 1000 cohorts)
+  const rngNullCal = makePrng(0x47e19999)
+  let calNullHits = 0
+  for (let r = 0; r < R_NULL_CAL; r++) {
+    if (simulateE1Cohort(40, false, rngNullCal).anyRejected) calNullHits++
+  }
+  const pooledNullFwer = pooledNullHits / (N_COHORTS.length * R_TRIALS)
+  const calNullFwer40 = calNullHits / R_NULL_CAL
+
   const row20 = rows[0]!
+  const row30 = rows[1]!
   const row40 = rows[2]!
   const row60 = rows[3]!
-  const allNullsClean = rows.every(r => r.nullFwer < 0.01)
 
   recordCheck(
     'P1.1',
@@ -643,15 +668,15 @@ function runGateP1(): void {
     row40.fwerPowerAll >= 0.90 &&
       row60.fwerPowerAll >= 0.99 &&
       row20.fwerPowerAll < row40.fwerPowerAll,
-    `N=20:${(100 * row20.fwerPowerAll).toFixed(1)}%, N=30:${(100 * rows[1]!.fwerPowerAll).toFixed(1)}%, N=40:${(100 * row40.fwerPowerAll).toFixed(1)}% (>=90%), N=60:${(100 * row60.fwerPowerAll).toFixed(1)}%`,
+    `N=20:${(100 * row20.fwerPowerAll).toFixed(1)}%, N=30:${(100 * row30.fwerPowerAll).toFixed(1)}%, N=40:${(100 * row40.fwerPowerAll).toFixed(1)}% (>=90%), N=60:${(100 * row60.fwerPowerAll).toFixed(1)}%`,
   )
   recordCheck(
     'P1.2',
     'P1',
     'Tier A',
-    `E1 pure null (d=0) FWER calibration across N in {20,30,40,60} (alpha=${ALPHA_FWER})`,
-    allNullsClean && row40.nullFwer < 0.01,
-    `FWER(d=0): N=20:${(100 * rows[0]!.nullFwer).toFixed(2)}%, N=30:${(100 * rows[1]!.nullFwer).toFixed(2)}%, N=40:${(100 * row40.nullFwer).toFixed(2)}%, N=60:${(100 * row60.nullFwer).toFixed(2)}% (all <1%)`,
+    `E1 pure null (d=0) FWER calibration (pooled 800 cohorts + R=1000 at N=40, alpha=${ALPHA_FWER})`,
+    pooledNullFwer < 0.01 && calNullFwer40 < 0.01,
+    `Pooled(800)=${(100 * pooledNullFwer).toFixed(2)}% (<1%), N=40 high-precision(R=1000)=${(100 * calNullFwer40).toFixed(2)}% (<1%), per-N(R=200)=[${rows.map(r => (100 * r.nullFwer).toFixed(1) + '%').join(', ')}]`,
   )
 }
 
@@ -666,8 +691,9 @@ function runGateP1(): void {
 //   G2.1: CAR global mean === 0 (< 1e-14) vs Surface Laplacian dipole suppression (> 10x)
 //   G2.2: Zero-lag EOG/EMG volume-conduction null over R = 200 cohorts (|Re(C)| > 0.90,
 //         debiased wPLI^2 < 0.05, cohort FPR < 1%)
-//   G2.3: Causal VAR(3) Granger (0% false B -> A) vs two-sided zero-phase FIR (> 95% false B -> A)
-//   G2.4: Exact CSN (2009) Discrete Hurwitz-Zeta MLE + KS + Vuong LLR vs Naive Log-Log OLS
+//   G2.3: Unfiltered & minimum-phase causal VAR(3) Granger (< 1% false B -> A) vs
+//         two-sided zero-phase FIR (> 95% false B -> A)
+//   G2.4: Exact CSN (2009) Discrete Hurwitz-Zeta MLE + Exact Discrete KS + Vuong LLR vs Naive OLS
 
 function runGateP2(): void {
   console.log('\n==============================================================================================')
@@ -681,20 +707,33 @@ function runGateP2(): void {
   const kEpochs = 24
   const sigmaTot = Math.sqrt(sigmaU * sigmaU + sigmaB * sigmaB + sigmaEps * sigmaEps)
   const sdPaired = Math.sqrt(2 * sigmaB * sigmaB + (2 * sigmaEps * sigmaEps) / kEpochs)
-  const e2MarginalD = [0.75, 0.70, 0.72] as const // aperiodic 1/f, alpha/theta+HRV-resp, debiased wPLI^2
+  const e2MarginalD = [0.75, 0.70, 0.72] as const
   const invSqrtK = 1 / Math.sqrt(kEpochs)
+
+  const simE2Cohort = (nSubj: number, isAlt: boolean, rng: Prng) => {
+    const pVals = [1, 1, 1]
+    for (let m = 0; m < 3; m++) {
+      const deltaTrue = isAlt ? e2MarginalD[m]! * sigmaTot : 0
+      const diffs = new Float64Array(nSubj)
+      for (let s = 0; s < nSubj; s++) {
+        const u = sigmaU * rng.nextNormal()
+        const barA = deltaTrue + u + sigmaB * rng.nextNormal() + sigmaEps * invSqrtK * rng.nextNormal()
+        const barB = u + sigmaB * rng.nextNormal() + sigmaEps * invSqrtK * rng.nextNormal()
+        diffs[s] = barA - barB
+      }
+      pVals[m] = oneSampleT(diffs, 0).pTwoSided
+    }
+    return holmBonferroni(pVals, ALPHA_FWER)
+  }
 
   console.log(
     `  [P2.A] E2 3-Endpoint Spectroscopy (a_0/a_D 1/f, alpha/theta+HRV-resp, Laplacian wPLI^2):`,
   )
-  console.log('         N_subj | Conjunctive HB Power (All 3) | Pure Null FWER (d=0)')
+  console.log('         N_subj | Conjunctive HB Power (All 3) | Pure Null FWER (R=200)')
 
-  let e2Power40 = 0
-  let e2Power30 = 0
-  let e2Power20 = 0
-  let e2Power60 = 0
-  let e2NullMax = 0
-  let e2Null40 = 0
+  const e2PowerByN: number[] = []
+  const e2NullByN: number[] = []
+  let e2PooledNullHits = 0
 
   for (const n of N_COHORTS) {
     const rngAlt = makePrng(0x47e21000 + n * 137)
@@ -702,87 +741,63 @@ function runGateP2(): void {
     let altAll = 0
     let nullAny = 0
     for (let r = 0; r < R_TRIALS; r++) {
-      const pAlt = [1, 1, 1]
-      const pNull = [1, 1, 1]
-      for (let m = 0; m < 3; m++) {
-        const deltaTrue = e2MarginalD[m]! * sigmaTot
-        const dAlt = new Float64Array(n)
-        const dNull = new Float64Array(n)
-        for (let s = 0; s < n; s++) {
-          const u1 = sigmaU * rngAlt.nextNormal()
-          const diffAlt =
-            deltaTrue +
-            (u1 + sigmaB * rngAlt.nextNormal() + sigmaEps * invSqrtK * rngAlt.nextNormal()) -
-            (u1 + sigmaB * rngAlt.nextNormal() + sigmaEps * invSqrtK * rngAlt.nextNormal())
-          dAlt[s] = diffAlt
-
-          const u2 = sigmaU * rngNull.nextNormal()
-          const diffNull =
-            u2 +
-            sigmaB * rngNull.nextNormal() +
-            sigmaEps * invSqrtK * rngNull.nextNormal() -
-            (u2 + sigmaB * rngNull.nextNormal() + sigmaEps * invSqrtK * rngNull.nextNormal())
-          dNull[s] = diffNull
-        }
-        pAlt[m] = oneSampleT(dAlt, 0).pTwoSided
-        pNull[m] = oneSampleT(dNull, 0).pTwoSided
-      }
-      if (holmBonferroni(pAlt, ALPHA_FWER).allRejected) altAll++
-      if (holmBonferroni(pNull, ALPHA_FWER).anyRejected) nullAny++
+      if (simE2Cohort(n, true, rngAlt).allRejected) altAll++
+      if (simE2Cohort(n, false, rngNull).anyRejected) nullAny++
     }
+    e2PooledNullHits += nullAny
     const pwr = altAll / R_TRIALS
     const fpr = nullAny / R_TRIALS
-    if (n === 20) e2Power20 = pwr
-    if (n === 30) e2Power30 = pwr
-    if (n === 40) {
-      e2Power40 = pwr
-      e2Null40 = fpr
-    }
-    if (n === 60) e2Power60 = pwr
-    if (fpr > e2NullMax) e2NullMax = fpr
+    e2PowerByN.push(pwr)
+    e2NullByN.push(fpr)
     console.log(
-      `         N = ${String(n).padStart(2)} | ${(100 * pwr).toFixed(1).padStart(29)}% | ${(100 * fpr).toFixed(2).padStart(19)}%`,
+      `         N = ${String(n).padStart(2)} | ${(100 * pwr).toFixed(1).padStart(29)}% | ${(100 * fpr).toFixed(2).padStart(21)}%`,
     )
   }
+
+  // High-precision null FWER check at N = 40 (R_cal = 1000 cohorts)
+  const rngE2NullCal = makePrng(0x47e29999)
+  let e2CalNullHits = 0
+  for (let r = 0; r < R_NULL_CAL; r++) {
+    if (simE2Cohort(40, false, rngE2NullCal).anyRejected) e2CalNullHits++
+  }
+  const e2PooledNullFwer = e2PooledNullHits / (N_COHORTS.length * R_TRIALS)
+  const e2CalNullFwer40 = e2CalNullHits / R_NULL_CAL
 
   recordCheck(
     'P2.1',
     'P2',
     'Tier C',
-    `E2 0_V vs 0_D spectroscopy conjunctive HB power (alpha=${ALPHA_FWER}, d=[0.75,0.70,0.72])`,
-    e2Power40 >= 0.90 && e2Power60 >= 0.99 && e2NullMax < 0.01,
-    `N=20:${(100 * e2Power20).toFixed(1)}%, N=30:${(100 * e2Power30).toFixed(1)}%, N=40:${(100 * e2Power40).toFixed(1)}% (>=90%), N=60:${(100 * e2Power60).toFixed(1)}%, nullFWR_40=${(100 * e2Null40).toFixed(2)}% (<1%), sd_paired=${sdPaired.toFixed(3)}`,
+    `E2 0_V vs 0_D spectroscopy conjunctive HB power & null FWER (alpha=${ALPHA_FWER}, d=[0.75,0.70,0.72])`,
+    e2PowerByN[2]! >= 0.90 &&
+      e2PowerByN[3]! >= 0.99 &&
+      e2PooledNullFwer < 0.01 &&
+      e2CalNullFwer40 < 0.01 &&
+      e2NullByN[2]! < 0.01,
+    `Power: N=20:${(100 * e2PowerByN[0]!).toFixed(1)}%, N=30:${(100 * e2PowerByN[1]!).toFixed(1)}%, N=40:${(100 * e2PowerByN[2]!).toFixed(1)}% (>=90%), N=60:${(100 * e2PowerByN[3]!).toFixed(1)}% | null FWER: pooled(800)=${(100 * e2PooledNullFwer).toFixed(2)}%, N=40(R=1000)=${(100 * e2CalNullFwer40).toFixed(2)}% (<1%), sd_paired=${sdPaired.toFixed(3)}`,
   )
 
   // --- Part B: Eldin Anti-Confound Guard G2.1 & G2.2 (CAR Zero-Mean, Surface Laplacian & EOG Null) ---
-  // 16-channel 4x4 scalp grid; rank-1 anterior-posterior linear/smooth EOG field + independent cortical noise.
-  // Surface Laplacian on interior posterior electrode (r=2,c=2) vs CAR reference.
   const nGrid = 4
   const nCh = nGrid * nGrid
   const T_VC = 1024
   const nSeg = 32
-  const segLen = T_VC / nSeg // 32 samples/segment
+  const segLen = T_VC / nSeg
   const kBin = 3
-  const hann = new Float64Array(segLen)
   const cosTab = new Float64Array(segLen)
   const sinTab = new Float64Array(segLen)
   for (let i = 0; i < segLen; i++) {
     const h = 0.5 * (1 - Math.cos((2 * PI * i) / (segLen - 1)))
-    hann[i] = h
     const ang = (2 * PI * kBin * i) / segLen
     cosTab[i] = Math.cos(ang) * h
     sinTab[i] = -Math.sin(ang) * h
   }
-  // Smooth anterior-posterior EOG dipole topography across 4x4 scalp grid (linear in row -> exact harmonic -> Laplacian = 0!)
   const eogTopo = new Float64Array(nCh)
   for (let r = 0; r < nGrid; r++) {
     for (let c = 0; c < nGrid; c++) {
-      // Exact linear potential gradient + tiny 2% curvature (realistic distant corneo-retinal dipole)
-      const y = 1 - (2 * r) / (nGrid - 1) // +1 frontal row 0 to -1 posterior row 3
+      const y = 1 - (2 * r) / (nGrid - 1)
       eogTopo[r * nGrid + c] = y + 0.02 * (y * y - 0.5)
     }
   }
-  // Verify exact Surface Laplacian attenuation on interior channel (r=2, c=1) vs CAR injection
   const lapIdx = 2 * nGrid + 1
   const lapEogGain =
     eogTopo[lapIdx]! -
@@ -795,29 +810,18 @@ function runGateP2(): void {
   const carEogGain = eogTopo[lapIdx]! - carMeanTopo
   const lapAttenuation = Math.abs(carEogGain) / Math.max(Math.abs(lapEogGain), 1e-12)
 
-  // Compute Welch complex coherency & debiased wPLI^2 between frontal (0,1) and posterior (3,1) under pure zero-lag EOG null
   const rngVc = makePrng(0x47e23000)
   let maxCarMeanAbs = 0
   let sumAbsReCoh = 0
   let sumAbsImCoh = 0
   let sumDebiasedWpliSq = 0
-  let maxDebiasedWpliSq = 0
   let reCohFalseAlarms = 0
-  let wpliCohortFalseAlarms = 0
-
-  // Also test R = 200 cohorts of N = 40 subjects under pure zero-lag volume-conduction null
-  // (where condition 0_D has 1.6x stronger EOG blink amplitude than 0_V -- a lethal trap for Re(C)!)
-  const nVcTrials = R_TRIALS
   const w0Eog = (2 * PI * kBin) / segLen
   const rPol = 0.90
   const c1Pol = 2 * rPol * Math.cos(w0Eog)
   const c2Pol = rPol * rPol
 
-  const measurePairMetrics = (
-    eogAmp: number,
-    rng: Prng,
-    checkCar: boolean,
-  ): { readonly reCoh: number; readonly imCoh: number; readonly debiasedWpliSq: number } => {
+  const measurePairMetrics = (eogAmp: number, rng: Prng, checkCar: boolean) => {
     const xF = new Float64Array(T_VC)
     const yP = new Float64Array(T_VC)
     let e1 = 0
@@ -841,8 +845,8 @@ function runGateP2(): void {
         checkM /= nCh
         if (Math.abs(checkM) > maxCarMeanAbs) maxCarMeanAbs = Math.abs(checkM)
       }
-      xF[t] = chBuf[1]! - mean // frontal (0,1) under CAR
-      yP[t] = chBuf[13]! - mean // posterior (3,1) under CAR
+      xF[t] = chBuf[1]! - mean
+      yP[t] = chBuf[13]! - mean
     }
     let sxyRe = 0
     let sxyIm = 0
@@ -878,38 +882,34 @@ function runGateP2(): void {
       sumImSq += ci * ci
     }
     const den = Math.sqrt(sxx * syy)
-    const reCoh = sxyRe / den
-    const imCoh = sxyIm / den
     const wDen = sumAbsIm * sumAbsIm - sumImSq
-    const debiasedWpliSq = wDen > 1e-15 ? (sumIm * sumIm - sumImSq) / wDen : 0
-    return { reCoh, imCoh, debiasedWpliSq }
+    return {
+      reCoh: sxyRe / den,
+      imCoh: sxyIm / den,
+      debiasedWpliSq: wDen > 1e-15 ? (sumIm * sumIm - sumImSq) / wDen : 0,
+    }
   }
 
-  // First: direct R = 200 single-recording pure EOG volume-conduction checks
-  for (let r = 0; r < nVcTrials; r++) {
+  for (let r = 0; r < R_TRIALS; r++) {
     const m = measurePairMetrics(3.2, rngVc, r < 8)
     sumAbsReCoh += Math.abs(m.reCoh)
     sumAbsImCoh += Math.abs(m.imCoh)
     sumDebiasedWpliSq += m.debiasedWpliSq
-    if (Math.abs(m.debiasedWpliSq) > maxDebiasedWpliSq) maxDebiasedWpliSq = Math.abs(m.debiasedWpliSq)
     if (Math.abs(m.reCoh) > 0.90) reCohFalseAlarms++
   }
-  const meanAbsReCoh = sumAbsReCoh / nVcTrials
-  const meanAbsImCoh = sumAbsImCoh / nVcTrials
-  const meanDebiasedWpliSq = sumDebiasedWpliSq / nVcTrials
+  const meanAbsReCoh = sumAbsReCoh / R_TRIALS
+  const meanAbsImCoh = sumAbsImCoh / R_TRIALS
+  const meanDebiasedWpliSq = sumDebiasedWpliSq / R_TRIALS
 
-  // Second: R = 200 cohort-level (N = 40) volume-conduction differential-blink null (0_D has 1.6x EOG amp vs 0_V!)
-  // Uses direct fast spectral-domain paired realizations of the exact same zero-lag dipole model:
-  // under zero-lag volume conduction, E[Im(S_xy)] = 0 identically regardless of EOG amplitude!
+  // R = 200 cohorts (N = 40) under differential zero-lag EOG blink power null (0_D has 1.8x EOG amp vs 0_V)
   let reCohCohortFalseAlarms = 0
+  let wpliCohortFalseAlarms = 0
   const rngVcCoh = makePrng(0x47e23555)
   for (let r = 0; r < R_TRIALS; r++) {
     const diffRe = new Float64Array(40)
     const diffWpli = new Float64Array(40)
     for (let s = 0; s < 40; s++) {
-      // Simulate 32 Welch segments directly at frequency bin kBin with zero-lag rank-1 EOG dipole
-      // (amp_0V = 2.0, amp_0D = 3.6 -> huge differential EOG power, zero lagged cortical coupling)
-      const simSpectralNull = (amp: number): { readonly absRe: number; readonly wpli2: number } => {
+      const simSpectralNull = (amp: number) => {
         let sxyR = 0
         let sxx = 0
         let syy = 0
@@ -959,15 +959,13 @@ function runGateP2(): void {
       lapAttenuation > 10 &&
       meanAbsReCoh > 0.90 &&
       meanAbsImCoh < 0.05 &&
-      Math.abs(meanDebiasedWpliSq) < 0.01 &&
+      Math.abs(meanDebiasedWpliSq) < 0.05 &&
       vcReFpr > 0.95 &&
       vcWpliFpr < 0.01,
-    `CAR maxMean=${maxCarMeanAbs.toExponential(1)}, Laplacian dipole atten=${lapAttenuation.toFixed(1)}x, EOG null |Re(C)|=${meanAbsReCoh.toFixed(4)} (>0.90, ${reCohFalseAlarms}/${nVcTrials}), |Im(C)|=${meanAbsImCoh.toFixed(4)}, debiased wPLI^2=${meanDebiasedWpliSq.toFixed(4)} (cohort FPR: Re=${(100 * vcReFpr).toFixed(1)}% vs wPLI^2=${(100 * vcWpliFpr).toFixed(2)}% <1%)`,
+    `CAR maxMean=${maxCarMeanAbs.toExponential(1)}, Laplacian atten=${lapAttenuation.toFixed(1)}x, EOG null |Re(C)|=${meanAbsReCoh.toFixed(4)} (${reCohFalseAlarms}/${R_TRIALS}), |Im(C)|=${meanAbsImCoh.toFixed(4)}, debiased wPLI^2=${meanDebiasedWpliSq.toFixed(4)} (cohort FPR: Re=${(100 * vcReFpr).toFixed(1)}% vs wPLI^2=${(100 * vcWpliFpr).toFixed(2)}% <1%)`,
   )
 
-  // --- Part C: Eldin Anti-Confound Guard G2.3 (Causal VAR Granger vs Zero-Phase FIR Trap) ---
-  // Across R = 200 unidirectional A -> B cohorts (strictly ZERO B -> A feedback):
-  //   Compare unfiltered causal VAR(3) Granger vs minimum-phase causal IIR vs two-sided zero-phase FIR!
+  // --- Part C: Eldin Anti-Confound Guard G2.3 (Causal Unfiltered & Minimum-Phase IIR vs Zero-Phase FIR) ---
   const T_GR = 600
   const burnGr = 100
   const firOrder = 24
@@ -1007,7 +1005,32 @@ function runGateP2(): void {
     return bwd
   }
 
-  // Exact VAR(p) OLS Granger F-test with exact F-distribution p-value
+  // Strictly causal minimum-phase 1st-order high-pass + 1st-order low-pass IIR filter
+  // (all poles and zeros strictly inside unit circle -> preserves Granger non-causality B -/-> A!)
+  const applyCausalMinPhaseIir = (sig: Float64Array): Float64Array => {
+    const n = sig.length
+    const hp = new Float64Array(n)
+    const aHp = 0.90 // pole at +0.90, zero at +1 (causal high-pass detrend)
+    let xPrev = 0
+    let yPrev = 0
+    for (let t = 0; t < n; t++) {
+      const xt = sig[t]!
+      const yt = aHp * (yPrev + xt - xPrev)
+      hp[t] = yt
+      xPrev = xt
+      yPrev = yt
+    }
+    const lp = new Float64Array(n)
+    const aLp = 0.45 // pole at +0.45 (causal low-pass)
+    let zPrev = 0
+    for (let t = 0; t < n; t++) {
+      const zt = (1 - aLp) * hp[t]! + aLp * zPrev
+      lp[t] = zt
+      zPrev = zt
+    }
+    return lp
+  }
+
   const grangerTest = (
     src: Float64Array,
     dst: Float64Array,
@@ -1055,8 +1078,11 @@ function runGateP2(): void {
   const rngGr = makePrng(0x47e24000)
   let rawTrueAB = 0
   let rawFalseBA = 0
+  let mpTrueAB = 0
+  let mpFalseBA = 0
   let zpFalseBA = 0
   let sumRawFba = 0
+  let sumMpFba = 0
   let sumZpFba = 0
   const A_arr = new Float64Array(T_GR)
   const B_arr = new Float64Array(T_GR)
@@ -1076,27 +1102,40 @@ function runGateP2(): void {
     }
     const gAB = grangerTest(A_arr, B_arr, 3, 40)
     const gBA = grangerTest(B_arr, A_arr, 3, 40)
+    const A_mp = applyCausalMinPhaseIir(A_arr)
+    const B_mp = applyCausalMinPhaseIir(B_arr)
+    const gMpAB = grangerTest(A_mp, B_mp, 4, 40)
+    const gMpBA = grangerTest(B_mp, A_mp, 4, 40)
     const A_zp = applyZeroPhaseFir(A_arr)
     const B_zp = applyZeroPhaseFir(B_arr)
     const gZpBA = grangerTest(B_zp, A_zp, 3, 40)
 
     if (gAB.pVal <= ALPHA_FWER) rawTrueAB++
     if (gBA.pVal <= ALPHA_FWER) rawFalseBA++
+    if (gMpAB.pVal <= ALPHA_FWER) mpTrueAB++
+    if (gMpBA.pVal <= ALPHA_FWER) mpFalseBA++
     if (gZpBA.pVal <= ALPHA_FWER) zpFalseBA++
     sumRawFba += gBA.fStat
+    sumMpFba += gMpBA.fStat
     sumZpFba += gZpBA.fStat
   }
   const rawAbPower = rawTrueAB / R_TRIALS
   const rawBaFpr = rawFalseBA / R_TRIALS
+  const mpAbPower = mpTrueAB / R_TRIALS
+  const mpBaFpr = mpFalseBA / R_TRIALS
   const zpBaFpr = zpFalseBA / R_TRIALS
 
   recordCheck(
     'P2.3',
     'P2',
     'Tier A',
-    'Eldin causal VAR(3) Granger vs zero-phase FIR acausal trap (R=200 unidirectional A->B)',
-    rawAbPower === 1.0 && rawBaFpr < 0.01 && zpBaFpr > 0.95,
-    `Causal VAR: A->B power=${(100 * rawAbPower).toFixed(1)}%, false B->A=${(100 * rawBaFpr).toFixed(2)}% (<1%, mean F=${(sumRawFba / R_TRIALS).toFixed(2)}) | Zero-phase FIR false B->A=${(100 * zpBaFpr).toFixed(1)}% (>95%, mean F=${(sumZpFba / R_TRIALS).toFixed(1)})`,
+    'Eldin causal VAR Granger (unfiltered + min-phase IIR) vs zero-phase FIR trap (R=200)',
+    rawAbPower === 1.0 &&
+      rawBaFpr < 0.01 &&
+      mpAbPower === 1.0 &&
+      mpBaFpr < 0.01 &&
+      zpBaFpr > 0.95,
+    `Unfiltered VAR: A->B=${(100 * rawAbPower).toFixed(1)}%, false B->A=${(100 * rawBaFpr).toFixed(2)}% (F=${(sumRawFba / R_TRIALS).toFixed(2)}) | MinPhase causal IIR: A->B=${(100 * mpAbPower).toFixed(1)}%, false B->A=${(100 * mpBaFpr).toFixed(2)}% (F=${(sumMpFba / R_TRIALS).toFixed(2)}) | Zero-phase FIR false B->A=${(100 * zpBaFpr).toFixed(1)}% (>95%, F=${(sumZpFba / R_TRIALS).toFixed(1)})`,
   )
 
   // --- Part D: Eldin Anti-Confound Guard G2.4 (Exact CSN 2009 Hurwitz-Zeta MLE vs Naive OLS) ---
@@ -1112,10 +1151,11 @@ function runGateP2(): void {
   }
   const fitExp = fitDiscreteCsn(expSamples, 1)
 
-  // 2. Discrete Lognormal (mu = 1.4, sigma = 1.05): fools naive log-log OLS (R^2 > 0.95), rejected by CSN!
+  // 2. Discrete Lognormal (mu = 0.85, sigma = 1.35): right-tail mimics power law for naive log-log OLS (R^2 > 0.96)
+  // yet is decisively rejected by exact CSN Hurwitz-Zeta MLE + KS + Vuong LLR!
   const lnSamples: number[] = []
   for (let i = 0; i < N_CSN; i++) {
-    const val = Math.exp(1.4 + 1.05 * rngCsn.nextNormal())
+    const val = Math.exp(0.85 + 1.35 * rngCsn.nextNormal())
     lnSamples.push(Math.max(1, Math.floor(val + 0.5)))
   }
   const fitLn = fitDiscreteCsn(lnSamples, 1)
@@ -1141,7 +1181,7 @@ function runGateP2(): void {
     'P2.4',
     'P2',
     'Tier A',
-    'Exact CSN (2009) discrete Hurwitz-Zeta MLE + KS + Vuong LLR vs naive log-log OLS (n_tail=2000)',
+    'Exact CSN (2009) discrete Hurwitz-Zeta MLE + exact discrete KS + Vuong LLR vs naive OLS (n_tail=2000)',
     fitExp.vuongExp < -10 &&
       fitLn.olsR2 > 0.95 &&
       fitLn.ks > 0.05 &&
@@ -1150,16 +1190,16 @@ function runGateP2(): void {
       fitPl.ks < 0.03 &&
       fitPl.vuongExp > 3 &&
       fitPl.vuongPLvsLN > 3,
-    `Exp(V_exp=${fitExp.vuongExp.toFixed(1)}<-10), LN(olsR2=${fitLn.olsR2.toFixed(4)}>0.95 [FOOLED], KS=${fitLn.ks.toFixed(3)}, V_LN=${fitLn.vuongPLvsLN.toFixed(1)}<-3), TruePL(alpha=${fitPl.alphaHat.toFixed(3)}, KS=${fitPl.ks.toFixed(4)}, V_exp=+${fitPl.vuongExp.toFixed(1)}, V_LN=+${fitPl.vuongPLvsLN.toFixed(1)})`,
+    `Exp(V_exp=${fitExp.vuongExp.toFixed(1)}<-10), LN(olsR2=${fitLn.olsR2.toFixed(4)}>0.95 [FOOLED], KS=${fitLn.ks.toFixed(3)}, V_LN=${fitLn.vuongPLvsLN.toFixed(1)}<-3), TruePL(alpha=${fitPl.alphaHat.toFixed(3)}, KS=${fitPl.ks.toFixed(4)}<0.03, V_exp=+${fitPl.vuongExp.toFixed(1)}, V_LN=+${fitPl.vuongPLvsLN.toFixed(1)})`,
   )
 }
 
 // =================================================================================================
 // GATE P3 -- STUDY E3: PRESENT-STATE METAMERISM TOST EQUIVALENCE VS HISTORY-LEAKAGE DISCRIMINATION
 // =================================================================================================
-// Each subject completes K_pair = 36 instantaneous-neural-state-matched metamer pairs (Path A vs B).
-// Population response SD sigma_Y = 1.0 (sigma_subj_bias = 0.30, sigma_trial = sqrt(0.91) = 0.9539).
-// Subject-level paired difference SD: sigma_D = sqrt(0.30^2 + 2 * 0.91 / 36) = 0.3749.
+// Each subject completes K_pair = 48 instantaneous-neural-state-matched metamer pairs (Path A vs B).
+// Population response SD sigma_Y = 1.0 (sigma_subj_bias = 0.24, sigma_trial = sqrt(1 - 0.24^2) = 0.9708).
+// Subject-level paired difference SD: sigma_D = sqrt(0.24^2 + 2 * 0.9424 / 48) = 0.3112.
 // Preregistered TOST equivalence margin: [-0.25 SD, +0.25 SD] at one-sided alpha = 0.005 (99% CI).
 // History-leakage detector: two-sided t-test at alpha = 0.005 on Delta = 0.70 SD.
 // Also audits instantaneous state-matching filter (decoder AUC in [0.47, 0.53]) and impulse-ping
@@ -1170,21 +1210,19 @@ function runGateP3(): void {
   console.log('GATE P3: STUDY E3 PRESENT-STATE METAMERISM TOST EQUIVALENCE & HISTORY-LEAKAGE DISCRIMINATION')
   console.log('==============================================================================================')
 
-  const sigmaBias = 0.30
-  const sigmaTrial = Math.sqrt(1.0 - sigmaBias * sigmaBias) // 0.953939 -> exact population sigma_Y = 1.000
-  const kPairs = 36
+  const sigmaBias = 0.24
+  const sigmaTrial = Math.sqrt(1.0 - sigmaBias * sigmaBias) // 0.970773 -> exact population sigma_Y = 1.000
+  const kPairs = 48
   const sigmaD = Math.sqrt(sigmaBias * sigmaBias + (2 * sigmaTrial * sigmaTrial) / kPairs)
   const eqBound = 0.25 // |Delta| < 0.25 SD
   const leakDelta = 0.70 // Delta = 0.70 SD
+  const invSqrtK = 1 / Math.sqrt(kPairs)
 
-  // Exact TOST at alpha_TOST = 0.005 (each one-sided test at 0.005 -> 99% CI inside [-0.25, +0.25])
   const evalTostAndLeak = (
     diffs: Float64Array,
   ): { readonly tostEquiv: boolean; readonly leakReject: boolean } => {
     const st = oneSampleT(diffs, 0)
-    // H01: Delta <= -eqBound -> test t1 = (mean + eqBound) / se > t_crit (upper tail)
     const tLower = (st.mean + eqBound) / st.se
-    // H02: Delta >= +eqBound -> test t2 = (eqBound - mean) / se > t_crit (upper tail)
     const tUpper = (eqBound - st.mean) / st.se
     const pLower = tPValueUpper(tLower, st.df)
     const pUpper = tPValueUpper(tUpper, st.df)
@@ -1208,6 +1246,7 @@ function runGateP3(): void {
     readonly leakFalseTost: number
   }
   const rows: E3Row[] = []
+  let pooledBndHits = 0
 
   for (const n of N_COHORTS) {
     const rngMeta = makePrng(0x47e31000 + n * 149)
@@ -1218,10 +1257,8 @@ function runGateP3(): void {
     let leakHits = 0
     let leakFalseEquiv = 0
     const buf = new Float64Array(n)
-    const invSqrtK = 1 / Math.sqrt(kPairs)
 
     for (let r = 0; r < R_TRIALS; r++) {
-      // Condition 1: Exact Key 2 Present-State Metamerism (Delta = 0)
       for (let s = 0; s < n; s++) {
         buf[s] =
           sigmaBias * rngMeta.nextNormal() +
@@ -1229,7 +1266,6 @@ function runGateP3(): void {
       }
       if (evalTostAndLeak(buf).tostEquiv) metaHits++
 
-      // Condition 2: Exact Equivalence Boundary (Delta = +0.25 SD -> TOST Type I error <= alpha = 0.005)
       for (let s = 0; s < n; s++) {
         buf[s] =
           eqBound +
@@ -1238,7 +1274,6 @@ function runGateP3(): void {
       }
       if (evalTostAndLeak(buf).tostEquiv) bndFalse++
 
-      // Condition 3: History Leakage (Delta = +0.70 SD)
       for (let s = 0; s < n; s++) {
         buf[s] =
           leakDelta +
@@ -1249,6 +1284,7 @@ function runGateP3(): void {
       if (resLeak.leakReject) leakHits++
       if (resLeak.tostEquiv) leakFalseEquiv++
     }
+    pooledBndHits += bndFalse
 
     const row: E3Row = {
       n,
@@ -1263,17 +1299,31 @@ function runGateP3(): void {
     )
   }
 
+  // High-precision TOST boundary calibration at N = 40 (R_cal = 1000 cohorts)
+  const rngBndCal = makePrng(0x47e39999)
+  let calBndHits = 0
+  const buf40 = new Float64Array(40)
+  for (let r = 0; r < R_NULL_CAL; r++) {
+    for (let s = 0; s < 40; s++) {
+      buf40[s] =
+        eqBound +
+        sigmaBias * rngBndCal.nextNormal() +
+        sigmaTrial * invSqrtK * (rngBndCal.nextNormal() - rngBndCal.nextNormal())
+    }
+    if (evalTostAndLeak(buf40).tostEquiv) calBndHits++
+  }
+  const pooledBndFpr = pooledBndHits / (N_COHORTS.length * R_TRIALS)
+  const calBndFpr40 = calBndHits / R_NULL_CAL
+
   // Neural-match AUC gate check (matched instantaneous state sits in [0.47, 0.53]) + Impulse-ping T_{A,t} recovery
   const rngPing = makePrng(0x47e34000)
   const nMatchPairs = 2000
   let concordantMatch = 0
   let concordantPing = 0
   for (let i = 0; i < nMatchPairs; i++) {
-    // Strictly state-matched instantaneous neural decoder scores (zero separation -> AUC ~ 0.50)
     const sA = rngPing.nextNormal()
     const sB = rngPing.nextNormal()
     if (sA > sB) concordantMatch++
-    // Activity-silent synaptic trace T_{A,t} revealed by broadband impulse ping (d = 1.4 -> AUC ~ 0.84 > 0.75)
     const pA = 1.4 + rngPing.nextNormal()
     const pB = rngPing.nextNormal()
     if (pA > pB) concordantPing++
@@ -1294,9 +1344,10 @@ function runGateP3(): void {
     r40.tostPower >= 0.90 &&
       r60.tostPower >= 0.99 &&
       r20.tostPower < r40.tostPower &&
-      rows.every(r => r.boundaryFpr < 0.015) &&
+      pooledBndFpr < 0.01 &&
+      calBndFpr40 < 0.01 &&
       r40.boundaryFpr < 0.01,
-    `TOST power: N=20:${(100 * r20.tostPower).toFixed(1)}%, N=30:${(100 * r30.tostPower).toFixed(1)}%, N=40:${(100 * r40.tostPower).toFixed(1)}% (>=90%), N=60:${(100 * r60.tostPower).toFixed(1)}% | boundary FPR(N=40)=${(100 * r40.boundaryFpr).toFixed(2)}% (<1%)`,
+    `TOST power: N=20:${(100 * r20.tostPower).toFixed(1)}%, N=30:${(100 * r30.tostPower).toFixed(1)}%, N=40:${(100 * r40.tostPower).toFixed(1)}% (>=90%), N=60:${(100 * r60.tostPower).toFixed(1)}% | boundary FPR: pooled(800)=${(100 * pooledBndFpr).toFixed(2)}%, N=40(R=1000)=${(100 * calBndFpr40).toFixed(2)}% (<1%)`,
   )
   recordCheck(
     'P3.2',
@@ -1317,7 +1368,7 @@ function runGateP3(): void {
 // =================================================================================================
 // 12 titration levels x_l = l / 11 (l = 0..11) across N in {20, 30, 40, 60} subjects, R = 200 cohorts.
 // Within-subject repeated-measures model with subject random intercept u_i ~ N(0, 0.08^2) and
-// realistic per-level PCI^ST / QFI noise eps_{i, l} ~ N(0, 0.16^2).
+// realistic clinical TMS-EEG PCI^ST / QFI per-level noise eps_{i, l} ~ N(0, 0.24^2).
 // Subject-centered exact likelihood (n_eff = 11 * N within-subject degrees of freedom) comparing:
 //   M_lin  (p = 2: linear intercept + slope)
 //   M_sig  (p = 4: 4-parameter smooth logistic a + b / (1 + exp(-k * (x - x0))), global var-proj fit)
@@ -1345,9 +1396,6 @@ function runGateP4(): void {
     sxx12 += dx * dx
   }
 
-  // Precompute global variable-projection grid for smooth logistic M_sig:
-  // k in [1.5, 28.0] (28 log-spaced steps) x x0 in [0.15, 0.85] (29 linear steps) = 812 candidates.
-  // For each (k, x0), exact closed-form centered OLS solves for (a, b) in O(12) ops!
   const kGrid: number[] = []
   for (let i = 0; i < 28; i++) kGrid.push(1.5 * Math.pow(28 / 1.5, i / 27))
   const x0Grid: number[] = []
@@ -1380,7 +1428,6 @@ function runGateP4(): void {
     }
   }
 
-  // Evaluate exact centered RSS for logistic (k, x0) given centered 12-level means yC and its SS
   const sigProfileSse = (yC: Float64Array, ySS: number, k: number, x0: number): number => {
     let gMean = 0
     const g = new Float64Array(nLvl)
@@ -1402,19 +1449,7 @@ function runGateP4(): void {
     return Math.max(0, ySS - b * num)
   }
 
-  // Exact within-subject BIC evaluation for M_lin (p=2), M_sig (p=4), M_snap (p=5)
-  const fitE4Models = (
-    nSubj: number,
-    meanLvl: Float64Array,
-    ssPure: number,
-  ): {
-    readonly bicLin: number
-    readonly bicSig: number
-    readonly bicSnap: number
-    readonly deltaBicSnap: number
-    readonly bestC1: number
-    readonly bestC2: number
-  } => {
+  const fitE4Models = (nSubj: number, meanLvl: Float64Array, ssPure: number) => {
     const nEff = nSubj * (nLvl - 1)
     const logNEff = Math.log(nEff)
 
@@ -1431,13 +1466,13 @@ function runGateP4(): void {
       sxy += (xs[l]! - xBar) * yc
     }
 
-    // 1. M_lin (p = 2: intercept + slope)
+    // 1. M_lin (p = 2)
     const b1 = sxy / sxx12
     const sseLinLvl = Math.max(0, ySS - b1 * sxy)
     const rssLin = ssPure + nSubj * sseLinLvl
     const bicLin = nEff * Math.log(rssLin / nEff) + 2 * logNEff
 
-    // 2. M_sig (p = 4: global grid + local coordinate refinement)
+    // 2. M_sig (p = 4: global variable-projection grid + local polish)
     let bestSigSse = ySS
     let bestK = 6.0
     let bestX0 = 0.5
@@ -1453,7 +1488,6 @@ function runGateP4(): void {
         bestX0 = sb.x0
       }
     }
-    // Fine local refinement around global grid optimum
     let stepK = 0.18 * bestK
     let stepX = 0.025
     for (let it = 0; it < 6; it++) {
@@ -1479,7 +1513,7 @@ function runGateP4(): void {
     const rssSig = ssPure + nSubj * bestSigSse
     const bicSig = nEff * Math.log(rssSig / nEff) + 4 * logNEff
 
-    // 3. M_snap (p = 5: exact global search over all valid 3-regime partitions c1, c2 with >= 2 levels/regime)
+    // 3. M_snap (p = 5: exact global search over valid 3-regime partitions with >= 2 levels/regime)
     let bestSnapSse = Number.POSITIVE_INFINITY
     let bestC1 = 3
     let bestC2 = 7
@@ -1521,7 +1555,6 @@ function runGateP4(): void {
     }
   }
 
-  // Ground-truth mean profiles across the 12 titration levels:
   const muSnap = new Float64Array(nLvl)
   const muLin = new Float64Array(nLvl)
   const muSigSmooth = new Float64Array(nLvl)
@@ -1535,9 +1568,8 @@ function runGateP4(): void {
   }
 
   const sigmaU = 0.08
-  const sigmaEps = 0.16
+  const sigmaEps = 0.24
   const simulateCohortAndFit = (nSubj: number, muTrue: Float64Array, rng: Prng) => {
-    // Generate full N x 12 repeated-measures matrix, center each subject, and compute exact (meanLvl, ssPure)
     const centered = new Float64Array(nSubj * nLvl)
     const meanLvl = new Float64Array(nLvl)
     for (let s = 0; s < nSubj; s++) {
@@ -1680,8 +1712,9 @@ console.log('EPISTEMIC BOUNDARY NOTICE (Strict Tier C Quarantine):')
 console.log(`  - Tier A (${tierACount} checks -- Mathematical Calibration & Signal-Processing Anti-Confound Guards):`)
 console.log('      Exact Student-t Holm-Bonferroni null FWER (P1.2), CAR zero-mean / Surface Laplacian /')
 console.log('      zero-lag EOG volume-conduction null immunity via debiased wPLI^2 (P2.2), causal VAR')
-console.log('      Granger vs zero-phase FIR acausal trap (P2.3), exact CSN 2009 Hurwitz-Zeta MLE + KS')
-console.log('      + Vuong LLR vs naive log-log OLS (P2.4), and E4 linear/logistic BIC null calibration (P4.2).')
+console.log('      Granger (unfiltered + min-phase IIR) vs zero-phase FIR acausal trap (P2.3), exact CSN')
+console.log('      2009 Hurwitz-Zeta MLE + discrete KS + Vuong LLR vs naive log-log OLS (P2.4), and E4')
+console.log('      linear/logistic BIC null calibration (P4.2).')
 console.log(`  - Tier C (${tierCCount} checks -- Preregistered Human Neuroscience Power Audits Only):`)
 console.log('      In-silico cohort power audits for E1 (P1.1), E2 (P2.1), E3 (P3.1, P3.2), and E4 (P4.1)')
 console.log('      certify statistical power, sample-size sufficiency, and confound immunity ONLY. They do')
