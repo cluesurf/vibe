@@ -64,7 +64,7 @@ def mul (x y : ZSqrt2) : ZSqrt2 :=
 
 -- [helper]
 theorem mk.injEq (a₁ b₁ a₂ b₂ : Int) :
-    (⟨a₁, b₁⟩ : ZSqrt2) = ⟨a₂, b₂⟩ ↔ a₁ = a₂ ∧ b₁ = b₂ :=
+    ((⟨a₁, b₁⟩ : ZSqrt2) = ⟨a₂, b₂⟩) = (a₁ = a₂ ∧ b₁ = b₂) :=
   Zsqrtd.mk.injEq a₁ b₁ a₂ b₂
 
 end ZSqrt2
@@ -99,22 +99,23 @@ def mat5Vec (A : Mat5) (v : Vec5) : Vec5 := fun i => sum5 (fun k => ZSqrt2.mul (
 def mat5Mul (A B : Mat5) : Mat5 := fun i j => sum5 (fun k => ZSqrt2.mul (A i k) (B k j))
 
 private theorem sum5_eq_sum (f : Fin 5 → ZSqrt2) : sum5 f = ∑ k : Fin 5, f k := by
-  rw [Fin.sum_univ_five]
-  ext <;> dsimp [sum5, ZSqrt2.add] <;> ring
+  rw [Fin.sum_univ_five]; rfl
 
 private theorem dot5_eq_dot (u v : Vec5) : dot5 u v = dotProduct u v := by
   rw [dot5, dotProduct, sum5_eq_sum]; rfl
 
 private theorem mat5Id_eq_one : mat5Id = (1 : Mat5) := by
-  ext i j; simp only [mat5Id, Matrix.one_apply]; split_ifs <;> rfl
+  apply Matrix.ext; intro i j
+  simp only [mat5Id, Matrix.one_apply]
+  split_ifs <;> rfl
 
 private theorem mat5Transpose_eq (A : Mat5) : mat5Transpose A = Aᵀ := rfl
 
 private theorem mat5Vec_eq_mulVec (A : Mat5) (v : Vec5) : mat5Vec A v = A.mulVec v := by
-  ext i; simp only [mat5Vec, Matrix.mulVec, dotProduct, sum5_eq_sum]; rfl
+  funext i; simp only [mat5Vec, Matrix.mulVec, dotProduct, sum5_eq_sum]; rfl
 
 private theorem mat5Mul_eq_mul (A B : Mat5) : mat5Mul A B = A * B := by
-  ext i j; simp only [mat5Mul, Matrix.mul_apply, sum5_eq_sum]; rfl
+  apply Matrix.ext; intro i j; simp only [mat5Mul, Matrix.mul_apply, sum5_eq_sum]; rfl
 
 /-- Exact `2 × 2` determinant helper over `ℤ[√2]`. -/
 def det2Z2 (a b c d : ZSqrt2) : ZSqrt2 :=
@@ -169,17 +170,66 @@ def mat5Det (M : Mat5) : ZSqrt2 :=
   let t8 := ZSqrt2.sub t7 (ZSqrt2.mul a24 d013)
   ZSqrt2.add t8 (ZSqrt2.mul a34 d012)
 
+private theorem det4_eq_cofactors (A : Matrix (Fin 4) (Fin 4) ZSqrt2) :
+    A.det =
+      A 0 0 * (A 1 1 * (A 2 2 * A 3 3 - A 2 3 * A 3 2) - A 1 2 * (A 2 1 * A 3 3 - A 2 3 * A 3 1) + A 1 3 * (A 2 1 * A 3 2 - A 2 2 * A 3 1)) -
+      A 0 1 * (A 1 0 * (A 2 2 * A 3 3 - A 2 3 * A 3 2) - A 1 2 * (A 2 0 * A 3 3 - A 2 3 * A 3 0) + A 1 3 * (A 2 0 * A 3 2 - A 2 2 * A 3 0)) +
+      A 0 2 * (A 1 0 * (A 2 1 * A 3 3 - A 2 3 * A 3 1) - A 1 1 * (A 2 0 * A 3 3 - A 2 3 * A 3 0) + A 1 3 * (A 2 0 * A 3 1 - A 2 1 * A 3 0)) -
+      A 0 3 * (A 1 0 * (A 2 1 * A 3 2 - A 2 2 * A 3 1) - A 1 1 * (A 2 0 * A 3 2 - A 2 2 * A 3 0) + A 1 2 * (A 2 0 * A 3 1 - A 2 1 * A 3 0)) := by
+  simp only [Matrix.det_succ_row_zero, Fin.sum_univ_four, Matrix.det_fin_three,
+    Matrix.submatrix_apply, Fin.succAbove, Fin.isValue, Fin.val_zero, Fin.val_one, Fin.val_two,
+    Fin.val_succ, pow_zero, pow_one, pow_two, neg_one_sq, one_mul, neg_mul]
+  have h1 : (Fin.succ (0 : Fin 3) : Fin 4) = 1 := rfl
+  have h2 : (Fin.succ (1 : Fin 3) : Fin 4) = 2 := rfl
+  have h3 : (Fin.succ (2 : Fin 3) : Fin 4) = 3 := rfl
+  simp only [Fin.castSucc_lt_succ_iff, Fin.lt_def, Fin.val_zero, Fin.val_one, Fin.val_two,
+    show (3 : Fin 4).val = 3 from rfl, Nat.reduceLT, ↓reduceIte, h1, h2, h3, Fin.castSucc_zero,
+    Fin.castSucc_one, show (Fin.castSucc (2 : Fin 3) : Fin 4) = 2 from rfl,
+    show ((-1 : ZSqrt2) ^ 3) = -1 by decide]
+  ring
+
 -- [helper]
 theorem mat5Det_eq_det (M : Mat5) : mat5Det M = M.det := by
-  simp only [mat5Det, det2Z2, Matrix.det_succ_row_zero, Fin.sum_univ_succ, Fin.sum_univ_zero,
-    Matrix.submatrix_apply, Fin.succ_zero_eq_one, Fin.succ_one_eq_two, Matrix.det_isEmpty,
-    Fin.succAbove_zero, Fin.succAbove_succ_self, Fin.succAbove_ne_zero_zero,
-    Fin.val_zero, Fin.val_one, Fin.val_two, Fin.val_succ, pow_zero, pow_one,
-    Fin.isValue, Nat.reduceAdd, add_zero, mul_one, neg_mul, one_mul, zero_add]
+  rw [Matrix.det_succ_row_zero, Fin.sum_univ_five]
+  simp only [det4_eq_cofactors, Matrix.submatrix_apply, Fin.isValue]
+  have s0 : ∀ j : Fin 4, Fin.succAbove (0 : Fin 5) j = j.succ := fun j => Fin.succAbove_zero
+  have s10 : Fin.succAbove (1 : Fin 5) 0 = 0 := by decide
+  have s11 : Fin.succAbove (1 : Fin 5) 1 = 2 := by decide
+  have s12 : Fin.succAbove (1 : Fin 5) 2 = 3 := by decide
+  have s13 : Fin.succAbove (1 : Fin 5) 3 = 4 := by decide
+  have s20 : Fin.succAbove (2 : Fin 5) 0 = 0 := by decide
+  have s21 : Fin.succAbove (2 : Fin 5) 1 = 1 := by decide
+  have s22 : Fin.succAbove (2 : Fin 5) 2 = 3 := by decide
+  have s23 : Fin.succAbove (2 : Fin 5) 3 = 4 := by decide
+  have s30 : Fin.succAbove (3 : Fin 5) 0 = 0 := by decide
+  have s31 : Fin.succAbove (3 : Fin 5) 1 = 1 := by decide
+  have s32 : Fin.succAbove (3 : Fin 5) 2 = 2 := by decide
+  have s33 : Fin.succAbove (3 : Fin 5) 3 = 4 := by decide
+  have s40 : Fin.succAbove (4 : Fin 5) 0 = 0 := by decide
+  have s41 : Fin.succAbove (4 : Fin 5) 1 = 1 := by decide
+  have s42 : Fin.succAbove (4 : Fin 5) 2 = 2 := by decide
+  have s43 : Fin.succAbove (4 : Fin 5) 3 = 3 := by decide
+  simp only [s0, s10, s11, s12, s13, s20, s21, s22, s23, s30, s31, s32, s33, s40, s41, s42, s43,
+    show (Fin.succ (0 : Fin 4) : Fin 5) = 1 from rfl,
+    show (Fin.succ (1 : Fin 4) : Fin 5) = 2 from rfl,
+    show (Fin.succ (2 : Fin 4) : Fin 5) = 3 from rfl,
+    show (Fin.succ (3 : Fin 4) : Fin 5) = 4 from rfl,
+    show (0 : Fin 5).val = 0 from rfl, show (1 : Fin 5).val = 1 from rfl,
+    show (2 : Fin 5).val = 2 from rfl, show (3 : Fin 5).val = 3 from rfl,
+    show (4 : Fin 5).val = 4 from rfl,
+    show ((-1 : ZSqrt2) ^ 0) = 1 by decide, show ((-1 : ZSqrt2) ^ 1) = -1 by decide,
+    show ((-1 : ZSqrt2) ^ 2) = 1 by decide, show ((-1 : ZSqrt2) ^ 3) = -1 by decide,
+    show ((-1 : ZSqrt2) ^ 4) = 1 by decide]
   change _ = _
-  simp only [ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mul]
+  unfold mat5Det det2Z2
   change _ = _
-  ext <;> dsimp <;> ring
+  dsimp only
+  have hadd : ∀ x y : ZSqrt2, ZSqrt2.add x y = x + y := fun _ _ => rfl
+  have hsub : ∀ x y : ZSqrt2, ZSqrt2.sub x y = x - y := fun _ _ => rfl
+  have hmul : ∀ x y : ZSqrt2, ZSqrt2.mul x y = x * y := fun _ _ => rfl
+  simp only [hadd, hsub, hmul]
+  change (M 0 0 * M 1 1 - M 0 1 * M 1 0) * _ - _ + _ - _ + _ - _ + _ + _ - _ + _ = _
+  ring
 
 
 /-! ## Section 3: Exact `{3,4,3,4}` Coxeter Form `2 B`, Base Center `c_0`, Cusp `v` & Inversion `Z` -/
@@ -217,13 +267,10 @@ def twiceGramVecFast (v : Vec5) : Vec5
                 (ZSqrt2.mul ZSqrt2.sqrt2 (v ⟨3, by decide⟩))
 
 private theorem mat5Vec_twiceGram_eq_fast (v : Vec5) : mat5Vec twiceGram v = twiceGramVecFast v := by
-  ext i
-  · fin_cases i <;>
-      dsimp [mat5Vec, twiceGramVecFast, sum5, twiceGram, ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.sqrt2] <;>
-      ring
-  · fin_cases i <;>
-      dsimp [mat5Vec, twiceGramVecFast, sum5, twiceGram, ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.sqrt2] <;>
-      ring
+  funext i
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
+    ext <;> dsimp [mat5Vec, twiceGramVecFast, sum5, twiceGram, ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.sqrt2] <;> ring
 
 /-- Exact base 24-cell center `c_0 = (2, 4, 3√2, 2√2, 1)` (`2 B(c_0, c_0) = -2`). -/
 def baseCenter : Vec5
@@ -265,7 +312,7 @@ theorem thm_coxeter_gram_and_center :
     twiceForm baseCenter baseCenter = ZSqrt2.ofInt (-2) ∧
     twiceForm cuspVertex cuspVertex = ZSqrt2.zero ∧
     twiceForm baseCenter cuspVertex = ZSqrt2.ofInt (-2) := by
-  refine ⟨by ext i j; fin_cases i <;> fin_cases j <;> decide,
+  refine ⟨by apply Matrix.ext; intro i j; fin_cases i <;> fin_cases j <;> decide,
     by decide, by decide, by decide, by decide⟩
 
 /-- Exact central-inversion `Z` certificate:
@@ -278,11 +325,11 @@ theorem thm_central_inversion_properties :
     (∀ k : Fin 4,
       mat5Mul (simpleRefl ⟨k.val, Nat.lt_trans k.isLt (by decide)⟩) centralInversion =
         mat5Mul centralInversion (simpleRefl ⟨k.val, Nat.lt_trans k.isLt (by decide)⟩)) := by
-  refine ⟨by ext i j; exact (by decide : ∀ i j : Fin 5, mat5Mul centralInversion centralInversion i j = mat5Id i j) i j,
-    by ext i j; exact (by decide : ∀ i j : Fin 5, mat5Mul (mat5Transpose centralInversion) (mat5Mul twiceGram centralInversion) i j = twiceGram i j) i j,
+  refine ⟨by apply Matrix.ext; intro i j; exact (by decide : ∀ i j : Fin 5, mat5Mul centralInversion centralInversion i j = mat5Id i j) i j,
+    by apply Matrix.ext; intro i j; exact (by decide : ∀ i j : Fin 5, mat5Mul (mat5Transpose centralInversion) (mat5Mul twiceGram centralInversion) i j = twiceGram i j) i j,
     by decide,
     funext (by decide),
-    fun k => by ext i j; exact (by decide : ∀ (x : Fin 4) (i j : Fin 5),
+    fun k => by apply Matrix.ext; intro i j; exact (by decide : ∀ (x : Fin 4) (i j : Fin 5),
       mat5Mul (simpleRefl ⟨x.val, Nat.lt_trans x.isLt (by decide)⟩) centralInversion i j =
         mat5Mul centralInversion (simpleRefl ⟨x.val, Nat.lt_trans x.isLt (by decide)⟩) i j) k i j⟩
 
@@ -303,7 +350,7 @@ theorem thm_orth_group_mul (A B : Mat5)
 
 private theorem reflectionIn_eq (n : Vec5) :
     reflectionIn n = 1 - Matrix.vecMulVec n (twiceGram.mulVec n) := by
-  ext i j
+  apply Matrix.ext; intro i j
   simp only [reflectionIn, mat5Id_eq_one, mat5Vec_eq_mulVec, Matrix.sub_apply, Matrix.vecMulVec_apply]
   rfl
 
@@ -315,9 +362,9 @@ theorem thm_reflection_involution (n : Vec5) (hn : twiceForm n n = ZSqrt2.two) :
   have hDot : dotProduct (twiceGram.mulVec n) n = 2 := by
     rw [dotProduct_comm, ← mat5Vec_eq_mulVec, ← dot5_eq_dot]
     exact hn
-  ext i j
-  simp only [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, Matrix.vecMulVec_apply]
-  simp only [sub_mul, mul_sub, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul,
+  apply Matrix.ext; intro i j
+  simp only [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, Matrix.vecMulVec_apply,
+    sub_mul, mul_sub, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul,
     mul_ite, mul_one, mul_zero, Finset.sum_ite_eq, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
   have hSum : ∑ x : Fin 5, n i * twiceGram.mulVec n x * (n x * twiceGram.mulVec n j) =
       n i * dotProduct (twiceGram.mulVec n) n * twiceGram.mulVec n j := by
@@ -331,28 +378,28 @@ theorem thm_reflection_involution (n : Vec5) (hn : twiceForm n n = ZSqrt2.two) :
 theorem thm_reflection_preserves_twiceGram (n : Vec5) (hn : twiceForm n n = ZSqrt2.two) :
     mat5Mul (mat5Transpose (reflectionIn n)) (mat5Mul twiceGram (reflectionIn n)) = twiceGram := by
   rw [mat5Mul_eq_mul, mat5Mul_eq_mul, mat5Transpose_eq, reflectionIn_eq]
+  set r : Vec5 := twiceGram.mulVec n
   have hSym : twiceGramᵀ = twiceGram := thm_coxeter_gram_and_center.1
-  have hDot : dotProduct n (twiceGram.mulVec n) = 2 := by
+  have hDot : dotProduct n r = 2 := by
     rw [← mat5Vec_eq_mulVec, ← dot5_eq_dot]; exact hn
-  have hGF : twiceGram * (1 - Matrix.vecMulVec n (twiceGram.mulVec n)) =
-      twiceGram - Matrix.vecMulVec (twiceGram.mulVec n) (twiceGram.mulVec n) := by
-    ext p j
-    simp only [Matrix.mul_sub, mul_one, Matrix.sub_apply, Matrix.mul_apply,
-      Matrix.vecMulVec_apply, Matrix.mulVec, dotProduct, Finset.sum_mul]
-    congr 1; exact Finset.sum_congr rfl fun k _ => by ring
+  have hGF : twiceGram * (1 - Matrix.vecMulVec n r) = twiceGram - Matrix.vecMulVec r r := by
+    rw [Matrix.mul_sub, mul_one]
+    congr 1
+    apply Matrix.ext; intro p j
+    simp only [Matrix.mul_apply, Matrix.vecMulVec_apply, r, Matrix.mulVec, dotProduct, Finset.sum_mul]
+    exact Finset.sum_congr rfl fun k _ => by ring
   rw [hGF]
-  ext i j
+  apply Matrix.ext; intro i j
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.sub_apply, Matrix.one_apply,
     Matrix.vecMulVec_apply, sub_mul, mul_sub, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul,
     Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
-  have hRow : ∑ x : Fin 5, n x * twiceGram.mulVec n i * twiceGram x j =
-      twiceGram.mulVec n i * twiceGram.mulVec n j := by
-    rw [Matrix.mulVec, dotProduct, Finset.mul_sum]
+  have hRow : ∑ x : Fin 5, n x * r i * twiceGram x j = r i * r j := by
+    have hrj : r j = ∑ x : Fin 5, twiceGram j x * n x := rfl
+    rw [hrj, Finset.mul_sum]
     refine Finset.sum_congr rfl fun x _ => ?_
     have hT : twiceGram x j = twiceGram j x := congrFun (congrFun hSym j) x
     rw [hT]; ring
-  have hQuad : ∑ x : Fin 5, n x * twiceGram.mulVec n i * (twiceGram.mulVec n x * twiceGram.mulVec n j) =
-      dotProduct n (twiceGram.mulVec n) * (twiceGram.mulVec n i * twiceGram.mulVec n j) := by
+  have hQuad : ∑ x : Fin 5, n x * r i * (r x * r j) = dotProduct n r * (r i * r j) := by
     rw [dotProduct, Finset.sum_mul]
     exact Finset.sum_congr rfl fun x _ => by ring
   rw [hRow, hQuad, hDot]
@@ -370,18 +417,18 @@ theorem thm_conj_reflection (Z : Mat5) (hZ2 : mat5Mul Z Z = mat5Id)
       _ = twiceGram * Z := by rw [hZG]
   rw [Matrix.mul_sub, mul_one, Matrix.sub_mul, hZ2]
   congr 1
-  ext i j
+  apply Matrix.ext; intro i j
   simp only [Matrix.mul_apply, Matrix.vecMulVec_apply]
-  have hL : ∑ x : Fin 5, (∑ k : Fin 5, Z i k * (n k * twiceGram.mulVec n x)) * Z x j =
-      (Z.mulVec n i) * ((Zᵀ * twiceGram).mulVec n j) := by
-    simp only [Matrix.mulVec, dotProduct, Matrix.mul_apply, Matrix.transpose_apply,
-      Finset.sum_mul, Finset.mul_sum]
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun k _ => ?_
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun p _ => ?_
-    refine Finset.sum_congr rfl fun x _ => by ring
-  rw [hL, hZTG, Matrix.mulVec_mulVec]
+  set r : Vec5 := twiceGram.mulVec n
+  have hL : ∑ x : Fin 5, (∑ k : Fin 5, Z i k * (n k * r x)) * Z x j =
+      (Z.mulVec n i) * (Zᵀ.mulVec r j) := by
+    have h1 : ∀ x : Fin 5, (∑ k : Fin 5, Z i k * (n k * r x)) * Z x j =
+        (Z.mulVec n i) * (Z x j * r x) := fun x => by
+      simp only [Matrix.mulVec, dotProduct, Finset.sum_mul, Finset.mul_sum]
+      exact Finset.sum_congr rfl fun k _ => by ring
+    simp only [h1, ← Finset.mul_sum]
+    rfl
+  rw [hL, Matrix.mulVec_mulVec, hZTG, Matrix.mulVec_mulVec]
 
 
 /-! ## Section 5: All 24 Exact Facet Normals & Transports `k_a = F_a Z` in `rootsD4()` Order -/
@@ -507,10 +554,7 @@ private theorem dot_r_baseCenter (a : Fin 24) :
   have hSym : twiceGramᵀ = twiceGram := thm_coxeter_gram_and_center.1
   calc dotProduct (twiceGram.mulVec (facetNormal a)) baseCenter
       = dotProduct (facetNormal a) (twiceGramᵀ.mulVec baseCenter) := by
-          rw [Matrix.dotProduct_mulVec, ← Matrix.vecMul_transpose, Matrix.dotProduct_mulVec]
-          simp [Matrix.mulVec, dotProduct, Matrix.transpose_apply, Finset.sum_mul, Finset.mul_sum]
-          rw [Finset.sum_comm]
-          exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => by ring
+          rw [dotProduct_comm, Matrix.dotProduct_mulVec, ← Matrix.vecMul_transpose, dotProduct_comm]
     _ = twiceForm (facetNormal a) baseCenter := by
           rw [hSym, twiceForm, dot5_eq_dot, mat5Vec_eq_mulVec]
     _ = ZSqrt2.ofInt (-2) := thm_24_facets_geometry.2.2.2.1 a
@@ -529,9 +573,11 @@ theorem thm_coxeter_transport_preserves_lorentz :
   have hStep : mat5Vec (transport a) baseCenter =
       fun i => ZSqrt2.add (baseCenter i) (ZSqrt2.scale 2 (facetNormal a i)) := by
     unfold transport
-    rw [mat5Vec_eq_mulVec, mat5Mul_eq_mul, ← Matrix.mulVec_mulVec, ← mat5Vec_eq_mulVec,
-        thm_central_inversion_properties.2.2.2.1, faceReflection, reflectionIn_eq]
-    ext i
+    rw [mat5Vec_eq_mulVec, mat5Mul_eq_mul, ← Matrix.mulVec_mulVec]
+    have hZ : centralInversion.mulVec baseCenter = baseCenter := by
+      rw [← mat5Vec_eq_mulVec]; exact thm_central_inversion_properties.2.2.2.1
+    rw [hZ, faceReflection, reflectionIn_eq]
+    funext i
     simp only [Matrix.sub_mulVec, Matrix.one_mulVec, Matrix.mulVec, dotProduct, Matrix.vecMulVec_apply]
     have hMul : ∑ j : Fin 5, facetNormal a i * twiceGram.mulVec (facetNormal a) j * baseCenter j =
         facetNormal a i * dotProduct (twiceGram.mulVec (facetNormal a)) baseCenter := by
@@ -548,36 +594,42 @@ private theorem transport_eq_fast (a : Fin 24) : transport a = transportFast a :
   have hDotC := dot_r_baseCenter a
   have hCent : centralInversion =
       Matrix.vecMulVec (fun i => ZSqrt2.scale 2 (baseCenter i)) (unitVec5 ⟨4, by decide⟩) - 1 := by
-    ext i j
+    apply Matrix.ext; intro i j
     simp only [centralInversion, Matrix.sub_apply, Matrix.vecMulVec_apply, unitVec5, Matrix.one_apply]
     split_ifs <;> ext <;> dsimp [ZSqrt2.add, ZSqrt2.negOne, ZSqrt2.one, ZSqrt2.zero, ZSqrt2.scale] <;> ring
   rw [transport, mat5Mul_eq_mul, faceReflection, reflectionIn_eq, hCent]
-  ext i j
-  simp only [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, Matrix.vecMulVec_apply, unitVec5,
-    sub_mul, mul_sub, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul, mul_ite, mul_one, mul_zero,
-    Finset.sum_ite_eq, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte, transportFast,
-    ← mat5Vec_twiceGram_eq_fast, mat5Vec_eq_mulVec, mat5Id_eq_one]
-  have hDot2 : ∑ x : Fin 5, facetNormal a i * twiceGram.mulVec (facetNormal a) x *
-      (ZSqrt2.scale 2 (baseCenter x) * if j = ⟨4, by decide⟩ then ZSqrt2.one else ZSqrt2.zero) =
-      if j = ⟨4, by decide⟩ then facetNormal a i * (-4) else 0 := by
-    split_ifs with hj
-    · have h2 : ∀ x, ZSqrt2.scale 2 (baseCenter x) * ZSqrt2.one = 2 * baseCenter x := fun x => by
-        ext <;> dsimp [ZSqrt2.scale, ZSqrt2.one] <;> ring
-      simp only [h2]
+  apply Matrix.ext; intro i j
+  simp only [transportFast, ← mat5Vec_twiceGram_eq_fast, mat5Vec_eq_mulVec, mat5Id_eq_one]
+  by_cases hj : j = ⟨4, by decide⟩
+  · subst hj
+    simp only [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, Matrix.vecMulVec_apply, unitVec5,
+      ↓reduceIte, sub_mul, mul_sub, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul,
+      Finset.sum_ite_eq', Finset.mem_univ]
+    have h2 : ∀ x, ZSqrt2.scale 2 (baseCenter x) * ZSqrt2.one = 2 * baseCenter x := fun x => by
+      ext <;> dsimp [ZSqrt2.scale, ZSqrt2.one] <;> ring
+    simp only [h2]
+    have hDot2 : ∑ x : Fin 5, facetNormal a i * twiceGram.mulVec (facetNormal a) x * (2 * baseCenter x) =
+        facetNormal a i * (-4) := by
       calc ∑ x : Fin 5, facetNormal a i * twiceGram.mulVec (facetNormal a) x * (2 * baseCenter x)
           = facetNormal a i * 2 * dotProduct (twiceGram.mulVec (facetNormal a)) baseCenter := by
               rw [dotProduct, Finset.mul_sum]
               exact Finset.sum_congr rfl fun x _ => by ring
         _ = facetNormal a i * (-4) := by
               rw [hDotC]; ext <;> dsimp [ZSqrt2.ofInt] <;> ring
-    · simp only [ZSqrt2.zero]; simp [show (⟨0, 0⟩ : ZSqrt2) = 0 from rfl]
-  rw [hDot2]
-  split_ifs with hj
-  · subst hj
-    ext <;> dsimp [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.one, Matrix.one_apply] <;>
-      split_ifs <;> dsimp <;> ring
-  · ext <;> dsimp [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.zero, Matrix.one_apply] <;>
-      split_ifs <;> dsimp <;> ring
+    have hSumR : ∑ x : Fin 5, facetNormal a i * twiceGram.mulVec (facetNormal a) x *
+        (if x = ⟨4, by decide⟩ then (1 : ZSqrt2) else 0) =
+        facetNormal a i * twiceGram.mulVec (facetNormal a) ⟨4, by decide⟩ := by
+      simp only [mul_ite, mul_one, mul_zero, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
+    have hSumI : ∑ x : Fin 5, (if i = x then (1 : ZSqrt2) else 0) * (if x = ⟨4, by decide⟩ then 1 else 0) =
+        if i = ⟨4, by decide⟩ then 1 else 0 := by
+      simp only [ite_mul, one_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+    rw [hDot2, hSumR, hSumI]
+    ext <;> dsimp [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.mul, ZSqrt2.scale] <;> split_ifs <;> dsimp <;> ring
+  · simp only [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, Matrix.vecMulVec_apply, unitVec5,
+      hj, ↓reduceIte, ZSqrt2.zero, show (⟨0, 0⟩ : ZSqrt2) = 0 from rfl, mul_zero, zero_sub, mul_neg,
+      sub_mul, Finset.sum_neg_distrib, Finset.sum_sub_distrib, ite_mul, one_mul, zero_mul,
+      mul_ite, mul_one, Finset.sum_ite_eq, Finset.sum_ite_eq', Finset.mem_univ]
+    ext <;> dsimp [ZSqrt2.sub, ZSqrt2.mul] <;> split_ifs <;> dsimp <;> ring
 
 /-- Headline Theorem 2 (Exact Determinant `-1` Across All 24 Transports):
     `det(k_a) = -1` for ALL 24 slots `a : Fin 24`. -/
@@ -640,10 +692,11 @@ theorem thm_coxeter_word_lorentz_and_inverse (w : List (Fin 24)) :
   | nil =>
     simp [evalTransportWord, revAntipodal, mat5Mul_eq_mul, mat5Id_eq_one, mat5Transpose_eq]
   | cons a rest ih =>
-    simp only [evalTransportWord, revAntipodal, evalTransportWord_append]
+    simp only [revAntipodal, evalTransportWord_append]
     have hSingle : evalTransportWord [oppSlot a] = transport (oppSlot a) := by
       simp [evalTransportWord, mat5Mul_eq_mul, mat5Id_eq_one]
     rw [hSingle]
+    simp only [evalTransportWord]
     have hOrth := thm_orth_group_mul (transport a) (evalTransportWord rest)
       (thm_coxeter_transport_preserves_lorentz.1 a) ih.1
     have hK := thm_coxeter_transport_antipodal_inverse.2 a
@@ -676,7 +729,7 @@ def slotReverse {α : Type} (ψ : Mat5 → Fin 24 → α) : Mat5 → Fin 24 → 
 theorem thm_honeycomb_stream_antipodal_reversal {α : Type} (ψ : Mat5 → Fin 24 → α) :
     slotReverse (slotReverse ψ) = ψ ∧
     honeycombStream (slotReverse (honeycombStream ψ)) = slotReverse ψ := by
-  refine ⟨funext fun g a => by simp [slotReverse, (thm_24_facets_geometry.2.1 a).1], ?_⟩
+  refine ⟨by funext g a; simp [slotReverse, (thm_24_facets_geometry.2.1 a).1], ?_⟩
   funext g a
   simp only [honeycombStream, slotReverse, (thm_24_facets_geometry.2.1 a).1]
   have hInv : mat5Mul (transport (oppSlot a)) (transport a) = mat5Id := by

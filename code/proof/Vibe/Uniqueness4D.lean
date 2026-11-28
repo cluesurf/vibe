@@ -69,11 +69,11 @@ theorem isPos_neg_exclusive (x : ZSqrt5) : ¬ (isPos x = true ∧ isNeg x = true
   simp only [isPos, isNeg, Zsqrtd.re_neg, Zsqrtd.im_neg] at hp hn
   split_ifs at hp hn
   all_goals
-    try (exact Bool.false_ne_true hp)
-    try (exact Bool.false_ne_true hn)
-    try (have := of_decide_eq_true hp; omega)
-    try (have := of_decide_eq_true hn; omega)
-    try (have := of_decide_eq_true hp; have := of_decide_eq_true hn; nlinarith)
+    first
+    | exact Bool.false_ne_true hp
+    | exact Bool.false_ne_true hn
+    | (have := of_decide_eq_true hp; omega)
+    | (have := of_decide_eq_true hp; have := of_decide_eq_true hn; nlinarith)
 
 end ZSqrt5
 
@@ -417,7 +417,7 @@ theorem thm_self_dual_regular_4polytopes (a b c : Nat) :
   · rintro ⟨hSph, hac⟩
     exact (by decide : ∀ x ∈ spherical4List, x.1 = x.2.2 → x = (3, 3, 3) ∨ x = (3, 4, 3))
       (a, b, c) ((thm_classify_spherical4 a b c).mp hSph) hac
-  · rintro (⟨⟩ | ⟨⟩) <;> exact ⟨by decide, rfl⟩
+  · rintro (h | h) <;> cases h <;> exact ⟨by decide, rfl⟩
 
 /-- Uniqueness Theorem 1: Among ALL finite-covolume regular 4D hyperbolic honeycombs,
     `{3,4,3,4}` is ALREADY UNIQUE from Predicate (1) `hasFlat3DEuclideanCusp` alone. -/

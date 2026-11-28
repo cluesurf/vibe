@@ -176,6 +176,19 @@ def symE3 (y0 y1 y2 y3 : Int) : Int :=
 /-- Sum of an integer function over all 12 `D_4` root lines via `Finset.sum`. -/
 def sum12Int (f : Fin 12 → Int) : Int := ∑ k : Fin 12, f k
 
+private theorem fin12_sum_expand {M : Type} [AddCommMonoid M] (f : Fin 12 → M) :
+    ∑ k : Fin 12, f k =
+      f ⟨0, by decide⟩ + f ⟨1, by decide⟩ + f ⟨2, by decide⟩ + f ⟨3, by decide⟩ +
+      f ⟨4, by decide⟩ + f ⟨5, by decide⟩ + f ⟨6, by decide⟩ + f ⟨7, by decide⟩ +
+      f ⟨8, by decide⟩ + f ⟨9, by decide⟩ + f ⟨10, by decide⟩ + f ⟨11, by decide⟩ := by
+  rw [Fin.sum_univ_def]
+  have hFR : List.finRange 12 =
+      [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩,
+       ⟨4, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩, ⟨7, by decide⟩,
+       ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩] := by decide
+  rw [hFR]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero, add_assoc]
+
 /-- Exact 1st, 2nd, and 3rd moments of `t_k = (r_k · x)^2` over the 12 `D_4` root lines. -/
 def d4Moment1 (x : Vec4) : Int := sum12Int (fun k => d4LineSq k x)
 def d4Moment2 (x : Vec4) : Int := sum12Int (fun k => d4LineSq k x * d4LineSq k x)
@@ -199,8 +212,8 @@ theorem thm_d4_exact_moments (x0 x1 x2 x3 : Int) :
     d4Moment2 x = 6 * (S * S) ∧
     d4Moment3 x = 6 * (S * (S * S)) + 12 * (S * symE2 y0 y1 y2 y3) - 72 * symE3 y0 y1 y2 y3 := by
   refine ⟨?_, ?_, ?_⟩ <;>
-    simp only [d4Moment1, d4Moment2, d4Moment3, sum12Int, Fin.sum_univ_succ, Fin.sum_univ_zero,
-      d4LineSq, d4RootLine, dot4, symS4, symE2, symE3, Fin.isValue, Fin.val_zero, Fin.val_succ] <;>
+    simp only [d4Moment1, d4Moment2, d4Moment3, sum12Int, fin12_sum_expand, d4LineSq, d4RootLine,
+      dot4, symS4, symE2, symE3] <;>
     ring
 
 
@@ -286,11 +299,14 @@ theorem thm_d4_moment3_le_9_S3 (x0 x1 x2 x3 : Int) :
     let S := dot4 x x
     d4Moment3 x ≤ 9 * (S * (S * S)) := by
   intro x S
-  have hMom := (thm_d4_exact_moments x0 x1 x2 x3).2.2
-  have hPos := thm_schur4_simplex_nonneg (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3)
-    (mul_self_nonneg x0) (mul_self_nonneg x1) (mul_self_nonneg x2) (mul_self_nonneg x3)
-  unfold schurPoly4 at hPos
-  change d4Moment3 x ≤ _
+  have hMom : d4Moment3 x =
+      6 * (S * (S * S)) + 12 * (S * symE2 (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3)) -
+        72 * symE3 (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3) :=
+    (thm_d4_exact_moments x0 x1 x2 x3).2.2
+  have hPos : 0 ≤ S * (S * S) - 4 * (S * symE2 (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3)) +
+      24 * symE3 (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3) :=
+    thm_schur4_simplex_nonneg (x0 * x0) (x1 * x1) (x2 * x2) (x3 * x3)
+      (mul_self_nonneg x0) (mul_self_nonneg x1) (mul_self_nonneg x2) (mul_self_nonneg x3)
   linarith
 
 
@@ -311,8 +327,7 @@ theorem thm_schur_majorant_bound_13_over_21 (x0 x1 x2 x3 : Int) :
   have hExp : d4HermiteSum x =
       588 * (S * (S * S)) + 36 * (S * S * d4Moment1 x) -
         48 * (S * d4Moment2 x) + 64 * d4Moment3 x := by
-    simp only [d4HermiteSum, d4Moment1, d4Moment2, d4Moment3, sum12Int, hermiteP3Hom,
-      Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.isValue]
+    simp only [d4HermiteSum, d4Moment1, d4Moment2, d4Moment3, sum12Int, fin12_sum_expand, hermiteP3Hom]
     ring
   have hMom := thm_d4_exact_moments x0 x1 x2 x3
   have hEq : d4HermiteSum x = 1092 * (S * (S * S)) - 192 * schurPoly4 y0 y1 y2 y3 := by
@@ -325,15 +340,24 @@ theorem thm_schur_majorant_bound_13_over_21 (x0 x1 x2 x3 : Int) :
     (mul_self_nonneg x0) (mul_self_nonneg x1) (mul_self_nonneg x2) (mul_self_nonneg x3)
   exact ⟨hEq, by linarith, by linarith⟩
 
-private theorem d4LineSq_bounds (k : Fin 12) (x : Vec4) :
+-- [helper]
+theorem d4LineSq_bounds (k : Fin 12) (x : Vec4) :
     0 ≤ d4LineSq k x ∧ d4LineSq k x ≤ 2 * dot4 x x := by
   rcases x with ⟨x0, x1, x2, x3⟩
   refine ⟨mul_self_nonneg _, ?_⟩
-  fin_cases k <;> simp only [d4LineSq, d4RootLine, dot4] <;>
-    nlinarith [sq_nonneg x0, sq_nonneg x1, sq_nonneg x2, sq_nonneg x3,
-      sq_nonneg (x0 - x1), sq_nonneg (x0 + x1), sq_nonneg (x0 - x2), sq_nonneg (x0 + x2),
-      sq_nonneg (x0 - x3), sq_nonneg (x0 + x3), sq_nonneg (x1 - x2), sq_nonneg (x1 + x2),
-      sq_nonneg (x1 - x3), sq_nonneg (x1 + x3), sq_nonneg (x2 - x3), sq_nonneg (x2 + x3)]
+  match k with
+  | ⟨0, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 - x1), sq_nonneg x2, sq_nonneg x3]
+  | ⟨1, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 + x1), sq_nonneg x2, sq_nonneg x3]
+  | ⟨2, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 - x2), sq_nonneg x1, sq_nonneg x3]
+  | ⟨3, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 + x2), sq_nonneg x1, sq_nonneg x3]
+  | ⟨4, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 - x3), sq_nonneg x1, sq_nonneg x2]
+  | ⟨5, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x0 + x3), sq_nonneg x1, sq_nonneg x2]
+  | ⟨6, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x1 - x2), sq_nonneg x0, sq_nonneg x3]
+  | ⟨7, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x1 + x2), sq_nonneg x0, sq_nonneg x3]
+  | ⟨8, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x1 - x3), sq_nonneg x0, sq_nonneg x2]
+  | ⟨9, _⟩  => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x1 + x3), sq_nonneg x0, sq_nonneg x2]
+  | ⟨10, _⟩ => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x2 - x3), sq_nonneg x0, sq_nonneg x1]
+  | ⟨11, _⟩ => dsimp [d4LineSq, d4RootLine, dot4]; nlinarith [sq_nonneg (x2 + x3), sq_nonneg x0, sq_nonneg x1]
 
 /-- Single exact rational term `S / (9 S - 4 t_k)` in the Busemann Schur sum. -/
 def busemannTerm (k : Fin 12) (x : Vec4) (hS : 0 < dot4 x x) : QPos :=
@@ -376,8 +400,8 @@ theorem thm_busemann_schur_global_bound (x0 x1 x2 x3 : Int)
     exact (QPos.le_iff_toRat _ _).mp (thm_schur_hermite_qpos (d4LineSq k x) S hS hb.1 hb.2)
   rw [QPos.le_iff_toRat, busemannF1, QPos.toRat_divPos]
   have hSumRat : (busemannSum12 x hS).toRat = ∑ k : Fin 12, (busemannTerm k x hS).toRat := by
-    simp only [busemannSum12, QPos.toRat_add, Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.isValue]
-    ring
+    rw [fin12_sum_expand]
+    simp only [busemannSum12, QPos.toRat_add]
   have hSumLe : (busemannSum12 x hS).toRat ≤ (d4HermiteSum x : ℚ) / (D : ℚ) := by
     rw [hSumRat, d4HermiteSum, sum12Int, Int.cast_sum, Finset.sum_div]
     exact Finset.sum_le_sum fun k _ => hTerm k
@@ -423,7 +447,7 @@ theorem thm_col_resistance_code_bridge (N : Nat → Nat) (F : Nat) :
       17 * colResistanceCode18 N F + 18 ≥ 18 ^ (F + 2)) := by
   have hShift : colResistanceCode18 N F + N 0 = colResistance N (F + 2) := by
     unfold colResistanceCode18 colResistance
-    rw [sumNat_eq_sum, sumNat_eq_sum, Finset.sum_range_succ']
+    rw [sumNat_eq_sum, sumNat_eq_sum, show F + 2 = (F + 1) + 1 by omega, Finset.sum_range_succ']
   refine ⟨hShift, fun h0 => by omega, fun h0 hstep => ?_⟩
   have hExp := thm5_resistance_exp_lower_bound N (by omega) hstep (F + 2)
   omega

@@ -571,24 +571,22 @@ export function verifySliceCodeDistance(spec: SliceCodeSpec): DistanceCertificat
   }
 }
 
+export interface SparseCodeword {
+  readonly indices: Int32Array
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
+
 export interface LogicalCodewords {
-  readonly re: readonly [Float64Array, Float64Array, Float64Array]
-  readonly im: readonly [Float64Array, Float64Array, Float64Array]
+  readonly sparse: readonly [SparseCodeword, SparseCodeword, SparseCodeword]
   readonly termCounts: readonly [number, number, number]
   readonly normErrors: readonly [number, number, number]
 }
 
 export function buildLogicalCodewords(spec: SliceCodeSpec): LogicalCodewords {
-  const re: [Float64Array, Float64Array, Float64Array] = [
-    new Float64Array(HILBERT_DIM_12),
-    new Float64Array(HILBERT_DIM_12),
-    new Float64Array(HILBERT_DIM_12),
-  ]
-  const im: [Float64Array, Float64Array, Float64Array] = [
-    new Float64Array(HILBERT_DIM_12),
-    new Float64Array(HILBERT_DIM_12),
-    new Float64Array(HILBERT_DIM_12),
-  ]
+  const idx0 = new Int32Array(CODEWORD_TERM_COUNT)
+  const re0 = new Float64Array(CODEWORD_TERM_COUNT)
+  const im0 = new Float64Array(CODEWORD_TERM_COUNT)
 
   // The 7 X-containing stabilizers: allX (0) and w9_0..w9_5 (2..7)
   const xStabs: readonly Uint8Array[] = [
@@ -602,13 +600,16 @@ export function buildLogicalCodewords(spec: SliceCodeSpec): LogicalCodewords {
   ]
   const invNorm = 1 / Math.sqrt(CODEWORD_TERM_COUNT)
   const u = new Uint8Array(12)
+  let cursor = 0
 
   const dfs = (k: number, ph: number): void => {
     if (k === 7) {
       let idx = 0
       for (let q = 0; q < 12; q++) idx += u[q]! * POW3[q]!
-      re[0][idx] = re[0][idx]! + invNorm * OMEGA_RE[ph]!
-      im[0][idx] = im[0][idx]! + invNorm * OMEGA_IM[ph]!
+      idx0[cursor] = idx
+      re0[cursor] = invNorm * OMEGA_RE[ph]!
+      im0[cursor] = invNorm * OMEGA_IM[ph]!
+      cursor++
       return
     }
     const g = xStabs[k]!
@@ -628,51 +629,66 @@ export function buildLogicalCodewords(spec: SliceCodeSpec): LogicalCodewords {
   }
   dfs(0, 0)
 
-  for (let idx = 0; idx < HILBERT_DIM_12; idx++) {
-    const r = re[0][idx]!
-    const i = im[0][idx]!
-    if (r === 0 && i === 0) continue
-    let rem = idx
-    let idx1 = 0
-    let idx2 = 0
+  const idx1 = new Int32Array(CODEWORD_TERM_COUNT)
+  const idx2 = new Int32Array(CODEWORD_TERM_COUNT)
+  for (let t = 0; t < CODEWORD_TERM_COUNT; t++) {
+    let rem = idx0[t]!
+    let i1 = 0
+    let i2 = 0
     for (let q = 0; q < 12; q++) {
       const d = rem % 3
       rem = (rem - d) / 3
       const xq = spec.xL[q]!
-      idx1 += ((d + xq) % 3) * POW3[q]!
-      idx2 += ((d + 2 * xq) % 3) * POW3[q]!
+      i1 += ((d + xq) % 3) * POW3[q]!
+      i2 += ((d + 2 * xq) % 3) * POW3[q]!
     }
-    re[1][idx1] = r
-    im[1][idx1] = i
-    re[2][idx2] = r
-    im[2][idx2] = i
+    idx1[t] = i1
+    idx2[t] = i2
   }
+
+  const sparse: [SparseCodeword, SparseCodeword, SparseCodeword] = [
+    { indices: idx0, re: re0, im: im0 },
+    { indices: idx1, re: Float64Array.from(re0), im: Float64Array.from(im0) },
+    { indices: idx2, re: Float64Array.from(re0), im: Float64Array.from(im0) },
+  ]
 
   const counts: [number, number, number] = [0, 0, 0]
   const errs: [number, number, number] = [0, 0, 0]
   for (let c = 0; c < 3; c++) {
-    const rc = re[c]!
-    const ic = im[c]!
+    const sp = sparse[c]!
+    const seen = new Set<number>()
     // Kahan compensated summation eliminates O(N * eps) float64 drift across 2,187 terms
     let norm2 = 0
     let comp = 0
-    let nnz = 0
-    for (let idx = 0; idx < HILBERT_DIM_12; idx++) {
-      const r = rc[idx]!
-      const i = ic[idx]!
-      if (r === 0 && i === 0) continue
+    for (let t = 0; t < sp.indices.length; t++) {
+      seen.add(sp.indices[t]!)
+      const r = sp.re[t]!
+      const i = sp.im[t]!
       const v = r * r + i * i
-      if (v > 1e-18) nnz++
       const y = v - comp
-      const t = norm2 + y
-      comp = t - norm2 - y
-      norm2 = t
+      const s = norm2 + y
+      comp = s - norm2 - y
+      norm2 = s
     }
-    counts[c] = nnz
+    counts[c] = seen.size
     errs[c] = Math.abs(norm2 - 1)
   }
 
-  return { re, im, termCounts: counts, normErrors: errs }
+  return { sparse, termCounts: counts, normErrors: errs }
+}
+
+export function scatterSparseCodeword(
+  sp: SparseCodeword,
+  outRe: Float64Array,
+  outIm: Float64Array,
+): void {
+  outRe.fill(0)
+  outIm.fill(0)
+  for (let t = 0; t < sp.indices.length; t++) {
+    const idx = sp.indices[t]!
+    outRe[idx] = sp.re[t]!
+    outIm[idx] = sp.im[t]!
+  }
 }
 
 // ============================================================================
@@ -803,12 +819,19 @@ export function applyTwoQutritGate(
 }
 
 // Simulate the exact 23-gate native qutrit Clifford encoder on |cInit>_0 |0>^11.
-export function simulateNativeCliffordEncoder(cInit: QutritValue): {
+// Reuses optional caller buffers to keep peak RSS low.
+export function simulateNativeCliffordEncoder(
+  cInit: QutritValue,
+  bufRe?: Float64Array,
+  bufIm?: Float64Array,
+): {
   readonly re: Float64Array
   readonly im: Float64Array
 } {
-  const re = new Float64Array(HILBERT_DIM_12)
-  const im = new Float64Array(HILBERT_DIM_12)
+  const re = bufRe ?? new Float64Array(HILBERT_DIM_12)
+  const im = bufIm ?? new Float64Array(HILBERT_DIM_12)
+  re.fill(0)
+  im.fill(0)
   re[cInit] = 1
 
   const applyPlusFromZero = (q: number): void => {
@@ -2220,15 +2243,19 @@ export function buildKeptLogicalPauliBasis(
   const ops: Uint8Array[] = []
   const phaseRe = new Float64Array(9)
   const phaseIm = new Float64Array(9)
+  const scratch = getChannelScratch()
+  for (let c = 0; c < 3; c++) {
+    scatterSparseCodeword(codewords.sparse[c]!, scratch.re[c]!, scratch.im[c]!)
+  }
   for (let a = 0; a < 3; a++) {
     for (let b = 0; b < 3; b++) {
       const op = new Uint8Array(24)
       for (let j = 0; j < 24; j++) op[j] = (a * spec.xLA[j]! + b * spec.zLA[j]!) % 3
       const [phR, phI] = pauliMatrixElement12(
-        codewords.re[a]!,
-        codewords.im[a]!,
-        codewords.re[0],
-        codewords.im[0],
+        scratch.re[a]!,
+        scratch.im[a]!,
+        scratch.re[0],
+        scratch.im[0],
         op,
       )
       const idx = 3 * a + b
@@ -2240,19 +2267,15 @@ export function buildKeptLogicalPauliBasis(
   return { ops, phaseRe, phaseIm }
 }
 
-// Reusable scratch buffers keep peak RSS well under 200 MB across multi-channel sweeps
+// Reusable scratch buffers (only 6 Float64Arrays = 25.5 MB total) keep peak RSS < 200 MB
 let scratchRe: [Float64Array, Float64Array, Float64Array] | null = null
 let scratchIm: [Float64Array, Float64Array, Float64Array] | null = null
-let scratchPsiRe: Float64Array | null = null
-let scratchPsiIm: Float64Array | null = null
 
-function getChannelScratch(): {
+export function getChannelScratch(): {
   readonly re: [Float64Array, Float64Array, Float64Array]
   readonly im: [Float64Array, Float64Array, Float64Array]
-  readonly psiRe: Float64Array
-  readonly psiIm: Float64Array
 } {
-  if (scratchRe === null || scratchIm === null || scratchPsiRe === null || scratchPsiIm === null) {
+  if (scratchRe === null || scratchIm === null) {
     scratchRe = [
       new Float64Array(HILBERT_DIM_12),
       new Float64Array(HILBERT_DIM_12),
@@ -2263,10 +2286,8 @@ function getChannelScratch(): {
       new Float64Array(HILBERT_DIM_12),
       new Float64Array(HILBERT_DIM_12),
     ]
-    scratchPsiRe = new Float64Array(HILBERT_DIM_12)
-    scratchPsiIm = new Float64Array(HILBERT_DIM_12)
   }
-  return { re: scratchRe, im: scratchIm, psiRe: scratchPsiRe, psiIm: scratchPsiIm }
+  return { re: scratchRe, im: scratchIm }
 }
 
 // Evaluate exact 81x81 Gram-compressed optimal Petz recovery and fixed-Clifford recovery
@@ -2277,11 +2298,9 @@ export function computeExactChannel(
   logicalBasis: KeptLogicalPauliBasis,
   applyPerturbation: (re: Float64Array, im: Float64Array) => void,
 ): ExactChannelResult {
-  const scratch = getChannelScratch()
-  const { re, im, psiRe: pr, psiIm: pi } = scratch
+  const { re, im } = getChannelScratch()
   for (let c = 0; c < 3; c++) {
-    re[c]!.set(codewords.re[c]!)
-    im[c]!.set(codewords.im[c]!)
+    scatterSparseCodeword(codewords.sparse[c]!, re[c]!, im[c]!)
     applyPerturbation(re[c]!, im[c]!)
   }
 
@@ -2382,9 +2401,12 @@ export function computeExactChannel(
   }
 
   // 3. Exact fixed-Clifford recovery via zero-allocation kept-region logical Pauli expectations
+  // Reuse re[2]/im[2] (no longer needed after Gram assembly) to store |psi(theta)> = cos(th)|0> + sin(th)|1>
   const evalClifRho = (theta: number): DensityMatrix3 => {
     const a0 = Math.cos(theta)
     const a1 = Math.sin(theta)
+    const pr = re[2]
+    const pi = im[2]
     for (let k = 0; k < HILBERT_DIM_12; k++) {
       pr[k] = a0 * re[0][k]! + a1 * re[1][k]!
       pi[k] = a0 * im[0][k]! + a1 * im[1][k]!

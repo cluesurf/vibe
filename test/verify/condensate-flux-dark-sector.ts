@@ -809,37 +809,6 @@ function runG2(): void {
     return [out[0]!, out[1]!, out[2]!, out[3]!]
   }
   const detBuf = new Float64Array(16)
-  const det4 = (M: Mat4): number => {
-    for (let r = 0; r < 4; r++) {
-      detBuf[r * 4] = M[r]![0]
-      detBuf[r * 4 + 1] = M[r]![1]
-      detBuf[r * 4 + 2] = M[r]![2]
-      detBuf[r * 4 + 3] = M[r]![3]
-    }
-    let det = 1
-    for (let c = 0; c < 4; c++) {
-      let piv = c
-      for (let r = c + 1; r < 4; r++) {
-        if (Math.abs(detBuf[r * 4 + c]!) > Math.abs(detBuf[piv * 4 + c]!)) piv = r
-      }
-      if (Math.abs(detBuf[piv * 4 + c]!) < 1e-30) return 0
-      if (piv !== c) {
-        for (let j = c; j < 4; j++) {
-          const tmp = detBuf[c * 4 + j]!
-          detBuf[c * 4 + j] = detBuf[piv * 4 + j]!
-          detBuf[piv * 4 + j] = tmp
-        }
-        det = -det
-      }
-      const pv = detBuf[c * 4 + c]!
-      det *= pv
-      for (let r = c + 1; r < 4; r++) {
-        const fac = detBuf[r * 4 + c]! / pv
-        for (let j = c + 1; j < 4; j++) detBuf[r * 4 + j] = detBuf[r * 4 + j]! - fac * detBuf[c * 4 + j]!
-      }
-    }
-    return det
-  }
   const expm4 = (H: Mat4): Mat4 => {
     let R: Mat4 = [
       [1, 0, 0, 0],
@@ -887,16 +856,6 @@ function runG2(): void {
       [0, ck, sk, 0],
       [0, -sk, ck, 0],
       [sk, 0, 0, ck],
-    ]
-  }
-  const S4imagK = (kap: number): Mat4 => {
-    const c = Math.cosh(kap)
-    const s = Math.sinh(kap)
-    return [
-      [c, 0, s, 0],
-      [0, c, 0, s],
-      [s, 0, c, 0],
-      [0, s, 0, c],
     ]
   }
 
@@ -974,13 +933,39 @@ function runG2(): void {
     const Urel = expm4(Hrel)
     const CU = mul4(C4, Urel)
     const evalDet = (kap: number): number => {
-      const M = mul4(S4imagK(kap), CU)
-      return det4([
-        [M[0][0] - 1, M[0][1], M[0][2], M[0][3]],
-        [M[1][0], M[1][1] - 1, M[1][2], M[1][3]],
-        [M[2][0], M[2][1], M[2][2] - 1, M[2][3]],
-        [M[3][0], M[3][1], M[3][2], M[3][3] - 1],
-      ])
+      const ch = Math.cosh(kap)
+      const sh = Math.sinh(kap)
+      // M = S4imagK(kap) * CU - I directly into flat detBuf (zero allocations!)
+      for (let j = 0; j < 4; j++) {
+        const u0 = CU[0][j]!, u1 = CU[1][j]!, u2 = CU[2][j]!, u3 = CU[3][j]!
+        detBuf[0 * 4 + j] = ch * u0 + sh * u2 - (j === 0 ? 1 : 0)
+        detBuf[1 * 4 + j] = ch * u1 + sh * u3 - (j === 1 ? 1 : 0)
+        detBuf[2 * 4 + j] = sh * u0 + ch * u2 - (j === 2 ? 1 : 0)
+        detBuf[3 * 4 + j] = sh * u1 + ch * u3 - (j === 3 ? 1 : 0)
+      }
+      let det = 1
+      for (let c = 0; c < 4; c++) {
+        let piv = c
+        for (let r = c + 1; r < 4; r++) {
+          if (Math.abs(detBuf[r * 4 + c]!) > Math.abs(detBuf[piv * 4 + c]!)) piv = r
+        }
+        if (Math.abs(detBuf[piv * 4 + c]!) < 1e-30) return 0
+        if (piv !== c) {
+          for (let j = c; j < 4; j++) {
+            const tmp = detBuf[c * 4 + j]!
+            detBuf[c * 4 + j] = detBuf[piv * 4 + j]!
+            detBuf[piv * 4 + j] = tmp
+          }
+          det = -det
+        }
+        const pv = detBuf[c * 4 + c]!
+        det *= pv
+        for (let r = c + 1; r < 4; r++) {
+          const fac = detBuf[r * 4 + c]! / pv
+          for (let j = c + 1; j < 4; j++) detBuf[r * 4 + j] = detBuf[r * 4 + j]! - fac * detBuf[c * 4 + j]!
+        }
+      }
+      return det
     }
     let prev = evalDet(1e-4)
     let pk = 1e-4
@@ -1213,21 +1198,25 @@ function runG3(): void {
     const invEven = 1 / Math.sqrt(nEven)
     for (let i = 0; i < dim; i++) phi0R[i] = phi0R[i]! * invEven
 
+    // Pre-allocated CSC scratch buffers reused across all 3 modes (zero GC bloat!)
+    const maxNNZ = dim * 48
+    const cscColPtr = new Int32Array(dim + 1)
+    const cscRowIdx = new Int32Array(maxNNZ)
+    const cscValRe = new Float64Array(maxNNZ)
+    const cscValIm = new Float64Array(maxNNZ)
+    const accRe = new Float64Array(dim)
+    const accIm = new Float64Array(dim)
+    const seenStamp = new Uint32Array(dim)
+    const touched = new Int32Array(dim)
+    let curStamp = 0
+
     // Pre-build sparse CSC operator for U = S o D o M_meet o M_pair(zeta_18) o D
     // (Exact algebraic identity: D o M_meet o M_pair o D == (C on lone lines) x (omega^2 M_pair on full lines))
     const buildCSC = (mode: PairMode) => {
-      const colPtr = new Int32Array(dim + 1)
-      const rL: number[] = []
-      const vR: number[] = []
-      const vI: number[] = []
-      const accRe = new Float64Array(dim)
-      const accIm = new Float64Array(dim)
-      const seenStamp = new Uint32Array(dim)
-      const touched = new Int32Array(dim)
-      let curStamp = 0
+      let nnz = 0
 
       for (let col = 0; col < dim; col++) {
-        colPtr[col] = rL.length
+        cscColPtr[col] = nnz
         const arr = states[col]!
         let dock0Cnt = 0
         for (let i = 0; i < 4; i++) if (slotDock[arr[i]!] === 0) dock0Cnt++
@@ -1381,17 +1370,18 @@ function runG3(): void {
           const re = accRe[row]!
           const im = accIm[row]!
           if (re * re + im * im < 1e-26) continue
-          rL.push(row)
-          vR.push(re)
-          vI.push(im)
+          cscRowIdx[nnz] = row
+          cscValRe[nnz] = re
+          cscValIm[nnz] = im
+          nnz++
         }
       }
-      colPtr[dim] = rL.length
+      cscColPtr[dim] = nnz
       return {
-        colPtr,
-        rowIdx: Int32Array.from(rL),
-        valRe: Float64Array.from(vR),
-        valIm: Float64Array.from(vI),
+        colPtr: cscColPtr,
+        rowIdx: cscRowIdx,
+        valRe: cscValRe,
+        valIm: cscValIm,
       }
     }
 

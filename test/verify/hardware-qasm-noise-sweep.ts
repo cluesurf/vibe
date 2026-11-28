@@ -33,6 +33,7 @@ import {
   encodeQutritToBits,
   evaluateNoisyChannel,
   exportOpenQasm3,
+  getChannelScratch,
   HILBERT_DIM_12,
   isLeakageBits,
   LEAKAGE_QUBIT_BITS,
@@ -40,8 +41,8 @@ import {
   makeCoherentZX,
   makeCoherentZZ,
   QUBIT_COUNT,
-  QUTRIT_COUNT,
   runFiniteShotSweep,
+  scatterSparseCodeword,
   simulate4QubitOps,
   simulateNativeCliffordEncoder,
   validateOpenQasm3,
@@ -86,13 +87,16 @@ const codewords = buildLogicalCodewords(spec)
 const logicalBasis = buildKeptLogicalPauliBasis(spec, codewords)
 
 // Verify exact 23-gate Clifford encoder reproduces |0_L>, |1_L>, |2_L> to machine precision
+// Reuses module scratch buffers to stay strictly < 200 MB RSS.
 let maxEncoderErr = 0
+const encScratch = getChannelScratch()
 for (const c of [0, 1, 2] as readonly QutritValue[]) {
-  const enc = simulateNativeCliffordEncoder(c)
+  const enc = simulateNativeCliffordEncoder(c, encScratch.re[0], encScratch.im[0])
+  scatterSparseCodeword(codewords.sparse[c]!, encScratch.re[1], encScratch.im[1])
   let diffSq = 0
   for (let i = 0; i < HILBERT_DIM_12; i++) {
-    const dr = enc.re[i]! - codewords.re[c]![i]!
-    const di = enc.im[i]! - codewords.im[c]![i]!
+    const dr = enc.re[i]! - encScratch.re[1][i]!
+    const di = enc.im[i]! - encScratch.im[1][i]!
     diffSq += dr * dr + di * di
   }
   const err = Math.sqrt(diffSq)
