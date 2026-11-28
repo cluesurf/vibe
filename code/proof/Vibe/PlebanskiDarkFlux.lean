@@ -500,6 +500,65 @@ def plebTensorPPDef : Matrix (Fin 3) (Fin 3) ℤ :=
       let sP := plebSimplex6P (plebFacetNormal c) (mlD4Root t.1) (plebSimplexV1 c t) (plebSimplexV2 c t)
       plebWedgePair (fun k => plebDeformP (sP k)) (fun k => plebDeformP (sP k)) I J
 
+/-- Elementary 2-plane exterior pairing of the 6 origin-incident faces of a 4-simplex
+    `(0, e0, e1, e2, e3)` along coordinate planes `(α, β)` and `(γ, δ)`: discrete counterpart
+    of `(dx^α ∧ dx^β) ∧ (dx^γ ∧ dx^δ)`. -/
+private def plebPlanePair (e0 e1 e2 e3 : Fin 4 → ℤ) (α β γ δ : Fin 4) : ℤ :=
+  let w (u v : Fin 4 → ℤ) (μ ν : Fin 4) : ℤ := u μ * v ν - u ν * v μ
+  (w e0 e1 α β * w e2 e3 γ δ + w e2 e3 α β * w e0 e1 γ δ) -
+  (w e0 e2 α β * w e1 e3 γ δ + w e1 e3 α β * w e0 e2 γ δ) +
+  (w e0 e3 α β * w e1 e2 γ δ + w e1 e2 α β * w e0 e3 γ δ)
+
+private theorem plebPlanePair_symm (e0 e1 e2 e3 : Fin 4 → ℤ) (α β γ δ : Fin 4) :
+    plebPlanePair e0 e1 e2 e3 α β γ δ = plebPlanePair e0 e1 e2 e3 γ δ α β := by
+  dsimp only [plebPlanePair]
+  ring
+
+private theorem plebPlanePair_swap_left (e0 e1 e2 e3 : Fin 4 → ℤ) (α β γ δ : Fin 4) :
+    plebPlanePair e0 e1 e2 e3 β α γ δ = -plebPlanePair e0 e1 e2 e3 α β γ δ := by
+  dsimp only [plebPlanePair]
+  ring
+
+private theorem plebPlanePair_swap_right (e0 e1 e2 e3 : Fin 4 → ℤ) (α β γ δ : Fin 4) :
+    plebPlanePair e0 e1 e2 e3 α β δ γ = -plebPlanePair e0 e1 e2 e3 α β γ δ := by
+  dsimp only [plebPlanePair]
+  ring
+
+private theorem plebPlanePair_share_first (e0 e1 e2 e3 : Fin 4 → ℤ) (α β δ : Fin 4) :
+    plebPlanePair e0 e1 e2 e3 α β α δ = 0 := by
+  dsimp only [plebPlanePair]
+  ring
+
+private theorem plebPlanePair_0123 (e0 e1 e2 e3 : Fin 4 → ℤ) :
+    plebPlanePair e0 e1 e2 e3 0 1 2 3 = plebDet4 e0 e1 e2 e3 := by
+  dsimp only [plebPlanePair, plebDet4]
+  ring
+
+private theorem plebPlanePair_0231 (e0 e1 e2 e3 : Fin 4 → ℤ) :
+    plebPlanePair e0 e1 e2 e3 0 2 3 1 = plebDet4 e0 e1 e2 e3 := by
+  dsimp only [plebPlanePair, plebDet4]
+  ring
+
+private theorem plebPlanePair_0312 (e0 e1 e2 e3 : Fin 4 → ℤ) :
+    plebPlanePair e0 e1 e2 e3 0 3 1 2 = plebDet4 e0 e1 e2 e3 := by
+  dsimp only [plebPlanePair, plebDet4]
+  ring
+
+private theorem plebWedgePair_split (e0 e1 e2 e3 : Fin 4 → ℤ)
+    (α₁ β₁ α₂ β₂ γ₁ δ₁ γ₂ δ₂ : Fin 4) (s₁ s₂ : ℤ) :
+    let w (u v : Fin 4 → ℤ) (μ ν : Fin 4) : ℤ := u μ * v ν - u ν * v μ
+    let f (u v : Fin 4 → ℤ) : ℤ := w u v α₁ β₁ + s₁ * w u v α₂ β₂
+    let g (u v : Fin 4 → ℤ) : ℤ := w u v γ₁ δ₁ + s₂ * w u v γ₂ δ₂
+    (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+    (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+    (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) =
+    plebPlanePair e0 e1 e2 e3 α₁ β₁ γ₁ δ₁ +
+    s₂ * plebPlanePair e0 e1 e2 e3 α₁ β₁ γ₂ δ₂ +
+    s₁ * plebPlanePair e0 e1 e2 e3 α₂ β₂ γ₁ δ₁ +
+    s₁ * s₂ * plebPlanePair e0 e1 e2 e3 α₂ β₂ γ₂ δ₂ := by
+  dsimp only [plebPlanePair]
+  ring
+
 /-- Universal algebraic Plebanski 6-face exterior wedge identity for ANY 4-simplex
     `(0, e0, e1, e2, e3)` in `ℤ^4` (including arbitrary anisotropic flat stretches
     `x ↦ (λ_0 x^0, λ_1 x^1, λ_2 x^2, λ_3 x^3)`):
@@ -524,12 +583,160 @@ theorem pleb_simplex_wedge_identities (e0 e1 e2 e3 : Fin 4 → ℤ) (I J : Fin 3
   have hM3 : plebSimplex6M e0 e1 e2 e3 3 = plebPairBivM e1 e2 := rfl
   have hM4 : plebSimplex6M e0 e1 e2 e3 4 = plebPairBivM e1 e3 := rfl
   have hM5 : plebSimplex6M e0 e1 e2 e3 5 = plebPairBivM e2 e3 := rfl
+  have hZero : ∀ α β γ δ : Fin 4,
+      (α = γ ∨ α = δ ∨ β = γ ∨ β = δ) → plebPlanePair e0 e1 e2 e3 α β γ δ = 0 := by
+    intro α β γ δ h
+    rcases h with rfl | rfl | rfl | rfl
+    · exact plebPlanePair_share_first e0 e1 e2 e3 α β δ
+    · rw [plebPlanePair_swap_right, plebPlanePair_share_first, neg_zero]
+    · rw [plebPlanePair_swap_left, plebPlanePair_share_first, neg_zero]
+    · rw [plebPlanePair_swap_left, plebPlanePair_swap_right, plebPlanePair_share_first,
+        neg_zero, neg_zero]
+  have h0123 := plebPlanePair_0123 e0 e1 e2 e3
+  have h2301 : plebPlanePair e0 e1 e2 e3 2 3 0 1 = plebDet4 e0 e1 e2 e3 := by
+    rw [plebPlanePair_symm, h0123]
+  have h0213 : plebPlanePair e0 e1 e2 e3 0 2 1 3 = -plebDet4 e0 e1 e2 e3 := by
+    rw [plebPlanePair_swap_right, plebPlanePair_0231]
+  have h1302 : plebPlanePair e0 e1 e2 e3 1 3 0 2 = -plebDet4 e0 e1 e2 e3 := by
+    rw [plebPlanePair_symm, h0213]
+  have h0312 := plebPlanePair_0312 e0 e1 e2 e3
+  have h1203 : plebPlanePair e0 e1 e2 e3 1 2 0 3 = plebDet4 e0 e1 e2 e3 := by
+    rw [plebPlanePair_symm, h0312]
+  have h00 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₁ * (u 2 * v 3 - u 3 * v 2)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₂ * (u 2 * v 3 - u 3 * v 2)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = (s₁ + s₂) * plebDet4 e0 e1 e2 e3 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 1 2 3 0 1 2 3 s₁ s₂).trans ?_
+    rw [hZero 0 1 0 1 (Or.inl rfl), hZero 2 3 2 3 (Or.inl rfl), h0123, h2301]
+    ring
+  have h11 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₁ * (u 1 * v 3 - u 3 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₂ * (u 1 * v 3 - u 3 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = -(s₁ + s₂) * plebDet4 e0 e1 e2 e3 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 2 1 3 0 2 1 3 s₁ s₂).trans ?_
+    rw [hZero 0 2 0 2 (Or.inl rfl), hZero 1 3 1 3 (Or.inl rfl), h0213, h1302]
+    ring
+  have h22 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₁ * (u 1 * v 2 - u 2 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₂ * (u 1 * v 2 - u 2 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = (s₁ + s₂) * plebDet4 e0 e1 e2 e3 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 3 1 2 0 3 1 2 s₁ s₂).trans ?_
+    rw [hZero 0 3 0 3 (Or.inl rfl), hZero 1 2 1 2 (Or.inl rfl), h0312, h1203]
+    ring
+  have h01 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₁ * (u 2 * v 3 - u 3 * v 2)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₂ * (u 1 * v 3 - u 3 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 1 2 3 0 2 1 3 s₁ s₂).trans ?_
+    rw [hZero 0 1 0 2 (Or.inl rfl), hZero 0 1 1 3 (Or.inr (Or.inr (Or.inl rfl))),
+      hZero 2 3 0 2 (Or.inr (Or.inl rfl)), hZero 2 3 1 3 (Or.inr (Or.inr (Or.inr rfl)))]
+    ring
+  have h02 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₁ * (u 2 * v 3 - u 3 * v 2)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₂ * (u 1 * v 2 - u 2 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 1 2 3 0 3 1 2 s₁ s₂).trans ?_
+    rw [hZero 0 1 0 3 (Or.inl rfl), hZero 0 1 1 2 (Or.inr (Or.inr (Or.inl rfl))),
+      hZero 2 3 0 3 (Or.inr (Or.inr (Or.inr rfl))), hZero 2 3 1 2 (Or.inr (Or.inl rfl))]
+    ring
+  have h12 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₁ * (u 1 * v 3 - u 3 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₂ * (u 1 * v 2 - u 2 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 2 1 3 0 3 1 2 s₁ s₂).trans ?_
+    rw [hZero 0 2 0 3 (Or.inl rfl), hZero 0 2 1 2 (Or.inr (Or.inr (Or.inr rfl))),
+      hZero 1 3 0 3 (Or.inr (Or.inr (Or.inr rfl))), hZero 1 3 1 2 (Or.inl rfl)]
+    ring
+  have h10 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₁ * (u 1 * v 3 - u 3 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₂ * (u 2 * v 3 - u 3 * v 2)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 2 1 3 0 1 2 3 s₁ s₂).trans ?_
+    rw [hZero 0 2 0 1 (Or.inl rfl), hZero 0 2 2 3 (Or.inr (Or.inr (Or.inl rfl))),
+      hZero 1 3 0 1 (Or.inr (Or.inl rfl)), hZero 1 3 2 3 (Or.inr (Or.inr (Or.inr rfl)))]
+    ring
+  have h20 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₁ * (u 1 * v 2 - u 2 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 1 - u 1 * v 0) + s₂ * (u 2 * v 3 - u 3 * v 2)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 3 1 2 0 1 2 3 s₁ s₂).trans ?_
+    rw [hZero 0 3 0 1 (Or.inl rfl), hZero 0 3 2 3 (Or.inr (Or.inr (Or.inr rfl))),
+      hZero 1 2 0 1 (Or.inr (Or.inl rfl)), hZero 1 2 2 3 (Or.inr (Or.inr (Or.inl rfl)))]
+    ring
+  have h21 : ∀ s₁ s₂ : ℤ,
+      let f (u v : Fin 4 → ℤ) := (u 0 * v 3 - u 3 * v 0) + s₁ * (u 1 * v 2 - u 2 * v 1)
+      let g (u v : Fin 4 → ℤ) := (u 0 * v 2 - u 2 * v 0) + s₂ * (u 1 * v 3 - u 3 * v 1)
+      (f e0 e1 * g e2 e3 + f e2 e3 * g e0 e1) -
+      (f e0 e2 * g e1 e3 + f e1 e3 * g e0 e2) +
+      (f e0 e3 * g e1 e2 + f e1 e2 * g e0 e3) = 0 := by
+    intro s₁ s₂
+    refine (plebWedgePair_split e0 e1 e2 e3 0 3 1 2 0 2 1 3 s₁ s₂).trans ?_
+    rw [hZero 0 3 0 2 (Or.inl rfl), hZero 0 3 1 3 (Or.inr (Or.inr (Or.inr rfl))),
+      hZero 1 2 0 2 (Or.inr (Or.inr (Or.inr rfl))), hZero 1 2 1 3 (Or.inl rfl)]
+    ring
   simp only [plebWedgePair, hP0, hP1, hP2, hP3, hP4, hP5, hM0, hM1, hM2, hM3, hM4, hM5]
   fin_cases I <;> fin_cases J <;>
-    dsimp only [plebPairBivP, plebPairBivM, plebDet4] <;>
-    refine ⟨?_, ?_, by ring⟩ <;>
-    (first | rw [if_pos rfl] | rw [if_neg (by decide)]) <;>
-    ring
+    dsimp only [plebPairBivP, plebPairBivM]
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h00 1 1
+    · simpa [sub_eq_add_neg] using h00 (-1) (-1)
+    · simpa [sub_eq_add_neg] using h00 1 (-1)
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h01 1 (-1)
+    · simpa [sub_eq_add_neg] using h01 (-1) 1
+    · simpa [sub_eq_add_neg] using h01 1 1
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h02 1 1
+    · simpa [sub_eq_add_neg] using h02 (-1) (-1)
+    · simpa [sub_eq_add_neg] using h02 1 (-1)
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h10 (-1) 1
+    · simpa [sub_eq_add_neg] using h10 1 (-1)
+    · simpa [sub_eq_add_neg] using h10 (-1) (-1)
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h11 (-1) (-1)
+    · simpa [sub_eq_add_neg] using h11 1 1
+    · simpa [sub_eq_add_neg] using h11 (-1) 1
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h12 (-1) 1
+    · simpa [sub_eq_add_neg] using h12 1 (-1)
+    · simpa [sub_eq_add_neg] using h12 (-1) (-1)
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h20 1 1
+    · simpa [sub_eq_add_neg] using h20 (-1) (-1)
+    · simpa [sub_eq_add_neg] using h20 1 (-1)
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h21 1 (-1)
+    · simpa [sub_eq_add_neg] using h21 (-1) 1
+    · simpa [sub_eq_add_neg] using h21 1 1
+  · refine ⟨?_, ?_, ?_⟩
+    · simpa [sub_eq_add_neg] using h22 1 1
+    · simpa [sub_eq_add_neg] using h22 (-1) (-1)
+    · simpa [sub_eq_add_neg] using h22 1 (-1)
 
 private theorem pleb_mem_triListFrom {vs : List (Fin 24)} {p : Fin 24 × Fin 24 × Fin 24} :
     p ∈ plebTriListFrom vs ↔

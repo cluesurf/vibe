@@ -1,12 +1,12 @@
-// Hardware circuit compilation, OpenQASM 3.0 export, exact 81x81 Gram-compressed
-// Petz/fixed-Clifford recovery solver, realistic hardware noise channel, and
-// deterministic finite-shot tomographic simulator for the [[12, 1, 4]]_3 qutrit
-// holographic slice (the exact (u, v) symmetric sector of the W(F_4)-covariant
-// [[24, 1, 8]]_3 stabilizer code on the 24-cell {3,4,3}).
+// Hardware circuit compilation, standard OpenQASM 3.0 export, exact 81x81 Gram-compressed
+// FLM Petz/fixed-Clifford recovery solver, Tier-B effective bulk-depolarizing + exact
+// Tier-A Bayes leakage-postselection noise model, and deterministic finite-shot tomographic
+// power simulator for the [[12, 1, 4]]_3 qutrit holographic slice (the exact (u, v) symmetric
+// sector of the W(F_4)-covariant [[24, 1, 8]]_3 stabilizer code on the 24-cell {3,4,3}).
 //
-// Strictly deterministic (zero Math.random; Mulberry32 PRNG only), zero external
-// runtime dependencies beyond Node built-ins (fs/path used only in optional
-// writeHardwareBundle), strict TypeScript (--strict --noUncheckedIndexedAccess).
+// Strictly deterministic (Mulberry32 PRNG only, zero system RNG), zero external runtime
+// dependencies beyond Node built-ins (fs/path used only in optional writeHardwareBundle),
+// strict TypeScript (--strict --noUncheckedIndexedAccess).
 
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -22,27 +22,16 @@ export const HILBERT_DIM_12 = 531441 // 3^12
 export const ERASED_QUTRITS: readonly number[] = [0, 1, 2]
 export const KEPT_QUTRITS: readonly number[] = [3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-// Two disjoint layers of 3 cross-cut two-qutrit gates between A^c={0,1,2} and A={3..11}
+// Six genuine cross-cut two-qutrit bonds between A^c={0,1,2} and A={3,4,5} subset A={3..11}.
+// Matches G4 (null-cone-bf-holography-hardware.ts) exactly; qutrits 6..11 are exact spectators,
+// enabling exact 729-dim sector-bucketed Gram compression in < 50 KB working RAM.
 export const CROSS_CUT_PAIRS: readonly (readonly [number, number])[] = [
   [0, 3],
   [1, 4],
   [2, 5],
-  [0, 6],
-  [1, 7],
-  [2, 8],
-]
-
-// Six Clifford-rotated ZX crosstalk pairs inside A={3..11}: Z acts on the kept
-// support of zLA ({4,5,6,7,10,11}), X acts on its complement in A ({3,8,9}),
-// mimicking coherent trapped-ion ZX crosstalk that fools fixed-Clifford decoders
-// while collapsing identically under optimal Petz recovery.
-export const ZX_MIMICRY_PAIRS: readonly (readonly [number, number])[] = [
-  [4, 3],
-  [5, 8],
-  [6, 9],
-  [7, 3],
-  [10, 8],
-  [11, 9],
+  [0, 4],
+  [1, 5],
+  [2, 3],
 ]
 
 export const TARGET_BACKENDS: readonly string[] = [
@@ -51,7 +40,7 @@ export const TARGET_BACKENDS: readonly string[] = [
   'Ba-137 Native Qutrit (12-ion)',
 ]
 
-// Exact average leakage probability into |11> per 2-qubit depolarizing fault
+// Exact Tier-A microscopic leakage probability into |11> per 2-qubit depolarizing fault
 // under uniform 15-Pauli depolarizing noise on valid qutrit states {|00>,|01>,|10>}:
 //   inter-qutrit 2q fault: (3*(2/9) + 3*(2/9) + 9*(32/81)) / 15 = 44/135
 //   intra-qutrit 2q fault: 4/15
@@ -103,6 +92,16 @@ export function cmatEye(n: number): ComplexMatrix {
   const m = cmatZero(n)
   for (let i = 0; i < n; i++) m.re[i * n + i] = 1
   return m
+}
+
+export function cmatSub(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
+  const n = a.n
+  const out = cmatZero(n)
+  for (let i = 0; i < n * n; i++) {
+    out.re[i] = a.re[i]! - b.re[i]!
+    out.im[i] = a.im[i]! - b.im[i]!
+  }
+  return out
 }
 
 export function cmatMul(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
@@ -242,29 +241,16 @@ export function vonNeumannEntropy(eigenvalues: ArrayLike<number>): number {
   let s = 0
   for (let i = 0; i < eigenvalues.length; i++) {
     const v = eigenvalues[i]!
-    if (v > 1e-15) s -= v * Math.log(v)
+    if (v > 1e-14) s -= v * Math.log(v)
   }
   return s
 }
 
-// Fast Smolin-Gambetta-Smith Euclidean projection of 3 real eigenvalues onto the unit simplex.
-export function projectSimplex3(raw: readonly [number, number, number]): [number, number, number] {
-  const a = [raw[0], raw[1], raw[2]].sort((x, y) => y - x)
-  let acc = 0
-  for (let i = 2; i >= 0; i--) {
-    const v = a[i]! + acc / (i + 1)
-    if (v >= 0) {
-      const shift = acc / (i + 1)
-      for (let j = 0; j <= i; j++) a[j] = a[j]! + shift
-      break
-    } else {
-      acc += a[i]!
-      a[i] = 0
-    }
-  }
-  const sum = a[0]! + a[1]! + a[2]!
-  if (sum <= 0) return [1 / 3, 1 / 3, 1 / 3]
-  return [a[0]! / sum, a[1]! / sum, a[2]! / sum]
+export function traceNormHermitian(m: ComplexMatrix): number {
+  const eig = hermitianEigen(m.re, m.im, m.n)
+  let sum = 0
+  for (let i = 0; i < m.n; i++) sum += Math.abs(eig.values[i]!)
+  return sum
 }
 
 // Complementary error function approximation (Abramowitz & Stegun 7.1.26, max error < 1.5e-7)
@@ -328,8 +314,6 @@ export interface SliceCodeSpec {
   readonly stabilizers: readonly Uint8Array[] // 11 x 24 GF(3) symplectic rows [x_0..x_11 | z_0..z_11]
   readonly xL: Uint8Array // length 24
   readonly zL: Uint8Array // length 24
-  readonly xLA: Uint8Array // logical X supported strictly on A={3..11}
-  readonly zLA: Uint8Array // logical Z supported strictly on A={3..11}
   readonly isoDefects: number
   readonly logicalCommuteDefects: number
   readonly xLzLCommutator: number
@@ -381,55 +365,6 @@ function gf3RankU8(rows: readonly Uint8Array[], nCols: number): number {
   return rk
 }
 
-function solveLogicalOnKeptA(stabilizers: readonly Uint8Array[], target: Uint8Array): Uint8Array {
-  const eraseCols: readonly number[] = [0, 1, 2, 12, 13, 14]
-  const nStab = stabilizers.length
-  const mat = eraseCols.map(col => {
-    const row = new Uint8Array(nStab + 1)
-    for (let k = 0; k < nStab; k++) row[k] = stabilizers[k]![col]!
-    row[nStab] = mod3(-target[col]!)
-    return row
-  })
-  let rk = 0
-  const pivCols: number[] = []
-  for (let c = 0; c < nStab && rk < eraseCols.length; c++) {
-    let piv = -1
-    for (let r = rk; r < eraseCols.length; r++) {
-      if (mat[r]![c]! !== 0) {
-        piv = r
-        break
-      }
-    }
-    if (piv < 0) continue
-    const tmp = mat[rk]!
-    mat[rk] = mat[piv]!
-    mat[piv] = tmp
-    const pRow = mat[rk]!
-    if (pRow[c]! === 2) {
-      for (let j = c; j <= nStab; j++) pRow[j] = (2 * pRow[j]!) % 3
-    }
-    for (let r = 0; r < eraseCols.length; r++) {
-      if (r === rk) continue
-      const f = mat[r]![c]!
-      if (f === 0) continue
-      const row = mat[r]!
-      for (let j = c; j <= nStab; j++) row[j] = mod3(row[j]! - f * pRow[j]!)
-    }
-    pivCols.push(c)
-    rk++
-  }
-  const coeffs = new Uint8Array(nStab)
-  for (let i = 0; i < rk; i++) coeffs[pivCols[i]!] = mat[i]![nStab]!
-  const out = Uint8Array.from(target)
-  for (let k = 0; k < nStab; k++) {
-    const cf = coeffs[k]!
-    if (cf === 0) continue
-    const st = stabilizers[k]!
-    for (let j = 0; j < 2 * QUTRIT_COUNT; j++) out[j] = (out[j]! + cf * st[j]!) % 3
-  }
-  return out
-}
-
 export function buildSliceCodeSpec(): SliceCodeSpec {
   const stabilizers: Uint8Array[] = []
   const labels: string[] = ['allX', 'allZ']
@@ -470,8 +405,6 @@ export function buildSliceCodeSpec(): SliceCodeSpec {
     if (sympDot12(s, zL) !== 0) logicalCommuteDefects++
   }
 
-  const xLA = solveLogicalOnKeptA(stabilizers, xL)
-  const zLA = solveLogicalOnKeptA(stabilizers, zL)
   const rank = gf3RankU8(stabilizers, 24)
 
   return {
@@ -481,8 +414,6 @@ export function buildSliceCodeSpec(): SliceCodeSpec {
     stabilizers,
     xL,
     zL,
-    xLA,
-    zLA,
     isoDefects,
     logicalCommuteDefects,
     xLzLCommutator: sympDot12(xL, zL),
@@ -577,8 +508,16 @@ export interface SparseCodeword {
   readonly im: Float64Array
 }
 
+export interface SectorTerm {
+  readonly c: number
+  readonly low: number
+  readonly re: number
+  readonly im: number
+}
+
 export interface LogicalCodewords {
   readonly sparse: readonly [SparseCodeword, SparseCodeword, SparseCodeword]
+  readonly outerBuckets: ReadonlyMap<number, readonly SectorTerm[]>
   readonly termCounts: readonly [number, number, number]
   readonly normErrors: readonly [number, number, number]
 }
@@ -652,16 +591,18 @@ export function buildLogicalCodewords(spec: SliceCodeSpec): LogicalCodewords {
     { indices: idx2, re: Float64Array.from(re0), im: Float64Array.from(im0) },
   ]
 
+  // Bucket all 3 x 2,187 sparse terms by exact spectator outer sector xOut = floor(id / 729)
+  const outerBuckets = new Map<number, SectorTerm[]>()
   const counts: [number, number, number] = [0, 0, 0]
   const errs: [number, number, number] = [0, 0, 0]
   for (let c = 0; c < 3; c++) {
     const sp = sparse[c]!
     const seen = new Set<number>()
-    // Kahan compensated summation eliminates O(N * eps) float64 drift across 2,187 terms
     let norm2 = 0
     let comp = 0
     for (let t = 0; t < sp.indices.length; t++) {
-      seen.add(sp.indices[t]!)
+      const id = sp.indices[t]!
+      seen.add(id)
       const r = sp.re[t]!
       const i = sp.im[t]!
       const v = r * r + i * i
@@ -669,12 +610,21 @@ export function buildLogicalCodewords(spec: SliceCodeSpec): LogicalCodewords {
       const s = norm2 + y
       comp = s - norm2 - y
       norm2 = s
+
+      const low = id % 729
+      const xOut = (id - low) / 729
+      let list = outerBuckets.get(xOut)
+      if (list === undefined) {
+        list = []
+        outerBuckets.set(xOut, list)
+      }
+      list.push({ c, low, re: r, im: i })
     }
     counts[c] = seen.size
     errs[c] = Math.abs(norm2 - 1)
   }
 
-  return { sparse, termCounts: counts, normErrors: errs }
+  return { sparse, outerBuckets, termCounts: counts, normErrors: errs }
 }
 
 export function scatterSparseCodeword(
@@ -736,12 +686,13 @@ export function makeBareUDLambda(lambda: number): ComplexMatrix {
   return m
 }
 
-export function makeCoherentZZ(eps: number): ComplexMatrix {
-  const sz: readonly number[] = [1, 0, -1]
+// Exact G4 coherent ZZ(phi) = exp(+i phi N_z (x) N_z) with N_z = diag(0, 1, -1).
+export function makeCoherentZZ(phi: number): ComplexMatrix {
+  const nz: readonly number[] = [0, 1, -1]
   const m = cmatZero(9)
   for (let a = 0; a < 3; a++) {
     for (let b = 0; b < 3; b++) {
-      const ph = -eps * sz[a]! * sz[b]!
+      const ph = phi * nz[a]! * nz[b]!
       const k = 3 * a + b
       m.re[k * 9 + k] = Math.cos(ph)
       m.im[k * 9 + k] = Math.sin(ph)
@@ -750,8 +701,9 @@ export function makeCoherentZZ(eps: number): ComplexMatrix {
   return m
 }
 
-export function makeCoherentZX(eps: number): ComplexMatrix {
-  const zz = makeCoherentZZ(eps)
+// Exact G4 Clifford-rotated coherent ZX(phi) = (I x F_3^dag) ZZ(phi) (I x F_3).
+export function makeCoherentZX(phi: number): ComplexMatrix {
+  const zz = makeCoherentZZ(phi)
   const f3 = makeQutritF3()
   const ixf = cmatZero(9)
   for (let a = 0; a < 3; a++) {
@@ -762,38 +714,41 @@ export function makeCoherentZX(eps: number): ComplexMatrix {
       }
     }
   }
-  return cmatMul(ixf, cmatMul(zz, cmatDag(ixf)))
+  return cmatMul(cmatDag(ixf), cmatMul(zz, ixf))
 }
 
-export function applyTwoQutritGate(
+// Apply 9x9 gate on qutrits (q1, q2) inside a 3^6 = 729 active-sector slice (qutrits 0..5).
+function applyTwoQutritSlice729(
   re: Float64Array,
   im: Float64Array,
-  qA: number,
-  qB: number,
+  q1: number,
+  q2: number,
   u9: ComplexMatrix,
 ): void {
-  const sA = POW3[qA]!
-  const sB = POW3[qB]!
-  const hi = Math.max(qA, qB)
-  const lo = Math.min(qA, qB)
-  const sHi = POW3[hi]!
-  const sLo = POW3[lo]!
-  const tmpR = new Float64Array(9)
-  const tmpI = new Float64Array(9)
+  const p1 = POW3[q1]!
+  const p2 = POW3[q2]!
+  const lo = Math.min(q1, q2)
+  const hi = Math.max(q1, q2)
+  const pLo = POW3[lo]!
+  const pHi = POW3[hi]!
+  const tR = new Float64Array(9)
+  const tI = new Float64Array(9)
+  const oR = new Float64Array(9)
+  const oI = new Float64Array(9)
 
-  for (let b2 = 0; b2 < HILBERT_DIM_12; b2 += 3 * sHi) {
-    for (let b1 = 0; b1 < sHi; b1 += 3 * sLo) {
-      for (let b0 = 0; b0 < sLo; b0++) {
-        const base = b2 + b1 + b0
+  for (let bHi = 0; bHi < 729; bHi += 3 * pHi) {
+    for (let bMid = 0; bMid < pHi; bMid += 3 * pLo) {
+      for (let bLo = 0; bLo < pLo; bLo++) {
+        const base = bHi + bMid + bLo
         let any = false
         for (let a = 0; a < 3; a++) {
           for (let b = 0; b < 3; b++) {
-            const p = base + a * sA + b * sB
-            const vr = re[p]!
-            const vi = im[p]!
-            tmpR[3 * a + b] = vr
-            tmpI[3 * a + b] = vi
-            if (vr !== 0 || vi !== 0) any = true
+            const idx = base + a * p1 + b * p2
+            const r = re[idx]!
+            const m = im[idx]!
+            tR[3 * a + b] = r
+            tI[3 * a + b] = m
+            if (r !== 0 || m !== 0) any = true
           }
         }
         if (!any) continue
@@ -801,17 +756,21 @@ export function applyTwoQutritGate(
           let sr = 0
           let si = 0
           const rOff = r * 9
-          for (let c = 0; c < 9; c++) {
-            const ur = u9.re[rOff + c]!
-            const ui = u9.im[rOff + c]!
-            sr += ur * tmpR[c]! - ui * tmpI[c]!
-            si += ur * tmpI[c]! + ui * tmpR[c]!
+          for (let k = 0; k < 9; k++) {
+            const ur = u9.re[rOff + k]!
+            const ui = u9.im[rOff + k]!
+            sr += ur * tR[k]! - ui * tI[k]!
+            si += ur * tI[k]! + ui * tR[k]!
           }
-          const a = (r / 3) | 0
-          const b = r % 3
-          const p = base + a * sA + b * sB
-          re[p] = sr
-          im[p] = si
+          oR[r] = sr
+          oI[r] = si
+        }
+        for (let a = 0; a < 3; a++) {
+          for (let b = 0; b < 3; b++) {
+            const idx = base + a * p1 + b * p2
+            re[idx] = oR[3 * a + b]!
+            im[idx] = oI[3 * a + b]!
+          }
         }
       }
     }
@@ -819,7 +778,6 @@ export function applyTwoQutritGate(
 }
 
 // Simulate the exact 23-gate native qutrit Clifford encoder on |cInit>_0 |0>^11.
-// Reuses optional caller buffers to keep peak RSS low.
 export function simulateNativeCliffordEncoder(
   cInit: QutritValue,
   bufRe?: Float64Array,
@@ -979,13 +937,6 @@ export type QubitGateOp =
   | { readonly op: 'h'; readonly q: number }
   | { readonly op: 'ry'; readonly q: number; readonly theta: number }
   | { readonly op: 'rz'; readonly q: number; readonly phi: number }
-  | {
-      readonly op: 'u3'
-      readonly q: number
-      readonly theta: number
-      readonly phi: number
-      readonly lam: number
-    }
   | { readonly op: 'cx'; readonly ctrl: number; readonly tgt: number }
   | { readonly op: 'rzz'; readonly q0: number; readonly q1: number; readonly angle: number }
   | { readonly op: 'gphase'; readonly angle: number }
@@ -1003,6 +954,7 @@ export type HardwareCircuitKind =
   | 'bare_u_magic'
   | 'coherent_zz_control'
   | 'coherent_zx_mimicry'
+  | 'bare_u_plus_zx'
 
 export interface HardwareCircuitDescriptor {
   readonly kind: HardwareCircuitKind
@@ -1012,7 +964,8 @@ export interface HardwareCircuitDescriptor {
   readonly qubitCount: number
   readonly qutritCount: number
   readonly oneQubitGates: number
-  readonly twoQubitGates: number
+  readonly twoQubitGates: number // physical 2q invocations (cx + native rzz)
+  readonly cnotEquivalentTwoQubitGates: number // counting each rzz as 2 cx
   readonly intraQutritTwoQubitGates: number
   readonly interQutritTwoQubitGates: number
   readonly circuitDepth: number
@@ -1035,7 +988,6 @@ function decomposeU2ZYZ(
   u11r: number,
   u11i: number,
 ): { readonly delta: number; readonly alpha: number; readonly beta: number; readonly gamma: number } {
-  // det(U) = u00*u11 - u01*u10 = e^{2i delta}
   const detR = u00r * u11r - u00i * u11i - (u01r * u10r - u01i * u10i)
   const detI = u00r * u11i + u00i * u11r - (u01r * u10i + u01i * u10r)
   const delta = 0.5 * Math.atan2(detI, detR)
@@ -1043,8 +995,6 @@ function decomposeU2ZYZ(
   const sd = Math.sin(-delta)
   const s00r = cd * u00r - sd * u00i
   const s00i = cd * u00i + sd * u00r
-  const s01r = cd * u01r - sd * u01i
-  const s01i = cd * u01i + sd * u01r
   const s10r = cd * u10r - sd * u10i
   const s10i = cd * u10i + sd * u10r
   const s11r = cd * u11r - sd * u11i
@@ -1057,16 +1007,12 @@ function decomposeU2ZYZ(
   let alpha = 0
   let gamma = 0
   if (cHalf < 1e-12) {
-    // beta = pi: s10 = e^{i (alpha - gamma)/2}, s01 = -e^{-i (alpha - gamma)/2}
     alpha = 2 * Math.atan2(s10i, s10r)
     gamma = 0
   } else if (sHalf < 1e-12) {
-    // beta = 0: s11 = e^{i (alpha + gamma)/2}
     alpha = 2 * Math.atan2(s11i, s11r)
     gamma = 0
   } else {
-    // s11 = e^{i (alpha + gamma)/2} cos(beta/2)
-    // s10 = e^{i (alpha - gamma)/2} sin(beta/2)
     const sumHalf = Math.atan2(s11i, s11r)
     const diffHalf = Math.atan2(s10i, s10r)
     alpha = sumHalf + diffHalf
@@ -1128,12 +1074,10 @@ function emitDiag2Qubit(
   p2: number,
   p3: number,
 ): void {
-  // Phase on |b0 b1>: c0 + c1*(1-2*b1) + c2*(1-2*b0) + c3*(1-2*b0)*(1-2*b1)
-  // Solve Walsh-Hadamard transform:
   const c0 = 0.25 * (p0 + p1 + p2 + p3)
-  const cZ1 = 0.25 * (p0 - p1 + p2 - p3) // coeff of Z_q1
-  const cZ0 = 0.25 * (p0 + p1 - p2 - p3) // coeff of Z_q0
-  const cZZ = 0.25 * (p0 - p1 - p2 + p3) // coeff of Z_q0 Z_q1
+  const cZ1 = 0.25 * (p0 - p1 + p2 - p3)
+  const cZ0 = 0.25 * (p0 + p1 - p2 - p3)
+  const cZZ = 0.25 * (p0 - p1 - p2 + p3)
   if (Math.abs(c0) > 1e-14) ops.push({ op: 'gphase', angle: c0 })
   if (Math.abs(cZ0) > 1e-14) ops.push({ op: 'rz', q: q0, phi: -2 * cZ0 })
   if (Math.abs(cZ1) > 1e-14) ops.push({ op: 'rz', q: q1, phi: -2 * cZ1 })
@@ -1150,11 +1094,6 @@ export function compileSingleQutritU3Ops(
   q1: number,
   u3: ComplexMatrix,
 ): QubitGateOp[] {
-  // Decompose U = G_{01}^dag G_{02}^dag G_{12}^dag D via left-Givens elimination:
-  // Step 1: zero (2, 0) using Givens on rows (1, 2) -> R12 * U has [*, *, *; *, *, *; 0, *, *]
-  // Step 2: zero (1, 0) using Givens on rows (0, 1) -> R01 * R12 * U has [e^{i p0}, 0, 0; 0, *, *; 0, *, *]
-  // Step 3: zero (2, 1) using Givens on rows (1, 2) -> R12b * R01 * R12 * U = diag(e^{i p0}, e^{i p1}, e^{i p2})
-  // Therefore U = R12^dag * R01^dag * R12b^dag * D!
   const mr = Float64Array.from(u3.re)
   const mi = Float64Array.from(u3.im)
 
@@ -1179,7 +1118,6 @@ export function compileSingleQutritU3Ops(
     const yi = mi[j * 3 + col]!
     const norm = Math.hypot(xr, xi, yr, yi)
     if (Math.hypot(yr, yi) < 1e-15 || norm < 1e-15) return
-    // Left-multiply rows (i, j) by G = [[conj(x)/n, conj(y)/n], [-y/n, x/n]] so G*[x;y] = [n; 0]
     const g00r = xr / norm
     const g00i = -xi / norm
     const g01r = yr / norm
@@ -1198,7 +1136,6 @@ export function compileSingleQutritU3Ops(
       mr[j * 3 + c] = g10r * ar - g10i * ai + (g11r * br - g11i * bi)
       mi[j * 3 + c] = g10r * ai + g10i * ar + (g11r * bi + g11i * br)
     }
-    // Store G^dag = [[x/n, -conj(y)/n], [y/n, conj(x)/n]] to reconstruct U = prod G^dag * D
     steps.push({
       i,
       j,
@@ -1222,12 +1159,10 @@ export function compileSingleQutritU3Ops(
   const p2 = Math.atan2(mi[8]!, mr[8]!)
 
   const ops: QubitGateOp[] = []
-  // Apply D first, then steps in reverse (since U = steps[0] * steps[1] * steps[2] * D)
   emitDiag2Qubit(ops, q0, q1, p0, p1, p2, 0)
   for (let sIdx = steps.length - 1; sIdx >= 0; sIdx--) {
     const st = steps[sIdx]!
     if (st.i === 0 && st.j === 1) {
-      // Acts on {|00>, |01>} -> controlled on q0=0 acting on q1
       ops.push({ op: 'x', q: q0 })
       emitControlledU2(
         ops,
@@ -1244,8 +1179,6 @@ export function compileSingleQutritU3Ops(
       )
       ops.push({ op: 'x', q: q0 })
     } else if (st.i === 1 && st.j === 2) {
-      // Acts on {|01>, |10>} -> cx(q0, q1) maps |01>->|01>, |10>->|11>, |00>->|00>, |11>->|10>
-      // So on q0 controlled by q1=1: |0> corresponds to |01> (state 1), |1> corresponds to |11> (was |10>, state 2)!
       ops.push({ op: 'cx', ctrl: q0, tgt: q1 })
       emitControlledU2(
         ops,
@@ -1302,9 +1235,7 @@ function emitC3Phase(
 }
 
 // Exact 4-qubit binary decomposition of bare-U fractional half-coin D^lambda:
-//   - 38 CNOTs per two-qutrit gate, zero ancillas
-//   - Exact identity on all 7 leakage states (zero leakage transitions)
-//   - ||U_compiled - U_exact||_F < 1e-14
+// 38 CNOTs per two-qutrit gate, zero ancillas, exact identity on all 7 leakage states.
 export function compileDLambdaQubitOps(
   a0: number,
   a1: number,
@@ -1316,7 +1247,6 @@ export function compileDLambdaQubitOps(
   const ops: QubitGateOp[] = []
   if (Math.abs(phi) < 1e-15) return ops
 
-  // 1. Doubly-occupied block (6 CNOTs): phase e^{i phi} on (a0^a1) & (b0^b1)
   ops.push({ op: 'cx', ctrl: a0, tgt: a1 }, { op: 'cx', ctrl: b0, tgt: b1 })
   ops.push(
     { op: 'gphase', angle: phi / 4 },
@@ -1328,7 +1258,6 @@ export function compileDLambdaQubitOps(
   )
   ops.push({ op: 'cx', ctrl: b0, tgt: b1 }, { op: 'cx', ctrl: a0, tgt: a1 })
 
-  // 2. Lone-excitation Block 1: |01,00> <-> |00,01> (16 CNOTs)
   ops.push(
     { op: 'cx', ctrl: a1, tgt: b1 },
     { op: 'h', q: a1 },
@@ -1343,7 +1272,6 @@ export function compileDLambdaQubitOps(
     { op: 'cx', ctrl: a1, tgt: b1 },
   )
 
-  // 3. Lone-excitation Block 2: |10,00> <-> |00,10> (16 CNOTs)
   ops.push(
     { op: 'cx', ctrl: a0, tgt: b0 },
     { op: 'h', q: a0 },
@@ -1361,52 +1289,46 @@ export function compileDLambdaQubitOps(
   return ops
 }
 
-// Exact 4-qubit binary decomposition of coherent ZZ(eps) = exp(-i eps S_z (x) S_z):
-// 4 native RZZ gates + 4 RZ gates, strictly diagonal (zero leakage transitions).
+// Exact 4-qubit binary decomposition of G4 coherent ZZ(phi) = exp(+i phi N_z (x) N_z),
+// where N_z = diag(0, 1, -1) = (Z_0 - Z_1)/2 on {|00>,|01>,|10>,|11>}:
+//   N_z(a) N_z(b) = (1/4)(Z_a0 Z_b0 - Z_a0 Z_b1 - Z_a1 Z_b0 + Z_a1 Z_b1).
+// Uses only 4 RZZ gates, zero single-qubit gates, and is exact identity on all 7 leakage states.
 export function compileZZQubitOps(
   a0: number,
   a1: number,
   b0: number,
   b1: number,
-  eps: number,
+  phi: number,
 ): QubitGateOp[] {
   const ops: QubitGateOp[] = []
-  if (Math.abs(eps) < 1e-15) return ops
-  ops.push({ op: 'gphase', angle: -0.25 * eps })
+  if (Math.abs(phi) < 1e-15) return ops
   ops.push(
-    { op: 'rz', q: a0, phi: -eps },
-    { op: 'rz', q: a1, phi: -0.5 * eps },
-    { op: 'rz', q: b0, phi: -eps },
-    { op: 'rz', q: b1, phi: -0.5 * eps },
-  )
-  ops.push(
-    { op: 'rzz', q0: a0, q1: b0, angle: 2 * eps },
-    { op: 'rzz', q0: a0, q1: b1, angle: eps },
-    { op: 'rzz', q0: a1, q1: b0, angle: eps },
-    { op: 'rzz', q0: a1, q1: b1, angle: 0.5 * eps },
+    { op: 'rzz', q0: a0, q1: b0, angle: -0.5 * phi },
+    { op: 'rzz', q0: a0, q1: b1, angle: 0.5 * phi },
+    { op: 'rzz', q0: a1, q1: b0, angle: 0.5 * phi },
+    { op: 'rzz', q0: a1, q1: b1, angle: -0.5 * phi },
   )
   return ops
 }
 
-// Exact 4-qubit binary decomposition of Clifford-rotated ZX(eps) = (I x F_3) ZZ(eps) (I x F_3^dag).
+// Exact 4-qubit binary decomposition of G4 Clifford-rotated ZX(phi) = (I x F_3^dag) ZZ(phi) (I x F_3).
 export function compileZXQubitOps(
   a0: number,
   a1: number,
   b0: number,
   b1: number,
-  eps: number,
+  phi: number,
 ): QubitGateOp[] {
   const f3 = makeQutritF3()
   const f3Dag = cmatDag(f3)
   const ops: QubitGateOp[] = []
-  ops.push(...compileSingleQutritU3Ops(b0, b1, f3Dag))
-  ops.push(...compileZZQubitOps(a0, a1, b0, b1, eps))
   ops.push(...compileSingleQutritU3Ops(b0, b1, f3))
+  ops.push(...compileZZQubitOps(a0, a1, b0, b1, phi))
+  ops.push(...compileSingleQutritU3Ops(b0, b1, f3Dag))
   return ops
 }
 
 // Standard 6-CNOT exact Toffoli (ccx) decomposition into {h, rz, cx}
-// Note: T = e^{i pi/8} Rz(pi/4) and T^dag = e^{-i pi/8} Rz(-pi/4); 4*T + 3*T^dag gives gphase(+pi/8).
 function emitToffoli(ops: QubitGateOp[], c0: number, c1: number, tgt: number): void {
   const t = PI / 4
   ops.push(
@@ -1437,8 +1359,6 @@ export function compileCZ3QubitOps(
   b1: number,
   gamma: 1 | 2,
 ): QubitGateOp[] {
-  // On valid states: a = a1 + 2 a0, b = b1 + 2 b0 (mod 3)
-  // gamma * a * b mod 3 = gamma*a1*b1 + 2*gamma*a1*b0 + 2*gamma*a0*b1 + gamma*a0*b0
   const ops: QubitGateOp[] = []
   const emitCP = (qA: number, qB: number, multMod3: number): void => {
     const phi = (2 * PI * multMod3) / 3
@@ -1459,7 +1379,6 @@ export function compileCZ3QubitOps(
 }
 
 // Exact 4-qubit binary decomposition of 2-qutrit SUM_3(mult): |a, b> -> |a, (b + mult*a) mod 3>.
-// Preserves |11> leakage states on target identically (28 CNOTs, zero ancillas).
 export function compileSUM3QubitOps(
   a0: number,
   a1: number,
@@ -1468,7 +1387,6 @@ export function compileSUM3QubitOps(
   mult: 1 | 2,
 ): QubitGateOp[] {
   const ops: QubitGateOp[] = []
-  // Controlled-X3 (ctrl -> b): CSWAP(ctrl; b0, b1) then CC0X(ctrl, b0 -> b1)
   const emitCtrlX3 = (ctrl: number): void => {
     ops.push({ op: 'cx', ctrl: b1, tgt: b0 })
     emitToffoli(ops, ctrl, b0, b1)
@@ -1477,7 +1395,6 @@ export function compileSUM3QubitOps(
     emitToffoli(ops, ctrl, b0, b1)
     ops.push({ op: 'x', q: b0 })
   }
-  // Controlled-X3^2 (ctrl -> b): CC0X(ctrl, b0 -> b1) then CSWAP(ctrl; b0, b1)
   const emitCtrlX3Sq = (ctrl: number): void => {
     ops.push({ op: 'x', q: b0 })
     emitToffoli(ops, ctrl, b0, b1)
@@ -1487,11 +1404,9 @@ export function compileSUM3QubitOps(
     ops.push({ op: 'cx', ctrl: b1, tgt: b0 })
   }
   if (mult === 1) {
-    // a=1 (a1=1): X3; a=2 (a0=1): X3^2
     emitCtrlX3(a1)
     emitCtrlX3Sq(a0)
   } else {
-    // a=1 (a1=1): X3^2; a=2 (a0=1): X3
     emitCtrlX3Sq(a1)
     emitCtrlX3(a0)
   }
@@ -1543,16 +1458,6 @@ export function simulate4QubitOps(ops: readonly QubitGateOp[]): ComplexMatrix {
       const c = Math.cos(0.5 * op.theta)
       const s = Math.sin(0.5 * op.theta)
       apply1(op.q, c, 0, -s, 0, s, 0, c, 0)
-    } else if (op.op === 'u3') {
-      const ct = Math.cos(0.5 * op.theta)
-      const st = Math.sin(0.5 * op.theta)
-      const cp = Math.cos(op.phi)
-      const sp = Math.sin(op.phi)
-      const cl = Math.cos(op.lam)
-      const sl = Math.sin(op.lam)
-      const cpl = Math.cos(op.phi + op.lam)
-      const spl = Math.sin(op.phi + op.lam)
-      apply1(op.q, ct, 0, -cl * st, -sl * st, cp * st, sp * st, cpl * ct, spl * ct)
     } else if (op.op === 'cx') {
       const cb = 1 << (3 - op.ctrl)
       const tb = 1 << (3 - op.tgt)
@@ -1608,7 +1513,6 @@ export interface FourQubitParityReport {
   readonly leakageBlockIdentityError: number
 }
 
-// Compare a 16x16 4-qubit compiled unitary against a 9x9 two-qutrit target unitary.
 export function verify4QubitCompilationParity(
   compiled16: ComplexMatrix,
   exact9: ComplexMatrix,
@@ -1657,13 +1561,14 @@ function buildEncoderQubitOps(theta: number): QubitGateOp[] {
   const qb0 = (qutrit: number): number => 2 * qutrit
   const qb1 = (qutrit: number): number => 2 * qutrit + 1
 
-  // Stage 0: Prepare bulk logical input |psi(theta)> = cos(theta)|00> + sin(theta)|01> on qutrit 0
+  // Stage 0: Prepare logical X-basis bulk state |psi_X(theta)> = F_3 (cos(theta)|0> + sin(theta)|1>)
+  // on qutrit 0 using standard OpenQASM 3.0 ry + F_3 Givens compilation (zero u3).
   if (Math.abs(theta) > 1e-15) {
-    ops.push({ op: 'u3', q: qb1(0), theta: 2 * theta, phi: 0, lam: 0 })
+    ops.push({ op: 'ry', q: qb1(0), theta: 2 * theta })
   }
+  ops.push(...compileSingleQutritU3Ops(qb0(0), qb1(0), makeQutritF3()))
 
   // Stage 1: Prepare uniform qutrit superpositions |+>_3 on qutrits [4, 1, 3, 5, 7, 9, 11]
-  // |00> -> (|00> + |01> + |10>) / sqrt(3) in 2 CNOTs per qutrit, zero |11> leakage
   const prepAngle0 = 2 * Math.acos(Math.sqrt(2 / 3))
   for (const q of [4, 1, 3, 5, 7, 9, 11]) {
     const q0 = qb0(q)
@@ -1688,7 +1593,6 @@ function buildEncoderQubitOps(theta: number): QubitGateOp[] {
     ops.push(...compileCZ3QubitOps(qb0(qa), qb1(qa), qb0(qb), qb1(qb), 2))
   }
 
-  // Helpers for NEG_3 (exact SWAP of (q0, q1)) and copy-to-zero SUM_3 (2 CNOTs when target=|00>)
   const emitNeg3 = (q: number): void => {
     const q0 = qb0(q)
     const q1 = qb1(q)
@@ -1748,6 +1652,13 @@ export function buildNativeBa137Schedule(
       comment: 'Bulk logical state |psi(theta)> preparation on ion 0',
     })
   }
+  sched.push({
+    gate: 'F3',
+    qutrits: [0],
+    nativePrimitive: 'Givens_1q',
+    param: PI / 3,
+    comment: 'Logical X-basis rotation F_3 on ion 0',
+  })
 
   for (const q of [4, 1, 3, 5, 7, 9, 11]) {
     sched.push({
@@ -1810,42 +1721,30 @@ export function buildNativeBa137Schedule(
     pushSum(m, e, 2)
   }
 
-  if (kind === 'bare_u_magic') {
+  const appendD = (lam: number): void => {
     for (const [a, b] of CROSS_CUT_PAIRS) {
       sched.push({
         gate: 'D_lambda',
         qutrits: [a, b],
         nativePrimitive: 'MS_2q',
-        param,
-        comment: `Cross-cut bare-U fractional half-coin D^${param.toFixed(2)}(${a}, ${b})`,
+        param: lam,
+        comment: `Cross-cut bare-U fractional half-coin D^${lam.toFixed(2)}(${a}, ${b})`,
       })
     }
-  } else if (kind === 'coherent_zz_control') {
+  }
+  const appendZZ = (phi: number): void => {
     for (const [a, b] of CROSS_CUT_PAIRS) {
       sched.push({
         gate: 'ZZ_qutrit',
         qutrits: [a, b],
         nativePrimitive: 'MS_2q',
-        param,
-        comment: `Cross-cut diagonal coherent ZZ(${param.toFixed(2)}) control on (${a}, ${b})`,
+        param: phi,
+        comment: `Cross-cut diagonal coherent ZZ(${phi.toFixed(2)}) control on (${a}, ${b})`,
       })
     }
-  } else if (kind === 'coherent_zx_mimicry') {
-    for (const [a, b] of ZX_MIMICRY_PAIRS) {
-      sched.push({
-        gate: 'F3_dag',
-        qutrits: [b],
-        nativePrimitive: 'Givens_1q',
-        param: -PI / 3,
-        comment: `Clifford rotation F_3^dag on ion ${b}`,
-      })
-      sched.push({
-        gate: 'ZZ_qutrit',
-        qutrits: [a, b],
-        nativePrimitive: 'MS_2q',
-        param,
-        comment: `Coherent crosstalk kernel ZZ(${param.toFixed(2)}) on (${a}, ${b})`,
-      })
+  }
+  const appendZX = (phi: number): void => {
+    for (const [a, b] of CROSS_CUT_PAIRS) {
       sched.push({
         gate: 'F3',
         qutrits: [b],
@@ -1853,7 +1752,29 @@ export function buildNativeBa137Schedule(
         param: PI / 3,
         comment: `Clifford rotation F_3 on ion ${b}`,
       })
+      sched.push({
+        gate: 'ZZ_qutrit',
+        qutrits: [a, b],
+        nativePrimitive: 'MS_2q',
+        param: phi,
+        comment: `Cross-cut coherent crosstalk kernel ZZ(${phi.toFixed(2)}) on (${a}, ${b})`,
+      })
+      sched.push({
+        gate: 'F3_dag',
+        qutrits: [b],
+        nativePrimitive: 'Givens_1q',
+        param: -PI / 3,
+        comment: `Clifford rotation F_3^dag on ion ${b}`,
+      })
     }
+  }
+
+  if (kind === 'bare_u_magic') appendD(param)
+  else if (kind === 'coherent_zz_control') appendZZ(param)
+  else if (kind === 'coherent_zx_mimicry') appendZX(param)
+  else if (kind === 'bare_u_plus_zx') {
+    appendD(1.0)
+    appendZX(param)
   }
 
   return sched
@@ -1862,12 +1783,14 @@ export function buildNativeBa137Schedule(
 function computeQubitCircuitStats(ops: readonly QubitGateOp[]): {
   readonly oneQubitGates: number
   readonly twoQubitGates: number
+  readonly cnotEquivalentTwoQubitGates: number
   readonly intraQutritTwoQubitGates: number
   readonly interQutritTwoQubitGates: number
   readonly circuitDepth: number
 } {
   let oneQubitGates = 0
   let twoQubitGates = 0
+  let cnotEquivalentTwoQubitGates = 0
   let intraQutritTwoQubitGates = 0
   let interQutritTwoQubitGates = 0
   const layerEnd = new Int32Array(QUBIT_COUNT)
@@ -1878,6 +1801,7 @@ function computeQubitCircuitStats(ops: readonly QubitGateOp[]): {
       const a = op.op === 'cx' ? op.ctrl : op.q0
       const b = op.op === 'cx' ? op.tgt : op.q1
       twoQubitGates++
+      cnotEquivalentTwoQubitGates += op.op === 'rzz' ? 2 : 1
       if ((a >> 1) === (b >> 1)) intraQutritTwoQubitGates++
       else interQutritTwoQubitGates++
       const d = Math.max(layerEnd[a]!, layerEnd[b]!) + 1
@@ -1897,6 +1821,7 @@ function computeQubitCircuitStats(ops: readonly QubitGateOp[]): {
   return {
     oneQubitGates,
     twoQubitGates,
+    cnotEquivalentTwoQubitGates,
     intraQutritTwoQubitGates,
     interQutritTwoQubitGates,
     circuitDepth,
@@ -1936,18 +1861,25 @@ function fmtAngle(rad: number): string {
   return Number(rad.toFixed(12)).toString()
 }
 
-function formatOpenQasm3Program(
-  label: string,
-  ops: readonly QubitGateOp[],
-): string {
+function formatOpenQasm3Program(label: string, ops: readonly QubitGateOp[]): string {
+  const usesRzz = ops.some(o => o.op === 'rzz')
   const lines: string[] = [
     'OPENQASM 3.0;',
     'include "stdgates.inc";',
     `// Circuit: ${label}`,
     '// Encoding: 12 qutrits -> 24 qubits (|0>_3=|00>, |1>_3=|01>, |2>_3=|10>, |11>=leakage)',
-    'qubit[24] q;',
-    'bit[24] c;',
   ]
+
+  // rzz is not built into official OpenQASM 3.0 stdgates.inc; declare it explicitly when used
+  if (usesRzz) {
+    lines.push('gate rzz(theta) a, b {')
+    lines.push('  cx a, b;')
+    lines.push('  rz(theta) b;')
+    lines.push('  cx a, b;')
+    lines.push('}')
+  }
+
+  lines.push('qubit[24] q;', 'bit[24] c;')
 
   for (const op of ops) {
     if (op.op === 'gphase') continue
@@ -1959,8 +1891,6 @@ function formatOpenQasm3Program(
       lines.push(`ry(${fmtAngle(op.theta)}) q[${op.q}];`)
     } else if (op.op === 'rz') {
       lines.push(`rz(${fmtAngle(op.phi)}) q[${op.q}];`)
-    } else if (op.op === 'u3') {
-      lines.push(`u3(${fmtAngle(op.theta)}, ${fmtAngle(op.phi)}, ${fmtAngle(op.lam)}) q[${op.q}];`)
     } else if (op.op === 'cx') {
       lines.push(`cx q[${op.ctrl}], q[${op.tgt}];`)
     } else if (op.op === 'rzz') {
@@ -2005,13 +1935,21 @@ export function exportOpenQasm3(
       ops.push(...compileDLambdaQubitOps(qb0(a), qb1(a), qb0(b), qb1(b), param))
     }
   } else if (kind === 'coherent_zz_control') {
-    label = `coherent_zz_control (ZZ eps=${param.toFixed(2)}, 6 cross-cut gates, theta=${theta.toFixed(4)})`
+    label = `coherent_zz_control (ZZ phi=${param.toFixed(2)}, 6 cross-cut gates, theta=${theta.toFixed(4)})`
     for (const [a, b] of CROSS_CUT_PAIRS) {
       ops.push(...compileZZQubitOps(qb0(a), qb1(a), qb0(b), qb1(b), param))
     }
+  } else if (kind === 'coherent_zx_mimicry') {
+    label = `coherent_zx_mimicry (cross-cut ZX phi=${param.toFixed(2)}, 6 gates, theta=${theta.toFixed(4)})`
+    for (const [a, b] of CROSS_CUT_PAIRS) {
+      ops.push(...compileZXQubitOps(qb0(a), qb1(a), qb0(b), qb1(b), param))
+    }
   } else {
-    label = `coherent_zx_mimicry (Clifford-rotated ZX eps=${param.toFixed(2)}, 6 gates, theta=${theta.toFixed(4)})`
-    for (const [a, b] of ZX_MIMICRY_PAIRS) {
+    label = `bare_u_plus_zx (D^1.0 + cross-cut ZX phi=${param.toFixed(2)}, 12 gates, theta=${theta.toFixed(4)})`
+    for (const [a, b] of CROSS_CUT_PAIRS) {
+      ops.push(...compileDLambdaQubitOps(qb0(a), qb1(a), qb0(b), qb1(b), 1.0))
+    }
+    for (const [a, b] of CROSS_CUT_PAIRS) {
       ops.push(...compileZXQubitOps(qb0(a), qb1(a), qb0(b), qb1(b), param))
     }
   }
@@ -2030,6 +1968,7 @@ export function exportOpenQasm3(
     qutritCount: QUTRIT_COUNT,
     oneQubitGates: qStats.oneQubitGates,
     twoQubitGates: qStats.twoQubitGates,
+    cnotEquivalentTwoQubitGates: qStats.cnotEquivalentTwoQubitGates,
     intraQutritTwoQubitGates: qStats.intraQutritTwoQubitGates,
     interQutritTwoQubitGates: qStats.interQutritTwoQubitGates,
     circuitDepth: qStats.circuitDepth,
@@ -2042,10 +1981,47 @@ export function exportOpenQasm3(
   }
 }
 
+interface GateSignature {
+  readonly params: number
+  readonly qubits: number
+}
+
+// Strict official OpenQASM 3.0 stdgates.inc whitelist (note: rzz & u3 intentionally excluded!)
+const OFFICIAL_STDGATES_INC: ReadonlyMap<string, GateSignature> = new Map([
+  ['id', { params: 0, qubits: 1 }],
+  ['x', { params: 0, qubits: 1 }],
+  ['y', { params: 0, qubits: 1 }],
+  ['z', { params: 0, qubits: 1 }],
+  ['h', { params: 0, qubits: 1 }],
+  ['s', { params: 0, qubits: 1 }],
+  ['sdg', { params: 0, qubits: 1 }],
+  ['t', { params: 0, qubits: 1 }],
+  ['tdg', { params: 0, qubits: 1 }],
+  ['sx', { params: 0, qubits: 1 }],
+  ['p', { params: 1, qubits: 1 }],
+  ['rx', { params: 1, qubits: 1 }],
+  ['ry', { params: 1, qubits: 1 }],
+  ['rz', { params: 1, qubits: 1 }],
+  ['U', { params: 3, qubits: 1 }],
+  ['cx', { params: 0, qubits: 2 }],
+  ['cy', { params: 0, qubits: 2 }],
+  ['cz', { params: 0, qubits: 2 }],
+  ['ch', { params: 0, qubits: 2 }],
+  ['swap', { params: 0, qubits: 2 }],
+  ['cp', { params: 1, qubits: 2 }],
+  ['crx', { params: 1, qubits: 2 }],
+  ['cry', { params: 1, qubits: 2 }],
+  ['crz', { params: 1, qubits: 2 }],
+  ['cu', { params: 4, qubits: 2 }],
+  ['ccx', { params: 0, qubits: 3 }],
+  ['cswap', { params: 0, qubits: 3 }],
+])
+
 export interface QasmValidationReport {
   readonly valid: boolean
   readonly lineCount: number
   readonly instructionCount: number
+  readonly declaredCustomGates: readonly string[]
   readonly maxQubitIndex: number
   readonly errors: readonly string[]
 }
@@ -2061,28 +2037,63 @@ export function validateOpenQasm3(qasm3: string, expectedQubits = QUBIT_COUNT): 
   let instructionCount = 0
   let maxQubitIndex = -1
 
-  const gate1NoParam = /^(x|h)\s+q\[(\d+)\];$/
-  const gate1OneParam = /^(ry|rz)\(([-+0-9.eE]+)\)\s+q\[(\d+)\];$/
-  const gate1U3 = /^u3\(([-+0-9.eE]+),\s*([-+0-9.eE]+),\s*([-+0-9.eE]+)\)\s+q\[(\d+)\];$/
-  const gate2Cx = /^cx\s+q\[(\d+)\],\s*q\[(\d+)\];$/
-  const gate2Rzz = /^rzz\(([-+0-9.eE]+)\)\s+q\[(\d+)\],\s*q\[(\d+)\];$/
+  const customGates = new Map<string, GateSignature>()
+  const declaredCustomGates: string[] = []
+  let inGateBody = false
+  let gateParams = new Set<string>()
+  let gateQubits = new Set<string>()
 
-  const checkIdx = (idx: number, lineNum: number): void => {
-    if (!Number.isInteger(idx) || idx < 0 || idx >= expectedQubits) {
-      errors.push(`Line ${lineNum}: illegal qubit index ${idx} (must be in 0..${expectedQubits - 1})`)
-    } else if (idx > maxQubitIndex) {
-      maxQubitIndex = idx
-    }
-  }
-  const checkNum = (raw: string, lineNum: number): void => {
-    const v = Number(raw)
-    if (!Number.isFinite(v)) errors.push(`Line ${lineNum}: non-finite angle "${raw}"`)
-  }
+  const gateDeclRe = /^gate\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\))?\s+([^{]+)\{$/
+  const gateCallRe = /^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\))?\s+([^;]+);$/
+  const qubitArgRe = /^q\[(\d+)\]$/
+
+  const lookupSig = (name: string): GateSignature | undefined =>
+    OFFICIAL_STDGATES_INC.get(name) ?? customGates.get(name)
 
   for (let i = 0; i < rawLines.length; i++) {
     const line = rawLines[i]!.trim()
     const lineNum = i + 1
     if (line.length === 0 || line.startsWith('//')) continue
+
+    if (inGateBody) {
+      if (line === '}') {
+        inGateBody = false
+        gateParams = new Set<string>()
+        gateQubits = new Set<string>()
+        continue
+      }
+      const bm = gateCallRe.exec(line)
+      if (!bm) {
+        errors.push(`Line ${lineNum}: malformed statement inside gate body "${line}"`)
+        continue
+      }
+      const gName = bm[1]!
+      const sig = lookupSig(gName)
+      if (!sig) {
+        errors.push(`Line ${lineNum}: undeclared gate "${gName}" inside gate body`)
+        continue
+      }
+      const pArgs = bm[2] !== undefined && bm[2].trim().length > 0 ? bm[2].split(',').map(s => s.trim()) : []
+      const qArgs = bm[3]!.split(',').map(s => s.trim())
+      if (pArgs.length !== sig.params) {
+        errors.push(`Line ${lineNum}: gate "${gName}" expected ${sig.params} params, got ${pArgs.length}`)
+      }
+      if (qArgs.length !== sig.qubits) {
+        errors.push(`Line ${lineNum}: gate "${gName}" expected ${sig.qubits} qubits, got ${qArgs.length}`)
+      }
+      for (const p of pArgs) {
+        if (!gateParams.has(p) && !Number.isFinite(Number(p))) {
+          errors.push(`Line ${lineNum}: unknown parameter "${p}" inside gate body`)
+        }
+      }
+      for (const q of qArgs) {
+        if (!gateQubits.has(q)) {
+          errors.push(`Line ${lineNum}: unknown qubit "${q}" inside gate body`)
+        }
+      }
+      continue
+    }
+
     if (line === 'OPENQASM 3.0;') {
       hasHeader = true
       continue
@@ -2105,52 +2116,64 @@ export function validateOpenQasm3(qasm3: string, expectedQubits = QUBIT_COUNT): 
       continue
     }
 
-    let m = gate1NoParam.exec(line)
-    if (m) {
-      checkIdx(Number(m[2]!), lineNum)
+    const dm = gateDeclRe.exec(line)
+    if (dm) {
+      const gName = dm[1]!
+      const pList = dm[2] !== undefined && dm[2].trim().length > 0 ? dm[2].split(',').map(s => s.trim()) : []
+      const qList = dm[3]!.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      customGates.set(gName, { params: pList.length, qubits: qList.length })
+      declaredCustomGates.push(gName)
+      gateParams = new Set(pList)
+      gateQubits = new Set(qList)
+      inGateBody = true
+      continue
+    }
+
+    const cm = gateCallRe.exec(line)
+    if (cm) {
+      const gName = cm[1]!
+      const sig = lookupSig(gName)
+      if (!sig) {
+        errors.push(`Line ${lineNum}: gate "${gName}" is not in official stdgates.inc and not declared`)
+        continue
+      }
+      const pArgs = cm[2] !== undefined && cm[2].trim().length > 0 ? cm[2].split(',').map(s => s.trim()) : []
+      const qArgs = cm[3]!.split(',').map(s => s.trim())
+      if (pArgs.length !== sig.params) {
+        errors.push(`Line ${lineNum}: gate "${gName}" expected ${sig.params} params, got ${pArgs.length}`)
+      }
+      if (qArgs.length !== sig.qubits) {
+        errors.push(`Line ${lineNum}: gate "${gName}" expected ${sig.qubits} qubits, got ${qArgs.length}`)
+      }
+      for (const p of pArgs) {
+        if (!Number.isFinite(Number(p))) {
+          errors.push(`Line ${lineNum}: non-finite angle "${p}"`)
+        }
+      }
+      const seenQ = new Set<number>()
+      for (const q of qArgs) {
+        const qm = qubitArgRe.exec(q)
+        if (!qm) {
+          errors.push(`Line ${lineNum}: invalid qubit operand "${q}"`)
+          continue
+        }
+        const idx = Number(qm[1]!)
+        if (!Number.isInteger(idx) || idx < 0 || idx >= expectedQubits) {
+          errors.push(`Line ${lineNum}: illegal qubit index ${idx} (must be in 0..${expectedQubits - 1})`)
+        } else {
+          if (idx > maxQubitIndex) maxQubitIndex = idx
+          if (seenQ.has(idx)) errors.push(`Line ${lineNum}: duplicate qubit index q[${idx}] in "${gName}"`)
+          seenQ.add(idx)
+        }
+      }
       instructionCount++
       continue
     }
-    m = gate1OneParam.exec(line)
-    if (m) {
-      checkNum(m[2]!, lineNum)
-      checkIdx(Number(m[3]!), lineNum)
-      instructionCount++
-      continue
-    }
-    m = gate1U3.exec(line)
-    if (m) {
-      checkNum(m[1]!, lineNum)
-      checkNum(m[2]!, lineNum)
-      checkNum(m[3]!, lineNum)
-      checkIdx(Number(m[4]!), lineNum)
-      instructionCount++
-      continue
-    }
-    m = gate2Cx.exec(line)
-    if (m) {
-      const a = Number(m[1]!)
-      const b = Number(m[2]!)
-      checkIdx(a, lineNum)
-      checkIdx(b, lineNum)
-      if (a === b) errors.push(`Line ${lineNum}: cx control and target identical (${a})`)
-      instructionCount++
-      continue
-    }
-    m = gate2Rzz.exec(line)
-    if (m) {
-      checkNum(m[1]!, lineNum)
-      const a = Number(m[2]!)
-      const b = Number(m[3]!)
-      checkIdx(a, lineNum)
-      checkIdx(b, lineNum)
-      if (a === b) errors.push(`Line ${lineNum}: rzz qubits identical (${a})`)
-      instructionCount++
-      continue
-    }
+
     errors.push(`Line ${lineNum}: unrecognized OpenQASM 3.0 statement "${line}"`)
   }
 
+  if (inGateBody) errors.push('Unterminated custom gate { ... } block')
   if (!hasHeader) errors.push('Missing OPENQASM 3.0; header')
   if (!hasInclude) errors.push('Missing include "stdgates.inc"; directive')
   if (!hasQubitDecl) errors.push(`Missing qubit[${expectedQubits}] q; declaration`)
@@ -2161,13 +2184,14 @@ export function validateOpenQasm3(qasm3: string, expectedQubits = QUBIT_COUNT): 
     valid: errors.length === 0,
     lineCount: rawLines.filter(l => l.trim().length > 0).length,
     instructionCount,
+    declaredCustomGates,
     maxQubitIndex,
     errors,
   }
 }
 
 // ============================================================================
-// 4. EXACT 81x81 GRAM-COMPRESSED PETZ & FIXED-CLIFFORD SOLVER
+// 4. EXACT 81x81 GRAM-COMPRESSED FLM (Delta S_PA) & 24-QUBIT WITNESS (Delta S_rec)
 // ============================================================================
 
 export interface DensityMatrix3 {
@@ -2179,167 +2203,273 @@ export interface ExactChannelResult {
   readonly label: string
   readonly gramRank: number
   readonly gramTrace: number
-  readonly petzRho0: DensityMatrix3
-  readonly petzRhoPi4: DensityMatrix3
-  readonly clifRho0: DensityMatrix3
-  readonly clifRhoPi4: DensityMatrix3
-  readonly petzS0: number
-  readonly petzSPi4: number
-  readonly petzDeltaS: number
-  readonly clifS0: number
-  readonly clifSPi4: number
-  readonly clifDeltaS: number
+  readonly sqGRe: Float64Array // 81x81 G^{1/2} for exact noisy FLM evaluation
+  readonly sqGIm: Float64Array // 81x81 G^{1/2}
+  // Exact G4 entangled-reference FLM observable S_PA(theta) = S(A)(theta) - I_c(P > B_rec)(theta)
+  readonly flmPetzS0: number
+  readonly flmPetzSPi4: number
+  readonly flmPetzDeltaS: number
+  readonly flmClifS0: number
+  readonly flmClifSPi4: number
+  readonly flmClifDeltaS: number
+  readonly petzTrDist: number
+  readonly petzPB0: ComplexMatrix // 9x9
+  readonly petzPBPi4: ComplexMatrix // 9x9
+  readonly clifPB0: ComplexMatrix // 9x9
+  readonly clifPBPi4: ComplexMatrix // 9x9
+  // Hardware-executable 24-qubit single-qutrit recovered witness S_rec(theta) = S(R(N(|psi_X(theta)>)))
+  readonly recPetzRho0: DensityMatrix3
+  readonly recPetzRhoPi4: DensityMatrix3
+  readonly recClifRho0: DensityMatrix3
+  readonly recClifRhoPi4: DensityMatrix3
+  readonly recPetzS0: number
+  readonly recPetzSPi4: number
+  readonly recPetzDeltaS: number
+  readonly recClifS0: number
+  readonly recClifSPi4: number
+  readonly recClifDeltaS: number
 }
 
-// Zero-allocation <bra | op | ket> inner product for a 12-qutrit Weyl-Heisenberg Pauli op
-function pauliMatrixElement12(
-  braRe: Float64Array,
-  braIm: Float64Array,
-  ketRe: Float64Array,
-  ketIm: Float64Array,
-  op: Uint8Array,
-): readonly [number, number] {
-  let sr = 0
-  let si = 0
-  for (let idx = 0; idx < HILBERT_DIM_12; idx++) {
-    const kr = ketRe[idx]!
-    const ki = ketIm[idx]!
-    if (kr === 0 && ki === 0) continue
-    let rem = idx
-    let dst = 0
-    let ph = 0
-    for (let q = 0; q < 12; q++) {
-      const d = rem % 3
-      rem = (rem - d) / 3
-      ph = (ph + op[12 + q]! * d) % 3
-      dst += ((d + op[q]!) % 3) * POW3[q]!
-    }
-    const br = braRe[dst]!
-    const bi = braIm[dst]!
-    if (br === 0 && bi === 0) continue
-    const wr = OMEGA_RE[ph]!
-    const wi = OMEGA_IM[ph]!
-    // val = omega^{ph} * ket[idx]
-    const vr = kr * wr - ki * wi
-    const vi = kr * wi + ki * wr
-    // conj(bra[dst]) * val
-    sr += br * vr + bi * vi
-    si += br * vi - bi * vr
-  }
-  return [sr, si]
-}
+// Logical X-basis rotation coefficients BX[k][c] = omega^{k*c} / sqrt(3) (identical to G4)
+const BX_RE: readonly (readonly [number, number, number])[] = [
+  [INV_SQRT3, INV_SQRT3, INV_SQRT3],
+  [INV_SQRT3, OMEGA_RE[1]! * INV_SQRT3, OMEGA_RE[2]! * INV_SQRT3],
+  [INV_SQRT3, OMEGA_RE[2]! * INV_SQRT3, OMEGA_RE[1]! * INV_SQRT3],
+]
+const BX_IM: readonly (readonly [number, number, number])[] = [
+  [0, 0, 0],
+  [0, OMEGA_IM[1]! * INV_SQRT3, OMEGA_IM[2]! * INV_SQRT3],
+  [0, OMEGA_IM[2]! * INV_SQRT3, OMEGA_IM[1]! * INV_SQRT3],
+]
 
-// Precompute the 9 kept-region logical Pauli operators and their exact code phases on |0_L>.
-export interface KeptLogicalPauliBasis {
-  readonly ops: readonly Uint8Array[]
-  readonly phaseRe: Float64Array
-  readonly phaseIm: Float64Array
-}
-
-export function buildKeptLogicalPauliBasis(
-  spec: SliceCodeSpec,
-  codewords: LogicalCodewords,
-): KeptLogicalPauliBasis {
-  const ops: Uint8Array[] = []
-  const phaseRe = new Float64Array(9)
-  const phaseIm = new Float64Array(9)
-  const scratch = getChannelScratch()
-  for (let c = 0; c < 3; c++) {
-    scatterSparseCodeword(codewords.sparse[c]!, scratch.re[c]!, scratch.im[c]!)
-  }
-  for (let a = 0; a < 3; a++) {
-    for (let b = 0; b < 3; b++) {
-      const op = new Uint8Array(24)
-      for (let j = 0; j < 24; j++) op[j] = (a * spec.xLA[j]! + b * spec.zLA[j]!) % 3
-      const [phR, phI] = pauliMatrixElement12(
-        scratch.re[a]!,
-        scratch.im[a]!,
-        scratch.re[0],
-        scratch.im[0],
-        op,
-      )
-      const idx = 3 * a + b
-      ops.push(op)
-      phaseRe[idx] = phR
-      phaseIm[idx] = phI
+function rotateSlice729ToXBasis(
+  sR: readonly [Float64Array, Float64Array, Float64Array],
+  sI: readonly [Float64Array, Float64Array, Float64Array],
+): void {
+  const r0 = sR[0]
+  const r1 = sR[1]
+  const r2 = sR[2]
+  const i0 = sI[0]
+  const i1 = sI[1]
+  const i2 = sI[2]
+  for (let idx = 0; idx < 729; idx++) {
+    const a0r = r0[idx]!
+    const a0i = i0[idx]!
+    const a1r = r1[idx]!
+    const a1i = i1[idx]!
+    const a2r = r2[idx]!
+    const a2i = i2[idx]!
+    if (a0r === 0 && a0i === 0 && a1r === 0 && a1i === 0 && a2r === 0 && a2i === 0) continue
+    for (let k = 0; k < 3; k++) {
+      const br = BX_RE[k]!
+      const bi = BX_IM[k]!
+      sR[k]![idx] =
+        br[0] * a0r - bi[0] * a0i + (br[1] * a1r - bi[1] * a1i) + (br[2] * a2r - bi[2] * a2i)
+      sI[k]![idx] =
+        br[0] * a0i + bi[0] * a0r + (br[1] * a1i + bi[1] * a1r) + (br[2] * a2i + bi[2] * a2r)
     }
   }
-  return { ops, phaseRe, phaseIm }
 }
 
-// Reusable scratch buffers (only 6 Float64Arrays = 25.5 MB total) keep peak RSS < 200 MB
-let scratchRe: [Float64Array, Float64Array, Float64Array] | null = null
-let scratchIm: [Float64Array, Float64Array, Float64Array] | null = null
-
-export function getChannelScratch(): {
-  readonly re: [Float64Array, Float64Array, Float64Array]
-  readonly im: [Float64Array, Float64Array, Float64Array]
-} {
-  if (scratchRe === null || scratchIm === null) {
-    scratchRe = [
-      new Float64Array(HILBERT_DIM_12),
-      new Float64Array(HILBERT_DIM_12),
-      new Float64Array(HILBERT_DIM_12),
-    ]
-    scratchIm = [
-      new Float64Array(HILBERT_DIM_12),
-      new Float64Array(HILBERT_DIM_12),
-      new Float64Array(HILBERT_DIM_12),
-    ]
-  }
-  return { re: scratchRe, im: scratchIm }
-}
-
-// Evaluate exact 81x81 Gram-compressed optimal Petz recovery and fixed-Clifford recovery
-// for a 12-qutrit unitary perturbation applied to the [[12, 1, 4]]_3 codewords.
-export function computeExactChannel(
-  label: string,
-  codewords: LogicalCodewords,
-  logicalBasis: KeptLogicalPauliBasis,
-  applyPerturbation: (re: Float64Array, im: Float64Array) => void,
-): ExactChannelResult {
-  const { re, im } = getChannelScratch()
-  for (let c = 0; c < 3; c++) {
-    scatterSparseCodeword(codewords.sparse[c]!, re[c]!, im[c]!)
-    applyPerturbation(re[c]!, im[c]!)
-  }
-
-  // 1. Assemble exact 81x81 Gram matrix G_{(c,e),(c',e')} = <w_{c,e} | w_{c',e'}>_A
-  const nA = POW3[9]!
-  const gRe = new Float64Array(81 * 81)
-  const gIm = new Float64Array(81 * 81)
-  const nzIdx = new Int32Array(81)
-  const nzR = new Float64Array(81)
-  const nzI = new Float64Array(81)
-
-  for (let a = 0; a < nA; a++) {
-    const base = a * 27
-    let cnt = 0
-    for (let c = 0; c < 3; c++) {
-      const rc = re[c]!
-      const ic = im[c]!
-      for (let e = 0; e < 27; e++) {
-        const vr = rc[base + e]!
-        const vi = ic[base + e]!
-        if (vr !== 0 || vi !== 0) {
-          nzIdx[cnt] = c * 27 + e
-          nzR[cnt] = vr
-          nzI[cnt] = vi
-          cnt++
+function evalEntangledRecovery(
+  kRe: Float64Array,
+  kIm: Float64Array,
+  theta: number,
+  tpComplete: boolean,
+): { readonly rPB: ComplexMatrix; readonly sPB: number; readonly sB: number } {
+  const w: readonly [number, number, number] = [Math.cos(theta), Math.sin(theta), 0]
+  const rPB = cmatZero(9)
+  for (let p1 = 0; p1 < 2; p1++) {
+    if (w[p1] === 0) continue
+    for (let p2 = 0; p2 < 2; p2++) {
+      if (w[p2] === 0) continue
+      const wp = w[p1]! * w[p2]!
+      for (let j1 = 0; j1 < 3; j1++) {
+        for (let j2 = 0; j2 < 3; j2++) {
+          let sr = 0
+          let si = 0
+          for (let y0 = 0; y0 < 27; y0++) {
+            const row1 = (j1 * 27 + y0) * 81 + p1 * 27
+            const row2 = (j2 * 27 + y0) * 81 + p2 * 27
+            for (let y = 0; y < 27; y++) {
+              const a1r = kRe[row1 + y]!
+              const a1i = kIm[row1 + y]!
+              const a2r = kRe[row2 + y]!
+              const a2i = kIm[row2 + y]!
+              sr += a1r * a2r + a1i * a2i
+              si += a1i * a2r - a1r * a2i
+            }
+          }
+          rPB.re[(p1 * 3 + j1) * 9 + (p2 * 3 + j2)] = wp * sr
+          rPB.im[(p1 * 3 + j1) * 9 + (p2 * 3 + j2)] = wp * si
         }
       }
     }
-    for (let i = 0; i < cnt; i++) {
-      const ii = nzIdx[i]!
-      const ir = nzR[i]!
-      const iim = nzI[i]!
-      const rowOff = ii * 81
-      for (let j = 0; j < cnt; j++) {
-        const jj = nzIdx[j]!
-        const jr = nzR[j]!
-        const jim = nzI[j]!
-        gRe[rowOff + jj] = gRe[rowOff + jj]! + (ir * jr + iim * jim)
-        gIm[rowOff + jj] = gIm[rowOff + jj]! + (ir * jim - iim * jr)
+  }
+  let tr = 0
+  for (let i = 0; i < 9; i++) tr += rPB.re[i * 9 + i]!
+  if (tpComplete && tr < 1 - 1e-12) {
+    const rem = 1 - tr
+    for (let p = 0; p < 2; p++) {
+      for (let j = 0; j < 3; j++) {
+        rPB.re[(p * 3 + j) * 9 + (p * 3 + j)] =
+          rPB.re[(p * 3 + j) * 9 + (p * 3 + j)]! + (rem * (w[p]! * w[p]!)) / 3
+      }
+    }
+  }
+  const sPB = vonNeumannEntropy(hermitianEigen(rPB.re, rPB.im, 9).values)
+  const rB = cmatZero(3)
+  for (let j1 = 0; j1 < 3; j1++) {
+    for (let j2 = 0; j2 < 3; j2++) {
+      for (let p = 0; p < 3; p++) {
+        rB.re[j1 * 3 + j2] = rB.re[j1 * 3 + j2]! + rPB.re[(p * 3 + j1) * 9 + (p * 3 + j2)]!
+        rB.im[j1 * 3 + j2] = rB.im[j1 * 3 + j2]! + rPB.im[(p * 3 + j1) * 9 + (p * 3 + j2)]!
+      }
+    }
+  }
+  const sB = vonNeumannEntropy(hermitianEigen(rB.re, rB.im, 3).values)
+  return { rPB, sPB, sB }
+}
+
+function evalSingleQutritRecovery(
+  kRe: Float64Array,
+  kIm: Float64Array,
+  theta: number,
+  tpComplete: boolean,
+): DensityMatrix3 {
+  const a0 = Math.cos(theta)
+  const a1 = Math.sin(theta)
+  const rr = new Float64Array(9)
+  const ri = new Float64Array(9)
+  for (let y0 = 0; y0 < 27; y0++) {
+    for (let y = 0; y < 27; y++) {
+      const vr: [number, number, number] = [0, 0, 0]
+      const vi: [number, number, number] = [0, 0, 0]
+      for (let j = 0; j < 3; j++) {
+        const rOff = (j * 27 + y0) * 81
+        vr[j] = kRe[rOff + y]! * a0 + kRe[rOff + 27 + y]! * a1
+        vi[j] = kIm[rOff + y]! * a0 + kIm[rOff + 27 + y]! * a1
+      }
+      for (let j1 = 0; j1 < 3; j1++) {
+        for (let j2 = 0; j2 < 3; j2++) {
+          rr[j1 * 3 + j2] = rr[j1 * 3 + j2]! + (vr[j1]! * vr[j2]! + vi[j1]! * vi[j2]!)
+          ri[j1 * 3 + j2] = ri[j1 * 3 + j2]! + (vi[j1]! * vr[j2]! - vr[j1]! * vi[j2]!)
+        }
+      }
+    }
+  }
+  const tr = rr[0]! + rr[4]! + rr[8]!
+  if (tpComplete && tr < 1 - 1e-12) {
+    const rem = 1 - tr
+    rr[0] = rr[0]! + rem / 3
+    rr[4] = rr[4]! + rem / 3
+    rr[8] = rr[8]! + rem / 3
+  }
+  return { re: rr, im: ri }
+}
+
+// Compute BOTH exact G4 FLM Delta S_PA and the 24-qubit single-qutrit witness Delta S_rec
+// for any sequence of 9x9 two-qutrit gates applied across CROSS_CUT_PAIRS (qutrits 0..5).
+export function computeExactCrossCutChannel(
+  label: string,
+  codewords: LogicalCodewords,
+  crossCutGateLayers: readonly ComplexMatrix[],
+): ExactChannelResult {
+  const workR: [Float64Array, Float64Array, Float64Array] = [
+    new Float64Array(729),
+    new Float64Array(729),
+    new Float64Array(729),
+  ]
+  const workI: [Float64Array, Float64Array, Float64Array] = [
+    new Float64Array(729),
+    new Float64Array(729),
+    new Float64Array(729),
+  ]
+  const ref0R: [Float64Array, Float64Array, Float64Array] = [
+    new Float64Array(729),
+    new Float64Array(729),
+    new Float64Array(729),
+  ]
+  const ref0I: [Float64Array, Float64Array, Float64Array] = [
+    new Float64Array(729),
+    new Float64Array(729),
+    new Float64Array(729),
+  ]
+
+  const gRe = new Float64Array(81 * 81)
+  const gIm = new Float64Array(81 * 81)
+  const cRe = new Float64Array(81 * 81)
+  const cIm = new Float64Array(81 * 81)
+  const sq27 = Math.sqrt(27)
+  const nz: number[] = []
+  const nz0: number[] = []
+
+  for (const terms of codewords.outerBuckets.values()) {
+    for (let c = 0; c < 3; c++) {
+      workR[c]!.fill(0)
+      workI[c]!.fill(0)
+      ref0R[c]!.fill(0)
+      ref0I[c]!.fill(0)
+    }
+    for (const t of terms) {
+      workR[t.c]![t.low] = t.re
+      workI[t.c]![t.low] = t.im
+      ref0R[t.c]![t.low] = t.re
+      ref0I[t.c]![t.low] = t.im
+    }
+    rotateSlice729ToXBasis(ref0R, ref0I)
+    for (let c = 0; c < 3; c++) {
+      for (const u9 of crossCutGateLayers) {
+        for (const [a, b] of CROSS_CUT_PAIRS) {
+          applyTwoQutritSlice729(workR[c]!, workI[c]!, a, b, u9)
+        }
+      }
+    }
+    rotateSlice729ToXBasis(workR, workI)
+
+    for (let xMid = 0; xMid < 27; xMid++) {
+      const off = xMid * 27
+      nz.length = 0
+      nz0.length = 0
+      for (let k = 0; k < 3; k++) {
+        for (let y = 0; y < 27; y++) {
+          if (workR[k]![off + y] !== 0 || workI[k]![off + y] !== 0) nz.push(k * 27 + y)
+          if (ref0R[k]![off + y] !== 0 || ref0I[k]![off + y] !== 0) nz0.push(k * 27 + y)
+        }
+      }
+      for (let a = 0; a < nz.length; a++) {
+        const r = nz[a]!
+        const k1 = (r / 27) | 0
+        const y1 = r % 27
+        const r1 = workR[k1]![off + y1]!
+        const i1 = workI[k1]![off + y1]!
+        const rowOff = r * 81
+        for (let b = 0; b < nz.length; b++) {
+          const col = nz[b]!
+          const k2 = (col / 27) | 0
+          const y2 = col % 27
+          const r2 = workR[k2]![off + y2]!
+          const i2 = workI[k2]![off + y2]!
+          gRe[rowOff + col] = gRe[rowOff + col]! + (r1 * r2 + i1 * i2)
+          gIm[rowOff + col] = gIm[rowOff + col]! + (r1 * i2 - i1 * r2)
+        }
+      }
+      for (let a = 0; a < nz0.length; a++) {
+        const r = nz0[a]!
+        const j = (r / 27) | 0
+        const y0 = r % 27
+        const r0 = ref0R[j]![off + y0]!
+        const i0 = ref0I[j]![off + y0]!
+        const rowOff = r * 81
+        for (let b = 0; b < nz.length; b++) {
+          const col = nz[b]!
+          const k = (col / 27) | 0
+          const y = col % 27
+          const r2 = workR[k]![off + y]!
+          const i2 = workI[k]![off + y]!
+          cRe[rowOff + col] = cRe[rowOff + col]! + sq27 * (r0 * r2 + i0 * i2)
+          cIm[rowOff + col] = cIm[rowOff + col]! + sq27 * (r0 * i2 - i0 * r2)
+        }
       }
     }
   }
@@ -2347,134 +2477,199 @@ export function computeExactChannel(
   let gramTrace = 0
   for (let i = 0; i < 81; i++) gramTrace += gRe[i * 81 + i]!
 
-  // 2. Compute Q = G^{1/2}: exact Petz recovery map R_{I/3, N}(N(rho)) = sum_{e1,e2} Q_{e1,e2} rho Q_{e1,e2}^dag
   const eigG = hermitianEigen(gRe, gIm, 81)
   const keptIdx: number[] = []
   for (let k = 0; k < 81; k++) {
-    if (eigG.values[k]! > 1e-12) keptIdx.push(k)
+    if (eigG.values[k]! > 1e-14) keptIdx.push(k)
   }
 
-  const qRe = new Float64Array(81 * 81)
-  const qIm = new Float64Array(81 * 81)
-  for (let i = 0; i < 81; i++) {
-    for (let j = 0; j < 81; j++) {
+  // Optimal unconstrained Petz recovery amplitude matrix in Gram basis = G^{1/2}
+  const sqGRe = new Float64Array(81 * 81)
+  const sqGIm = new Float64Array(81 * 81)
+  for (let r = 0; r < 81; r++) {
+    for (let c = 0; c < 81; c++) {
       let sr = 0
       let si = 0
-      for (let r = 0; r < keptIdx.length; r++) {
-        const k = keptIdx[r]!
-        const sq = Math.sqrt(eigG.values[k]!)
-        const air = eigG.vecRe[i * 81 + k]!
-        const aii = eigG.vecIm[i * 81 + k]!
-        const bjr = eigG.vecRe[j * 81 + k]!
-        const bji = eigG.vecIm[j * 81 + k]!
-        sr += sq * (air * bjr + aii * bji)
-        si += sq * (aii * bjr - air * bji)
+      for (let idx = 0; idx < keptIdx.length; idx++) {
+        const a = keptIdx[idx]!
+        const sd = Math.sqrt(eigG.values[a]!)
+        const v1r = eigG.vecRe[r * 81 + a]!
+        const v1i = eigG.vecIm[r * 81 + a]!
+        const v2r = eigG.vecRe[c * 81 + a]!
+        const v2i = -eigG.vecIm[c * 81 + a]!
+        sr += sd * (v1r * v2r - v1i * v2i)
+        si += sd * (v1r * v2i + v1i * v2r)
       }
-      qRe[i * 81 + j] = sr
-      qIm[i * 81 + j] = si
+      sqGRe[r * 81 + c] = sr
+      sqGIm[r * 81 + c] = si
     }
   }
 
-  const evalPetzRho = (theta: number): DensityMatrix3 => {
-    const a0 = Math.cos(theta)
-    const a1 = Math.sin(theta)
-    const rr = new Float64Array(9)
-    const ri = new Float64Array(9)
-    for (let e1 = 0; e1 < 27; e1++) {
-      for (let e2 = 0; e2 < 27; e2++) {
-        const vr: [number, number, number] = [0, 0, 0]
-        const vi: [number, number, number] = [0, 0, 0]
-        for (let c = 0; c < 3; c++) {
-          const rOff = (c * 27 + e1) * 81
-          vr[c] = qRe[rOff + e2]! * a0 + qRe[rOff + 27 + e2]! * a1
-          vi[c] = qIm[rOff + e2]! * a0 + qIm[rOff + 27 + e2]! * a1
+  // Exact S(A) at theta=0 (27x27) and theta=pi/4 (54x54)
+  const rA0Re = new Float64Array(27 * 27)
+  const rA0Im = new Float64Array(27 * 27)
+  for (let y1 = 0; y1 < 27; y1++) {
+    for (let y2 = 0; y2 < 27; y2++) {
+      rA0Re[y1 * 27 + y2] = gRe[y1 * 81 + y2]!
+      rA0Im[y1 * 27 + y2] = gIm[y1 * 81 + y2]!
+    }
+  }
+  const sA0 = vonNeumannEntropy(hermitianEigen(rA0Re, rA0Im, 27).values)
+
+  const rA4Re = new Float64Array(54 * 54)
+  const rA4Im = new Float64Array(54 * 54)
+  for (let p1 = 0; p1 < 2; p1++) {
+    for (let p2 = 0; p2 < 2; p2++) {
+      for (let y1 = 0; y1 < 27; y1++) {
+        for (let y2 = 0; y2 < 27; y2++) {
+          rA4Re[(p1 * 27 + y1) * 54 + (p2 * 27 + y2)] = 0.5 * gRe[(p1 * 27 + y1) * 81 + (p2 * 27 + y2)]!
+          rA4Im[(p1 * 27 + y1) * 54 + (p2 * 27 + y2)] = 0.5 * gIm[(p1 * 27 + y1) * 81 + (p2 * 27 + y2)]!
         }
-        for (let c1 = 0; c1 < 3; c1++) {
-          for (let c2 = 0; c2 < 3; c2++) {
-            rr[c1 * 3 + c2] = rr[c1 * 3 + c2]! + (vr[c1]! * vr[c2]! + vi[c1]! * vi[c2]!)
-            ri[c1 * 3 + c2] = ri[c1 * 3 + c2]! + (vi[c1]! * vr[c2]! - vr[c1]! * vi[c2]!)
+      }
+    }
+  }
+  const sA4 = vonNeumannEntropy(hermitianEigen(rA4Re, rA4Im, 54).values)
+
+  // True entangled-reference FLM observable S_PA(theta) = S(A)(theta) - I_c(P > B_rec)(theta)
+  const p0 = evalEntangledRecovery(sqGRe, sqGIm, 0, false)
+  const p4 = evalEntangledRecovery(sqGRe, sqGIm, PI / 4, false)
+  const c0 = evalEntangledRecovery(cRe, cIm, 0, true)
+  const c4 = evalEntangledRecovery(cRe, cIm, PI / 4, true)
+
+  const flmPetzS0 = sA0 - p0.sB + p0.sPB
+  const flmPetzSPi4 = sA4 - p4.sB + p4.sPB
+  const flmClifS0 = sA0 - c0.sB + c0.sPB
+  const flmClifSPi4 = sA4 - c4.sB + c4.sPB
+
+  // Exact Petz trace distance on maximally entangled qutrit pair (I_P x R_Petz o N)(Phi+) vs Phi+
+  const rPhiRec = cmatZero(9)
+  const rPhiIdeal = cmatZero(9)
+  for (let p1 = 0; p1 < 3; p1++) {
+    for (let p2 = 0; p2 < 3; p2++) {
+      rPhiIdeal.re[(p1 * 3 + p1) * 9 + (p2 * 3 + p2)] = 1 / 3
+      for (let j1 = 0; j1 < 3; j1++) {
+        for (let j2 = 0; j2 < 3; j2++) {
+          let sr = 0
+          let si = 0
+          for (let y0 = 0; y0 < 27; y0++) {
+            const row1 = (j1 * 27 + y0) * 81 + p1 * 27
+            const row2 = (j2 * 27 + y0) * 81 + p2 * 27
+            for (let y = 0; y < 27; y++) {
+              const a1r = sqGRe[row1 + y]!
+              const a1i = sqGIm[row1 + y]!
+              const a2r = sqGRe[row2 + y]!
+              const a2i = sqGIm[row2 + y]!
+              sr += a1r * a2r + a1i * a2i
+              si += a1i * a2r - a1r * a2i
+            }
           }
+          rPhiRec.re[(p1 * 3 + j1) * 9 + (p2 * 3 + j2)] = sr / 3
+          rPhiRec.im[(p1 * 3 + j1) * 9 + (p2 * 3 + j2)] = si / 3
         }
       }
     }
-    return { re: rr, im: ri }
   }
+  const petzTrDist = 0.5 * traceNormHermitian(cmatSub(rPhiRec, rPhiIdeal))
 
-  // 3. Exact fixed-Clifford recovery via zero-allocation kept-region logical Pauli expectations
-  // Reuse re[2]/im[2] (no longer needed after Gram assembly) to store |psi(theta)> = cos(th)|0> + sin(th)|1>
-  const evalClifRho = (theta: number): DensityMatrix3 => {
-    const a0 = Math.cos(theta)
-    const a1 = Math.sin(theta)
-    const pr = re[2]
-    const pi = im[2]
-    for (let k = 0; k < HILBERT_DIM_12; k++) {
-      pr[k] = a0 * re[0][k]! + a1 * re[1][k]!
-      pi[k] = a0 * im[0][k]! + a1 * im[1][k]!
-    }
-    const rr = new Float64Array(9)
-    const ri = new Float64Array(9)
-    for (let a = 0; a < 3; a++) {
-      for (let b = 0; b < 3; b++) {
-        const idx = 3 * a + b
-        const [eR, eI] = pauliMatrixElement12(pr, pi, pr, pi, logicalBasis.ops[idx]!)
-        const phR = logicalBasis.phaseRe[idx]!
-        const phI = logicalBasis.phaseIm[idx]!
-        const exR = phR * eR + phI * eI
-        const exI = phR * eI - phI * eR
-        const cxR = exR
-        const cxI = -exI
-        for (let col = 0; col < 3; col++) {
-          const row = (col + a) % 3
-          const p = (b * col) % 3
-          const wr = OMEGA_RE[p]!
-          const wi = OMEGA_IM[p]!
-          rr[row * 3 + col] = rr[row * 3 + col]! + (cxR * wr - cxI * wi) / 3
-          ri[row * 3 + col] = ri[row * 3 + col]! + (cxR * wi + cxI * wr) / 3
-        }
-      }
-    }
-    return { re: rr, im: ri }
-  }
+  // Hardware-executable 24-qubit single-qutrit witness S_rec(theta) = S(R(N(|psi_X(theta)>)))
+  const recPetzRho0 = evalSingleQutritRecovery(sqGRe, sqGIm, 0, false)
+  const recPetzRhoPi4 = evalSingleQutritRecovery(sqGRe, sqGIm, PI / 4, false)
+  const recClifRho0 = evalSingleQutritRecovery(cRe, cIm, 0, true)
+  const recClifRhoPi4 = evalSingleQutritRecovery(cRe, cIm, PI / 4, true)
 
-  const petzRho0 = evalPetzRho(0)
-  const petzRhoPi4 = evalPetzRho(PI / 4)
-  const clifRho0 = evalClifRho(0)
-  const clifRhoPi4 = evalClifRho(PI / 4)
-
-  const petzS0 = vonNeumannEntropy(hermitianEigen(petzRho0.re, petzRho0.im, 3).values)
-  const petzSPi4 = vonNeumannEntropy(hermitianEigen(petzRhoPi4.re, petzRhoPi4.im, 3).values)
-  const clifS0 = vonNeumannEntropy(hermitianEigen(clifRho0.re, clifRho0.im, 3).values)
-  const clifSPi4 = vonNeumannEntropy(hermitianEigen(clifRhoPi4.re, clifRhoPi4.im, 3).values)
+  const recPetzS0 = vonNeumannEntropy(hermitianEigen(recPetzRho0.re, recPetzRho0.im, 3).values)
+  const recPetzSPi4 = vonNeumannEntropy(hermitianEigen(recPetzRhoPi4.re, recPetzRhoPi4.im, 3).values)
+  const recClifS0 = vonNeumannEntropy(hermitianEigen(recClifRho0.re, recClifRho0.im, 3).values)
+  const recClifSPi4 = vonNeumannEntropy(hermitianEigen(recClifRhoPi4.re, recClifRhoPi4.im, 3).values)
 
   return {
     label,
     gramRank: keptIdx.length,
     gramTrace,
-    petzRho0,
-    petzRhoPi4,
-    clifRho0,
-    clifRhoPi4,
-    petzS0,
-    petzSPi4,
-    petzDeltaS: petzSPi4 - petzS0,
-    clifS0,
-    clifSPi4,
-    clifDeltaS: clifSPi4 - clifS0,
+    sqGRe,
+    sqGIm,
+    flmPetzS0,
+    flmPetzSPi4,
+    flmPetzDeltaS: flmPetzSPi4 - flmPetzS0,
+    flmClifS0,
+    flmClifSPi4,
+    flmClifDeltaS: flmClifSPi4 - flmClifS0,
+    petzTrDist,
+    petzPB0: p0.rPB,
+    petzPBPi4: p4.rPB,
+    clifPB0: c0.rPB,
+    clifPBPi4: c4.rPB,
+    recPetzRho0,
+    recPetzRhoPi4,
+    recClifRho0,
+    recClifRhoPi4,
+    recPetzS0,
+    recPetzSPi4,
+    recPetzDeltaS: recPetzSPi4 - recPetzS0,
+    recClifS0,
+    recClifSPi4,
+    recClifDeltaS: recClifSPi4 - recClifS0,
   }
 }
 
 // ============================================================================
-// 5. REALISTIC HARDWARE NOISE CHANNEL & FINITE-SHOT TOMOGRAPHY SIMULATOR
+// 5. TIER-B EFFECTIVE BULK-DEPOLARIZING + EXACT TIER-A BAYES LEAKAGE MODEL
+//    & FINITE-SHOT ALIGNED-BASIS TOMOGRAPHIC SIMULATOR
 // ============================================================================
 
 export type HardwareArchitecture = 'native_ba137' | 'binary_24q_perturbation' | 'binary_24q_full'
 
 export interface HardwareNoiseConfig {
+  readonly noiseModelTier: 'Tier B (effective bulk-depolarizing + exact Tier-A Bayes leakage postselection)'
   readonly p2q: number
   readonly architecture: HardwareArchitecture
   readonly nativeTwoQutritGates: number
   readonly binaryIntraTwoQubitGates: number
   readonly binaryInterTwoQubitGates: number
+}
+
+export function buildNoiseConfigFromDescriptor(
+  desc: HardwareCircuitDescriptor,
+  baselineDesc: HardwareCircuitDescriptor,
+  p2q: number,
+  architecture: HardwareArchitecture,
+): HardwareNoiseConfig {
+  const tier =
+    'Tier B (effective bulk-depolarizing + exact Tier-A Bayes leakage postselection)' as const
+  if (architecture === 'native_ba137') {
+    return {
+      noiseModelTier: tier,
+      p2q,
+      architecture,
+      nativeTwoQutritGates: desc.nativeQutritTwoGates,
+      binaryIntraTwoQubitGates: 0,
+      binaryInterTwoQubitGates: 0,
+    }
+  }
+  if (architecture === 'binary_24q_perturbation') {
+    return {
+      noiseModelTier: tier,
+      p2q,
+      architecture,
+      nativeTwoQutritGates: Math.max(0, desc.nativeQutritTwoGates - baselineDesc.nativeQutritTwoGates),
+      binaryIntraTwoQubitGates: Math.max(
+        0,
+        desc.intraQutritTwoQubitGates - baselineDesc.intraQutritTwoQubitGates,
+      ),
+      binaryInterTwoQubitGates: Math.max(
+        0,
+        desc.interQutritTwoQubitGates - baselineDesc.interQutritTwoQubitGates,
+      ),
+    }
+  }
+  return {
+    noiseModelTier: tier,
+    p2q,
+    architecture,
+    nativeTwoQutritGates: desc.nativeQutritTwoGates,
+    binaryIntraTwoQubitGates: desc.intraQutritTwoQubitGates,
+    binaryInterTwoQubitGates: desc.interQutritTwoQubitGates,
+  }
 }
 
 export interface NoisyChannelPoint {
@@ -2484,14 +2679,18 @@ export interface NoisyChannelPoint {
   readonly petzEffectiveDepolarizing: number
   readonly leakagePostselectRetention: number
   readonly heraldedLeakageDiscardFraction: number
-  readonly petzRho0: DensityMatrix3
-  readonly petzRhoPi4: DensityMatrix3
-  readonly petzS0: number
-  readonly petzSPi4: number
-  readonly petzDeltaS: number
-  readonly clifS0: number
-  readonly clifSPi4: number
-  readonly clifDeltaS: number
+  // True entangled-reference FLM observable S_PA(theta; eta)
+  readonly flmPetzS0: number
+  readonly flmPetzSPi4: number
+  readonly flmPetzDeltaS: number
+  readonly flmClifDeltaS: number
+  // 24-qubit hardware single-qutrit recovered witness S_rec(theta; eta)
+  readonly recPetzRho0: DensityMatrix3
+  readonly recPetzRhoPi4: DensityMatrix3
+  readonly recPetzS0: number
+  readonly recPetzSPi4: number
+  readonly recPetzDeltaS: number
+  readonly recClifDeltaS: number
 }
 
 function depolarizeDensity3(rho: DensityMatrix3, dep: number): DensityMatrix3 {
@@ -2508,9 +2707,71 @@ function depolarizeDensity3(rho: DensityMatrix3, dep: number): DensityMatrix3 {
   return { re, im }
 }
 
-// Compute exact depolarizing attenuation & heralded |11> leakage postselection for a noisy run.
-// Under isotropic channel depolarizing rate eta, the exact CPTP Petz recovery theorem yields:
-//   R_{I/3, N_eta}(N_eta(rho)) = (1 - eta)^2 R_{ideal}(N_{ideal}(rho)) + (1 - (1 - eta)^2) I_3 / 3.
+function evalNoisyBoundaryEntropy(
+  sqGRe: Float64Array,
+  sqGIm: Float64Array,
+  d0: number,
+  d1: number,
+  d2: number,
+): number {
+  const diag: readonly [number, number, number] = [d0, d1, d2]
+  const rr = new Float64Array(81 * 81)
+  const ri = new Float64Array(81 * 81)
+  for (let i = 0; i < 81; i++) {
+    const iOff = i * 81
+    for (let j = 0; j < 81; j++) {
+      let sr = 0
+      let si = 0
+      for (let k = 0; k < 81; k++) {
+        const dk = diag[(k / 27) | 0]!
+        if (dk === 0) continue
+        const aR = sqGRe[iOff + k]!
+        const aI = sqGIm[iOff + k]!
+        const bR = sqGRe[k * 81 + j]!
+        const bI = sqGIm[k * 81 + j]!
+        sr += dk * (aR * bR - aI * bI)
+        si += dk * (aR * bI + aI * bR)
+      }
+      rr[iOff + j] = sr
+      ri[iOff + j] = si
+    }
+  }
+  return vonNeumannEntropy(hermitianEigen(rr, ri, 81).values)
+}
+
+function evalNoisyPBCoherentCorrection(pbIdeal: ComplexMatrix, theta: number, dep: number): number {
+  const w: readonly [number, number, number] = [Math.cos(theta), Math.sin(theta), 0]
+  const rr = new Float64Array(81)
+  const ri = new Float64Array(81)
+  const keep = 1 - dep
+  for (let i = 0; i < 81; i++) {
+    rr[i] = keep * pbIdeal.re[i]!
+    ri[i] = keep * pbIdeal.im[i]!
+  }
+  for (let p = 0; p < 2; p++) {
+    for (let j = 0; j < 3; j++) {
+      rr[(p * 3 + j) * 9 + (p * 3 + j)] =
+        rr[(p * 3 + j) * 9 + (p * 3 + j)]! + (dep * w[p]! * w[p]!) / 3
+    }
+  }
+  const sPB = vonNeumannEntropy(hermitianEigen(rr, ri, 9).values)
+  const br = new Float64Array(9)
+  const bi = new Float64Array(9)
+  for (let j1 = 0; j1 < 3; j1++) {
+    for (let j2 = 0; j2 < 3; j2++) {
+      for (let p = 0; p < 3; p++) {
+        br[j1 * 3 + j2] = br[j1 * 3 + j2]! + rr[(p * 3 + j1) * 9 + (p * 3 + j2)]!
+        bi[j1 * 3 + j2] = bi[j1 * 3 + j2]! + ri[(p * 3 + j1) * 9 + (p * 3 + j2)]!
+      }
+    }
+  }
+  const sB = vonNeumannEntropy(hermitianEigen(br, bi, 3).values)
+  return sPB - sB
+}
+
+// Tier-B effective bulk-depolarizing + exact Tier-A Bayes leakage-postselection noise evaluation.
+// Uses exact Bayes conditional survival P(no fault | no leakage) = (1 - p) / (1 - r_leak * p)
+// per gate, and exact CPTP Petz theorem R_{I/3, N_eta}(N_eta(rho)) = (1 - eta)^2 R_ideal + (1-(1-eta)^2) I/3.
 export function evaluateNoisyChannel(
   channel: ExactChannelResult,
   cfg: HardwareNoiseConfig,
@@ -2520,36 +2781,61 @@ export function evaluateNoisyChannel(
   let leakagePostselectRetention = 1
 
   if (cfg.architecture === 'native_ba137') {
-    // Native Ba-137 12-ion qutrits: no binary |11> encoding overhead
     channelInfidelityEta = 1 - Math.pow(1 - p, cfg.nativeTwoQutritGates)
     leakagePostselectRetention = 1
   } else {
-    // Binary-encoded 24-qubit hardware: ~32.6% inter-qutrit / 26.7% intra-qutrit faults
-    // jump into |11> and are heralded + postselected out at measurement, leaving the
-    // unheralded in-code fault rate (1 - r_leak) * p per 2-qubit gate.
     const nIntra = cfg.binaryIntraTwoQubitGates
     const nInter = cfg.binaryInterTwoQubitGates
-    leakagePostselectRetention =
-      Math.pow(1 - LEAKAGE_RATE_INTRA_2Q * p, nIntra) *
-      Math.pow(1 - LEAKAGE_RATE_INTER_2Q * p, nInter)
-    const pSilentIntra = (1 - LEAKAGE_RATE_INTRA_2Q) * p
-    const pSilentInter = (1 - LEAKAGE_RATE_INTER_2Q) * p
-    channelInfidelityEta =
-      1 - Math.pow(1 - pSilentIntra, nIntra) * Math.pow(1 - pSilentInter, nInter)
+    const keepIntra = 1 - LEAKAGE_RATE_INTRA_2Q * p
+    const keepInter = 1 - LEAKAGE_RATE_INTER_2Q * p
+    leakagePostselectRetention = Math.pow(keepIntra, nIntra) * Math.pow(keepInter, nInter)
+    // Exact Bayes conditional no-fault survival given heralded non-leakage: (1 - p) / (1 - r_leak * p)
+    const condNoFaultSurvival =
+      Math.pow((1 - p) / keepIntra, nIntra) * Math.pow((1 - p) / keepInter, nInter)
+    channelInfidelityEta = Math.max(0, 1 - condNoFaultSurvival)
   }
 
   const petzEffectiveDepolarizing = 1 - (1 - channelInfidelityEta) * (1 - channelInfidelityEta)
   const clifEffectiveDepolarizing = channelInfidelityEta
 
-  const petzRho0 = depolarizeDensity3(channel.petzRho0, petzEffectiveDepolarizing)
-  const petzRhoPi4 = depolarizeDensity3(channel.petzRhoPi4, petzEffectiveDepolarizing)
-  const clifRho0 = depolarizeDensity3(channel.clifRho0, clifEffectiveDepolarizing)
-  const clifRhoPi4 = depolarizeDensity3(channel.clifRhoPi4, clifEffectiveDepolarizing)
+  // 1. Exact noisy FLM S_PA(theta; eta)
+  let flmPetzS0 = channel.flmPetzS0
+  let flmPetzSPi4 = channel.flmPetzSPi4
+  let flmClifS0 = channel.flmClifS0
+  let flmClifSPi4 = channel.flmClifSPi4
+  if (channelInfidelityEta > 1e-15) {
+    const sA0 = evalNoisyBoundaryEntropy(
+      channel.sqGRe,
+      channel.sqGIm,
+      1 - (2 * channelInfidelityEta) / 3,
+      channelInfidelityEta / 3,
+      channelInfidelityEta / 3,
+    )
+    const sA4 = evalNoisyBoundaryEntropy(
+      channel.sqGRe,
+      channel.sqGIm,
+      0.5 * (1 - channelInfidelityEta) + channelInfidelityEta / 3,
+      0.5 * (1 - channelInfidelityEta) + channelInfidelityEta / 3,
+      channelInfidelityEta / 3,
+    )
+    flmPetzS0 = sA0 + evalNoisyPBCoherentCorrection(channel.petzPB0, 0, petzEffectiveDepolarizing)
+    flmPetzSPi4 =
+      sA4 + evalNoisyPBCoherentCorrection(channel.petzPBPi4, PI / 4, petzEffectiveDepolarizing)
+    flmClifS0 = sA0 + evalNoisyPBCoherentCorrection(channel.clifPB0, 0, clifEffectiveDepolarizing)
+    flmClifSPi4 =
+      sA4 + evalNoisyPBCoherentCorrection(channel.clifPBPi4, PI / 4, clifEffectiveDepolarizing)
+  }
 
-  const petzS0 = vonNeumannEntropy(hermitianEigen(petzRho0.re, petzRho0.im, 3).values)
-  const petzSPi4 = vonNeumannEntropy(hermitianEigen(petzRhoPi4.re, petzRhoPi4.im, 3).values)
-  const clifS0 = vonNeumannEntropy(hermitianEigen(clifRho0.re, clifRho0.im, 3).values)
-  const clifSPi4 = vonNeumannEntropy(hermitianEigen(clifRhoPi4.re, clifRhoPi4.im, 3).values)
+  // 2. Hardware 24-qubit single-qutrit recovered witness S_rec(theta; eta)
+  const recPetzRho0 = depolarizeDensity3(channel.recPetzRho0, petzEffectiveDepolarizing)
+  const recPetzRhoPi4 = depolarizeDensity3(channel.recPetzRhoPi4, petzEffectiveDepolarizing)
+  const recClifRho0 = depolarizeDensity3(channel.recClifRho0, clifEffectiveDepolarizing)
+  const recClifRhoPi4 = depolarizeDensity3(channel.recClifRhoPi4, clifEffectiveDepolarizing)
+
+  const recPetzS0 = vonNeumannEntropy(hermitianEigen(recPetzRho0.re, recPetzRho0.im, 3).values)
+  const recPetzSPi4 = vonNeumannEntropy(hermitianEigen(recPetzRhoPi4.re, recPetzRhoPi4.im, 3).values)
+  const recClifS0 = vonNeumannEntropy(hermitianEigen(recClifRho0.re, recClifRho0.im, 3).values)
+  const recClifSPi4 = vonNeumannEntropy(hermitianEigen(recClifRhoPi4.re, recClifRhoPi4.im, 3).values)
 
   return {
     p2q: p,
@@ -2558,28 +2844,35 @@ export function evaluateNoisyChannel(
     petzEffectiveDepolarizing,
     leakagePostselectRetention,
     heraldedLeakageDiscardFraction: 1 - leakagePostselectRetention,
-    petzRho0,
-    petzRhoPi4,
-    petzS0,
-    petzSPi4,
-    petzDeltaS: petzSPi4 - petzS0,
-    clifS0,
-    clifSPi4,
-    clifDeltaS: clifSPi4 - clifS0,
+    flmPetzS0,
+    flmPetzSPi4,
+    flmPetzDeltaS: flmPetzSPi4 - flmPetzS0,
+    flmClifDeltaS: flmClifSPi4 - flmClifS0,
+    recPetzRho0,
+    recPetzRhoPi4,
+    recPetzS0,
+    recPetzSPi4,
+    recPetzDeltaS: recPetzSPi4 - recPetzS0,
+    recClifDeltaS: recClifSPi4 - recClifS0,
   }
 }
 
 export interface ShotTrialStats {
   readonly requestedShots: number
-  readonly effectivePostselectedShots: number
-  readonly leakageRetention: number
+  readonly effectiveShotsSignal: number
+  readonly effectiveShotsNull: number
+  readonly effectiveShotsZx: number
+  readonly retentionSignal: number
+  readonly retentionNull: number
+  readonly retentionZx: number
+  readonly alignedBasisShannonGap: number
   readonly trials: number
-  readonly signalMeanDeltaS: number
-  readonly signalStdDeltaS: number
-  readonly nullMeanDeltaS: number
-  readonly nullStdDeltaS: number
-  readonly zxMeanDeltaS: number
-  readonly zxStdDeltaS: number
+  readonly signalMeanDeltaSRec: number
+  readonly signalStdDeltaSRec: number
+  readonly nullMeanDeltaSRec: number
+  readonly nullStdDeltaSRec: number
+  readonly zxMeanDeltaSRec: number
+  readonly zxStdDeltaSRec: number
   readonly zVsNull: number
   readonly pVsNull: number
   readonly zVsZx: number
@@ -2587,9 +2880,9 @@ export interface ShotTrialStats {
   readonly estimatedShotsFor3Sigma: number
 }
 
-// Rotate a 3x3 bulk state into the known prepared eigenbasis U_theta^dag rho U_theta
-// where U_theta |0> = cos(theta)|0> + sin(theta)|1>, and extract computational-basis
-// measurement probabilities (quantum-Fisher-optimal readout near pure states).
+// Compute diagonal probabilities of U_theta^dag rho U_theta in the known prepared eigenbasis.
+// Note: this measures the aligned-basis Shannon entropy (upper bound differing from exact
+// 3x3 von Neumann entropy by alignedBasisShannonGap ~ 2e-5 on D^1.0).
 function alignedBasisProbs(rho: DensityMatrix3, theta: number): readonly [number, number, number] {
   const c = Math.cos(theta)
   const s = Math.sin(theta)
@@ -2632,7 +2925,9 @@ function sampleAlignedEntropy(
   return vonNeumannEntropy([c0 / n, c1 / n, c2 / n])
 }
 
-// Deterministic Monte Carlo finite-shot tomographic power analysis.
+// Deterministic Monte Carlo finite-shot statistical power analysis on the 24-qubit single-qutrit
+// hardware witness Delta S_rec = S_rec(pi/4) - S_rec(0), using EACH circuit's own postselection
+// retention f_keep separately (zero cross-circuit retention reuse).
 export function runFiniteShotSweep(
   signalPoint: NoisyChannelPoint,
   nullPoint: NoisyChannelPoint,
@@ -2641,18 +2936,24 @@ export function runFiniteShotSweep(
   trials = 400,
   seed = 0x51a9c0de,
 ): readonly ShotTrialStats[] {
-  const pSig0 = alignedBasisProbs(signalPoint.petzRho0, 0)
-  const pSig4 = alignedBasisProbs(signalPoint.petzRhoPi4, PI / 4)
-  const pNull0 = alignedBasisProbs(nullPoint.petzRho0, 0)
-  const pNull4 = alignedBasisProbs(nullPoint.petzRhoPi4, PI / 4)
-  const pZx0 = alignedBasisProbs(zxPoint.petzRho0, 0)
-  const pZx4 = alignedBasisProbs(zxPoint.petzRhoPi4, PI / 4)
+  const pSig0 = alignedBasisProbs(signalPoint.recPetzRho0, 0)
+  const pSig4 = alignedBasisProbs(signalPoint.recPetzRhoPi4, PI / 4)
+  const pNull0 = alignedBasisProbs(nullPoint.recPetzRho0, 0)
+  const pNull4 = alignedBasisProbs(nullPoint.recPetzRhoPi4, PI / 4)
+  const pZx0 = alignedBasisProbs(zxPoint.recPetzRho0, 0)
+  const pZx4 = alignedBasisProbs(zxPoint.recPetzRhoPi4, PI / 4)
 
-  const retention = signalPoint.leakagePostselectRetention
+  const alignedBasisShannonGap = Math.max(
+    Math.abs(vonNeumannEntropy(pSig0) - signalPoint.recPetzS0),
+    Math.abs(vonNeumannEntropy(pSig4) - signalPoint.recPetzSPi4),
+  )
+
   const results: ShotTrialStats[] = []
 
   for (const requestedShots of shotCounts) {
-    const effShots = Math.max(10, Math.floor(requestedShots * retention))
+    const effSig = Math.max(10, Math.floor(requestedShots * signalPoint.leakagePostselectRetention))
+    const effNull = Math.max(10, Math.floor(requestedShots * nullPoint.leakagePostselectRetention))
+    const effZx = Math.max(10, Math.floor(requestedShots * zxPoint.leakagePostselectRetention))
     const prng = makeMulberry32((seed ^ (requestedShots * 2654435761)) >>> 0)
 
     let sumSig = 0
@@ -2664,11 +2965,11 @@ export function runFiniteShotSweep(
 
     for (let t = 0; t < trials; t++) {
       const dSig =
-        sampleAlignedEntropy(pSig4, effShots, prng) - sampleAlignedEntropy(pSig0, effShots, prng)
+        sampleAlignedEntropy(pSig4, effSig, prng) - sampleAlignedEntropy(pSig0, effSig, prng)
       const dNull =
-        sampleAlignedEntropy(pNull4, effShots, prng) - sampleAlignedEntropy(pNull0, effShots, prng)
+        sampleAlignedEntropy(pNull4, effNull, prng) - sampleAlignedEntropy(pNull0, effNull, prng)
       const dZx =
-        sampleAlignedEntropy(pZx4, effShots, prng) - sampleAlignedEntropy(pZx0, effShots, prng)
+        sampleAlignedEntropy(pZx4, effZx, prng) - sampleAlignedEntropy(pZx0, effZx, prng)
 
       sumSig += dSig
       sumSig2 += dSig * dSig
@@ -2692,25 +2993,29 @@ export function runFiniteShotSweep(
 
     const denomNull = Math.hypot(sSig, sNull)
     const denomZx = Math.hypot(sSig, sZx)
-    const zVsNull = denomNull > 1e-15 ? (mSig - mNull) / denomNull : 0
-    const zVsZx = denomZx > 1e-15 ? (mSig - mZx) / denomZx : 0
+    const zVsNull = denomNull > 1e-15 ? Math.abs(mSig - mNull) / denomNull : 0
+    const zVsZx = denomZx > 1e-15 ? Math.abs(mSig - mZx) / denomZx : 0
 
-    // Scale N_3sigma from exact 1/sqrt(N) shot-noise law relative to true separation Delta S
-    const trueGap = Math.max(1e-12, signalPoint.petzDeltaS - zxPoint.petzDeltaS)
-    const empiricalZ = Math.max(1e-6, (trueGap / Math.max(1e-12, denomZx)))
+    const trueGap = Math.max(1e-12, Math.abs(signalPoint.recPetzDeltaS - zxPoint.recPetzDeltaS))
+    const empiricalZ = Math.max(1e-6, trueGap / Math.max(1e-12, denomZx))
     const estimatedShotsFor3Sigma = Math.ceil(requestedShots * Math.pow(3 / empiricalZ, 2))
 
     results.push({
       requestedShots,
-      effectivePostselectedShots: effShots,
-      leakageRetention: retention,
+      effectiveShotsSignal: effSig,
+      effectiveShotsNull: effNull,
+      effectiveShotsZx: effZx,
+      retentionSignal: signalPoint.leakagePostselectRetention,
+      retentionNull: nullPoint.leakagePostselectRetention,
+      retentionZx: zxPoint.leakagePostselectRetention,
+      alignedBasisShannonGap,
       trials,
-      signalMeanDeltaS: mSig,
-      signalStdDeltaS: sSig,
-      nullMeanDeltaS: mNull,
-      nullStdDeltaS: sNull,
-      zxMeanDeltaS: mZx,
-      zxStdDeltaS: sZx,
+      signalMeanDeltaSRec: mSig,
+      signalStdDeltaSRec: sSig,
+      nullMeanDeltaSRec: mNull,
+      nullStdDeltaSRec: sNull,
+      zxMeanDeltaSRec: mZx,
+      zxStdDeltaSRec: sZx,
       zVsNull,
       pVsNull: twoSidedNormalPValue(zVsNull),
       zVsZx,
@@ -2722,7 +3027,7 @@ export function runFiniteShotSweep(
   return results
 }
 
-// Optional helper to export all 4 OpenQASM 3.0 circuits + manifest to a directory.
+// Optional helper to export all OpenQASM 3.0 circuits + manifest to a directory.
 // Never called automatically during verification tests unless --emit-qasm is explicitly passed.
 export function writeHardwareBundle(outDir: string, theta = PI / 4): readonly string[] {
   mkdirSync(outDir, { recursive: true })
@@ -2769,6 +3074,7 @@ export function writeHardwareBundle(outDir: string, theta = PI / 4): readonly st
     qutritCount: desc.qutritCount,
     oneQubitGates: desc.oneQubitGates,
     twoQubitGates: desc.twoQubitGates,
+    cnotEquivalentTwoQubitGates: desc.cnotEquivalentTwoQubitGates,
     circuitDepth: desc.circuitDepth,
     nativeQutritOneGates: desc.nativeQutritOneGates,
     nativeQutritTwoGates: desc.nativeQutritTwoGates,

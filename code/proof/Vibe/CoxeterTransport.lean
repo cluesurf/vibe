@@ -3,9 +3,9 @@ module
 public import Vibe.Algebra
 public import Vibe.Geometry
 import Mathlib.NumberTheory.Zsqrtd.Basic
-import Mathlib.Data.Matrix.Basic
-import Mathlib.Data.Matrix.Mul
-import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+public import Mathlib.Data.Matrix.Basic
+public import Mathlib.Data.Matrix.Mul
+public import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 import Mathlib.Tactic.Ring
 
 /-!
@@ -46,7 +46,8 @@ structure ZSqrt2 where
 
 namespace ZSqrt2
 
-@[ext] private theorem ext {x y : ZSqrt2} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
+-- [helper]
+@[ext] theorem ext {x y : ZSqrt2} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
   cases x; cases y; simp_all
 
 def zero : ZSqrt2 := ⟨0, 0⟩
@@ -65,12 +66,12 @@ def scale (k : Int) (x : ZSqrt2) : ZSqrt2 := ⟨k * x.a, k * x.b⟩
 def mul (x y : ZSqrt2) : ZSqrt2 :=
   ⟨x.a * y.a + 2 * x.b * y.b, x.a * y.b + x.b * y.a⟩
 
-private instance : Zero ZSqrt2 := ⟨ZSqrt2.zero⟩
-private instance : One ZSqrt2 := ⟨ZSqrt2.one⟩
-private instance : Add ZSqrt2 := ⟨ZSqrt2.add⟩
-private instance : Neg ZSqrt2 := ⟨ZSqrt2.neg⟩
-private instance : Sub ZSqrt2 := ⟨ZSqrt2.sub⟩
-private instance : Mul ZSqrt2 := ⟨ZSqrt2.mul⟩
+instance : Zero ZSqrt2 := ⟨ZSqrt2.zero⟩
+instance : One ZSqrt2 := ⟨ZSqrt2.one⟩
+instance : Add ZSqrt2 := ⟨ZSqrt2.add⟩
+instance : Neg ZSqrt2 := ⟨ZSqrt2.neg⟩
+instance : Sub ZSqrt2 := ⟨ZSqrt2.sub⟩
+instance : Mul ZSqrt2 := ⟨ZSqrt2.mul⟩
 
 @[simp] private theorem a_zero : (0 : ZSqrt2).a = 0 := rfl
 @[simp] private theorem b_zero : (0 : ZSqrt2).b = 0 := rfl
@@ -85,7 +86,7 @@ private instance : Mul ZSqrt2 := ⟨ZSqrt2.mul⟩
 @[simp] private theorem a_mul (x y : ZSqrt2) : (x * y).a = x.a * y.a + 2 * x.b * y.b := rfl
 @[simp] private theorem b_mul (x y : ZSqrt2) : (x * y).b = x.a * y.b + x.b * y.a := rfl
 
-private instance : CommRing ZSqrt2 where
+instance : CommRing ZSqrt2 where
   add_assoc _ _ _ := by ext <;> simp <;> ring
   zero_add _ := by ext <;> simp
   add_zero _ := by ext <;> simp
@@ -145,23 +146,29 @@ def mat5Vec (A : Mat5) (v : Vec5) : Vec5 := fun i => sum5 (fun k => ZSqrt2.mul (
 
 def mat5Mul (A B : Mat5) : Mat5 := fun i j => sum5 (fun k => ZSqrt2.mul (A i k) (B k j))
 
-private theorem sum5_eq_sum (f : Fin 5 → ZSqrt2) : sum5 f = ∑ k : Fin 5, f k := by
+-- [helper]
+theorem sum5_eq_sum (f : Fin 5 → ZSqrt2) : sum5 f = ∑ k : Fin 5, f k := by
   rw [Fin.sum_univ_five]; rfl
 
-private theorem dot5_eq_dot (u v : Vec5) : dot5 u v = dotProduct u v := by
+-- [helper]
+theorem dot5_eq_dot (u v : Vec5) : dot5 u v = dotProduct u v := by
   rw [dot5, dotProduct, sum5_eq_sum]; rfl
 
-private theorem toMat5_id : Matrix.of mat5Id = (1 : Matrix (Fin 5) (Fin 5) ZSqrt2) := by
+-- [helper]
+theorem toMat5_id : Matrix.of mat5Id = (1 : Matrix (Fin 5) (Fin 5) ZSqrt2) := by
   apply Matrix.ext; intro i j
   simp only [Matrix.of_apply, mat5Id, Matrix.one_apply]
   split_ifs <;> rfl
 
-private theorem toMat5_transpose (A : Mat5) : Matrix.of (mat5Transpose A) = (Matrix.of A)ᵀ := rfl
+-- [helper]
+theorem toMat5_transpose (A : Mat5) : Matrix.of (mat5Transpose A) = (Matrix.of A)ᵀ := rfl
 
-private theorem mat5Vec_eq_mulVec (A : Mat5) (v : Vec5) : mat5Vec A v = (Matrix.of A).mulVec v := by
+-- [helper]
+theorem mat5Vec_eq_mulVec (A : Mat5) (v : Vec5) : mat5Vec A v = (Matrix.of A).mulVec v := by
   funext i; simp only [mat5Vec, Matrix.mulVec, dotProduct, sum5_eq_sum, Matrix.of_apply]; rfl
 
-private theorem toMat5_mul (A B : Mat5) : Matrix.of (mat5Mul A B) = Matrix.of A * Matrix.of B := by
+-- [helper]
+theorem toMat5_mul (A B : Mat5) : Matrix.of (mat5Mul A B) = Matrix.of A * Matrix.of B := by
   apply Matrix.ext; intro i j
   simp only [Matrix.of_apply, mat5Mul, Matrix.mul_apply, sum5_eq_sum]; rfl
 
@@ -248,7 +255,8 @@ private theorem det4_eq_cofactors (A : Matrix (Fin 4) (Fin 4) ZSqrt2) :
     show ((-1 : ZSqrt2) ^ 2) = 1 by decide, show ((-1 : ZSqrt2) ^ 3) = -1 by decide]
   ring
 
-private theorem mat5Det_eq_det (M : Mat5) : mat5Det M = (Matrix.of M).det := by
+-- [helper]
+theorem mat5Det_eq_det (M : Mat5) : mat5Det M = (Matrix.of M).det := by
   rw [Matrix.det_succ_row_zero, Fin.sum_univ_five]
   simp only [det4_eq_cofactors, Matrix.submatrix_apply, Matrix.of_apply, Fin.isValue]
   have s00 : Fin.succAbove (0 : Fin 5) 0 = 1 := by decide
@@ -330,7 +338,8 @@ def twiceGramVecFast (v : Vec5) : Vec5
   | ⟨4, _⟩ => ZSqrt2.sub (ZSqrt2.scale 2 (v ⟨4, by decide⟩))
                 (ZSqrt2.mul ZSqrt2.sqrt2 (v ⟨3, by decide⟩))
 
-private theorem mat5Vec_twiceGram_eq_fast (v : Vec5) : mat5Vec twiceGram v = twiceGramVecFast v := by
+-- [helper]
+theorem mat5Vec_twiceGram_eq_fast (v : Vec5) : mat5Vec twiceGram v = twiceGramVecFast v := by
   funext i
   fin_cases i
   · change ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.mul ⟨2, 0⟩ (v 0)) (ZSqrt2.mul ⟨-1, 0⟩ (v 1))) (ZSqrt2.mul ⟨0, 0⟩ (v 2))) (ZSqrt2.mul ⟨0, 0⟩ (v 3))) (ZSqrt2.mul ⟨0, 0⟩ (v 4)) = twiceGramVecFast v 0

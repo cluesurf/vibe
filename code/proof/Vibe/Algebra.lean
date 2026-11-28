@@ -1,7 +1,7 @@
 module
 
-import Mathlib.Algebra.Ring.Defs
-import Mathlib.Algebra.Star.Basic
+public import Mathlib.Algebra.Ring.Defs
+public import Mathlib.Algebra.Star.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Order.Ring.Int
 import Mathlib.Data.Matrix.Basic
@@ -89,7 +89,8 @@ structure Eis where
 
 namespace Eis
 
-@[ext] private theorem ext {x y : Eis} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
+-- [helper]
+@[ext] theorem ext {x y : Eis} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
   cases x; cases y; simp_all
 
 def zero : Eis := ⟨0, 0⟩
@@ -118,13 +119,13 @@ def pow (x : Eis) : Nat → Eis
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-private instance : Zero Eis := ⟨Eis.zero⟩
-private instance : One Eis := ⟨Eis.one⟩
-private instance : Add Eis := ⟨Eis.add⟩
-private instance : Neg Eis := ⟨Eis.neg⟩
-private instance : Sub Eis := ⟨Eis.sub⟩
-private instance : Mul Eis := ⟨Eis.mul⟩
-private instance : Star Eis := ⟨Eis.conj⟩
+instance : Zero Eis := ⟨Eis.zero⟩
+instance : One Eis := ⟨Eis.one⟩
+instance : Add Eis := ⟨Eis.add⟩
+instance : Neg Eis := ⟨Eis.neg⟩
+instance : Sub Eis := ⟨Eis.sub⟩
+instance : Mul Eis := ⟨Eis.mul⟩
+instance : Star Eis := ⟨Eis.conj⟩
 
 @[simp] private theorem a_zero : (0 : Eis).a = 0 := rfl
 @[simp] private theorem b_zero : (0 : Eis).b = 0 := rfl
@@ -141,7 +142,7 @@ private instance : Star Eis := ⟨Eis.conj⟩
 @[simp] private theorem a_star (x : Eis) : (star x).a = x.a - x.b := rfl
 @[simp] private theorem b_star (x : Eis) : (star x).b = -x.b := rfl
 
-private instance : CommRing Eis where
+instance : CommRing Eis where
   add_assoc _ _ _ := by ext <;> simp <;> ring
   zero_add _ := by ext <;> simp
   add_zero _ := by ext <;> simp
@@ -168,7 +169,7 @@ private instance : CommRing Eis where
     change Eis.ofInt (Int.negSucc n) = -(Eis.ofInt (n + 1))
     ext <;> simp [Eis.ofInt, Int.negSucc_eq]
 
-private instance : StarRing Eis where
+instance : StarRing Eis where
   star_involutive _ := by ext <;> simp
   star_mul _ _ := by ext <;> simp <;> ring
   star_add _ _ := by ext <;> simp <;> ring
@@ -297,7 +298,8 @@ structure Ninth where
 
 namespace Ninth
 
-@[ext] private theorem ext {x y : Ninth} (h0 : x.c0 = y.c0) (h1 : x.c1 = y.c1)
+-- [helper]
+@[ext] theorem ext {x y : Ninth} (h0 : x.c0 = y.c0) (h1 : x.c1 = y.c1)
     (h2 : x.c2 = y.c2) (h3 : x.c3 = y.c3) (h4 : x.c4 = y.c4) (h5 : x.c5 = y.c5) : x = y := by
   cases x; cases y; simp_all
 
@@ -342,13 +344,13 @@ def pow (x : Ninth) : Nat → Ninth
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-private instance : Zero Ninth := ⟨Ninth.zero⟩
-private instance : One Ninth := ⟨Ninth.one⟩
-private instance : Add Ninth := ⟨Ninth.add⟩
-private instance : Neg Ninth := ⟨Ninth.neg⟩
-private instance : Sub Ninth := ⟨Ninth.sub⟩
-private instance : Mul Ninth := ⟨Ninth.mul⟩
-private instance : Star Ninth := ⟨Ninth.conj⟩
+instance : Zero Ninth := ⟨Ninth.zero⟩
+instance : One Ninth := ⟨Ninth.one⟩
+instance : Add Ninth := ⟨Ninth.add⟩
+instance : Neg Ninth := ⟨Ninth.neg⟩
+instance : Sub Ninth := ⟨Ninth.sub⟩
+instance : Mul Ninth := ⟨Ninth.mul⟩
+instance : Star Ninth := ⟨Ninth.conj⟩
 
 private theorem zero_def : (0 : Ninth) = ⟨0, 0, 0, 0, 0, 0⟩ := rfl
 private theorem one_def : (1 : Ninth) = ⟨1, 0, 0, 0, 0, 0⟩ := rfl
@@ -358,7 +360,7 @@ private theorem sub_def (x y : Ninth) : x - y = Ninth.sub x y := rfl
 private theorem mul_def (x y : Ninth) : x * y = Ninth.mul x y := rfl
 private theorem star_def (x : Ninth) : star x = Ninth.conj x := rfl
 
-private instance : CommRing Ninth where
+instance : CommRing Ninth where
   add_assoc _ _ _ := by ext <;> simp only [add_def, Ninth.add] <;> ring
   zero_add _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
   add_zero _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
@@ -387,7 +389,7 @@ private instance : CommRing Ninth where
     change Ninth.ofInt (Int.negSucc n) = Ninth.neg (Ninth.ofInt (n + 1))
     ext <;> simp [Ninth.ofInt, Ninth.neg, Int.negSucc_eq]
 
-private instance : StarRing Ninth where
+instance : StarRing Ninth where
   star_involutive _ := by ext <;> simp only [star_def, Ninth.conj] <;> ring
   star_mul _ _ := by ext <;> simp only [star_def, mul_def, Ninth.conj, Ninth.mul] <;> ring
   star_add _ _ := by ext <;> simp only [star_def, add_def, Ninth.conj, Ninth.add] <;> ring
@@ -449,7 +451,7 @@ namespace StarCommRing
 
 /-- Non-instance `CommRing` bridge unlocking Mathlib's `ring` tactic on any `StarCommRing R`. -/
 @[instance_reducible]
-private def toCommRing (R : Type) [StarCommRing R] : CommRing R where
+def toCommRing (R : Type) [StarCommRing R] : CommRing R where
   zero := zero
   one := one
   add := add

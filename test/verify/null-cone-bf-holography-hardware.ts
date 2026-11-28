@@ -1246,7 +1246,7 @@ function runGate1(): void {
   let matchedSharedTris = 0
   for (const t1 of sharedC1.tris) {
     const t2 = c2TriMap.get(t1.tKey)
-    assertExact(t2 !== undefined, `Shared triangle ${t1.tKey} missing in Cell 2`)
+    if (t2 === undefined) throw new Error(`Shared triangle ${t1.tKey} missing in Cell 2`)
     matchedSharedTris++
     const tr1P = mat3Vec(rl12, t1.bp)
     const tr1M = mat3Vec(rr12, t1.bm)
@@ -3616,9 +3616,20 @@ function runGate5(): void {
     const Q = (z: number) => (z < 1e-12 ? 0 : ((z * z) / M.C(z)) * Math.exp(M.chi(z)))
     const Qp = (z: number) => Q(z) * (2 / z - M.Cp(z) / M.C(z) + M.chip(z))
     const H = (z: number) => M.f(z) + P * P * Q(z)
+    // Bracket the FIRST turning point z_t > 1 cleanly without overshooting the negative well of H(z)
     let lo = 1.0
-    let hi = 1.05
-    while (H(hi) > 0 && hi < 1e4) hi *= 1.4
+    let hi = 1.0
+    for (let step = 0; step < 400; step++) {
+      const dz = hi < 2.5 ? 0.01 : 0.05
+      const next = hi + dz
+      if (H(next) <= 0) {
+        lo = hi
+        hi = next
+        break
+      }
+      hi = next
+    }
+    assertExact(H(hi) <= 0, `cvSolve failed to bracket turning point at P=${P}`)
     for (let it = 0; it < 90; it++) {
       const mid = 0.5 * (lo + hi)
       if (H(mid) > 0) lo = mid
@@ -3701,10 +3712,10 @@ function runGate5(): void {
   }
   const cvAtMatchedTime = (M: Metric3D, tTarget: number) => {
     let lo = 1e-4
-    let hi = cvMaxP(M) * 0.999
-    for (let it = 0; it < 50; it++) {
+    let hi = cvMaxP(M) * 0.99995
+    for (let it = 0; it < 55; it++) {
       const mid = 0.5 * (lo + hi)
-      if (cvSolve(M, mid, 200).t < tTarget) lo = mid
+      if (cvSolve(M, mid, 160).t < tTarget) lo = mid
       else hi = mid
     }
     return cvSolve(M, 0.5 * (lo + hi), 400)
@@ -3949,10 +3960,13 @@ function runGate5(): void {
     `  Zero-cutoff split-Simpson HM on neutral BTZ: maxDt=${btzDt.toExponential(2)}, maxDS=${btzDS.toExponential(2)}`,
   )
   console.log(
-    `  3-probe Pair A (global AdS_3 diffeo): |dkappa|=${pairAKappaDiff.toExponential(1)}, HM=${pairAHMDiff.toExponential(1)}, RT=${pairARTDiff.toFixed(4)}, Krylov=${pairAKrylovDiff.toFixed(4)}`,
+    `  3-probe Pair A (global AdS_3 diffeo): |dkappa|=${pairAKappaDiff.toExponential(1)}, HM=${pairAHMDiff.toExponential(1)}, RT=${pairARTDiff.toFixed(4)}, CV(t=${cvBtz.t.toFixed(2)})=${pairACVDiff.toFixed(4)} (P_max=${pMaxPairA.toFixed(4)} vs ${pMaxBtz.toFixed(4)})`,
   )
   console.log(
-    `  3-probe Pair B (interior C^2 diffeo): HM=${pairBHMDiff.toExponential(1)}, RT=${pairBRTDiff.toExponential(1)}, Krylov=${pairBKrylovDiff.toFixed(4)}`,
+    `  3-probe Pair B (interior C^2 diffeo): HM=${pairBHMDiff.toExponential(1)}, RT=${pairBRTDiff.toExponential(1)}, CV(t=${cvBtz.t.toFixed(2)})=${pairBCVDiff.toFixed(4)} (P_max=${pMaxPairB.toFixed(4)} vs ${pMaxBtz.toFixed(4)})`,
+  )
+  console.log(
+    `  CV coordinate-invariance self-test (true 3D diffeo g_xx -> 1/z(Z)^2): max|dt,dV|=${cvTrue3DInvErr.toExponential(1)}, t_matchErr=${cvTimeMatchErr.toExponential(1)}`,
   )
   console.log(
     `  NEC inverse fit: charged BTZ a_0_hat=${fitChBTZ.a0.toFixed(4)} (true 0.7225, err=${Math.abs(fitChBTZ.a0 - 0.7225).toExponential(1)}), MSE=${fitChBTZ.mse.toExponential(2)}, v_E=${fitChBTZ.vE.toFixed(4)}`,
@@ -3971,10 +3985,14 @@ function runGate5(): void {
     pairAKappaDiff < 1e-10 &&
     pairAHMDiff < 1e-6 &&
     pairARTDiff > 0.05 &&
-    pairAKrylovDiff > 0.01 &&
+    cvTrue3DInvErr < 1e-9 &&
+    cvTimeMatchErr < 1e-8 &&
+    pairACVDiff > 0.01 &&
+    Math.abs(pMaxPairA - pMaxBtz) > 0.02 &&
     pairBHMDiff < 1e-9 &&
     pairBRTDiff < 1e-14 &&
-    pairBKrylovDiff > 0.005 &&
+    pairBCVDiff > 0.005 &&
+    Math.abs(pMaxPairB - pMaxBtz) > 0.01 &&
     Math.abs(fitChBTZ.a0 - 0.7225) < 0.01 &&
     fitChBTZ.mse < 1e-3 &&
     fitChBTZ.vE <= 1.0001 &&
@@ -3985,9 +4003,9 @@ function runGate5(): void {
   recordCheck(
     'G5',
     'A + B',
-    'Bare-QCA N=8 Page/v_E, zero-cutoff Kruskal HM, 3-probe Pair A/B breaking & NEC inverse kappa(V)',
+    'Bare-QCA N=8 Page/v_E, zero-cutoff Kruskal HM, 3-probe Pair A/B breaking (HM+RT+CV) & NEC inverse kappa(V)',
     pass,
-    `QCA sat=${(100 * satRatio).toFixed(1)}% v_E=${vEBare.toFixed(4)}, BTZ<1e-6, PairA(RT=${pairARTDiff.toFixed(3)},K=${pairAKrylovDiff.toFixed(3)}), PairB(RT=0,K=${pairBKrylovDiff.toFixed(3)}), chBTZ a0=${fitChBTZ.a0.toFixed(4)}, MSE(1.3/0.8)=${mseRatio.toFixed(1)}x`,
+    `QCA sat=${(100 * satRatio).toFixed(1)}% v_E=${vEBare.toFixed(4)}, BTZ<1e-6, PairA(RT=${pairARTDiff.toFixed(3)},CV=${pairACVDiff.toFixed(3)}), PairB(RT=0,CV=${pairBCVDiff.toFixed(3)}), 3D-inv=${cvTrue3DInvErr.toExponential(1)}, chBTZ a0=${fitChBTZ.a0.toFixed(4)}, MSE(1.3/0.8)=${mseRatio.toFixed(1)}x`,
   )
 }
 

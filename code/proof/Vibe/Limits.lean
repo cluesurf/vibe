@@ -5,6 +5,7 @@ public import Vibe.Gauge
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.Matrix.Mul
 import Mathlib.Data.Nat.GCD.Basic
+import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Positivity
@@ -53,7 +54,7 @@ private theorem z3MatVec_eq_mulVec (a b : Int) (v : Fin 3 → Int) :
   funext i
   change ((List.finRange 3).map fun j => z3TransferMat a b i j * v j).sum =
     ∑ j : Fin 3, z3TransferMat a b i j * v j
-  rw [Fin.sum_univ_def]; rfl
+  rw [Fin.sum_univ_def]
 
 /-- Theorem 14a: `v_0 = (1, 1, 1)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
     with eigenvalue `λ_0 = a + 2 b` for ALL `a, b : Int`. -/
@@ -236,7 +237,7 @@ def sumSqInt {m : Nat} (v : Fin m → Int) : Int :=
 
 private theorem list_sum_finRange_eq {k : Nat} (f : Fin k → Int) :
     ((List.finRange k).map f).sum = ∑ i : Fin k, f i := by
-  rw [Fin.sum_univ_def]; rfl
+  rw [Fin.sum_univ_def]
 
 private theorem btbQuad_eq_matrix {m n : Nat} (B : Fin m → Fin n → Int) (v : Fin n → Int) :
     btbQuad B v = dotProduct v (((Matrix.of B)ᵀ * Matrix.of B).mulVec v) := by
@@ -248,8 +249,13 @@ private theorem weightedBtbQuad_eq_matrix {m n : Nat} (B : Fin m → Fin n → I
     (w : Fin m → Int) (v : Fin n → Int) :
     weightedBtbQuad B w v = dotProduct v (((Matrix.of B)ᵀ * Matrix.diagonal w * Matrix.of B).mulVec v) := by
   rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec]
-  simp only [weightedBtbQuad, dotInt, matVecInt, list_sum_finRange_eq, dotProduct, Matrix.mulVec,
-    Matrix.mulVec_diagonal, Matrix.transpose_apply, Matrix.of_apply]
+  simp only [weightedBtbQuad, dotInt, matVecInt, list_sum_finRange_eq, dotProduct]
+  refine Finset.sum_congr rfl fun j _ => congrArg (v j * ·) ?_
+  change ∑ i : Fin m, B i j * (w i * ∑ k : Fin n, B i k * v k) =
+    ∑ i : Fin m, (Matrix.of B)ᵀ j i * (Matrix.diagonal w *ᵥ (Matrix.of B *ᵥ v)) i
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [Matrix.transpose_apply, Matrix.of_apply, Matrix.mulVec_diagonal]
+  rfl
 
 /-- Theorem 16a: Exact `Bᵀ B` Gram reflection positivity for EVERY integer matrix
     `B : Fin m → Fin n → Int` and EVERY integer vector `v : Fin n → Int`:
