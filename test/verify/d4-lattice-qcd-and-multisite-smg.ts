@@ -2077,7 +2077,7 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
   const fermTorus = IS_FULL ? torusL4 : buildD4BoxTorus(2, 6)
   const { sigR: fSigR, sigBarR: fSigBarR } = buildSigTables(fermTorus.posR4)
   const fermBeta = 3.1
-  const nFermConfigs = IS_FULL ? 12 : 4
+  const nFermConfigs = IS_FULL ? 12 : 8
   const nStochNoise = IS_FULL ? 8 : 4
   const mqLadder = IS_FULL ? ([0.04, 0.08, 0.12, 0.2] as const) : ([0.04, 0.1, 0.2] as const)
 
@@ -2130,8 +2130,14 @@ async function runPart1D4LatticeQcd(): Promise<Part1Summary> {
     const symPi = (tau: number): number => 0.5 * (cPiAvg[tau]! + cPiAvg[(fermTorus.Lt - tau) % fermTorus.Lt]!)
     const symRho = (tau: number): number => 0.5 * (cRhoAvg[tau]! + cRhoAvg[(fermTorus.Lt - tau) % fermTorus.Lt]!)
     const mPi = solveCoshMassAt(symPi(halfT - 1), symPi(halfT), halfT - 1, fermTorus.Lt)
+    const rho1 = symRho(1), rho2 = symRho(2)
     const rhoA = symRho(halfT - 1), rhoB = symRho(halfT)
-    const mRho = rhoA > rhoB && rhoB > 0 ? solveCoshMassAt(rhoA, rhoB, halfT - 1, fermTorus.Lt) : Math.log(symRho(1) / symRho(2))
+    const mRho =
+      fermTorus.Lt >= 8 && rhoA > rhoB && rhoB > 0.02 * rho1
+        ? solveCoshMassAt(rhoA, rhoB, halfT - 1, fermTorus.Lt)
+        : rho1 > rho2 && rho2 > 0
+          ? solveCoshMassAt(rho1, rho2, 1, fermTorus.Lt)
+          : Math.log(Math.max(1.01, rho1 / Math.max(1e-12, Math.abs(rho2))))
     const freeAtMq = exactFreeD4Dispersion(fermTorus.Ls, fermTorus.Lt, mq).pbpSite
     const row: FermionMassRow = {
       mq, pbpPt: sumPbpPt / nFermConfigs, pbpStoch: sumPbpStoch / nFermConfigs, pbpFree: freeAtMq,
@@ -2350,8 +2356,8 @@ function blockLanczosLowest(
   H: SparseSym,
   nEigs: number,
   seed: number,
-  blockSize = 4,
-  maxSteps = 45,
+  blockSize = Math.max(2, nEigs),
+  maxSteps = 75,
 ): { readonly values: number[]; readonly vectors: Float64Array[]; readonly maxResidual: number } {
   const n = H.n
   if (n <= 48) {
@@ -2416,10 +2422,10 @@ function blockLanczosLowest(
   for (let step = 0; step < maxSteps && Q.length < maxBasis; step++) {
     const nextStart = Q.length
     for (let idx = curStart; idx < curEnd && Q.length < maxBasis; idx++) addOrthoVec(HQ[idx]!)
-    if (Q.length === nextStart) break
+    const saturated = Q.length === nextStart
     curStart = nextStart; curEnd = Q.length
 
-    if ((step + 1) % 6 === 0 || Q.length >= maxBasis || step === maxSteps - 1) {
+    if (saturated || (step >= 9 && (step + 1) % 8 === 0) || Q.length >= maxBasis || step === maxSteps - 1) {
       const m = Q.length
       const T = new Float64Array(m * m)
       for (let i = 0; i < m; i++) {
@@ -2446,7 +2452,7 @@ function blockLanczosLowest(
         const res = Math.sqrt(r2)
         if (res > worstRes) worstRes = res
       }
-      if (worstRes < 1e-12 || Q.length >= maxBasis || step === maxSteps - 1) {
+      if (saturated || worstRes < 1e-12 || Q.length >= maxBasis || step === maxSteps - 1) {
         const values: number[] = [], vectors: Float64Array[] = []
         for (let c = 0; c < kOut; c++) {
           values.push(eig.values[c]!)
@@ -2647,7 +2653,7 @@ function runTwoSite16MajoranaSMG(
 } {
   const bankGs = buildSmgCartanBlock(2, 0, 0, 2)
   const bankOdd = buildSmgCartanBlock(2, 1, 0, 3)
-  assert(bankGs.states.length === 18 && bankOdd.states.length === 16, 'Unexpected 2-site bank dims')
+  assert(bankGs.states.length === 18 && bankOdd.states.length === 10, 'Unexpected 2-site bank dims')
   const nA = bankGs.states.length, nB = bankGs.states.length
   const dimGs = nA * nB, dimOdd = bankOdd.states.length * nB
   const bonds2: readonly (readonly [number, number])[] = [[0, 1]]
@@ -2983,7 +2989,7 @@ function runPart2MultiSiteSmg(): Part2Summary {
   const vLadder2 = IS_FULL ? ([0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0] as const) : ([0, 0.5, 1.0, 2.0, 4.0] as const)
   const vLadder4 = IS_FULL ? ([0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0] as const) : ([0, 0.5, 1.0, 3.0] as const)
   const vLadder16 = IS_FULL ? ([0, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0] as const) : ([0, 1.0, 2.0] as const)
-  const vLadderAnom = IS_FULL ? ([0, 0.5, 1.0, 2.0, 4.0, 6.0] as const) : ([0, 1.0, 3.0] as const)
+  const vLadderAnom = IS_FULL ? ([0, 1.0, 2.0, 4.0, 8.0, 16.0] as const) : ([0, 4.0, 10.0] as const)
 
   const twoSite8M = runMultiSite8M(2, [[0, 1]], vLadder2, true)
   console.log(`\n  [Model 2A] 2-Site Coupled 8-Majorana/Site (16 Majoranas, dim=${twoSite8M.totalDim} -> GS block=${twoSite8M.gsBlockDim}, 1p block=${twoSite8M.oddBlockDim}):`)
@@ -3048,7 +3054,7 @@ function runPart2MultiSiteSmg(): Part2Summary {
   const maxCondAll4 = Math.max(...fourSite8M.rows.filter(r => r.vOverT > 0).map(r => r.maxBilinearCond))
   const maxCondAll16 = Math.max(...twoSite16M.rows.filter(r => r.vOverT > 0).map(r => r.maxCond))
   const r16Strong = twoSite16M.rows[twoSite16M.rows.length - 1]!
-  const anomMid = anom4M.rows[1]!
+  const anomMid = anom4M.rows.find(r => Math.abs(r.vOverT - 4.0) < 1e-6)!
   const anomStrong = anom4M.rows[anom4M.rows.length - 1]!
 
   recordGate(

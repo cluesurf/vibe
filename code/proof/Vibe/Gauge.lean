@@ -1,7 +1,7 @@
 module
 
 public import Vibe.Algebra
-public import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 
@@ -109,15 +109,23 @@ def circNormSq4 (rSq : Int) (i j : Fin 3) : Int :=
   if i = j then 4 else rSq
 
 /-- Diagonal warp weight profile `wSq = (a, b, c)` representing `W^2 = diag(w_0^2, w_1^2, w_2^2)`. -/
-def diagVec3 (a b c : Int) : Fin 3 → Int := ![a, b, c]
+def diagVec3 (a b c : Int) : Fin 3 → Int
+  | ⟨0, _⟩ => a
+  | ⟨1, _⟩ => b
+  | ⟨2, _⟩ => c
 
 /-- Exact trace `Tr(W S W) = ∑_{i : Fin 3} w_i^2 S_{ii} = a + b + c`. -/
 def trWSW (a b c : Int) : Int :=
-  ∑ i : Fin 3, diagVec3 a b c i
+  ((List.finRange 3).map fun i => diagVec3 a b c i).sum
 
 /-- Exact scaled Hilbert-Schmidt trace `4 Tr((W S W)^2) = ∑_{i, j : Fin 3} w_i^2 w_j^2 (4 |S_{ij}|^2)`. -/
 def trWSWsq4 (rSq a b c : Int) : Int :=
-  ∑ i : Fin 3, ∑ j : Fin 3, diagVec3 a b c i * diagVec3 a b c j * circNormSq4 rSq i j
+  ((List.finRange 3).map fun i =>
+    ((List.finRange 3).map fun j => diagVec3 a b c i * diagVec3 a b c j * circNormSq4 rSq i j).sum).sum
+
+private theorem finRange3_sum (f : Fin 3 → Int) :
+    ((List.finRange 3).map f).sum = ∑ i : Fin 3, f i := by
+  rw [Fin.sum_univ_def]; rfl
 
 /-- Pairwise variance `V(a, b, c) = (a - b)^2 + (b - c)^2 + (c - a)^2`. -/
 def warpVariance (a b c : Int) : Int :=
@@ -126,14 +134,14 @@ def warpVariance (a b c : Int) : Int :=
 /-- Theorem 8a: Unwarped `3 × 3` circulant Koide ratio equals `2/3` IF AND ONLY IF `r^2 = 2`. -/
 theorem thm8_koide_two_thirds_iff_f4_root_ratio (rSq : Int) :
     3 * trWSWsq4 rSq 1 1 1 = 8 * (trWSW 1 1 1) ^ 2 ↔ rSq = 2 := by
-  simp [trWSWsq4, trWSW, diagVec3, circNormSq4, Fin.sum_univ_three]
+  simp [trWSWsq4, trWSW, finRange3_sum, diagVec3, circNormSq4, Fin.sum_univ_three]
   omega
 
 /-- Theorem 8b: Exact `3 × 3` warped-circulant trace identity at `r^2 = 2`:
     `3 * (4 Tr((W S W)^2)) = 8 * (Tr(W S W))^2 + 2 * V(a, b, c)`. -/
 theorem thm8_warp_koide_exact_identity (a b c : Int) :
     3 * trWSWsq4 2 a b c = 8 * (trWSW a b c) ^ 2 + 2 * warpVariance a b c := by
-  simp [trWSWsq4, trWSW, warpVariance, diagVec3, circNormSq4, Fin.sum_univ_three]
+  simp [trWSWsq4, trWSW, finRange3_sum, warpVariance, diagVec3, circNormSq4, Fin.sum_univ_three]
   ring
 
 /-- Theorem 8c: Exact lower bound `Q((W S W)^2) ≥ 2/3` for EVERY diagonal warp profile. -/

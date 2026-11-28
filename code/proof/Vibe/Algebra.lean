@@ -1,11 +1,11 @@
 module
 
-public import Mathlib.Algebra.Ring.Defs
-public import Mathlib.Algebra.Star.Basic
-public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-public import Mathlib.Algebra.Order.Ring.Int
-public import Mathlib.Data.Matrix.Basic
-public import Mathlib.Logic.Function.Iterate
+import Mathlib.Algebra.Ring.Defs
+import Mathlib.Algebra.Star.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.Order.Ring.Int
+import Mathlib.Data.Matrix.Basic
+import Mathlib.Logic.Function.Iterate
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Ring
 
@@ -53,8 +53,7 @@ def sumNat : Nat → (Nat → Nat) → Nat
   | 0, _ => 0
   | n + 1, f => sumNat n f + f n
 
--- [helper]
-theorem sumNat_eq_sum (n : Nat) (f : Nat → Nat) :
+private theorem sumNat_eq_sum (n : Nat) (f : Nat → Nat) :
     sumNat n f = ∑ i ∈ Finset.range n, f i := by
   induction n with
   | zero => simp [sumNat]
@@ -83,13 +82,15 @@ theorem int_sq_nonneg (x : Int) : 0 ≤ x * x :=
 /-! ## Section 1: Exact Eisenstein Integers `ℤ[ω]` -/
 
 /-- Eisenstein integer `a + b * ω` with `ω^2 + ω + 1 = 0`. -/
-@[ext]
 structure Eis where
   a : Int
   b : Int
   deriving DecidableEq, Repr
 
 namespace Eis
+
+@[ext] private theorem ext {x y : Eis} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
+  cases x; cases y; simp_all
 
 def zero : Eis := ⟨0, 0⟩
 def one : Eis := ⟨1, 0⟩
@@ -117,13 +118,13 @@ def pow (x : Eis) : Nat → Eis
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-instance : Zero Eis := ⟨Eis.zero⟩
-instance : One Eis := ⟨Eis.one⟩
-instance : Add Eis := ⟨Eis.add⟩
-instance : Neg Eis := ⟨Eis.neg⟩
-instance : Sub Eis := ⟨Eis.sub⟩
-instance : Mul Eis := ⟨Eis.mul⟩
-instance : Star Eis := ⟨Eis.conj⟩
+private instance : Zero Eis := ⟨Eis.zero⟩
+private instance : One Eis := ⟨Eis.one⟩
+private instance : Add Eis := ⟨Eis.add⟩
+private instance : Neg Eis := ⟨Eis.neg⟩
+private instance : Sub Eis := ⟨Eis.sub⟩
+private instance : Mul Eis := ⟨Eis.mul⟩
+private instance : Star Eis := ⟨Eis.conj⟩
 
 @[simp] private theorem a_zero : (0 : Eis).a = 0 := rfl
 @[simp] private theorem b_zero : (0 : Eis).b = 0 := rfl
@@ -140,7 +141,7 @@ instance : Star Eis := ⟨Eis.conj⟩
 @[simp] private theorem a_star (x : Eis) : (star x).a = x.a - x.b := rfl
 @[simp] private theorem b_star (x : Eis) : (star x).b = -x.b := rfl
 
-instance : CommRing Eis where
+private instance : CommRing Eis where
   add_assoc _ _ _ := by ext <;> simp <;> ring
   zero_add _ := by ext <;> simp
   add_zero _ := by ext <;> simp
@@ -167,7 +168,7 @@ instance : CommRing Eis where
     change Eis.ofInt (Int.negSucc n) = -(Eis.ofInt (n + 1))
     ext <;> simp [Eis.ofInt, Int.negSucc_eq]
 
-instance : StarRing Eis where
+private instance : StarRing Eis where
   star_involutive _ := by ext <;> simp
   star_mul _ _ := by ext <;> simp <;> ring
   star_add _ _ := by ext <;> simp <;> ring
@@ -197,7 +198,6 @@ end Eis
 /-! ## Section 2: `2 × 2` Matrices over `ℤ[ω]` -/
 
 /-- `2 × 2` matrices over `ℤ[ω]`. -/
-@[ext]
 structure Mat2Eis where
   m00 : Eis
   m01 : Eis
@@ -206,6 +206,10 @@ structure Mat2Eis where
   deriving DecidableEq, Repr
 
 namespace Mat2Eis
+
+@[ext] private theorem ext {A B : Mat2Eis} (h00 : A.m00 = B.m00) (h01 : A.m01 = B.m01)
+    (h10 : A.m10 = B.m10) (h11 : A.m11 = B.m11) : A = B := by
+  cases A; cases B; simp_all
 
 def zero : Mat2Eis := ⟨Eis.zero, Eis.zero, Eis.zero, Eis.zero⟩
 def id : Mat2Eis := ⟨Eis.one, Eis.zero, Eis.zero, Eis.one⟩
@@ -243,7 +247,7 @@ def pow (A : Mat2Eis) : Nat → Mat2Eis
   | n + 1 => mul (pow A n) A
 
 /-- Canonical embedding into Mathlib `Matrix (Fin 2) (Fin 2) Eis`. -/
-def toMatrix (A : Mat2Eis) : Matrix (Fin 2) (Fin 2) Eis :=
+private def toMatrix (A : Mat2Eis) : Matrix (Fin 2) (Fin 2) Eis :=
   Matrix.of ![![A.m00, A.m01], ![A.m10, A.m11]]
 
 -- [helper]
@@ -282,7 +286,6 @@ end Mat2Eis
 /-- Ninth cyclotomic integer `c0 + c1 z + c2 z^2 + c3 z^3 + c4 z^4 + c5 z^5`
     modulo `z^6 + z^3 + 1 = 0` (`z = ζ_9 = exp(2πi / 9)`).
     Note `ζ_18 = exp(iπ / 9) = -ζ_9^5` lies inside `ℤ[ζ_9]` identically. -/
-@[ext]
 structure Ninth where
   c0 : Int
   c1 : Int
@@ -293,6 +296,10 @@ structure Ninth where
   deriving DecidableEq, Repr
 
 namespace Ninth
+
+@[ext] private theorem ext {x y : Ninth} (h0 : x.c0 = y.c0) (h1 : x.c1 = y.c1)
+    (h2 : x.c2 = y.c2) (h3 : x.c3 = y.c3) (h4 : x.c4 = y.c4) (h5 : x.c5 = y.c5) : x = y := by
+  cases x; cases y; simp_all
 
 def zero : Ninth := ⟨0, 0, 0, 0, 0, 0⟩
 def one : Ninth := ⟨1, 0, 0, 0, 0, 0⟩
@@ -335,13 +342,13 @@ def pow (x : Ninth) : Nat → Ninth
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-instance : Zero Ninth := ⟨Ninth.zero⟩
-instance : One Ninth := ⟨Ninth.one⟩
-instance : Add Ninth := ⟨Ninth.add⟩
-instance : Neg Ninth := ⟨Ninth.neg⟩
-instance : Sub Ninth := ⟨Ninth.sub⟩
-instance : Mul Ninth := ⟨Ninth.mul⟩
-instance : Star Ninth := ⟨Ninth.conj⟩
+private instance : Zero Ninth := ⟨Ninth.zero⟩
+private instance : One Ninth := ⟨Ninth.one⟩
+private instance : Add Ninth := ⟨Ninth.add⟩
+private instance : Neg Ninth := ⟨Ninth.neg⟩
+private instance : Sub Ninth := ⟨Ninth.sub⟩
+private instance : Mul Ninth := ⟨Ninth.mul⟩
+private instance : Star Ninth := ⟨Ninth.conj⟩
 
 private theorem zero_def : (0 : Ninth) = ⟨0, 0, 0, 0, 0, 0⟩ := rfl
 private theorem one_def : (1 : Ninth) = ⟨1, 0, 0, 0, 0, 0⟩ := rfl
@@ -351,7 +358,7 @@ private theorem sub_def (x y : Ninth) : x - y = Ninth.sub x y := rfl
 private theorem mul_def (x y : Ninth) : x * y = Ninth.mul x y := rfl
 private theorem star_def (x : Ninth) : star x = Ninth.conj x := rfl
 
-instance : CommRing Ninth where
+private instance : CommRing Ninth where
   add_assoc _ _ _ := by ext <;> simp only [add_def, Ninth.add] <;> ring
   zero_add _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
   add_zero _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
@@ -380,7 +387,7 @@ instance : CommRing Ninth where
     change Ninth.ofInt (Int.negSucc n) = Ninth.neg (Ninth.ofInt (n + 1))
     ext <;> simp [Ninth.ofInt, Ninth.neg, Int.negSucc_eq]
 
-instance : StarRing Ninth where
+private instance : StarRing Ninth where
   star_involutive _ := by ext <;> simp only [star_def, Ninth.conj] <;> ring
   star_mul _ _ := by ext <;> simp only [star_def, mul_def, Ninth.conj, Ninth.mul] <;> ring
   star_add _ _ := by ext <;> simp only [star_def, add_def, Ninth.conj, Ninth.add] <;> ring
@@ -442,7 +449,7 @@ namespace StarCommRing
 
 /-- Non-instance `CommRing` bridge unlocking Mathlib's `ring` tactic on any `StarCommRing R`. -/
 @[instance_reducible]
-def toCommRing (R : Type) [StarCommRing R] : CommRing R where
+private def toCommRing (R : Type) [StarCommRing R] : CommRing R where
   zero := zero
   one := one
   add := add
@@ -539,23 +546,23 @@ instance : StarCommRing Eis where
   neg := Eis.neg
   mul := Eis.mul
   conj := Eis.conj
-  add_zero := _root_.add_zero
-  zero_add := _root_.zero_add
-  add_comm := _root_.add_comm
-  add_assoc := _root_.add_assoc
-  add_neg := _root_.add_neg_cancel
-  mul_one := _root_.mul_one
-  one_mul := _root_.one_mul
-  mul_zero := MulZeroClass.mul_zero
-  zero_mul := MulZeroClass.zero_mul
-  mul_comm := _root_.mul_comm
-  mul_assoc := _root_.mul_assoc
-  mul_add := _root_.mul_add
-  add_mul := _root_.add_mul
-  conj_conj := star_star
-  conj_add := star_add
-  conj_mul a b := by change star (a * b) = star a * star b; rw [star_mul, _root_.mul_comm]
-  conj_one := star_one Eis
+  add_zero a := by cases a; simp [Eis.add, Eis.zero]
+  zero_add a := by cases a; simp [Eis.add, Eis.zero]
+  add_comm a b := by cases a; cases b; simp only [Eis.add, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  add_assoc a b c := by cases a; cases b; cases c; simp only [Eis.add, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  add_neg a := by cases a; simp only [Eis.add, Eis.neg, Eis.zero, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  mul_one a := by cases a; simp only [Eis.mul, Eis.one, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  one_mul a := by cases a; simp only [Eis.mul, Eis.one, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  mul_zero a := by cases a; simp only [Eis.mul, Eis.zero, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  zero_mul a := by cases a; simp only [Eis.mul, Eis.zero, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  mul_comm a b := by cases a; cases b; simp only [Eis.mul, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  mul_assoc a b c := by cases a; cases b; cases c; simp only [Eis.mul, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  mul_add a b c := by cases a; cases b; cases c; simp only [Eis.mul, Eis.add, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  add_mul a b c := by cases a; cases b; cases c; simp only [Eis.mul, Eis.add, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  conj_conj a := by cases a; simp only [Eis.conj, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  conj_add a b := by cases a; cases b; simp only [Eis.conj, Eis.add, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  conj_mul a b := by cases a; cases b; simp only [Eis.conj, Eis.mul, Eis.mk.injEq]; exact ⟨by ring, by ring⟩
+  conj_one := rfl
 
 end Vibe
 

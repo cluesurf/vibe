@@ -2,9 +2,9 @@ module
 
 public import Vibe.Algebra
 public import Vibe.Geometry
-public import Mathlib.Data.Rat.Defs
-public import Mathlib.Algebra.Order.Field.Rat
-public import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Data.Rat.Defs
+import Mathlib.Algebra.Order.Field.Rat
+import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
@@ -55,14 +55,14 @@ def eq (a b : QPos) : Prop := a.num * b.den = b.num * a.den
 
 /-- Exact rational addition. -/
 def add (a b : QPos) : QPos :=
-  ⟨a.num * b.den + b.num * a.den, a.den * b.den, mul_pos a.denPos b.denPos⟩
+  ⟨a.num * b.den + b.num * a.den, a.den * b.den, Int.mul_pos a.denPos b.denPos⟩
 
 /-- Exact division by a positive integer `k > 0`. -/
 def divPos (a : QPos) (k : Int) (hk : 0 < k) : QPos :=
-  ⟨a.num, k * a.den, mul_pos hk a.denPos⟩
+  ⟨a.num, k * a.den, Int.mul_pos hk a.denPos⟩
 
 /-- Canonical embedding into Mathlib `ℚ`. -/
-def toRat (a : QPos) : ℚ := (a.num : ℚ) / (a.den : ℚ)
+private def toRat (a : QPos) : ℚ := (a.num : ℚ) / (a.den : ℚ)
 
 private theorem le_iff_toRat (a b : QPos) : le a b ↔ a.toRat ≤ b.toRat := by
   unfold le toRat
@@ -173,8 +173,11 @@ def symE2 (y0 y1 y2 y3 : Int) : Int :=
 def symE3 (y0 y1 y2 y3 : Int) : Int :=
   y0 * y1 * y2 + y0 * y1 * y3 + y0 * y2 * y3 + y1 * y2 * y3
 
-/-- Sum of an integer function over all 12 `D_4` root lines via `Finset.sum`. -/
-def sum12Int (f : Fin 12 → Int) : Int := ∑ k : Fin 12, f k
+/-- Sum of an integer function over all 12 `D_4` root lines (bridged privately to `Finset.sum`). -/
+def sum12Int (f : Fin 12 → Int) : Int := ((List.finRange 12).map f).sum
+
+private theorem sum12Int_eq_sum (f : Fin 12 → Int) : sum12Int f = ∑ k : Fin 12, f k := by
+  rw [Fin.sum_univ_def]; rfl
 
 private theorem fin12_sum_expand {M : Type} [AddCommMonoid M] (f : Fin 12 → M) :
     ∑ k : Fin 12, f k =
@@ -212,7 +215,7 @@ theorem thm_d4_exact_moments (x0 x1 x2 x3 : Int) :
     d4Moment2 x = 6 * (S * S) ∧
     d4Moment3 x = 6 * (S * (S * S)) + 12 * (S * symE2 y0 y1 y2 y3) - 72 * symE3 y0 y1 y2 y3 := by
   refine ⟨?_, ?_, ?_⟩ <;>
-    simp only [d4Moment1, d4Moment2, d4Moment3, sum12Int, fin12_sum_expand, d4LineSq, d4RootLine,
+    simp only [d4Moment1, d4Moment2, d4Moment3, sum12Int_eq_sum, fin12_sum_expand, d4LineSq, d4RootLine,
       dot4, symS4, symE2, symE3] <;>
     ring
 
@@ -327,7 +330,7 @@ theorem thm_schur_majorant_bound_13_over_21 (x0 x1 x2 x3 : Int) :
   have hExp : d4HermiteSum x =
       588 * (S * (S * S)) + 36 * (S * S * d4Moment1 x) -
         48 * (S * d4Moment2 x) + 64 * d4Moment3 x := by
-    simp only [d4HermiteSum, d4Moment1, d4Moment2, d4Moment3, sum12Int, fin12_sum_expand, hermiteP3Hom]
+    simp only [d4HermiteSum, d4Moment1, d4Moment2, d4Moment3, sum12Int_eq_sum, fin12_sum_expand, hermiteP3Hom]
     ring
   have hMom := thm_d4_exact_moments x0 x1 x2 x3
   have hEq : d4HermiteSum x = 1092 * (S * (S * S)) - 192 * schurPoly4 y0 y1 y2 y3 := by
@@ -406,7 +409,7 @@ theorem thm_busemann_schur_global_bound (x0 x1 x2 x3 : Int)
     rw [fin12_sum_expand]
     simp only [busemannSum12, QPos.toRat_add]
   have hSumLe : (busemannSum12 x hS).toRat ≤ (d4HermiteSum x : ℚ) / (D : ℚ) := by
-    rw [hSumRat, d4HermiteSum, sum12Int, Int.cast_sum,
+    rw [hSumRat, d4HermiteSum, sum12Int_eq_sum, Int.cast_sum,
       show (∑ k : Fin 12, (hermiteP3Hom (d4LineSq k x) S : ℚ)) / (D : ℚ) =
         ∑ k : Fin 12, (hermiteP3Hom (d4LineSq k x) S : ℚ) / (D : ℚ) by
         simp only [fin12_sum_expand, add_div]]
@@ -445,6 +448,12 @@ theorem thm_busemann_spectral_gap_8_over_21 :
 def colResistanceCode18 (N : Nat → Nat) (F : Nat) : Nat :=
   sumNat (F + 1) (fun d => N (d + 1))
 
+private theorem sumNat_eq_sum_local (n : Nat) (f : Nat → Nat) :
+    sumNat n f = ∑ i ∈ Finset.range n, f i := by
+  induction n with
+  | zero => simp [sumNat]
+  | succ n ih => simp [sumNat, Finset.sum_range_succ, ih]
+
 /-- Exact column resistance bridge between `Vibe.Geometry.colResistance` and `E-GRV-0156/0157`. -/
 theorem thm_col_resistance_code_bridge (N : Nat → Nat) (F : Nat) :
     colResistanceCode18 N F + N 0 = colResistance N (F + 2) ∧
@@ -453,7 +462,7 @@ theorem thm_col_resistance_code_bridge (N : Nat → Nat) (F : Nat) :
       17 * colResistanceCode18 N F + 18 ≥ 18 ^ (F + 2)) := by
   have hShift : colResistanceCode18 N F + N 0 = colResistance N (F + 2) := by
     unfold colResistanceCode18 colResistance
-    rw [sumNat_eq_sum, sumNat_eq_sum, show F + 2 = (F + 1) + 1 by omega]
+    rw [sumNat_eq_sum_local, sumNat_eq_sum_local, show F + 2 = (F + 1) + 1 by omega]
     exact (Finset.sum_range_succ' N (F + 1)).symm
   refine ⟨hShift, fun h0 => by omega, fun h0 hstep => ?_⟩
   have hExp := thm5_resistance_exp_lower_bound N (by omega) hstep (F + 2)

@@ -2,8 +2,9 @@ module
 
 public import Vibe.Tone
 public import Vibe.Algebra
-public import Mathlib.Algebra.BigOperators.Fin
-public import Mathlib.Data.Matrix.Basic
+import Mathlib.Algebra.Ring.Defs
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Data.Matrix.Basic
 import Mathlib.Tactic.Ring
 
 /-!
@@ -148,9 +149,9 @@ theorem thm2_halfCoin_unitary_right :
 def fgEntry (i j : Fin 8) : Int :=
   if i = j then 3 else -1
 
-/-- Exact `(i, j)` entry of `(4 (F-G))^2` computed via `Matrix (Fin 8) (Fin 8) ℤ` multiplication. -/
+/-- Exact `(i, j)` entry of `(4 (F-G))^2`. -/
 def fgSqEntry (i j : Fin 8) : Int :=
-  (Matrix.of fgEntry * Matrix.of fgEntry) i j
+  ((List.finRange 8).map fun k => fgEntry i k * fgEntry k j).sum
 
 /-- Full `8 × 8` Frame-Grover symmetry and matrix unitarity:
     `(4 (F-G))^T = 4 (F-G)` and `(4 (F-G))^2 = 16 I_8` across all 64 matrix entries. -/
@@ -241,7 +242,8 @@ private theorem thm3_trace_M_pow_pair :
   | succ n ih =>
     refine ⟨ih.2, ?_⟩
     rw [thm3_M_pow_recurrence n, Mat2Eis.trace_sub, Mat2Eis.trace_scale, ih.2, ih.1]
-    ext <;> simp [traceSeq, Eis.ofInt, Eis.sub, Eis.scale]
+    simp only [traceSeq, Eis.ofInt, Eis.sub, Eis.scale, Eis.mk.injEq]
+    exact ⟨rfl, by omega⟩
 
 theorem thm3_trace_M_pow (n : Nat) :
     Mat2Eis.trace (Mat2Eis.pow gateM n) = Eis.ofInt (traceSeq n) :=
@@ -301,6 +303,30 @@ variable {R : Type} [StarCommRing R]
 
 open StarCommRing
 
+@[instance_reducible]
+private def starToCommRing (R : Type) [StarCommRing R] : CommRing R where
+  zero := zero
+  one := one
+  add := add
+  neg := neg
+  mul := mul
+  add_assoc := StarCommRing.add_assoc
+  zero_add := StarCommRing.zero_add
+  add_zero := StarCommRing.add_zero
+  nsmul := @nsmulRec R ⟨zero⟩ ⟨add⟩
+  zsmul := @zsmulRec R ⟨zero⟩ ⟨add⟩ ⟨neg⟩ (@nsmulRec R ⟨zero⟩ ⟨add⟩)
+  neg_add_cancel a := by change add (neg a) a = zero; rw [StarCommRing.add_comm, StarCommRing.add_neg]
+  add_comm := StarCommRing.add_comm
+  left_distrib := StarCommRing.mul_add
+  right_distrib := StarCommRing.add_mul
+  zero_mul := StarCommRing.zero_mul
+  mul_zero := StarCommRing.mul_zero
+  mul_assoc := StarCommRing.mul_assoc
+  one_mul := StarCommRing.one_mul
+  mul_one := StarCommRing.mul_one
+  mul_comm := StarCommRing.mul_comm
+  npow := @npowRec R ⟨one⟩ ⟨mul⟩
+
 /-- Sum of all 12 line amplitudes on a dock (`∑_{j=0}^{11} v j`). -/
 def sum12 (v : Nat → R) : R := sumN 12 v
 
@@ -316,7 +342,7 @@ def mpair12 (u : R) (v : Nat → R) : Nat → R :=
 
 private theorem sum12_mpair12 (u : R) (v : Nat → R) :
     sum12 (mpair12 u v) = mul (mul twelveR u) (sum12 v) := by
-  let _ : CommRing R := toCommRing R
+  let _ : CommRing R := starToCommRing R
   unfold mpair12 sum12
   rw [sumN_add, sumN_scale, sumN_const]
   change twelveR * sumN 12 v + twelveR * ((u + -1) * sumN 12 v) = (twelveR * u) * sumN 12 v
@@ -328,7 +354,7 @@ theorem thm4_mpair12_comp (u v : R) (x : Nat → R) (i : Nat) :
     mpair12 v (mpair12 u x) i =
       add (mul (mul twelveR twelveR) (x i))
           (mul (mul twelveR (sub (mul v u) one)) (sum12 x)) := by
-  let _ : CommRing R := toCommRing R
+  let _ : CommRing R := starToCommRing R
   change twelveR * (twelveR * x i + (u + -1) * sum12 x) + (v + -1) * sum12 (mpair12 u x) =
     (twelveR * twelveR) * x i + (twelveR * (v * u + -1)) * sum12 x
   rw [sum12_mpair12]
@@ -353,7 +379,7 @@ theorem thm4_mpair12_unitary_right (u : R) (hu : mul u (conj u) = one)
 /-- Theorem 4c: Exact `∀ t : Nat` 4D `s`-wave eigenstate law `(12 M_pair(u))^t |s⟩ = (12 u)^t |s⟩`. -/
 theorem thm4_mpair12_swave_iter (u : R) :
     ∀ t : Nat, ∀ i : Nat, iter (mpair12 u) t (sVec (R := R)) i = powR (mul twelveR u) t := by
-  let _ : CommRing R := toCommRing R
+  let _ : CommRing R := starToCommRing R
   intro t; induction t with
   | zero => intro _; rfl
   | succ t ih =>
@@ -366,7 +392,7 @@ theorem thm4_mpair12_swave_iter (u : R) :
 /-- Theorem 4d: Exact `∀ t : Nat` transverse fixation `(12 M_pair(u))^t |v⟩ = 12^t |v⟩` for all `v ⊥ |s⟩`. -/
 theorem thm4_mpair12_transverse_iter (u : R) (v : Nat → R) (hv : sum12 v = zero) :
     ∀ t : Nat, ∀ i : Nat, iter (mpair12 u) t v i = mul (powR twelveR t) (v i) := by
-  let _ : CommRing R := toCommRing R
+  let _ : CommRing R := starToCommRing R
   intro t; induction t with
   | zero => intro i; exact (StarCommRing.one_mul (v i)).symm
   | succ t ih =>

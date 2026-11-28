@@ -2,9 +2,9 @@ module
 
 public import Vibe.Rule
 public import Vibe.Gauge
-public import Mathlib.Data.Matrix.Basic
-public import Mathlib.Data.Matrix.Mul
-public import Mathlib.Data.Nat.GCD.Basic
+import Mathlib.Data.Matrix.Basic
+import Mathlib.Data.Matrix.Mul
+import Mathlib.Data.Nat.GCD.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Positivity
@@ -32,33 +32,45 @@ open Matrix
 /-! ## Theorem 14: Concrete `3 × 3` `Z_3` Transfer-Matrix Spectral Gap (`a > b > 0`, `∀ t ≥ 1`) -/
 
 /-- Exact `3 × 3` `Z_3` single-plaquette transfer matrix `T_{ij} = a` if `i = j`, else `b`. -/
-def z3TransferMat (a b : Int) : Matrix (Fin 3) (Fin 3) ℤ :=
-  Matrix.of fun i j => if i = j then a else b
+def z3TransferMat (a b : Int) (i j : Fin 3) : Int :=
+  if i = j then a else b
 
-/-- Matrix-vector action `(T v)_i = ∑_{j : Fin 3} T_{ij} v_j` via `Matrix.mulVec`. -/
-abbrev z3MatVec (a b : Int) (v : Fin 3 → ℤ) : Fin 3 → ℤ :=
-  (z3TransferMat a b).mulVec v
+/-- Matrix-vector action `(T v)_i = ∑_{j : Fin 3} T_{ij} v_j` (bridged privately to `Matrix.mulVec`). -/
+def z3MatVec (a b : Int) (v : Fin 3 → Int) (i : Fin 3) : Int :=
+  ((List.finRange 3).map fun j => z3TransferMat a b i j * v j).sum
 
 /-- Uniform vacuum eigenvector `v_0 = (1, 1, 1)`. -/
-def z3VacVec : Fin 3 → ℤ := ![1, 1, 1]
+def z3VacVec : Fin 3 → Int := fun _ => 1
 
 /-- Charged excited eigenvector `v_1 = (1, -1, 0)` orthogonal to `v_0`. -/
-def z3ExcVec : Fin 3 → ℤ := ![1, -1, 0]
+def z3ExcVec : Fin 3 → Int
+  | ⟨0, _⟩ => 1
+  | ⟨1, _⟩ => -1
+  | ⟨2, _⟩ => 0
+
+private theorem z3MatVec_eq_mulVec (a b : Int) (v : Fin 3 → Int) :
+    z3MatVec a b v = (Matrix.of (z3TransferMat a b)).mulVec v := by
+  funext i
+  change ((List.finRange 3).map fun j => z3TransferMat a b i j * v j).sum =
+    ∑ j : Fin 3, z3TransferMat a b i j * v j
+  rw [Fin.sum_univ_def]; rfl
 
 /-- Theorem 14a: `v_0 = (1, 1, 1)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
     with eigenvalue `λ_0 = a + 2 b` for ALL `a, b : Int`. -/
 theorem thm14_z3_transfer_vacuum_eigenmode (a b : Int) (i : Fin 3) :
     z3MatVec a b z3VacVec i = (a + 2 * b) * z3VacVec i := by
+  rw [z3MatVec_eq_mulVec]
   fin_cases i <;>
-    simp [z3MatVec, z3TransferMat, z3VacVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
+    simp [z3TransferMat, z3VacVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
     ring
 
 /-- Theorem 14b: `v_1 = (1, -1, 0)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
     with eigenvalue `λ_1 = a - b` for ALL `a, b : Int`. -/
 theorem thm14_z3_transfer_excited_eigenmode (a b : Int) (i : Fin 3) :
     z3MatVec a b z3ExcVec i = (a - b) * z3ExcVec i := by
+  rw [z3MatVec_eq_mulVec]
   fin_cases i <;>
-    simp [z3MatVec, z3TransferMat, z3ExcVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
+    simp [z3TransferMat, z3ExcVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
     ring
 
 /-- Theorem 14c: Exact strict spectral gap for EVERY `a > b > 0` in the `3 × 3` `Z_3` transfer matrix:
@@ -104,6 +116,13 @@ theorem thm15_z36_pq_dim_ge_18 (d : Nat) (hd : d ≥ 1) (hInv : (d * 2) % 36 = 0
 /-- Corollary 15c: Under `Z_36` with fundamental charge `q = 1`, every invariant `Φ^d` has `d ≥ 36`. -/
 theorem thm15_z36_pq_dim_ge_36 (d : Nat) (hd : d ≥ 1) (hInv : (d * 1) % 36 = 0) : d ≥ 36 :=
   thm15_zn_pq_min_operator_dim 36 1 d (by decide) hd hInv
+
+@[ext] private theorem eis_ext {x y : Eis} (ha : x.a = y.a) (hb : x.b = y.b) : x = y := by
+  cases x; cases y; simp_all
+
+@[ext] private theorem mat2_ext {A B : Mat2Eis} (h00 : A.m00 = B.m00) (h01 : A.m01 = B.m01)
+    (h10 : A.m10 = B.m10) (h11 : A.m11 = B.m11) : A = B := by
+  cases A; cases B; simp_all
 
 /-- Exact anti-homomorphism `(A B)† = B† A†` on `Mat_2(ℤ[ω])`. -/
 theorem thm15_mat2eis_dag_mul (A B : Mat2Eis) :
@@ -195,26 +214,66 @@ theorem thm15_eisWord_unitary_all_words (w : List EisGen) :
 
 /-! ## Theorem 16: Canonical `Bᵀ B` & Weighted `Bᵀ W B` Gram Reflection Positivity -/
 
+/-- Finite integer dot product `u · v = ∑_{i : Fin k} u i * v i`. -/
+def dotInt {k : Nat} (u v : Fin k → Int) : Int :=
+  ((List.finRange k).map fun i => u i * v i).sum
+
+/-- Matrix-vector product `(B v)_i = ∑_{j : Fin n} B i j * v j`. -/
+def matVecInt {m n : Nat} (B : Fin m → Fin n → Int) (v : Fin n → Int) (i : Fin m) : Int :=
+  dotInt (B i) v
+
+/-- Gram quadratic form `vᵀ (Bᵀ B) v`. -/
+def btbQuad {m n : Nat} (B : Fin m → Fin n → Int) (v : Fin n → Int) : Int :=
+  dotInt v fun j => ((List.finRange m).map fun i => B i j * matVecInt B v i).sum
+
+/-- Weighted Gram quadratic form `vᵀ (Bᵀ diag(w) B) v`. -/
+def weightedBtbQuad {m n : Nat} (B : Fin m → Fin n → Int) (w : Fin m → Int) (v : Fin n → Int) : Int :=
+  dotInt v fun j => ((List.finRange m).map fun i => B i j * (w i * matVecInt B v i)).sum
+
+/-- Sum of squares `∑_{i : Fin m} (v i)^2`. -/
+def sumSqInt {m : Nat} (v : Fin m → Int) : Int :=
+  ((List.finRange m).map fun i => (v i) ^ 2).sum
+
+private theorem list_sum_finRange_eq {k : Nat} (f : Fin k → Int) :
+    ((List.finRange k).map f).sum = ∑ i : Fin k, f i := by
+  rw [Fin.sum_univ_def]; rfl
+
+private theorem btbQuad_eq_matrix {m n : Nat} (B : Fin m → Fin n → Int) (v : Fin n → Int) :
+    btbQuad B v = dotProduct v (((Matrix.of B)ᵀ * Matrix.of B).mulVec v) := by
+  rw [← Matrix.mulVec_mulVec]
+  simp only [btbQuad, dotInt, matVecInt, list_sum_finRange_eq, dotProduct, Matrix.mulVec,
+    Matrix.transpose_apply, Matrix.of_apply]
+
+private theorem weightedBtbQuad_eq_matrix {m n : Nat} (B : Fin m → Fin n → Int)
+    (w : Fin m → Int) (v : Fin n → Int) :
+    weightedBtbQuad B w v = dotProduct v (((Matrix.of B)ᵀ * Matrix.diagonal w * Matrix.of B).mulVec v) := by
+  rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec]
+  simp only [weightedBtbQuad, dotInt, matVecInt, list_sum_finRange_eq, dotProduct, Matrix.mulVec,
+    Matrix.mulVec_diagonal, Matrix.transpose_apply, Matrix.of_apply]
+
 /-- Theorem 16a: Exact `Bᵀ B` Gram reflection positivity for EVERY integer matrix
-    `B : Matrix (Fin m) (Fin n) ℤ` and EVERY integer vector `v : Fin n → ℤ`:
-    `v ⬝ᵥ (Bᵀ * B) *ᵥ v = ∑ i, (B *ᵥ v i)^2 ≥ 0`. -/
-theorem thm16_gram_btb_positivity {m n : ℕ} (B : Matrix (Fin m) (Fin n) ℤ) (v : Fin n → ℤ) :
-    dotProduct v ((Bᵀ * B).mulVec v) = ∑ i : Fin m, (B.mulVec v i) ^ 2 ∧
-    0 ≤ dotProduct v ((Bᵀ * B).mulVec v) := by
-  have hEq : dotProduct v ((Bᵀ * B).mulVec v) = ∑ i : Fin m, (B.mulVec v i) ^ 2 := by
-    rw [← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec, Matrix.vecMul_transpose]
-    simp [dotProduct, sq]
-  exact ⟨hEq, hEq ▸ Finset.sum_nonneg fun i _ => sq_nonneg _⟩
+    `B : Fin m → Fin n → Int` and EVERY integer vector `v : Fin n → Int`:
+    `vᵀ (Bᵀ B) v = ∑ i, (B v)_i^2 ≥ 0`. -/
+theorem thm16_gram_btb_positivity {m n : Nat} (B : Fin m → Fin n → Int) (v : Fin n → Int) :
+    btbQuad B v = sumSqInt (matVecInt B v) ∧
+    0 ≤ btbQuad B v := by
+  have hEq : btbQuad B v = sumSqInt (matVecInt B v) := by
+    rw [btbQuad_eq_matrix, ← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec, Matrix.vecMul_transpose]
+    simp only [sumSqInt, matVecInt, dotInt, list_sum_finRange_eq, dotProduct, Matrix.mulVec,
+      Matrix.of_apply, sq]
+  have hNonneg : 0 ≤ sumSqInt (matVecInt B v) := by
+    rw [sumSqInt, list_sum_finRange_eq]
+    exact Finset.sum_nonneg fun i _ => sq_nonneg _
+  exact ⟨hEq, hEq ▸ hNonneg⟩
 
 /-- Theorem 16b: Weighted `Bᵀ W B` Gram reflection positivity: whenever all transfer weights
-    satisfy `w i ≥ 0`, `v ⬝ᵥ (Bᵀ * diagonal w * B) *ᵥ v = ∑ i, w i * (B *ᵥ v i)^2 ≥ 0`. -/
-theorem thm16_weighted_gram_positivity {m n : ℕ} (B : Matrix (Fin m) (Fin n) ℤ)
-    (w : Fin m → ℤ) (v : Fin n → ℤ) (hPos : ∀ i : Fin m, 0 ≤ w i) :
-    0 ≤ dotProduct v ((Bᵀ * Matrix.diagonal w * B).mulVec v) := by
-  have hEq : dotProduct v ((Bᵀ * Matrix.diagonal w * B).mulVec v) =
-      ∑ i : Fin m, w i * (B.mulVec v i) ^ 2 := by
-    rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec,
-      Matrix.vecMul_transpose, ← Matrix.mulVec_mulVec]
+    satisfy `w i ≥ 0`, `vᵀ (Bᵀ diag(w) B) v = ∑ i, w i * (B v)_i^2 ≥ 0`. -/
+theorem thm16_weighted_gram_positivity {m n : Nat} (B : Fin m → Fin n → Int)
+    (w : Fin m → Int) (v : Fin n → Int) (hPos : ∀ i : Fin m, 0 ≤ w i) :
+    0 ≤ weightedBtbQuad B w v := by
+  have hEq : weightedBtbQuad B w v = ∑ i : Fin m, w i * ((Matrix.of B).mulVec v i) ^ 2 := by
+    rw [weightedBtbQuad_eq_matrix, Matrix.mul_assoc, ← Matrix.mulVec_mulVec,
+      Matrix.dotProduct_mulVec, Matrix.vecMul_transpose, ← Matrix.mulVec_mulVec]
     simp only [dotProduct, Matrix.mulVec_diagonal, sq]
     exact Finset.sum_congr rfl fun i _ => by ring
   rw [hEq]

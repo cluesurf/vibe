@@ -1,8 +1,8 @@
 module
 
 public import Vibe.Algebra
-public import Mathlib.Data.Rat.Defs
-public import Mathlib.Algebra.Order.Field.Rat
+import Mathlib.Data.Rat.Defs
+import Mathlib.Algebra.Order.Field.Rat
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.Positivity
@@ -111,16 +111,34 @@ theorem thm5_cusp_lateral_lt_shell (N : Nat → Nat)
 
 /-! ## Theorem 6: Shared-Column Rayleigh Scale Invariance & `{3,4,3,4}` Strict Subluminality -/
 
-/-- Exact rational Rayleigh quotient backed by Mathlib `ℚ`. -/
-abbrev PosRat := ℚ
+/-- Exact positive rational `num / den` (`den > 0`), bridged privately to Mathlib `ℚ`. -/
+structure PosRat where
+  num : Nat
+  den : Nat
+  denPos : den > 0
 
 namespace PosRat
 
-/-- Exact rational equality on `ℚ`. -/
-def eq (a b : PosRat) : Prop := a = b
+/-- Exact rational equality `a.num * b.den = b.num * a.den`. -/
+def eq (a b : PosRat) : Prop := a.num * b.den = b.num * a.den
 
-/-- Exact strict subluminal inequality `a < 1` on `ℚ`. -/
-def ltOne (a : PosRat) : Prop := a < 1
+/-- Exact strict subluminal inequality `a.num < a.den` (`a < 1`). -/
+def ltOne (a : PosRat) : Prop := a.num < a.den
+
+private def toRat (a : PosRat) : ℚ := (a.num : ℚ) / (a.den : ℚ)
+
+private theorem eq_iff_toRat (a b : PosRat) : eq a b ↔ a.toRat = b.toRat := by
+  unfold eq toRat
+  have ha : (a.den : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt a.denPos)
+  have hb : (b.den : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt b.denPos)
+  rw [div_eq_div_iff ha hb]
+  exact_mod_cast Iff.rfl
+
+private theorem ltOne_iff_toRat (a : PosRat) : ltOne a ↔ a.toRat < 1 := by
+  unfold ltOne toRat
+  have ha : (0 : ℚ) < (a.den : ℚ) := Nat.cast_pos.mpr a.denPos
+  rw [div_lt_one ha]
+  exact_mod_cast Iff.rfl
 
 end PosRat
 
@@ -139,16 +157,13 @@ namespace WarpedColumn
 def mEff (C : WarpedColumn) : Nat := sumNat C.F C.M
 def kEff (C : WarpedColumn) : Nat := sumNat C.F C.K
 
-private theorem mEff_pos (C : WarpedColumn) : C.mEff > 0 :=
-  sumNat_pos C.F C.M C.hF C.hM
-
-/-- Base column Rayleigh quotient `K_eff / M_eff ∈ ℚ`. -/
+/-- Base column Rayleigh quotient `K_eff / M_eff`. -/
 def cUniversalSq (C : WarpedColumn) : PosRat :=
-  (C.kEff : ℚ) / (C.mEff : ℚ)
+  ⟨C.kEff, C.mEff, sumNat_pos C.F C.M C.hF C.hM⟩
 
-/-- Rescaled Rayleigh quotient `(s * K_eff) / (s * M_eff) ∈ ℚ` for any positive factor `s > 0`. -/
-def scaledRayleigh (C : WarpedColumn) (s : Nat) (_ : s > 0) : PosRat :=
-  ((s * C.kEff : Nat) : ℚ) / ((s * C.mEff : Nat) : ℚ)
+/-- Rescaled Rayleigh quotient `(s * K_eff) / (s * M_eff)` for any positive factor `s > 0`. -/
+def scaledRayleigh (C : WarpedColumn) (s : Nat) (hs : s > 0) : PosRat :=
+  ⟨s * C.kEff, s * C.mEff, Nat.mul_pos hs (sumNat_pos C.F C.M C.hF C.hM)⟩
 
 end WarpedColumn
 
@@ -160,14 +175,16 @@ theorem thm6_rayleigh_scale_invariance (C : WarpedColumn)
     PosRat.eq (C.scaledRayleigh s1 h1) (C.scaledRayleigh s2 h2) := by
   have hs1 : (s1 : ℚ) ≠ 0 := by positivity
   have hs2 : (s2 : ℚ) ≠ 0 := by positivity
-  have hm : (C.mEff : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt C.mEff_pos)
-  have e1 : C.scaledRayleigh s1 h1 = C.cUniversalSq := by
-    simp only [WarpedColumn.scaledRayleigh, WarpedColumn.cUniversalSq, Nat.cast_mul]
+  have hm : (C.mEff : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt (sumNat_pos C.F C.M C.hF C.hM))
+  have e1 : (C.scaledRayleigh s1 h1).toRat = C.cUniversalSq.toRat := by
+    simp only [PosRat.toRat, WarpedColumn.scaledRayleigh, WarpedColumn.cUniversalSq, Nat.cast_mul]
     field_simp [hs1, hm]
-  have e2 : C.scaledRayleigh s2 h2 = C.cUniversalSq := by
-    simp only [WarpedColumn.scaledRayleigh, WarpedColumn.cUniversalSq, Nat.cast_mul]
+  have e2 : (C.scaledRayleigh s2 h2).toRat = C.cUniversalSq.toRat := by
+    simp only [PosRat.toRat, WarpedColumn.scaledRayleigh, WarpedColumn.cUniversalSq, Nat.cast_mul]
     field_simp [hs2, hm]
-  exact ⟨e1, e2, e1.trans e2.symm⟩
+  exact ⟨(PosRat.eq_iff_toRat _ _).mpr e1,
+    (PosRat.eq_iff_toRat _ _).mpr e2,
+    (PosRat.eq_iff_toRat _ _).mpr (e1.trans e2.symm)⟩
 
 /-- Construct the concrete weighted `{3,4,3,4}` cusp `WarpedColumn`. -/
 def cuspWarpedColumn (N w : Nat → Nat) (F : Nat) (hF : F ≥ 1)
@@ -207,14 +224,12 @@ theorem thm6_strictly_subluminal (N w : Nat → Nat) (F : Nat) (hF : F ≥ 2)
     Nat.mul_lt_mul_of_pos_left (thm5_cusp_lateral_lt_shell N h0 hstep 1 (by omega)) (hw 1)
   have hSub : C.kEff < C.mEff :=
     sumNat_lt_of_step F (fun D => w D * cuspLateralLinks D) (fun D => w D * N D) hF hle h1
-  have hBase : PosRat.ltOne C.cUniversalSq := by
-    unfold PosRat.ltOne WarpedColumn.cUniversalSq
-    have hm : (0 : ℚ) < (C.mEff : ℚ) := Nat.cast_pos.mpr C.mEff_pos
-    rw [div_lt_one hm]
-    exact_mod_cast hSub
-  have hScale : C.scaledRayleigh s hs = C.cUniversalSq :=
-    (thm6_rayleigh_scale_invariance C s s hs hs).1
-  exact ⟨hSub, hBase, hScale ▸ hBase⟩
+  have hBase : PosRat.ltOne C.cUniversalSq := hSub
+  have hScale : (C.scaledRayleigh s hs).toRat = C.cUniversalSq.toRat :=
+    (PosRat.eq_iff_toRat _ _).mp (thm6_rayleigh_scale_invariance C s s hs hs).1
+  refine ⟨hSub, hBase, (PosRat.ltOne_iff_toRat _).mpr ?_⟩
+  rw [hScale]
+  exact (PosRat.ltOne_iff_toRat _).mp hBase
 
 
 /-! ## Explicit 4D `D_4` Root System: Rank-4 `SO(4)` Isotropy, Triangles & Zero-Straddling Premise -/
