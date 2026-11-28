@@ -421,13 +421,13 @@ theorem isZero_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
   · intro h1
     unfold NinthRaw6.equiv at ha
     rw [h1, ninth_scale_eq_mul] at ha
-    have h0 : Ninth.ofInt (pow6 a₂.exp) * (0 : Ninth) = Ninth.zero := by change _ * 0 = 0; ring
+    have h0 : Ninth.ofInt (pow6 a₂.exp) * Ninth.zero = Ninth.zero := by change _ * (0 : Ninth) = 0; ring
     rw [h0] at ha
     exact ninth_scale_pow6_zero a₁.exp a₂.num ha.symm
   · intro h2
     unfold NinthRaw6.equiv at ha
-    rw [h2, ninth_scale_eq_mul] at ha
-    have h0 : Ninth.ofInt (pow6 a₁.exp) * (0 : Ninth) = Ninth.zero := by change _ * 0 = 0; ring
+    rw [h2, ninth_scale_eq_mul (pow6 a₁.exp)] at ha
+    have h0 : Ninth.ofInt (pow6 a₁.exp) * Ninth.zero = Ninth.zero := by change _ * (0 : Ninth) = 0; ring
     rw [h0] at ha
     exact ninth_scale_pow6_zero a₂.exp a₁.num ha
 
@@ -486,28 +486,28 @@ instance : Mul NinthLoc6 := ⟨mul⟩
 instance : Star NinthLoc6 := ⟨conj⟩
 
 instance : CommRing NinthLoc6 where
-  add_assoc := add_assoc
-  zero_add := zero_add
-  add_zero := add_zero
+  add_assoc := NinthLoc6.add_assoc
+  zero_add := NinthLoc6.zero_add
+  add_zero := NinthLoc6.add_zero
   nsmul := nsmulRec
   zsmul := zsmulRec
-  neg_add_cancel a := by change add (neg a) a = zero; rw [add_comm, add_neg]
-  add_comm := add_comm
+  neg_add_cancel a := by change add (neg a) a = zero; rw [NinthLoc6.add_comm, NinthLoc6.add_neg]
+  add_comm := NinthLoc6.add_comm
   sub_eq_add_neg _ _ := rfl
-  left_distrib := mul_add
-  right_distrib := add_mul
-  zero_mul := zero_mul
-  mul_zero := mul_zero
-  mul_assoc := mul_assoc
-  one_mul := one_mul
-  mul_one := mul_one
-  mul_comm := mul_comm
+  left_distrib := NinthLoc6.mul_add
+  right_distrib := NinthLoc6.add_mul
+  zero_mul := NinthLoc6.zero_mul
+  mul_zero := NinthLoc6.mul_zero
+  mul_assoc := NinthLoc6.mul_assoc
+  one_mul := NinthLoc6.one_mul
+  mul_one := NinthLoc6.mul_one
+  mul_comm := NinthLoc6.mul_comm
   npow := npowRec
 
 instance : StarRing NinthLoc6 where
-  star_involutive := conj_conj
-  star_mul a b := by change conj (mul a b) = mul (conj b) (conj a); rw [conj_mul, mul_comm]
-  star_add := conj_add
+  star_involutive := NinthLoc6.conj_conj
+  star_mul a b := by change conj (mul a b) = mul (conj b) (conj a); rw [NinthLoc6.conj_mul, NinthLoc6.mul_comm]
+  star_add := NinthLoc6.conj_add
 
 end NinthLoc6
 
