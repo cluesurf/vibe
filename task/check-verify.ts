@@ -91,6 +91,7 @@ const SUITE_REGISTRY: readonly SuiteSpec[] = [
   // Agency, valence geometry, discrete synergy & empirical protocols
   { group: 'agency', relPath: 'test/verify/agency-valence-synergy-protocol.ts', strictStandalone: true },
   { group: 'agency', relPath: 'test/verify/empirical-affect-tms-power-pipeline.ts', strictStandalone: true },
+  { group: 'agency', relPath: 'test/verify/experiential-boundary-dynamics.ts', strictStandalone: true },
 ]
 
 const VALID_GROUPS: readonly GroupSelection[] = [
@@ -341,8 +342,8 @@ function runStage1Typecheck(
     },
   )
 
-  const ms = Number((performance.now() - t0).toFixed(1))
   if (strictRes.error || strictRes.status !== 0) {
+    const ms = Number((performance.now() - t0).toFixed(1))
     const errText = strictRes.error
       ? strictRes.error.message
       : tailLines(`${strictRes.stdout ?? ''}\n${strictRes.stderr ?? ''}`, 25)
@@ -351,8 +352,51 @@ function runStage1Typecheck(
     return { ok: false, ms, detail: `strict target check exit=${String(strictRes.status)}` }
   }
 
+  // Also enforce --noUnusedLocals --noUnusedParameters on Wave-7 experiential-boundary-dynamics.ts when selected
+  const wave7Rel = 'test/verify/experiential-boundary-dynamics.ts'
+  if (selectedSuites.some(s => s.relPath === wave7Rel)) {
+    const wave7Abs = join(ROOT_DIR, wave7Rel)
+    const unusedRes = spawnSync(
+      tscBin.cmd,
+      [
+        ...tscBin.prefixArgs,
+        '--noEmit',
+        '--strict',
+        '--noUncheckedIndexedAccess',
+        '--noUnusedLocals',
+        '--noUnusedParameters',
+        '--module',
+        'ESNext',
+        '--target',
+        'ES2022',
+        '--moduleResolution',
+        'bundler',
+        '--types',
+        'node',
+        '--skipLibCheck',
+        wave7Abs,
+      ],
+      {
+        cwd: ROOT_DIR,
+        encoding: 'utf8',
+        timeout: typecheckTimeout,
+        maxBuffer: 32 * 1024 * 1024,
+      },
+    )
+    if (unusedRes.error || unusedRes.status !== 0) {
+      const ms = Number((performance.now() - t0).toFixed(1))
+      const errText = unusedRes.error
+        ? unusedRes.error.message
+        : tailLines(`${unusedRes.stdout ?? ''}\n${unusedRes.stderr ?? ''}`, 25)
+      console.log(`  [FAIL] strict --noUnusedLocals --noUnusedParameters check failed on ${wave7Rel} (${ms} ms)`)
+      if (errText.length > 0) console.log(errText)
+      return { ok: false, ms, detail: `unused-locals strict check exit=${String(unusedRes.status)}` }
+    }
+  }
+
+  const ms = Number((performance.now() - t0).toFixed(1))
   console.log(
-    `  [PASS] tsconfig.check.json + strict (--strict --noUncheckedIndexedAccess on ${strictTargets.length} harness/strict files) | ${ms} ms`,
+    `  [PASS] tsconfig.check.json + strict (--strict --noUncheckedIndexedAccess on ${strictTargets.length} files + --noUnusedLocals/--noUnusedParameters on Wave-7) | ${ms} ms`,
   )
   return { ok: true, ms, detail: `0 errors (${ms} ms)` }
 }
@@ -500,7 +544,7 @@ function runStage2Suites(
 }
 
 // =================================================================================================
-// STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (M1..M7, 0/7 SURVIVORS REQUIRED)
+// STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (M1..M8, 0/8 SURVIVORS REQUIRED)
 // =================================================================================================
 
 type C2 = readonly [number, number]
@@ -1005,6 +1049,83 @@ function buildMutantCases(tsxBin: ToolCommand, timeoutMs: number): MutantCase[] 
         assertMutantRejected(() => res.status === 0, 'M7 live in-memory U3.1 cKinDual mutation')
       },
     },
+
+    // ---------------------------------------------------------------------------------------------
+    // M8: Live in-memory source-mutation probes on experiential-boundary-dynamics.ts (ZERO disk writes)
+    // ---------------------------------------------------------------------------------------------
+    {
+      id: 'M8',
+      name: 'Live in-memory source mutations (E1.2/E3.1/E3.2)',
+      description: 'Live stdin mutations on experiential-boundary-dynamics.ts kill [FAIL] E1.2, E3.1 & E3.2',
+      run: () => {
+        const targetRel = 'test/verify/experiential-boundary-dynamics.ts'
+        const targetAbs = join(ROOT_DIR, targetRel)
+        const originalSrc = readFileSync(targetAbs, 'utf8')
+
+        const runLiveMutation = (
+          label: string,
+          needle: string,
+          replacement: string,
+          expectedGateTag: string,
+        ): void => {
+          const firstIdx = originalSrc.indexOf(needle)
+          if (firstIdx === -1) {
+            throw new Error(`${label} anchor not found in ${targetRel}: "${needle}"`)
+          }
+          if (originalSrc.indexOf(needle, firstIdx + 1) !== -1) {
+            throw new Error(`${label} anchor is not unique in ${targetRel}: "${needle}"`)
+          }
+          const mutatedSrc =
+            originalSrc.slice(0, firstIdx) + replacement + originalSrc.slice(firstIdx + needle.length)
+
+          const res = spawnSync(
+            tsxBin.cmd,
+            [...tsxBin.prefixArgs, '--no-warnings=ExperimentalWarning', '-'],
+            {
+              cwd: ROOT_DIR,
+              input: mutatedSrc,
+              encoding: 'utf8',
+              timeout: timeoutMs,
+              maxBuffer: 16 * 1024 * 1024,
+            },
+          )
+          if (res.error) {
+            throw new Error(`${label} live probe execution error: ${res.error.message}`)
+          }
+          const combinedOutput = `${res.stdout ?? ''}\n${res.stderr ?? ''}`
+          if (res.status !== 0 && !combinedOutput.includes(expectedGateTag)) {
+            throw new Error(
+              `${label} exited ${String(res.status)} without hitting ${expectedGateTag}:\n${tailLines(combinedOutput, 10)}`,
+            )
+          }
+          assertMutantRejected(() => res.status === 0, `${label} (${expectedGateTag})`)
+        }
+
+        // M8a: Remove ambient flux P_FLUX_1: 0.12 -> 0.0 (must kill [FAIL] E1.2 protective peak)
+        runLiveMutation(
+          'M8a E1.2 noiseless flux mutation',
+          '  const P_FLUX_1 = 0.12',
+          '  const P_FLUX_1 = 0.0',
+          '[FAIL] E1.2',
+        )
+
+        // M8b: Corrupt 27-state closed bijection derangement a0 + b0 * b0 + 1 -> a0 + b0 * b0 (must kill [FAIL] E3.1)
+        runLiveMutation(
+          'M8b E3.1 closed bijection mutation',
+          '    const a1 = mod3(a0 + b0 * b0 + 1)',
+          '    const a1 = mod3(a0 + b0 * b0)',
+          '[FAIL] E3.1',
+        )
+
+        // M8c: Zero boundary nudge coupling NUDGE_COUPLING: 8.0 -> 0.0 (must kill [FAIL] E3.2 collapse)
+        runLiveMutation(
+          'M8c E3.2 zero nudge coupling mutation',
+          '  const NUDGE_COUPLING = 8.0',
+          '  const NUDGE_COUPLING = 0.0',
+          '[FAIL] E3.2',
+        )
+      },
+    },
   ]
 }
 
@@ -1013,7 +1134,7 @@ async function runStage3Mutants(
   timeoutMs: number,
 ): Promise<{ readonly ok: boolean; readonly killed: number; readonly total: number }> {
   console.log('\n=================================================================================')
-  console.log('STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (7/7 KILL REQUIRED)')
+  console.log('STAGE 3: AUTOMATED IN-MEMORY MUTANT NEGATIVE-CONTROL HARNESS (8/8 KILL REQUIRED)')
   console.log('=================================================================================')
 
   const cases = buildMutantCases(tsxBin, timeoutMs)
