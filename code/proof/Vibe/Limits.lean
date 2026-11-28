@@ -1,112 +1,79 @@
-import Vibe.Rule
-import Vibe.Gauge
+module
+
+public import Vibe.Rule
+public import Vibe.Gauge
+public import Mathlib.Data.Matrix.Basic
+public import Mathlib.Data.Matrix.Mul
+public import Mathlib.Data.Nat.GCD.Basic
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Positivity
 
 /-!
 # Vibe Theory: Transfer-Matrix Gap, Modular PQ Quality, `ℤ[ω]` Word Unitarity & Gram Positivity
 
-- Theorem 14: Exact `3 × 3` `Z_3` transfer-matrix eigenmodes (`a + 2b`, `a - b`) and all-time
-  strict spectral-gap decay for all `a > b > 0` and all `t ≥ 1`.
+- Theorem 14: Exact `3 × 3` `Z_3` transfer-matrix (`Matrix (Fin 3) (Fin 3) ℤ`) eigenmodes
+  (`a + 2b`, `a - b`) via `Matrix.mulVec` and all-time strict spectral-gap decay for `a > b > 0`.
 - Theorem 15: Modular divisibility lower bound `d ≥ N / gcd(N, q)` for `Z_N`-invariant
   Peccei-Quinn operators (with `Z_36` corollaries `d ≥ 18`, `d ≥ 36`), plus arbitrary-word
   zero-decimal `Mat2Eis` unitarity closure over `{M, M2, M†, M2†}`.
-- Theorem 16: Explicit `B^T B` Gram reflection positivity `v^T (B^T B) v = ∑_i (B_i · v)^2 ≥ 0`
-  and weighted Gram positivity for arbitrary integer matrices `B` and vectors `v`.
+- Theorem 16: Canonical `Matrix (Fin m) (Fin n) ℤ` `Bᵀ * B` Gram reflection positivity
+  `v ⬝ᵥ (Bᵀ * B) *ᵥ v = ∑ i, (B *ᵥ v i)^2 ≥ 0` and weighted `Bᵀ * diagonal w * B` positivity.
 -/
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
+
+open Matrix
 
 /-! ## Theorem 14: Concrete `3 × 3` `Z_3` Transfer-Matrix Spectral Gap (`a > b > 0`, `∀ t ≥ 1`) -/
 
 /-- Exact `3 × 3` `Z_3` single-plaquette transfer matrix `T_{ij} = a` if `i = j`, else `b`. -/
-def z3TransferMat (a b : Int) (i j : Fin 3) : Int :=
-  if i = j then a else b
+def z3TransferMat (a b : Int) : Matrix (Fin 3) (Fin 3) ℤ :=
+  Matrix.of fun i j => if i = j then a else b
 
-/-- Matrix-vector action `(T v)_i = ∑_{j : Fin 3} T_{ij} v_j`. -/
-def z3MatVec (a b : Int) (v : Fin 3 → Int) (i : Fin 3) : Int :=
-  z3TransferMat a b i 0 * v 0 + z3TransferMat a b i 1 * v 1 + z3TransferMat a b i 2 * v 2
+/-- Matrix-vector action `(T v)_i = ∑_{j : Fin 3} T_{ij} v_j` via `Matrix.mulVec`. -/
+abbrev z3MatVec (a b : Int) (v : Fin 3 → ℤ) : Fin 3 → ℤ :=
+  (z3TransferMat a b).mulVec v
 
 /-- Uniform vacuum eigenvector `v_0 = (1, 1, 1)`. -/
-def z3VacVec : Fin 3 → Int := fun _ => 1
+def z3VacVec : Fin 3 → ℤ := ![1, 1, 1]
 
 /-- Charged excited eigenvector `v_1 = (1, -1, 0)` orthogonal to `v_0`. -/
-def z3ExcVec : Fin 3 → Int
-  | ⟨0, _⟩ => 1
-  | ⟨1, _⟩ => -1
-  | ⟨2, _⟩ => 0
+def z3ExcVec : Fin 3 → ℤ := ![1, -1, 0]
 
 /-- Theorem 14a: `v_0 = (1, 1, 1)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
     with eigenvalue `λ_0 = a + 2 b` for ALL `a, b : Int`. -/
 theorem thm14_z3_transfer_vacuum_eigenmode (a b : Int) (i : Fin 3) :
     z3MatVec a b z3VacVec i = (a + 2 * b) * z3VacVec i := by
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
-    simp [z3MatVec, z3TransferMat, z3VacVec]
-    omega
+  fin_cases i <;>
+    simp [z3MatVec, z3TransferMat, z3VacVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
+    ring
 
 /-- Theorem 14b: `v_1 = (1, -1, 0)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
-    with eigenvalue `λ_1 = a - b` for ALL `a, b : Int` (and is orthogonal to `v_0`). -/
+    with eigenvalue `λ_1 = a - b` for ALL `a, b : Int`. -/
 theorem thm14_z3_transfer_excited_eigenmode (a b : Int) (i : Fin 3) :
     z3MatVec a b z3ExcVec i = (a - b) * z3ExcVec i := by
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
-    simp [z3MatVec, z3TransferMat, z3ExcVec]
-    omega
-
-private theorem nat_pow_lt_of_lt (l0 l1 : Nat) (hGap : l1 < l0) :
-    ∀ t : Nat, t ≥ 1 → l1 ^ t < l0 ^ t := by
-  intro t ht
-  cases t with
-  | zero => omega
-  | succ k =>
-    induction k with
-    | zero =>
-      change l1 ^ 1 < l0 ^ 1
-      rw [Nat.pow_one, Nat.pow_one]
-      exact hGap
-    | succ m ih =>
-      have hPrev : l1 ^ (m + 1) < l0 ^ (m + 1) := ih (by omega)
-      have hPos0 : 0 < l0 := by omega
-      have h1 : l1 ^ (m + 1) * l1 ≤ l1 ^ (m + 1) * l0 :=
-        Nat.mul_le_mul_left (l1 ^ (m + 1)) (Nat.le_of_lt hGap)
-      have h2 : l1 ^ (m + 1) * l0 < l0 ^ (m + 1) * l0 :=
-        Nat.mul_lt_mul_of_pos_right hPrev hPos0
-      change l1 ^ (m + 2) < l0 ^ (m + 2)
-      rw [Nat.pow_succ l1 (m + 1), Nat.pow_succ l0 (m + 1)]
-      exact Nat.lt_of_le_of_lt h1 h2
-
-private theorem nat_pow_mul_le (l0 l1 : Nat) (hGap : 2 * l1 ≤ l0) :
-    ∀ t : Nat, 2 ^ t * l1 ^ t ≤ l0 ^ t := by
-  intro t
-  induction t with
-  | zero =>
-    simp only [Nat.pow_zero]
-    decide
-  | succ k ih =>
-    have hLhs : 2 ^ (k + 1) * l1 ^ (k + 1) = (2 ^ k * l1 ^ k) * (2 * l1) := by
-      rw [Nat.pow_succ 2 k, Nat.pow_succ l1 k]
-      calc
-        2 ^ k * 2 * (l1 ^ k * l1) = 2 ^ k * (2 * (l1 ^ k * l1)) := by rw [Nat.mul_assoc]
-        _ = 2 ^ k * (l1 ^ k * (2 * l1)) := by
-          rw [← Nat.mul_assoc 2 (l1 ^ k) l1, Nat.mul_comm 2 (l1 ^ k), Nat.mul_assoc (l1 ^ k) 2 l1]
-        _ = (2 ^ k * l1 ^ k) * (2 * l1) := by rw [← Nat.mul_assoc]
-    have hRhs : l0 ^ (k + 1) = l0 ^ k * l0 := Nat.pow_succ l0 k
-    rw [hLhs, hRhs]
-    exact Nat.mul_le_mul ih hGap
+  fin_cases i <;>
+    simp [z3MatVec, z3TransferMat, z3ExcVec, Matrix.mulVec, dotProduct, Fin.sum_univ_three] <;>
+    ring
 
 /-- Theorem 14c: Exact strict spectral gap for EVERY `a > b > 0` in the `3 × 3` `Z_3` transfer matrix:
     `0 < λ_1 = a - b < a + 2 b = λ_0` implies `(a - b)^t < (a + 2 b)^t` for ALL `t ≥ 1`. -/
 theorem thm14_z3_transfer_mass_gap_all_time (a b : Nat) (hb : b > 0) (hab : a > b) :
-    0 < a - b ∧ ∀ t : Nat, t ≥ 1 → (a - b) ^ t < (a + 2 * b) ^ t := by
-  refine ⟨by omega, ?_⟩
-  exact nat_pow_lt_of_lt (a + 2 * b) (a - b) (by omega)
+    0 < a - b ∧ ∀ t : Nat, t ≥ 1 → (a - b) ^ t < (a + 2 * b) ^ t :=
+  ⟨by omega, fun t ht => Nat.pow_lt_pow_left (by omega) (by omega)⟩
 
 /-- Theorem 14d: Exponential factor-`2^t` suppression of the `Z_3` excited mode whenever `b < a ≤ 4 b`
     (`2 (a - b) ≤ a + 2 b`, mass gap `≥ ln 2`): `2^t (a - b)^t ≤ (a + 2 b)^t` for ALL `t : Nat`. -/
 theorem thm14_z3_transfer_exp_suppression (a b : Nat) (hab : a > b) (hStrong : a ≤ 4 * b) :
-    ∀ t : Nat, 2 ^ t * (a - b) ^ t ≤ (a + 2 * b) ^ t :=
-  nat_pow_mul_le (a + 2 * b) (a - b) (by omega)
+    ∀ t : Nat, 2 ^ t * (a - b) ^ t ≤ (a + 2 * b) ^ t := by
+  intro t
+  rw [← mul_pow]
+  exact Nat.pow_le_pow_left (by omega) t
 
 
 /-! ## Theorem 15: Modular `Z_N` PQ Operator-Dimension Bound & Arbitrary-Word `Mat2Eis` Unitarity -/
@@ -117,37 +84,18 @@ theorem thm14_z3_transfer_exp_suppression (a b : Nat) (hab : a > b) (hStrong : a
 theorem thm15_zn_pq_min_operator_dim (N q d : Nat) (hN : N ≥ 1) (hd : d ≥ 1)
     (hInv : (d * q) % N = 0) : d ≥ N / Nat.gcd N q := by
   let g := Nat.gcd N q
-  let n' := N / g
-  let q' := q / g
   have hgPos : 0 < g := Nat.gcd_pos_of_pos_left q hN
-  have hN_eq : g * n' = N := Nat.mul_div_cancel' (Nat.gcd_dvd_left N q)
-  have hq_eq : g * q' = q := Nat.mul_div_cancel' (Nat.gcd_dvd_right N q)
-  have hCoprime : Nat.gcd n' q' = 1 := by
-    have hMul : g * Nat.gcd n' q' = g * 1 := by
-      calc g * Nat.gcd n' q'
-          = Nat.gcd (g * n') (g * q') := (Nat.gcd_mul_left g n' q').symm
-        _ = Nat.gcd N q := by rw [hN_eq, hq_eq]
-        _ = g * 1 := (Nat.mul_one g).symm
-    exact Nat.eq_of_mul_eq_mul_left hgPos hMul
+  have hCop : Nat.Coprime (N / g) (q / g) := Nat.coprime_div_gcd_div_gcd hgPos
   have hNdvd : N ∣ d * q := Nat.dvd_of_mod_eq_zero hInv
-  cases hNdvd with
-  | intro k hk =>
-  have hn'dvd_dq' : n' ∣ d * q' := by
-    refine ⟨k, ?_⟩
-    have hMul : g * (d * q') = g * (n' * k) := by
-      calc g * (d * q')
-          = d * (g * q') := Nat.mul_left_comm g d q'
-        _ = d * q := by rw [hq_eq]
-        _ = N * k := hk
-        _ = (g * n') * k := by rw [hN_eq]
-        _ = g * (n' * k) := Nat.mul_assoc g n' k
-    exact Nat.eq_of_mul_eq_mul_left hgPos hMul
-  have hn'dvd_dn' : n' ∣ d * n' := ⟨d, Nat.mul_comm d n'⟩
-  have hn'dvd_gcd : n' ∣ Nat.gcd (d * n') (d * q') := Nat.dvd_gcd hn'dvd_dn' hn'dvd_dq'
-  have hGcdEq : Nat.gcd (d * n') (d * q') = d := by
-    rw [Nat.gcd_mul_left, hCoprime, Nat.mul_one]
-  rw [hGcdEq] at hn'dvd_gcd
-  exact Nat.le_of_dvd hd hn'dvd_gcd
+  have hDvd' : N / g ∣ d * (q / g) := by
+    rcases hNdvd with ⟨k, hk⟩
+    refine ⟨k, Nat.eq_of_mul_eq_mul_left hgPos ?_⟩
+    calc g * (d * (q / g)) = d * (g * (q / g)) := by ring
+      _ = d * q := by rw [Nat.mul_div_cancel' (Nat.gcd_dvd_right N q)]
+      _ = N * k := hk
+      _ = g * (N / g) * k := by rw [Nat.mul_div_cancel' (Nat.gcd_dvd_left N q)]
+      _ = g * (N / g * k) := by ring
+  exact Nat.le_of_dvd hd (hCop.dvd_of_dvd_mul_right hDvd')
 
 /-- Corollary 15b: Under `Z_36` with PQ scalar charge `q = 2`, every invariant `Φ^d` has `d ≥ 18`. -/
 theorem thm15_z36_pq_dim_ge_18 (d : Nat) (hd : d ≥ 1) (hInv : (d * 2) % 36 = 0) : d ≥ 18 :=
@@ -157,18 +105,10 @@ theorem thm15_z36_pq_dim_ge_18 (d : Nat) (hd : d ≥ 1) (hInv : (d * 2) % 36 = 0
 theorem thm15_z36_pq_dim_ge_36 (d : Nat) (hd : d ≥ 1) (hInv : (d * 1) % 36 = 0) : d ≥ 36 :=
   thm15_zn_pq_min_operator_dim 36 1 d (by decide) hd hInv
 
-/-- Exact anti-homomorphism `(A B)† = B† A†` on `Mat_2(ℤ[ω])` using `StarCommRing Eis`. -/
+/-- Exact anti-homomorphism `(A B)† = B† A†` on `Mat_2(ℤ[ω])`. -/
 theorem thm15_mat2eis_dag_mul (A B : Mat2Eis) :
     Mat2Eis.dag (Mat2Eis.mul A B) = Mat2Eis.mul (Mat2Eis.dag B) (Mat2Eis.dag A) := by
-  have hAdd : ∀ x y : Eis, Eis.conj (Eis.add x y) = Eis.add (Eis.conj x) (Eis.conj y) :=
-    StarCommRing.conj_add
-  have hMul : ∀ x y : Eis, Eis.conj (Eis.mul x y) = Eis.mul (Eis.conj y) (Eis.conj x) := by
-    intro x y
-    exact Eq.trans (StarCommRing.conj_mul (R := Eis) x y)
-      (StarCommRing.mul_comm (R := Eis) (Eis.conj x) (Eis.conj y))
-  cases A; cases B
-  simp only [Mat2Eis.dag, Mat2Eis.mul, Mat2Eis.mk.injEq]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> rw [hAdd, hMul, hMul]
+  ext <;> dsimp [Mat2Eis.dag, Mat2Eis.mul, Eis.conj, Eis.add, Eis.mul] <;> ring
 
 /-- Exact `ℤ[ω][1/2]` unitary composition closure:
     if `A† A = sA I` and `B† B = sB I`, then `(A B)† (A B) = (sA sB) I` with zero rounding error. -/
@@ -179,22 +119,11 @@ theorem thm15_mat2eis_unitary_comp (A B : Mat2Eis) (sA sB : Int)
       = Mat2Eis.scale (sA * sB) Mat2Eis.id := by
   rw [thm15_mat2eis_dag_mul, Mat2Eis.mul_assoc, ← Mat2Eis.mul_assoc (Mat2Eis.dag A) A B, hA]
   have hScaleL : ∀ (s : Int) (M : Mat2Eis),
-      Mat2Eis.mul (Mat2Eis.scale s Mat2Eis.id) M = Mat2Eis.scale s M := by
-    intro s M
-    cases M with
-    | mk m00 m01 m10 m11 =>
-      cases m00; cases m01; cases m10; cases m11
-      simp only [Mat2Eis.mul, Mat2Eis.scale, Mat2Eis.id, Eis.scale, Eis.one, Eis.zero, Eis.add, Eis.mul,
-        Int.mul_one, Int.mul_zero, Int.zero_mul, Int.add_zero, Int.zero_add, Int.sub_zero]
+      Mat2Eis.mul (Mat2Eis.scale s Mat2Eis.id) M = Mat2Eis.scale s M := fun s M => by
+    ext <;> dsimp [Mat2Eis.mul, Mat2Eis.scale, Mat2Eis.id, Eis.scale, Eis.one, Eis.zero, Eis.add, Eis.mul] <;> ring
   have hScaleScale : ∀ (s1 s2 : Int) (M : Mat2Eis),
-      Mat2Eis.scale s1 (Mat2Eis.scale s2 M) = Mat2Eis.scale (s1 * s2) M := by
-    intro s1 s2 M
-    cases M with
-    | mk m00 m01 m10 m11 =>
-      cases m00; cases m01; cases m10; cases m11
-      simp only [Mat2Eis.scale, Eis.scale, Mat2Eis.mk.injEq, Eis.mk.injEq]
-      refine ⟨⟨?_, ?_⟩, ⟨?_, ?_⟩, ⟨?_, ?_⟩, ⟨?_, ?_⟩⟩ <;>
-        rw [Int.mul_assoc]
+      Mat2Eis.scale s1 (Mat2Eis.scale s2 M) = Mat2Eis.scale (s1 * s2) M := fun s1 s2 M => by
+    ext <;> dsimp [Mat2Eis.scale, Eis.scale] <;> ring
   rw [hScaleL sA B, Mat2Eis.mul_scale, hB, hScaleScale]
 
 /-- Exact integer powers of 4: `pow4Int n = 4^n`. -/
@@ -206,18 +135,11 @@ theorem thm15_gateM_pow_unitary_all_lengths :
     ∀ n : Nat,
       Mat2Eis.mul (Mat2Eis.dag (Mat2Eis.pow gateM n)) (Mat2Eis.pow gateM n)
         = Mat2Eis.scale (pow4Int n) Mat2Eis.id := by
-  intro n
-  induction n with
+  intro n; induction n with
   | zero => decide
   | succ k ih =>
-    have hStep : Mat2Eis.pow gateM (k + 1) = Mat2Eis.mul (Mat2Eis.pow gateM k) gateM := rfl
-    rw [hStep]
     have hComp := thm15_mat2eis_unitary_comp (Mat2Eis.pow gateM k) gateM (pow4Int k) 4 ih thm3_M_unitary_left
-    rw [hComp]
-    have hComm : pow4Int k * 4 = pow4Int (k + 1) := by
-      change pow4Int k * 4 = 4 * pow4Int k
-      exact Int.mul_comm (pow4Int k) 4
-    rw [hComm]
+    simpa only [Mat2Eis.pow, pow4Int, mul_comm (pow4Int k) 4] using hComp
 
 theorem thm15_gateM2_unitary_left :
     Mat2Eis.mul (Mat2Eis.dag gateM2) gateM2 = Mat2Eis.scale 4 Mat2Eis.id := by
@@ -227,18 +149,11 @@ theorem thm15_gateM2_pow_unitary_all_lengths :
     ∀ n : Nat,
       Mat2Eis.mul (Mat2Eis.dag (Mat2Eis.pow gateM2 n)) (Mat2Eis.pow gateM2 n)
         = Mat2Eis.scale (pow4Int n) Mat2Eis.id := by
-  intro n
-  induction n with
+  intro n; induction n with
   | zero => decide
   | succ k ih =>
-    have hStep : Mat2Eis.pow gateM2 (k + 1) = Mat2Eis.mul (Mat2Eis.pow gateM2 k) gateM2 := rfl
-    rw [hStep]
     have hComp := thm15_mat2eis_unitary_comp (Mat2Eis.pow gateM2 k) gateM2 (pow4Int k) 4 ih thm15_gateM2_unitary_left
-    rw [hComp]
-    have hComm : pow4Int k * 4 = pow4Int (k + 1) := by
-      change pow4Int k * 4 = 4 * pow4Int k
-      exact Int.mul_comm (pow4Int k) 4
-    rw [hComm]
+    simpa only [Mat2Eis.pow, pow4Int, mul_comm (pow4Int k) 4] using hComp
 
 /-- Four-generator dense `SU(2)` gate alphabet `{M, M2, M†, M2†}` inside `Mat_2(ℤ[ω])`. -/
 inductive EisGen where
@@ -278,112 +193,33 @@ theorem thm15_eisWord_unitary_all_words (w : List EisGen) :
       (evalEisGen_unitary_left g) ih
 
 
-/-! ## Theorem 16: Explicit `B^T B` Gram Reflection Positivity (`v^T (B^T B) v ≥ 0`) -/
+/-! ## Theorem 16: Canonical `Bᵀ B` & Weighted `Bᵀ W B` Gram Reflection Positivity -/
 
-/-- Exact integer inner product `u · v = ∑_j u_j v_j`. -/
-def dotInt : List Int → List Int → Int
-  | [], _ => 0
-  | _, [] => 0
-  | x :: xs, y :: ys => x * y + dotInt xs ys
+/-- Theorem 16a: Exact `Bᵀ B` Gram reflection positivity for EVERY integer matrix
+    `B : Matrix (Fin m) (Fin n) ℤ` and EVERY integer vector `v : Fin n → ℤ`:
+    `v ⬝ᵥ (Bᵀ * B) *ᵥ v = ∑ i, (B *ᵥ v i)^2 ≥ 0`. -/
+theorem thm16_gram_btb_positivity {m n : ℕ} (B : Matrix (Fin m) (Fin n) ℤ) (v : Fin n → ℤ) :
+    dotProduct v ((Bᵀ * B).mulVec v) = ∑ i : Fin m, (B.mulVec v i) ^ 2 ∧
+    0 ≤ dotProduct v ((Bᵀ * B).mulVec v) := by
+  have hEq : dotProduct v ((Bᵀ * B).mulVec v) = ∑ i : Fin m, (B.mulVec v i) ^ 2 := by
+    rw [← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec, Matrix.vecMul_transpose]
+    simp [dotProduct, sq]
+  exact ⟨hEq, hEq ▸ Finset.sum_nonneg fun i _ => sq_nonneg _⟩
 
-/-- Matrix-vector product `B v` for an arbitrary integer matrix `B` represented as a list of rows. -/
-def matVecInt (B : List (List Int)) (v : List Int) : List Int :=
-  B.map (fun row => dotInt row v)
-
-/-- Sum of squares `∑_i y_i^2` of an integer vector. -/
-def sumSqInt : List Int → Int
-  | [] => 0
-  | x :: xs => x * x + sumSqInt xs
-
-private theorem sumSqInt_nonneg (xs : List Int) : 0 ≤ sumSqInt xs := by
-  induction xs with
-  | nil => decide
-  | cons x rest ih =>
-    simp only [sumSqInt]
-    have hx := int_sq_nonneg x
-    omega
-
-/-- Inner bilinear sum `∑_j (v_j r_j) (r_k v_k)` for one fixed `k`-term. -/
-def rowGramInner (rk vk : Int) : List Int → List Int → Int
-  | [], _ => 0
-  | _, [] => 0
-  | rj :: rs, vj :: vs => (rj * vj) * (rk * vk) + rowGramInner rk vk rs vs
-
-/-- Outer bilinear sum `∑_k ∑_j (r_j v_j) (r_k v_k) = v^T (r^T r) v`. -/
-def rowGramOuter (r v : List Int) : List Int → List Int → Int
-  | [], _ => 0
-  | _, [] => 0
-  | rk :: rs, vk :: vs => rowGramInner rk vk r v + rowGramOuter r v rs vs
-
-/-- Full explicit `B^T B` Gram quadratic form `v^T (B^T B) v = ∑_{row ∈ B} ∑_k ∑_j B_{ij} v_j B_{ik} v_k`. -/
-def gramQuadForm (B : List (List Int)) (v : List Int) : Int :=
-  match B with
-  | [] => 0
-  | row :: rest => rowGramOuter row v row v + gramQuadForm rest v
-
-private theorem rowGramInner_eq (rk vk : Int) (xs ys : List Int) :
-    rowGramInner rk vk xs ys = dotInt xs ys * (rk * vk) := by
-  induction xs generalizing ys with
-  | nil =>
-    simp only [rowGramInner, dotInt, Int.zero_mul]
-  | cons x rest ih =>
-    cases ys with
-    | nil =>
-      simp only [rowGramInner, dotInt, Int.zero_mul]
-    | cons y resty =>
-      simp only [rowGramInner, dotInt]
-      rw [ih resty, Int.add_mul]
-
-private theorem rowGramOuter_eq (r v xs ys : List Int) :
-    rowGramOuter r v xs ys = dotInt r v * dotInt xs ys := by
-  induction xs generalizing ys with
-  | nil =>
-    simp only [rowGramOuter, dotInt, Int.mul_zero]
-  | cons x rest ih =>
-    cases ys with
-    | nil =>
-      simp only [rowGramOuter, dotInt, Int.mul_zero]
-    | cons y resty =>
-      simp only [rowGramOuter, dotInt]
-      rw [rowGramInner_eq, ih resty, Int.mul_add]
-
-/-- Theorem 16a: Exact `B^T B` Gram reflection positivity for EVERY integer matrix `B`
-    and EVERY integer vector `v`:
-    `v^T (B^T B) v = ∑_i (∑_j B_{ij} v_j)^2 ≥ 0`. -/
-theorem thm16_gram_btb_positivity (B : List (List Int)) (v : List Int) :
-    gramQuadForm B v = sumSqInt (matVecInt B v) ∧ 0 ≤ gramQuadForm B v := by
-  have hEq : gramQuadForm B v = sumSqInt (matVecInt B v) := by
-    induction B with
-    | nil => rfl
-    | cons row rest ih =>
-      simp only [gramQuadForm, matVecInt, List.map_cons, sumSqInt]
-      rw [rowGramOuter_eq, ih]
-      rfl
-  exact ⟨hEq, hEq ▸ sumSqInt_nonneg (matVecInt B v)⟩
-
-/-- Weighted Gram quadratic form `∑_i w_i (v^T (r_i^T r_i) v)` with per-row weights `w_i`. -/
-def weightedGramQuadForm (weightedRows : List (Int × List Int)) (v : List Int) : Int :=
-  match weightedRows with
-  | [] => 0
-  | (w, row) :: rest => w * rowGramOuter row v row v + weightedGramQuadForm rest v
-
-/-- Theorem 16b: Weighted `B^T W B` Gram reflection positivity: whenever all transfer weights
-    satisfy `w_i ≥ 0`, `v^T (B^T W B) v = ∑_i w_i (B_i · v)^2 ≥ 0` for EVERY vector `v`. -/
-theorem thm16_weighted_gram_positivity (weightedRows : List (Int × List Int)) (v : List Int)
-    (hPos : ∀ p ∈ weightedRows, 0 ≤ p.1) : 0 ≤ weightedGramQuadForm weightedRows v := by
-  induction weightedRows with
-  | nil =>
-    simp only [weightedGramQuadForm]
-    decide
-  | cons p rest ih =>
-    cases p with
-    | mk w row =>
-      simp only [weightedGramQuadForm]
-      rw [rowGramOuter_eq]
-      have hw : 0 ≤ w := hPos (w, row) (List.Mem.head rest)
-      have hx : 0 ≤ dotInt row v * dotInt row v := int_sq_nonneg (dotInt row v)
-      have hTerm : 0 ≤ w * (dotInt row v * dotInt row v) := Int.mul_nonneg hw hx
-      have hRest : 0 ≤ weightedGramQuadForm rest v := ih (fun q hq => hPos q (List.Mem.tail _ hq))
-      omega
+/-- Theorem 16b: Weighted `Bᵀ W B` Gram reflection positivity: whenever all transfer weights
+    satisfy `w i ≥ 0`, `v ⬝ᵥ (Bᵀ * diagonal w * B) *ᵥ v = ∑ i, w i * (B *ᵥ v i)^2 ≥ 0`. -/
+theorem thm16_weighted_gram_positivity {m n : ℕ} (B : Matrix (Fin m) (Fin n) ℤ)
+    (w : Fin m → ℤ) (v : Fin n → ℤ) (hPos : ∀ i : Fin m, 0 ≤ w i) :
+    0 ≤ dotProduct v ((Bᵀ * Matrix.diagonal w * B).mulVec v) := by
+  have hEq : dotProduct v ((Bᵀ * Matrix.diagonal w * B).mulVec v) =
+      ∑ i : Fin m, w i * (B.mulVec v i) ^ 2 := by
+    rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec,
+      Matrix.vecMul_transpose, Matrix.mulVec_diagonal]
+    simp only [dotProduct, sq]
+    exact Finset.sum_congr rfl fun i _ => by ring
+  rw [hEq]
+  exact Finset.sum_nonneg fun i _ => mul_nonneg (hPos i) (sq_nonneg _)
 
 end Vibe
+
+end

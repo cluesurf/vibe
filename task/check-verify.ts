@@ -1,10 +1,10 @@
-// Wave-5 & Wave-6 One-Command Verification Gate + Automated Mutant Negative-Control Harness.
+// One-Command Verification Gate + Automated Mutant Negative-Control Harness.
 //
 // Strictly deterministic (zero Math.random), laptop-safe sequential execution,
 // bounded per-suite timeout & peak RSS telemetry, zero disk writes during mutant probing.
 //
 // Usage:
-//   npx tsx --no-warnings=ExperimentalWarning task/check-verify.ts [--wave=5|6|all] [--suite=<substr>]
+//   npx tsx --no-warnings=ExperimentalWarning task/check-verify.ts [--group=universality|standard-model|gravity|agency|all] [--suite=<substr>]
 //     [--max-rss-mb=512] [--timeout-ms=30000] [--skip-typecheck] [--skip-mutants]
 
 import { spawnSync } from 'node:child_process'
@@ -18,10 +18,11 @@ import {
   type MutantCase,
 } from '../code/verify/mutant'
 
-type WaveSelection = '5' | '6' | 'all'
+type SuiteGroup = 'universality' | 'standard-model' | 'gravity' | 'agency'
+type GroupSelection = SuiteGroup | 'all'
 
 interface CliOptions {
-  readonly wave: WaveSelection
+  readonly group: GroupSelection
   readonly suiteFilter: string | null
   readonly maxRssMb: number
   readonly timeoutMs: number
@@ -30,8 +31,9 @@ interface CliOptions {
 }
 
 interface SuiteSpec {
-  readonly wave: '5' | '6'
+  readonly group: SuiteGroup
   readonly relPath: string
+  readonly strictStandalone: boolean
 }
 
 interface ProbeMetrics {
@@ -41,7 +43,7 @@ interface ProbeMetrics {
 }
 
 interface SuiteRunResult {
-  readonly wave: '5' | '6'
+  readonly group: SuiteGroup
   readonly relPath: string
   readonly passed: boolean
   readonly exitCode: number | null
@@ -62,30 +64,45 @@ const METRICS_PREFIX = '__VIBE_METRICS__='
 const PI = Math.PI
 const SQRT3 = Math.sqrt(3)
 
-const WAVE5_SUITES: readonly string[] = [
-  'test/verify/turing-universality-native-3434.ts',
-  'test/verify/bare-u-periodic-mirrors-and-bounds.ts',
-  'test/verify/bare-u-arbitrary-n-and-zero-w0.ts',
-  'test/verify/autonomous-bare-u-computability.ts',
-  'test/verify/sm-unified-gauge-chiral-fermions.ts',
-  'test/verify/ewsb-higgs-hosotani-fms-qca.ts',
-  'test/verify/three-generations-index-audit.ts',
-  'test/verify/ir-light-mass-and-emc2-closure.ts',
-  'test/verify/sm-closure-track3-yukawa-nb-freezing.ts',
-  'test/verify/sm-dense-ring-gauge-continuum.ts',
-  'test/verify/sm-16fermion-smg-flavor-precision.ts',
-  'test/verify/sm-gw-depth-and-uv-stiffness.ts',
-  'test/verify/sm-all-vibe-relational-gauge-fermions.ts',
-  'test/verify/sm-native-three-generations.ts',
-  'test/verify/sm-bare-radion-flavor-uv-audit.ts',
-  'test/verify/sm-chiral-lattice-qcd-leptogenesis.ts',
+const SUITE_REGISTRY: readonly SuiteSpec[] = [
+  // Universality & bare-U computability
+  { group: 'universality', relPath: 'test/verify/turing-universality-native-3434.ts', strictStandalone: false },
+  { group: 'universality', relPath: 'test/verify/bare-u-periodic-mirrors-and-bounds.ts', strictStandalone: false },
+  { group: 'universality', relPath: 'test/verify/bare-u-arbitrary-n-and-zero-w0.ts', strictStandalone: false },
+  { group: 'universality', relPath: 'test/verify/autonomous-bare-u-computability.ts', strictStandalone: false },
+  // Standard Model gauge, chirality, Higgs/EWSB, generations, flavor, QCD & leptogenesis
+  { group: 'standard-model', relPath: 'test/verify/sm-unified-gauge-chiral-fermions.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/ewsb-higgs-hosotani-fms-qca.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/three-generations-index-audit.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/ir-light-mass-and-emc2-closure.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-closure-track3-yukawa-nb-freezing.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-dense-ring-gauge-continuum.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-16fermion-smg-flavor-precision.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-gw-depth-and-uv-stiffness.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-all-vibe-relational-gauge-fermions.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-native-three-generations.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-bare-radion-flavor-uv-audit.ts', strictStandalone: false },
+  { group: 'standard-model', relPath: 'test/verify/sm-chiral-lattice-qcd-leptogenesis.ts', strictStandalone: false },
+  // Gravity, Plebanski BF, holography, hardware slice, condensate & dark sector
+  { group: 'gravity', relPath: 'test/verify/null-cone-bf-holography-hardware.ts', strictStandalone: true },
+  { group: 'gravity', relPath: 'test/verify/condensate-flux-dark-sector.ts', strictStandalone: true },
+  { group: 'gravity', relPath: 'test/verify/hardware-qasm-noise-sweep.ts', strictStandalone: true },
+  // Agency, valence geometry, discrete synergy & empirical protocols
+  { group: 'agency', relPath: 'test/verify/agency-valence-synergy-protocol.ts', strictStandalone: true },
+  { group: 'agency', relPath: 'test/verify/empirical-affect-tms-power-pipeline.ts', strictStandalone: true },
 ]
 
-const WAVE6_SUITES: readonly string[] = [
-  'test/verify/w6-null-cone-bf-holography-hardware.ts',
-  'test/verify/w6-condensate-flux-dark-sector.ts',
-  'test/verify/w6-agency-valence-synergy-note47.ts',
+const VALID_GROUPS: readonly GroupSelection[] = [
+  'universality',
+  'standard-model',
+  'gravity',
+  'agency',
+  'all',
 ]
+
+function isGroupSelection(val: string): val is GroupSelection {
+  return (VALID_GROUPS as readonly string[]).includes(val)
+}
 
 const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -98,7 +115,7 @@ function parsePositiveNumber(raw: string, flagName: string): number {
 }
 
 function parseArgs(argv: readonly string[]): CliOptions {
-  let wave: WaveSelection = 'all'
+  let group: GroupSelection = 'all'
   let suiteFilter: string | null = null
   let maxRssMb = 512
   let timeoutMs = 30_000
@@ -111,18 +128,18 @@ function parseArgs(argv: readonly string[]): CliOptions {
       skipTypecheck = true
     } else if (arg === '--skip-mutants') {
       skipMutants = true
-    } else if (arg.startsWith('--wave=')) {
-      const val = arg.slice('--wave='.length)
-      if (val !== '5' && val !== '6' && val !== 'all') {
-        throw new Error(`Invalid --wave value "${val}" (expected 5, 6, or all)`)
+    } else if (arg.startsWith('--group=')) {
+      const val = arg.slice('--group='.length)
+      if (!isGroupSelection(val)) {
+        throw new Error(`Invalid --group value "${val}" (expected ${VALID_GROUPS.join(', ')})`)
       }
-      wave = val
-    } else if (arg === '--wave' && i + 1 < argv.length) {
+      group = val
+    } else if (arg === '--group' && i + 1 < argv.length) {
       const val = argv[++i]!
-      if (val !== '5' && val !== '6' && val !== 'all') {
-        throw new Error(`Invalid --wave value "${val}" (expected 5, 6, or all)`)
+      if (!isGroupSelection(val)) {
+        throw new Error(`Invalid --group value "${val}" (expected ${VALID_GROUPS.join(', ')})`)
       }
-      wave = val
+      group = val
     } else if (arg.startsWith('--suite=')) {
       suiteFilter = arg.slice('--suite='.length)
     } else if (arg === '--suite' && i + 1 < argv.length) {
@@ -141,7 +158,7 @@ function parseArgs(argv: readonly string[]): CliOptions {
   }
 
   return {
-    wave,
+    group,
     suiteFilter,
     maxRssMb,
     timeoutMs,
@@ -159,17 +176,10 @@ function resolveLocalBin(binName: 'tsc' | 'tsx'): ToolCommand {
 }
 
 function selectSuites(opts: CliOptions): SuiteSpec[] {
-  const specs: SuiteSpec[] = []
-  if (opts.wave === '5' || opts.wave === 'all') {
-    for (const relPath of WAVE5_SUITES) {
-      specs.push({ wave: '5', relPath })
-    }
-  }
-  if (opts.wave === '6' || opts.wave === 'all') {
-    for (const relPath of WAVE6_SUITES) {
-      specs.push({ wave: '6', relPath })
-    }
-  }
+  const specs =
+    opts.group === 'all'
+      ? [...SUITE_REGISTRY]
+      : SUITE_REGISTRY.filter(s => s.group === opts.group)
   if (opts.suiteFilter !== null && opts.suiteFilter.length > 0) {
     const needle = opts.suiteFilter.toLowerCase()
     return specs.filter(s => s.relPath.toLowerCase().includes(needle))
@@ -262,7 +272,7 @@ function runStage1Typecheck(
   timeoutMs: number,
 ): { readonly ok: boolean; readonly ms: number; readonly detail: string } {
   console.log('\n=================================================================================')
-  console.log('STAGE 1: STRICT TYPECHECK (tsconfig.check.json + strict verify/Wave-6 audit)')
+  console.log('STAGE 1: STRICT TYPECHECK (tsconfig.check.json + strict harness/suite audit)')
   console.log('=================================================================================')
 
   const t0 = performance.now()
@@ -289,14 +299,14 @@ function runStage1Typecheck(
     return { ok: false, ms, detail: `tsconfig.check.json exit=${String(checkRes.status)}` }
   }
 
-  // Explicitly enforce --strict --noUncheckedIndexedAccess on verify harness + existing Wave-6 suites
+  // Explicitly enforce --strict --noUncheckedIndexedAccess on verify harness + strict suites
   const strictTargets: string[] = [
     join(ROOT_DIR, 'code/verify/mutant.ts'),
     join(ROOT_DIR, 'code/verify/rss-probe.ts'),
     join(ROOT_DIR, 'task/check-verify.ts'),
   ]
   for (const s of selectedSuites) {
-    if (s.wave === '6') {
+    if (s.strictStandalone) {
       const abs = join(ROOT_DIR, s.relPath)
       if (existsSync(abs)) {
         strictTargets.push(abs)
@@ -341,7 +351,7 @@ function runStage1Typecheck(
   }
 
   console.log(
-    `  [PASS] tsconfig.check.json + strict (--strict --noUncheckedIndexedAccess on ${strictTargets.length} harness/Wave-6 files) | ${ms} ms`,
+    `  [PASS] tsconfig.check.json + strict (--strict --noUncheckedIndexedAccess on ${strictTargets.length} harness/strict files) | ${ms} ms`,
   )
   return { ok: true, ms, detail: `0 errors (${ms} ms)` }
 }
@@ -360,7 +370,7 @@ function runSingleSuite(
   const absPath = join(ROOT_DIR, spec.relPath)
   if (!existsSync(absPath)) {
     return {
-      wave: spec.wave,
+      group: spec.group,
       relPath: spec.relPath,
       passed: false,
       exitCode: null,
@@ -417,7 +427,7 @@ function runSingleSuite(
   const diagnosticTail = passed ? '' : tailLines(`${strippedStdout}\n${rawStderr}`, 15)
 
   return {
-    wave: spec.wave,
+    group: spec.group,
     relPath: spec.relPath,
     passed,
     exitCode: res.status,
@@ -442,7 +452,7 @@ function runStage2Suites(
 } {
   console.log('\n=================================================================================')
   console.log(
-    `STAGE 2: SEQUENTIAL VERIFICATION SUITES (wave=${opts.wave}, count=${suites.length}, maxRss=${opts.maxRssMb} MB, timeout=${opts.timeoutMs} ms)`,
+    `STAGE 2: SEQUENTIAL VERIFICATION SUITES (group=${opts.group}, count=${suites.length}, maxRss=${opts.maxRssMb} MB, timeout=${opts.timeoutMs} ms)`,
   )
   console.log('=================================================================================')
 
@@ -467,7 +477,7 @@ function runStage2Suites(
     const rssStr = r.metrics !== null ? `${r.metrics.rssMb.toFixed(1)} MB` : 'n/a'
     const heapStr = r.metrics !== null ? `${r.metrics.heapMb.toFixed(1)} MB` : 'n/a'
     console.log(
-      `  [${statusTag}] ${idxTag} [W${r.wave}] ${r.relPath.padEnd(56)} | ${r.wallMs.toFixed(0).padStart(5)} ms | RSS ${rssStr.padStart(8)} | Heap ${heapStr.padStart(8)}`,
+      `  [${statusTag}] ${idxTag} [${r.group.padEnd(14)}] ${r.relPath.padEnd(56)} | ${r.wallMs.toFixed(0).padStart(5)} ms | RSS ${rssStr.padStart(8)} | Heap ${heapStr.padStart(8)}`,
     )
     if (!r.passed) {
       console.log(`         Reason: ${r.failureReason ?? 'unknown failure'}`)
@@ -944,7 +954,7 @@ function buildMutantCases(tsxBin: ToolCommand, timeoutMs: number): MutantCase[] 
     // ---------------------------------------------------------------------------------------------
     {
       id: 'M7',
-      name: 'Live in-memory Wave-5 source mutation (U3.1)',
+      name: 'Live in-memory source mutation (U3.1)',
       description: 'In-memory cKinDual = cKinD4/4 -> cKinD4 piped to tsx stdin kills sm-bare-radion-flavor-uv-audit.ts',
       run: () => {
         const targetRel = 'test/verify/sm-bare-radion-flavor-uv-audit.ts'
@@ -1048,12 +1058,12 @@ async function main(): Promise<void> {
   console.log('VIBE VERIFICATION REGRESSION GATE & MUTANT HARNESS')
   console.log('=================================================================================')
   console.log(
-    `  Wave=${opts.wave} | Suites=${selectedSuites.length}${opts.suiteFilter ? ` (filter="${opts.suiteFilter}")` : ''} | maxRss=${opts.maxRssMb} MB | timeout=${opts.timeoutMs} ms`,
+    `  Group=${opts.group} | Suites=${selectedSuites.length}${opts.suiteFilter ? ` (filter="${opts.suiteFilter}")` : ''} | maxRss=${opts.maxRssMb} MB | timeout=${opts.timeoutMs} ms`,
   )
 
   if (selectedSuites.length === 0) {
     console.error(
-      `[FAIL] No suites matched selection (wave=${opts.wave}, suite=${opts.suiteFilter ?? 'none'})`,
+      `[FAIL] No suites matched selection (group=${opts.group}, suite=${opts.suiteFilter ?? 'none'})`,
     )
     process.exit(1)
   }
@@ -1062,7 +1072,7 @@ async function main(): Promise<void> {
   const missingSuites = selectedSuites.filter(s => !existsSync(join(ROOT_DIR, s.relPath)))
   if (missingSuites.length > 0) {
     for (const m of missingSuites) {
-      console.error(`[FAIL] Missing required Wave-${m.wave} suite: ${m.relPath}`)
+      console.error(`[FAIL] Missing required ${m.group} suite: ${m.relPath}`)
     }
     process.exit(1)
   }

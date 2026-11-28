@@ -1,5 +1,10 @@
-import Vibe.Tone
-import Vibe.Algebra
+module
+
+public import Vibe.Tone
+public import Vibe.Algebra
+public import Mathlib.Algebra.BigOperators.Fin
+public import Mathlib.Data.Matrix.Basic
+import Mathlib.Tactic.Ring
 
 /-!
 # Vibe Theory: Core Microscopic Algebraic & Configuration-Space Proofs (Theorems 1 to 4)
@@ -9,16 +14,16 @@ import Vibe.Algebra
   quantum `|V_1⟩` invariance under the full multi-layer QCA is verified in exact `BigInt` in `E-RLT-0122`
   and `E-FND-0185`).
 - Theorem 2: Exact local gate-matrix and scalar unitarity in `ℤ[ω]` and `ℤ[ζ_9]` (`2 × 2` `C` and `D`,
-  full `8 × 8` Frame-Grover `F-G`, unit-modulus phase scalar `|ζ_6^n|^2 = 1` entering `Φ_odd`, and
-  `12 × 12` `M_pair(ζ_18)`; the composite multi-layer QCA `U` on `{3,4,3,4}` Fock space is verified in
-  exact `BigInt` rather than formalized globally here).
+  full `8 × 8` Frame-Grover `F-G` over `Matrix (Fin 8) (Fin 8) ℤ`, unit-modulus phase scalar `|ζ_6^n|^2 = 1`
+  entering `Φ_odd`, and `12 × 12` `M_pair(ζ_18)`).
 - Theorem 3: Elementary algebraic 2-adic `SU(2)` and `PSU(2)` infinite-order, non-commutativity, and
-  non-`Pin(2)` hypotheses in `Mat2Eis` (`∀ n ≥ 1`; topological density in `SU(2)` follows externally via
-  the standard closed-subgroup classification of `SU(2)`).
+  non-`Pin(2)` hypotheses in `Mat2Eis` (`∀ n ≥ 1`).
 - Theorem 4: Symbolic `12 × 12` `M_pair(u)` exact unitarity, `∀ t` 4D `s`-wave eigenstate, and transverse fixation.
 -/
 
 set_option autoImplicit false
+
+@[expose] public section
 
 namespace Vibe
 
@@ -47,19 +52,11 @@ def fullQcaStep (gBare gFG gMPair gODD : DockState → DockState)
         (applyLocalGate gMPair
           (applyLocalGate gFG s))))
 
-private theorem graphStream_fixes_v1 (nbr : Nat → Fin 24 → Nat) (port : Fin 24 → Fin 24) :
-    graphStream nbr port v1Lattice = v1Lattice := rfl
-
 private theorem applyLocalGate_fixes_v1 (g : DockState → DockState) (hg : g v1Dock = v1Dock) :
-    applyLocalGate g v1Lattice = v1Lattice := by
-  funext x
-  exact hg
+    applyLocalGate g v1Lattice = v1Lattice :=
+  funext fun _ => hg
 
-/-- Theorem 1a: Classical 24-slot configuration-space `V1` fixed-point stationarity (`∀ t : Nat`):
-    for any four uninterpreted classical dock maps fixing the all-zero state `v1Dock`, iterating the
-    composite four-layer + 24-port graph-stream step preserves `v1Lattice` and exact zero charge
-    `dockCharge = 0` at every site for ALL `t`. (Quantum Fock-space `|V_1⟩` invariance under the full
-    multi-layer QCA is verified in exact `BigInt` in `test/universe.ts` and `E-FND-0185`.) -/
+/-- Theorem 1a: Classical 24-slot configuration-space `V1` fixed-point stationarity (`∀ t : Nat`). -/
 theorem thm1_v1_eternal_stationarity
     (gBare gFG gMPair gODD : DockState → DockState)
     (nbr : Nat → Fin 24 → Nat) (port : Fin 24 → Fin 24)
@@ -70,27 +67,16 @@ theorem thm1_v1_eternal_stationarity
       ∀ x : Nat, dockCharge (iter (fullQcaStep gBare gFG gMPair gODD nbr port) t v1Lattice x) = 0 := by
   have hStep : fullQcaStep gBare gFG gMPair gODD nbr port v1Lattice = v1Lattice := by
     unfold fullQcaStep
-    rw [applyLocalGate_fixes_v1 gFG hFG,
-        applyLocalGate_fixes_v1 gMPair hMPair,
-        applyLocalGate_fixes_v1 gODD hODD,
-        applyLocalGate_fixes_v1 gBare hBare,
-        graphStream_fixes_v1]
+    rw [applyLocalGate_fixes_v1 gFG hFG, applyLocalGate_fixes_v1 gMPair hMPair,
+        applyLocalGate_fixes_v1 gODD hODD, applyLocalGate_fixes_v1 gBare hBare]
+    rfl
   have hIter : ∀ t : Nat, iter (fullQcaStep gBare gFG gMPair gODD nbr port) t v1Lattice = v1Lattice := by
-    intro t
-    induction t with
+    intro t; induction t with
     | zero => rfl
-    | succ t ih =>
-      simp only [iter]
-      rw [ih, hStep]
-  intro t
-  refine ⟨hIter t, fun x => ?_⟩
-  rw [hIter t]
-  exact dockCharge_v1
+    | succ t ih => simp only [iter, ih, hStep]
+  exact fun t => ⟨hIter t, fun x => by rw [hIter t]; exact dockCharge_v1⟩
 
-/-- Theorem 1b: Classical 1-hop graph-stream causal light-cone skeleton (`∀ t : Nat`):
-    for ANY graph distance `dist` obeying the 1-hop Lipschitz neighbor bound `dist x ≤ dist (nbr x i) + 1`,
-    ANY classical local dock map `g` fixing `v1Dock`, and ANY initial `LatticeState` `psi0` equal to `v1Dock`
-    outside `R0`, every site at distance `> R0 + t` remains strictly `v1Dock` with exact zero charge for ALL `t`. -/
+/-- Theorem 1b: Classical 1-hop graph-stream causal light-cone skeleton (`∀ t : Nat`). -/
 theorem thm1_light_cone_empty_outside
     (g : DockState → DockState) (hg : g v1Dock = v1Dock)
     (nbr : Nat → Fin 24 → Nat) (port : Fin 24 → Fin 24)
@@ -102,21 +88,13 @@ theorem thm1_light_cone_empty_outside
       dockCharge (iter (fun s => graphStream nbr port (applyLocalGate g s)) t psi0 x) = 0 := by
   have hCore : ∀ t : Nat, ∀ x : Nat, dist x > R0 + t →
       iter (fun s => graphStream nbr port (applyLocalGate g s)) t psi0 x = v1Dock := by
-    intro t
-    induction t with
-    | zero =>
-      intro x hx
-      exact h0 x (by omega)
+    intro t; induction t with
+    | zero => exact fun x hx => h0 x (by omega)
     | succ t ih =>
       intro x hx
-      have hNbrDist : ∀ i : Fin 24, dist (nbr x i) > R0 + t := by
-        intro i
-        have hl := hLip x i
-        omega
       funext i
       change g (iter (fun s => graphStream nbr port (applyLocalGate g s)) t psi0 (nbr x i)) (port i) = v1Dock i
-      rw [ih (nbr x i) (hNbrDist i), hg]
-      rfl
+      rw [ih (nbr x i) (by have := hLip x i; omega), hg]; rfl
   intro t x hx
   have hDock := hCore t x hx
   exact ⟨hDock, by rw [hDock]; exact dockCharge_v1⟩
@@ -142,36 +120,6 @@ def UnitaryStep.comp {H Norm : Type} (B A : UnitaryStep H Norm)
   leftInv := fun ψ => by rw [B.leftInv, A.leftInv]
   rightInv := fun ψ => by rw [A.rightInv, B.rightInv]
   preservesNorm := fun ψ => by rw [← hNorm, B.preservesNorm, hNorm, A.preservesNorm]
-
-private theorem thm2_iter_left_inv {H Norm : Type} (U : UnitaryStep H Norm) :
-    ∀ t : Nat, ∀ ψ : H, iter U.dag t (iter U.step t ψ) = ψ := by
-  intro t
-  induction t with
-  | zero => intro ψ; rfl
-  | succ t ih =>
-    intro ψ
-    simp only [iter]
-    rw [← iter_comm U.dag t (U.step (iter U.step t ψ)), U.leftInv, ih ψ]
-
-private theorem thm2_iter_right_inv {H Norm : Type} (U : UnitaryStep H Norm) :
-    ∀ t : Nat, ∀ ψ : H, iter U.step t (iter U.dag t ψ) = ψ := by
-  intro t
-  induction t with
-  | zero => intro ψ; rfl
-  | succ t ih =>
-    intro ψ
-    simp only [iter]
-    rw [← iter_comm U.step t (U.dag (iter U.dag t ψ)), U.rightInv, ih ψ]
-
-private theorem thm2_iter_norm_preserved {H Norm : Type} (U : UnitaryStep H Norm) :
-    ∀ t : Nat, ∀ ψ : H, U.normSq (iter U.step t ψ) = U.normSq ψ := by
-  intro t
-  induction t with
-  | zero => intro ψ; rfl
-  | succ t ih =>
-    intro ψ
-    simp only [iter]
-    rw [U.preservesNorm, ih ψ]
 
 /-- Exact working-rule coin `2 C = [[1 + ω, 1 - ω], [1 - ω, 1 + ω]]` in `Mat_2(ℤ[ω])`. -/
 def coin2 : Mat2Eis :=
@@ -200,9 +148,9 @@ theorem thm2_halfCoin_unitary_right :
 def fgEntry (i j : Fin 8) : Int :=
   if i = j then 3 else -1
 
-/-- Exact `(i, j)` entry of `(4 (F-G))^2` computed via the full 8-term matrix product. -/
+/-- Exact `(i, j)` entry of `(4 (F-G))^2` computed via `Matrix (Fin 8) (Fin 8) ℤ` multiplication. -/
 def fgSqEntry (i j : Fin 8) : Int :=
-  (List.finRange 8).foldl (fun acc k => acc + fgEntry i k * fgEntry k j) 0
+  (Matrix.of fgEntry * Matrix.of fgEntry) i j
 
 /-- Full `8 × 8` Frame-Grover symmetry and matrix unitarity:
     `(4 (F-G))^T = 4 (F-G)` and `(4 (F-G))^2 = 16 I_8` across all 64 matrix entries. -/
@@ -212,8 +160,7 @@ theorem thm2_fg_matrix_unitary :
   decide
 
 /-- Scalar unit-modulus identity for the phase `ζ_6 = 1 + ω` entering `Φ_odd`:
-    `|ζ_6^n|^2 = 1` for ALL `n : Nat`. (The 4-body `χ_odd` orbit invariant and full Fock-space
-    operator `Φ_odd` are verified in exact `BigInt` in `test/universe.ts` and `code/rule/value-phase.ts`.) -/
+    `|ζ_6^n|^2 = 1` for ALL `n : Nat`. -/
 theorem thm2_odd_value_phase_unit :
     ∀ n : Nat, Eis.mul (Eis.conj (Eis.pow Eis.zeta6 n)) (Eis.pow Eis.zeta6 n) = Eis.one :=
   Eis.pow_unit Eis.zeta6 Eis.zeta6_unit
@@ -249,9 +196,6 @@ def gateM : Mat2Eis := Mat2Eis.scaleEis Eis.omega2 (Mat2Eis.mul coin2 phaseW)
 
 /-- Conjugate generator `M2 = P_ω M P_ω† = 2 (V W V†)`. -/
 def gateM2 : Mat2Eis := Mat2Eis.mul (Mat2Eis.mul phaseW gateM) phaseW2
-
-private theorem thm3_M_explicit :
-    gateM = ⟨⟨0, -1⟩, ⟨1, -1⟩, ⟨-2, -1⟩, ⟨1, 1⟩⟩ := by decide
 
 theorem thm3_M_unitary_left :
     Mat2Eis.mul (Mat2Eis.dag gateM) gateM = Mat2Eis.scale 4 Mat2Eis.id := by decide
@@ -292,15 +236,12 @@ private theorem thm3_trace_M_pow_pair :
     ∀ n : Nat,
       Mat2Eis.trace (Mat2Eis.pow gateM n) = Eis.ofInt (traceSeq n) ∧
       Mat2Eis.trace (Mat2Eis.pow gateM (n + 1)) = Eis.ofInt (traceSeq (n + 1)) := by
-  intro n
-  induction n with
+  intro n; induction n with
   | zero => exact ⟨by decide, by decide⟩
   | succ n ih =>
     refine ⟨ih.2, ?_⟩
-    change Mat2Eis.trace (Mat2Eis.pow gateM (n + 2)) = Eis.ofInt (traceSeq (n + 2))
     rw [thm3_M_pow_recurrence n, Mat2Eis.trace_sub, Mat2Eis.trace_scale, ih.2, ih.1]
-    simp only [traceSeq, Eis.ofInt, Eis.sub, Eis.scale, Eis.mk.injEq]
-    exact ⟨trivial, by decide⟩
+    ext <;> simp [traceSeq, Eis.ofInt, Eis.sub, Eis.scale]
 
 theorem thm3_trace_M_pow (n : Nat) :
     Mat2Eis.trace (Mat2Eis.pow gateM n) = Eis.ofInt (traceSeq n) :=
@@ -308,13 +249,9 @@ theorem thm3_trace_M_pow (n : Nat) :
 
 /-- Elementary 2-adic parity theorem: `2^n Tr(W^n) ≡ 1 (mod 2)` for ALL `n ≥ 1`. -/
 theorem thm3_traceSeq_odd : ∀ k : Nat, traceSeq (k + 1) % 2 = 1 := by
-  intro k
-  induction k with
+  intro k; induction k with
   | zero => decide
-  | succ k ih =>
-    change traceSeq (k + 2) % 2 = 1
-    simp only [traceSeq]
-    omega
+  | succ k ih => simp only [traceSeq]; omega
 
 /-- `W^n ≠ I` for EVERY `n ≥ 1` (infinite order in `SU(2)`, elementary 2-adic proof). -/
 theorem thm3_W_infinite_order_su2 (n : Nat) (hn : n ≥ 1) :
@@ -323,12 +260,10 @@ theorem thm3_W_infinite_order_su2 (n : Nat) (hn : n ≥ 1) :
   | zero => omega
   | succ k =>
     intro hEq
-    have hTr := congrArg Mat2Eis.trace hEq
+    have hTr := congrArg (fun M => (Mat2Eis.trace M).a) hEq
     rw [thm3_trace_M_pow (k + 1), Mat2Eis.trace_scale_id] at hTr
-    have hA : traceSeq (k + 1) = 2 * pow2Int (k + 1) := by
-      have := congrArg Eis.a hTr
-      simpa only [Eis.ofInt] using this
     have hOdd := thm3_traceSeq_odd k
+    dsimp [Eis.ofInt] at hTr
     omega
 
 /-- `W^n ≠ -I` for EVERY `n ≥ 1` (infinite order in `PSU(2) = SO(3)` as well). -/
@@ -338,20 +273,17 @@ theorem thm3_W_infinite_order_psu2 (n : Nat) (hn : n ≥ 1) :
   | zero => omega
   | succ k =>
     intro hEq
-    have hTr := congrArg Mat2Eis.trace hEq
+    have hTr := congrArg (fun M => (Mat2Eis.trace M).a) hEq
     rw [thm3_trace_M_pow (k + 1), Mat2Eis.trace_scale_id] at hTr
-    have hA : traceSeq (k + 1) = 2 * (-pow2Int (k + 1)) := by
-      have := congrArg Eis.a hTr
-      simpa only [Eis.ofInt] using this
     have hOdd := thm3_traceSeq_odd k
+    dsimp [Eis.ofInt] at hTr
     omega
 
 /-- Non-commuting conjugate `[W, V W V†] ≠ 0`, ruling out `U(1)`. -/
 theorem thm3_noncommuting_conjugate :
     Mat2Eis.mul gateM gateM2 ≠ Mat2Eis.mul gateM2 gateM := by decide
 
-/-- `M2 M ≠ M† M2`, ruling out `Pin(2) = N(U(1))`: together with infinite order and non-commutativity,
-    proves the algebraic hypotheses implying topological `SU(2)` density via closed-subgroup classification. -/
+/-- `M2 M ≠ M† M2`, ruling out `Pin(2) = N(U(1))`. -/
 theorem thm3_not_in_pin2 :
     Mat2Eis.mul gateM2 gateM ≠ Mat2Eis.mul (Mat2Eis.dag gateM) gateM2 := by decide
 
@@ -382,29 +314,13 @@ def sVec : Nat → R := fun _ => one
 def mpair12 (u : R) (v : Nat → R) : Nat → R :=
   fun i => add (mul twelveR (v i)) (mul (sub u one) (sum12 v))
 
-private theorem sum12_const (c : R) : sum12 (fun _ => c) = mul twelveR c :=
-  sumN_const 12 c
-
-private theorem sum12_scale (c : R) (v : Nat → R) :
-    sum12 (fun i => mul c (v i)) = mul c (sum12 v) :=
-  sumN_scale 12 c v
-
-private theorem sum12_add (v w : Nat → R) :
-    sum12 (fun i => add (v i) (w i)) = add (sum12 v) (sum12 w) :=
-  sumN_add 12 v w
-
-private theorem twelveR_add_sub (u : R) :
-    add twelveR (mul twelveR (sub u one)) = mul twelveR u := by
-  calc add twelveR (mul twelveR (sub u one))
-      = add (mul twelveR one) (mul twelveR (sub u one)) := by rw [mul_one]
-    _ = mul twelveR (add one (sub u one)) := by rw [← mul_add]
-    _ = mul twelveR u := by rw [add_sub_cancel]
-
 private theorem sum12_mpair12 (u : R) (v : Nat → R) :
     sum12 (mpair12 u v) = mul (mul twelveR u) (sum12 v) := by
-  unfold mpair12
-  rw [sum12_add, sum12_scale, sum12_const]
-  rw [← mul_assoc twelveR (sub u one) (sum12 v), ← add_mul, twelveR_add_sub]
+  let _ : CommRing R := toCommRing R
+  unfold mpair12 sum12
+  rw [sumN_add, sumN_scale, sumN_const]
+  change twelveR * sumN 12 v + twelveR * ((u + -1) * sumN 12 v) = (twelveR * u) * sumN 12 v
+  ring
 
 /-- Fundamental composition law:
     `12 M_pair(v) (12 M_pair(u) x) = 144 x + 12 (v u - 1) J x`. -/
@@ -412,76 +328,57 @@ theorem thm4_mpair12_comp (u v : R) (x : Nat → R) (i : Nat) :
     mpair12 v (mpair12 u x) i =
       add (mul (mul twelveR twelveR) (x i))
           (mul (mul twelveR (sub (mul v u) one)) (sum12 x)) := by
-  have hOuter : mpair12 v (mpair12 u x) i =
-      add (mul twelveR (mpair12 u x i)) (mul (sub v one) (sum12 (mpair12 u x))) := rfl
-  have hInner : mpair12 u x i =
-      add (mul twelveR (x i)) (mul (sub u one) (sum12 x)) := rfl
-  rw [hOuter, sum12_mpair12, hInner, mul_add]
-  rw [← mul_assoc twelveR twelveR (x i)]
-  rw [← mul_assoc twelveR (sub u one) (sum12 x)]
-  rw [← mul_assoc (sub v one) (mul twelveR u) (sum12 x)]
-  rw [add_assoc]
-  apply congrArg (add (mul (mul twelveR twelveR) (x i)))
-  rw [← add_mul]
-  apply congrArg (fun z => mul z (sum12 x))
-  rw [mul_comm (sub v one) (mul twelveR u), mul_assoc twelveR u (sub v one)]
-  rw [mul_comm u (sub v one), ← mul_add, unit_compose_identity]
+  let _ : CommRing R := toCommRing R
+  change twelveR * (twelveR * x i + (u + -1) * sum12 x) + (v + -1) * sum12 (mpair12 u x) =
+    (twelveR * twelveR) * x i + (twelveR * (v * u + -1)) * sum12 x
+  rw [sum12_mpair12]
+  change twelveR * (twelveR * x i + (u + -1) * sum12 x) + (v + -1) * ((twelveR * u) * sum12 x) =
+    (twelveR * twelveR) * x i + (twelveR * (v * u + -1)) * sum12 x
+  ring
 
 /-- Theorem 4a: Exact left unitarity `M_pair(u)† M_pair(u) = I` whenever `u* u = 1`. -/
 theorem thm4_mpair12_unitary_left (u : R) (hu : mul (conj u) u = one)
     (x : Nat → R) (i : Nat) :
     mpair12 (conj u) (mpair12 u x) i = mul (mul twelveR twelveR) (x i) := by
-  rw [thm4_mpair12_comp, hu, sub_self, mul_zero, zero_mul, add_zero]
+  rw [thm4_mpair12_comp, hu, StarCommRing.sub_self, StarCommRing.mul_zero, StarCommRing.zero_mul,
+    StarCommRing.add_zero]
 
 /-- Theorem 4b: Exact right unitarity `M_pair(u) M_pair(u)† = I` whenever `u u* = 1`. -/
 theorem thm4_mpair12_unitary_right (u : R) (hu : mul u (conj u) = one)
     (x : Nat → R) (i : Nat) :
     mpair12 u (mpair12 (conj u) x) i = mul (mul twelveR twelveR) (x i) := by
-  rw [thm4_mpair12_comp, hu, sub_self, mul_zero, zero_mul, add_zero]
-
-private theorem thm4_mpair12_swave_scale (u c : R) (i : Nat) :
-    mpair12 u (fun _ => c) i = mul (mul twelveR u) c := by
-  unfold mpair12
-  rw [sum12_const, ← mul_assoc (sub u one) twelveR c, mul_comm (sub u one) twelveR]
-  rw [← add_mul, twelveR_add_sub]
+  rw [thm4_mpair12_comp, hu, StarCommRing.sub_self, StarCommRing.mul_zero, StarCommRing.zero_mul,
+    StarCommRing.add_zero]
 
 /-- Theorem 4c: Exact `∀ t : Nat` 4D `s`-wave eigenstate law `(12 M_pair(u))^t |s⟩ = (12 u)^t |s⟩`. -/
 theorem thm4_mpair12_swave_iter (u : R) :
     ∀ t : Nat, ∀ i : Nat, iter (mpair12 u) t (sVec (R := R)) i = powR (mul twelveR u) t := by
-  intro t
-  induction t with
-  | zero => intro i; rfl
+  let _ : CommRing R := toCommRing R
+  intro t; induction t with
+  | zero => intro _; rfl
   | succ t ih =>
     intro i
-    have hfn : iter (mpair12 u) t (sVec (R := R)) = fun _ => powR (mul twelveR u) t :=
-      funext ih
-    simp only [iter]
-    rw [hfn, thm4_mpair12_swave_scale]
-    exact mul_comm (mul twelveR u) (powR (mul twelveR u) t)
-
-private theorem thm4_mpair12_transverse_step (u : R) (v : Nat → R) (hv : sum12 v = zero) (i : Nat) :
-    mpair12 u v i = mul twelveR (v i) := by
-  unfold mpair12
-  rw [hv, mul_zero, add_zero]
+    simp only [iter, funext ih, mpair12, sum12, sumN_const]
+    change twelveR * powR (twelveR * u) t + (u + -1) * (twelveR * powR (twelveR * u) t) =
+      powR (twelveR * u) t * (twelveR * u)
+    ring
 
 /-- Theorem 4d: Exact `∀ t : Nat` transverse fixation `(12 M_pair(u))^t |v⟩ = 12^t |v⟩` for all `v ⊥ |s⟩`. -/
 theorem thm4_mpair12_transverse_iter (u : R) (v : Nat → R) (hv : sum12 v = zero) :
     ∀ t : Nat, ∀ i : Nat, iter (mpair12 u) t v i = mul (powR twelveR t) (v i) := by
-  intro t
-  induction t with
-  | zero =>
-    intro i
-    simp only [iter, powR, one_mul]
+  let _ : CommRing R := toCommRing R
+  intro t; induction t with
+  | zero => intro i; exact (StarCommRing.one_mul (v i)).symm
   | succ t ih =>
     intro i
-    have hfn : iter (mpair12 u) t v = fun j => mul (powR twelveR t) (v j) := funext ih
     have hsum : sum12 (iter (mpair12 u) t v) = zero := by
-      rw [hfn, sum12_scale, hv, mul_zero]
-    simp only [iter]
-    rw [thm4_mpair12_transverse_step u _ hsum i, ih i]
-    rw [← mul_assoc, mul_comm twelveR (powR twelveR t)]
-    rfl
+      rw [funext ih]; unfold sum12 at hv ⊢; rw [sumN_scale, hv, StarCommRing.mul_zero]
+    simp only [iter, mpair12, hsum, ih i]
+    change twelveR * (powR twelveR t * v i) + (u + -1) * 0 = (powR twelveR t * twelveR) * v i
+    ring
 
 end MPair
 
 end Vibe
+
+end

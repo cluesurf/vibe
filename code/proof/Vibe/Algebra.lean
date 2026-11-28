@@ -1,11 +1,22 @@
+module
+
+public import Mathlib.Algebra.Ring.Defs
+public import Mathlib.Algebra.Star.Basic
+public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+public import Mathlib.Algebra.Order.Ring.Int
+public import Mathlib.Data.Matrix.Basic
+public import Mathlib.Logic.Function.Iterate
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Tactic.Ring
+
 /-!
 # Vibe Theory: Exact Algebraic Rings & Iteration Infrastructure
 
-Zero-dependency Lean 4 algebraic foundation for Vibe Theory:
-exact Eisenstein integers `ℤ[ω]`, cyclotomic integers `ℤ[ζ_9]`,
-`2 × 2` matrices over `ℤ[ω]`, involutive commutative `StarCommRing`
-(with full star-ring axioms `conj_conj`, `conj_add`, `conj_mul`, `conj_one`),
-and iteration/summation helpers.
+Lean 4 + Mathlib algebraic foundation for Vibe Theory:
+exact Eisenstein integers `ℤ[ω]` (`CommRing`, `StarRing`), cyclotomic integers `ℤ[ζ_9]`
+(`CommRing`, `StarRing`), `2 × 2` matrices over `ℤ[ω]` (bridged to `Matrix (Fin 2) (Fin 2) Eis`),
+involutive commutative `StarCommRing`, and iteration/summation helpers bridged to
+`Function.iterate` and `Finset.sum`.
 
 Headline formal certificates in this module: exact cyclotomic `ℤ[ζ_9]` unit,
 order-18, and irreducible cubic spectral-gap certificates for `ζ_18`.
@@ -13,7 +24,11 @@ order-18, and irreducible cubic spectral-gap certificates for `ζ_18`.
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
+
+open Matrix
 
 /-! ## Section 0: Iteration, Summation & Integer Helpers -/
 
@@ -22,14 +37,16 @@ def iter {α : Type} (f : α → α) : Nat → α → α
   | 0, x => x
   | t + 1, x => f (iter f t x)
 
+private theorem iter_eq_iterate {α : Type} (f : α → α) (t : Nat) (x : α) :
+    iter f t x = f^[t] x := by
+  induction t with
+  | zero => rfl
+  | succ t ih => simp [iter, ih, Function.iterate_succ_apply']
+
 -- [helper]
 theorem iter_comm {α : Type} (f : α → α) (t : Nat) (x : α) :
     iter f t (f x) = f (iter f t x) := by
-  induction t with
-  | zero => rfl
-  | succ t ih =>
-    simp only [iter]
-    rw [ih]
+  rw [iter_eq_iterate, iter_eq_iterate, ← Function.iterate_succ_apply, Function.iterate_succ_apply']
 
 /-- Natural-number finite sum `∑_{D = 0}^{n - 1} f D`. -/
 def sumNat : Nat → (Nat → Nat) → Nat
@@ -37,50 +54,36 @@ def sumNat : Nat → (Nat → Nat) → Nat
   | n + 1, f => sumNat n f + f n
 
 -- [helper]
+theorem sumNat_eq_sum (n : Nat) (f : Nat → Nat) :
+    sumNat n f = ∑ i ∈ Finset.range n, f i := by
+  induction n with
+  | zero => simp [sumNat]
+  | succ n ih => simp [sumNat, Finset.sum_range_succ, ih]
+
+-- [helper]
 theorem sumNat_pos (F : Nat) (f : Nat → Nat) (hF : F ≥ 1)
     (hpos : ∀ D : Nat, D < F → f D > 0) : sumNat F f > 0 := by
-  cases F with
-  | zero => omega
-  | succ k =>
-    have hk : f k > 0 := hpos k (by omega)
-    simp only [sumNat]
-    omega
+  rw [sumNat_eq_sum]
+  exact Finset.sum_pos (fun D hD => hpos D (Finset.mem_range.mp hD))
+    (Finset.nonempty_range_iff.mpr (by omega))
 
 -- [helper]
 theorem sumNat_lt_of_step (F : Nat) (f g : Nat → Nat) (hF : F ≥ 2)
     (hle : ∀ D : Nat, D < F → f D ≤ g D) (h1 : f 1 < g 1) :
     sumNat F f < sumNat F g := by
-  induction F with
-  | zero => omega
-  | succ k ih =>
-    cases k with
-    | zero => omega
-    | succ m =>
-      cases m with
-      | zero =>
-        have h0 : f 0 ≤ g 0 := hle 0 (by omega)
-        change (0 + f 0) + f 1 < (0 + g 0) + g 1
-        omega
-      | succ r =>
-        have hprev : sumNat (r + 2) f < sumNat (r + 2) g :=
-          ih (by omega) (fun D hD => hle D (by omega))
-        have htop : f (r + 2) ≤ g (r + 2) := hle (r + 2) (by omega)
-        change sumNat (r + 2) f + f (r + 2) < sumNat (r + 2) g + g (r + 2)
-        omega
+  rw [sumNat_eq_sum, sumNat_eq_sum]
+  exact Finset.sum_lt_sum (fun D hD => hle D (Finset.mem_range.mp hD))
+    ⟨1, Finset.mem_range.mpr (by omega), h1⟩
 
 -- [helper]
-theorem int_sq_nonneg (x : Int) : 0 ≤ x * x := by
-  cases x with
-  | ofNat n =>
-    exact Int.mul_nonneg (Int.natCast_nonneg n) (Int.natCast_nonneg n)
-  | negSucc n =>
-    rw [Int.negSucc_mul_negSucc]
-    exact Int.mul_nonneg (Int.natCast_nonneg (n + 1)) (Int.natCast_nonneg (n + 1))
+theorem int_sq_nonneg (x : Int) : 0 ≤ x * x :=
+  mul_self_nonneg x
 
 
 /-! ## Section 1: Exact Eisenstein Integers `ℤ[ω]` -/
 
 /-- Eisenstein integer `a + b * ω` with `ω^2 + ω + 1 = 0`. -/
+@[ext]
 structure Eis where
   a : Int
   b : Int
@@ -114,131 +117,79 @@ def pow (x : Eis) : Nat → Eis
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-private theorem omega_cube : mul (mul omega omega) omega = one := by decide
-private theorem omega_minimal : add (add omega2 omega) one = zero := by decide
-private theorem zeta6_sq : mul zeta6 zeta6 = omega := by decide
+instance : Zero Eis := ⟨Eis.zero⟩
+instance : One Eis := ⟨Eis.one⟩
+instance : Add Eis := ⟨Eis.add⟩
+instance : Neg Eis := ⟨Eis.neg⟩
+instance : Sub Eis := ⟨Eis.sub⟩
+instance : Mul Eis := ⟨Eis.mul⟩
+instance : Star Eis := ⟨Eis.conj⟩
+
+@[simp] private theorem a_zero : (0 : Eis).a = 0 := rfl
+@[simp] private theorem b_zero : (0 : Eis).b = 0 := rfl
+@[simp] private theorem a_one : (1 : Eis).a = 1 := rfl
+@[simp] private theorem b_one : (1 : Eis).b = 0 := rfl
+@[simp] private theorem a_add (x y : Eis) : (x + y).a = x.a + y.a := rfl
+@[simp] private theorem b_add (x y : Eis) : (x + y).b = x.b + y.b := rfl
+@[simp] private theorem a_neg (x : Eis) : (-x).a = -x.a := rfl
+@[simp] private theorem b_neg (x : Eis) : (-x).b = -x.b := rfl
+@[simp] private theorem a_sub (x y : Eis) : (x - y).a = x.a - y.a := rfl
+@[simp] private theorem b_sub (x y : Eis) : (x - y).b = x.b - y.b := rfl
+@[simp] private theorem a_mul (x y : Eis) : (x * y).a = x.a * y.a - x.b * y.b := rfl
+@[simp] private theorem b_mul (x y : Eis) : (x * y).b = x.a * y.b + x.b * y.a - x.b * y.b := rfl
+@[simp] private theorem a_star (x : Eis) : (star x).a = x.a - x.b := rfl
+@[simp] private theorem b_star (x : Eis) : (star x).b = -x.b := rfl
+
+instance : CommRing Eis where
+  add_assoc _ _ _ := by ext <;> simp <;> ring
+  zero_add _ := by ext <;> simp
+  add_zero _ := by ext <;> simp
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+  neg_add_cancel _ := by ext <;> simp
+  add_comm _ _ := by ext <;> simp <;> ring
+  sub_eq_add_neg _ _ := by ext <;> simp <;> ring
+  left_distrib _ _ _ := by ext <;> simp <;> ring
+  right_distrib _ _ _ := by ext <;> simp <;> ring
+  zero_mul _ := by ext <;> simp
+  mul_zero _ := by ext <;> simp
+  mul_assoc _ _ _ := by ext <;> simp <;> ring
+  one_mul _ := by ext <;> simp
+  mul_one _ := by ext <;> simp
+  mul_comm _ _ := by ext <;> simp <;> ring
+  npow := npowRec
+  natCast n := Eis.ofInt n
+  natCast_zero := rfl
+  natCast_succ n := by ext <;> simp [Eis.ofInt]
+  intCast k := Eis.ofInt k
+  intCast_ofNat _ := rfl
+  intCast_negSucc n := by
+    change Eis.ofInt (Int.negSucc n) = -(Eis.ofInt (n + 1))
+    ext <;> simp [Eis.ofInt, Int.negSucc_eq]
+
+instance : StarRing Eis where
+  star_involutive _ := by ext <;> simp
+  star_mul _ _ := by ext <;> simp <;> ring
+  star_add _ _ := by ext <;> simp <;> ring
 
 -- [helper]
 theorem zeta6_unit : mul (conj zeta6) zeta6 = one := by decide
 
-private theorem add_zero (x : Eis) : add x zero = x := by
-  cases x
-  simp only [add, zero, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem zero_add (x : Eis) : add zero x = x := by
-  cases x
-  simp only [add, zero, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem add_comm (x y : Eis) : add x y = add y x := by
-  cases x; cases y
-  simp only [add, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem add_assoc (x y z : Eis) : add (add x y) z = add x (add y z) := by
-  cases x; cases y; cases z
-  simp only [add, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem add_neg (x : Eis) : add x (neg x) = zero := by
-  cases x
-  simp only [add, neg, zero, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_one (x : Eis) : mul x one = x := by
-  cases x
-  simp only [mul, one, Eis.mk.injEq, Int.mul_one, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem one_mul (x : Eis) : mul one x = x := by
-  cases x
-  simp only [mul, one, Eis.mk.injEq, Int.one_mul, Int.zero_mul]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_zero (x : Eis) : mul x zero = zero := by
-  cases x
-  simp only [mul, zero, Eis.mk.injEq, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem zero_mul (x : Eis) : mul zero x = zero := by
-  cases x
-  simp only [mul, zero, Eis.mk.injEq, Int.zero_mul]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_comm (x y : Eis) : mul x y = mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [mul, Eis.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xb yb, Int.mul_comm xa yb, Int.mul_comm xb ya]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_assoc (x y z : Eis) : mul (mul x y) z = mul x (mul y z) := by
-  cases x; cases y; cases z
-  simp only [mul, Eis.mk.injEq, Int.mul_add, Int.add_mul, Int.mul_sub, Int.sub_mul, Int.mul_assoc]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_add (x y z : Eis) : mul x (add y z) = add (mul x y) (mul x z) := by
-  cases x; cases y; cases z
-  simp only [mul, add, Eis.mk.injEq, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem add_mul (x y z : Eis) : mul (add x y) z = add (mul x z) (mul y z) := by
-  cases x; cases y; cases z
-  simp only [mul, add, Eis.mk.injEq, Int.add_mul]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_sub (x y z : Eis) : mul x (sub y z) = sub (mul x y) (mul x z) := by
-  cases x; cases y; cases z
-  simp only [mul, sub, Eis.mk.injEq, Int.mul_sub]
-  exact ⟨by omega, by omega⟩
-
-private theorem mul_scale (k : Int) (x y : Eis) : mul x (scale k y) = scale k (mul x y) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [mul, scale, Eis.mk.injEq, Int.mul_add, Int.mul_sub]
-  have h1 : xa * (k * ya) = k * (xa * ya) := by
-    rw [← Int.mul_assoc, Int.mul_comm xa k, Int.mul_assoc]
-  have h2 : xb * (k * yb) = k * (xb * yb) := by
-    rw [← Int.mul_assoc, Int.mul_comm xb k, Int.mul_assoc]
-  have h3 : xa * (k * yb) = k * (xa * yb) := by
-    rw [← Int.mul_assoc, Int.mul_comm xa k, Int.mul_assoc]
-  have h4 : xb * (k * ya) = k * (xb * ya) := by
-    rw [← Int.mul_assoc, Int.mul_comm xb k, Int.mul_assoc]
-  rw [h1, h2, h3, h4]
-  exact ⟨rfl, rfl⟩
-
-private theorem conj_conj (x : Eis) : conj (conj x) = x := by
-  cases x
-  simp only [conj, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem conj_add (x y : Eis) : conj (add x y) = add (conj x) (conj y) := by
-  cases x; cases y
-  simp only [conj, add, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem conj_mul (x y : Eis) : conj (mul x y) = mul (conj x) (conj y) := by
-  cases x; cases y
-  simp only [conj, mul, Eis.mk.injEq, Int.mul_sub, Int.sub_mul, Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  exact ⟨by omega, by omega⟩
-
-private theorem conj_one : conj one = one := by decide
-
 -- [helper]
 theorem pow_unit (u : Eis) (hu : mul (conj u) u = one) :
     ∀ n : Nat, mul (conj (pow u n)) (pow u n) = one := by
+  have hu' : star u * u = 1 := hu
   intro n
   induction n with
-  | zero =>
-    simp only [pow]
-    decide
+  | zero => exact (by decide : mul (conj one) one = one)
   | succ n ih =>
-    simp only [pow]
-    rw [conj_mul, mul_assoc]
-    have hmid : mul (conj u) (mul (pow u n) u) = pow u n := by
-      rw [mul_comm (pow u n) u, ← mul_assoc, hu, one_mul]
-    rw [hmid, ih]
+    have ih' : star (pow u n) * pow u n = 1 := ih
+    change star (pow u n * u) * (pow u n * u) = 1
+    rw [star_mul]
+    calc star u * star (pow u n) * (pow u n * u)
+        = (star u * u) * (star (pow u n) * pow u n) := by ring
+      _ = 1 * 1 := by rw [hu', ih']
+      _ = 1 := _root_.one_mul 1
 
 end Eis
 
@@ -246,6 +197,7 @@ end Eis
 /-! ## Section 2: `2 × 2` Matrices over `ℤ[ω]` -/
 
 /-- `2 × 2` matrices over `ℤ[ω]`. -/
+@[ext]
 structure Mat2Eis where
   m00 : Eis
   m01 : Eis
@@ -290,59 +242,37 @@ def pow (A : Mat2Eis) : Nat → Mat2Eis
   | 0 => id
   | n + 1 => mul (pow A n) A
 
+/-- Canonical embedding into Mathlib `Matrix (Fin 2) (Fin 2) Eis`. -/
+def toMatrix (A : Mat2Eis) : Matrix (Fin 2) (Fin 2) Eis :=
+  Matrix.of ![![A.m00, A.m01], ![A.m10, A.m11]]
+
 -- [helper]
 theorem mul_id (A : Mat2Eis) : mul A id = A := by
-  cases A
-  simp only [mul, id, Eis.mul_one, Eis.mul_zero, Eis.add_zero, Eis.zero_add]
+  ext <;> dsimp [mul, id, Eis.add, Eis.mul, Eis.one, Eis.zero] <;> ring
 
 -- [helper]
 theorem mul_assoc (A B C : Mat2Eis) : mul (mul A B) C = mul A (mul B C) := by
-  cases A; cases B; cases C
-  simp only [mul, Eis.add_mul, Eis.mul_add, Eis.mul_assoc, Mat2Eis.mk.injEq]
-  have swap4 : ∀ a b c d : Eis,
-      Eis.add (Eis.add a b) (Eis.add c d) = Eis.add (Eis.add a c) (Eis.add b d) := by
-    intro a b c d
-    rw [Eis.add_assoc a b (Eis.add c d), ← Eis.add_assoc b c d, Eis.add_comm b c,
-        Eis.add_assoc c b d, ← Eis.add_assoc a c (Eis.add b d)]
-  exact ⟨swap4 _ _ _ _, swap4 _ _ _ _, swap4 _ _ _ _, swap4 _ _ _ _⟩
+  ext <;> dsimp [mul, Eis.add, Eis.mul] <;> ring
 
 -- [helper]
 theorem mul_sub (A B C : Mat2Eis) : mul A (sub B C) = sub (mul A B) (mul A C) := by
-  cases A; cases B; cases C
-  simp only [mul, sub, Eis.mul_sub, Mat2Eis.mk.injEq]
-  have subHelper : ∀ u v w t : Eis,
-      Eis.add (Eis.sub u v) (Eis.sub w t) = Eis.sub (Eis.add u w) (Eis.add v t) := by
-    intro u v w t
-    cases u; cases v; cases w; cases t
-    simp only [Eis.add, Eis.sub, Eis.mk.injEq]
-    exact ⟨by omega, by omega⟩
-  exact ⟨subHelper _ _ _ _, subHelper _ _ _ _, subHelper _ _ _ _, subHelper _ _ _ _⟩
+  ext <;> dsimp [mul, sub, Eis.add, Eis.sub, Eis.mul] <;> ring
 
 -- [helper]
 theorem mul_scale (k : Int) (A B : Mat2Eis) : mul A (scale k B) = scale k (mul A B) := by
-  cases A; cases B
-  simp only [mul, scale, Eis.mul_scale, Mat2Eis.mk.injEq]
-  have scAdd : ∀ u v : Eis, Eis.add (Eis.scale k u) (Eis.scale k v) = Eis.scale k (Eis.add u v) := by
-    intro u v
-    cases u; cases v
-    simp only [Eis.add, Eis.scale, Int.mul_add]
-  exact ⟨scAdd _ _, scAdd _ _, scAdd _ _, scAdd _ _⟩
+  ext <;> dsimp [mul, scale, Eis.add, Eis.mul, Eis.scale] <;> ring
 
 -- [helper]
 theorem trace_sub (A B : Mat2Eis) : trace (sub A B) = Eis.sub (trace A) (trace B) := by
-  cases A; cases B
-  simp only [trace, sub, Eis.add, Eis.sub, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
+  ext <;> dsimp [trace, sub, Eis.add, Eis.sub] <;> ring
 
 -- [helper]
 theorem trace_scale (k : Int) (A : Mat2Eis) : trace (scale k A) = Eis.scale k (trace A) := by
-  cases A
-  simp only [trace, scale, Eis.add, Eis.scale, Int.mul_add]
+  ext <;> dsimp [trace, scale, Eis.add, Eis.scale] <;> ring
 
 -- [helper]
 theorem trace_scale_id (k : Int) : trace (scale k id) = Eis.ofInt (2 * k) := by
-  simp only [trace, scale, id, Eis.ofInt, Eis.one, Eis.add, Eis.scale, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
+  ext <;> dsimp [trace, scale, id, Eis.ofInt, Eis.one, Eis.add, Eis.scale] <;> ring
 
 end Mat2Eis
 
@@ -352,6 +282,7 @@ end Mat2Eis
 /-- Ninth cyclotomic integer `c0 + c1 z + c2 z^2 + c3 z^3 + c4 z^4 + c5 z^5`
     modulo `z^6 + z^3 + 1 = 0` (`z = ζ_9 = exp(2πi / 9)`).
     Note `ζ_18 = exp(iπ / 9) = -ζ_9^5` lies inside `ℤ[ζ_9]` identically. -/
+@[ext]
 structure Ninth where
   c0 : Int
   c1 : Int
@@ -404,15 +335,59 @@ def pow (x : Ninth) : Nat → Ninth
   | 0 => one
   | n + 1 => mul (pow x n) x
 
-private theorem zeta18_sq_eq_zeta9 : mul zeta18 zeta18 = zeta9 := by decide
-private theorem zeta18_pow6_eq_omega : pow zeta18 6 = omega := by decide
-private theorem zeta18_pow9_eq_neg_one : pow zeta18 9 = ofInt (-1) := by decide
-private theorem zeta18_unit_right : mul zeta18 (conj zeta18) = one := by decide
-private theorem zeta18_ne_one : zeta18 ≠ one := by decide
+instance : Zero Ninth := ⟨Ninth.zero⟩
+instance : One Ninth := ⟨Ninth.one⟩
+instance : Add Ninth := ⟨Ninth.add⟩
+instance : Neg Ninth := ⟨Ninth.neg⟩
+instance : Sub Ninth := ⟨Ninth.sub⟩
+instance : Mul Ninth := ⟨Ninth.mul⟩
+instance : Star Ninth := ⟨Ninth.conj⟩
+
+private theorem zero_def : (0 : Ninth) = ⟨0, 0, 0, 0, 0, 0⟩ := rfl
+private theorem one_def : (1 : Ninth) = ⟨1, 0, 0, 0, 0, 0⟩ := rfl
+private theorem add_def (x y : Ninth) : x + y = Ninth.add x y := rfl
+private theorem neg_def (x : Ninth) : -x = Ninth.neg x := rfl
+private theorem sub_def (x y : Ninth) : x - y = Ninth.sub x y := rfl
+private theorem mul_def (x y : Ninth) : x * y = Ninth.mul x y := rfl
+private theorem star_def (x : Ninth) : star x = Ninth.conj x := rfl
+
+instance : CommRing Ninth where
+  add_assoc _ _ _ := by ext <;> simp only [add_def, Ninth.add] <;> ring
+  zero_add _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
+  add_zero _ := by ext <;> simp only [add_def, zero_def, Ninth.add] <;> ring
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+  neg_add_cancel _ := by ext <;> simp only [add_def, neg_def, zero_def, Ninth.add, Ninth.neg] <;> ring
+  add_comm _ _ := by ext <;> simp only [add_def, Ninth.add] <;> ring
+  sub_eq_add_neg _ _ := by ext <;> simp only [sub_def, add_def, neg_def, Ninth.sub, Ninth.add, Ninth.neg] <;> ring
+  left_distrib _ _ _ := by ext <;> simp only [mul_def, add_def, Ninth.mul, Ninth.add] <;> ring
+  right_distrib _ _ _ := by ext <;> simp only [mul_def, add_def, Ninth.mul, Ninth.add] <;> ring
+  zero_mul _ := by ext <;> simp only [mul_def, zero_def, Ninth.mul] <;> ring
+  mul_zero _ := by ext <;> simp only [mul_def, zero_def, Ninth.mul] <;> ring
+  mul_assoc _ _ _ := by ext <;> simp only [mul_def, Ninth.mul] <;> ring
+  one_mul _ := by ext <;> simp only [mul_def, one_def, Ninth.mul] <;> ring
+  mul_one _ := by ext <;> simp only [mul_def, one_def, Ninth.mul] <;> ring
+  mul_comm _ _ := by ext <;> simp only [mul_def, Ninth.mul] <;> ring
+  npow := npowRec
+  natCast n := Ninth.ofInt n
+  natCast_zero := rfl
+  natCast_succ n := by
+    change Ninth.ofInt (n + 1 : Nat) = Ninth.add (Ninth.ofInt n) Ninth.one
+    ext <;> simp [Ninth.ofInt, Ninth.add, Ninth.one]
+  intCast k := Ninth.ofInt k
+  intCast_ofNat _ := rfl
+  intCast_negSucc n := by
+    change Ninth.ofInt (Int.negSucc n) = Ninth.neg (Ninth.ofInt (n + 1))
+    ext <;> simp [Ninth.ofInt, Ninth.neg, Int.negSucc_eq]
+
+instance : StarRing Ninth where
+  star_involutive _ := by ext <;> simp only [star_def, Ninth.conj] <;> ring
+  star_mul _ _ := by ext <;> simp only [star_def, mul_def, Ninth.conj, Ninth.mul] <;> ring
+  star_add _ _ := by ext <;> simp only [star_def, add_def, Ninth.conj, Ninth.add] <;> ring
 
 /-- Exact order-18 certificate inside `ℤ[ζ_9]`: `ζ_18^18 = 1` (with `ζ_18^9 = -1`). -/
 theorem zeta18_pow18_eq_one : pow zeta18 18 = one := by
-  have h9 : pow zeta18 9 = ofInt (-1) := zeta18_pow9_eq_neg_one
+  have h9 : pow zeta18 9 = ofInt (-1) := by decide
   change mul (mul (mul (mul (mul (mul (mul (mul (mul (pow zeta18 9) zeta18) zeta18) zeta18) zeta18) zeta18) zeta18) zeta18) zeta18) zeta18 = one
   rw [h9]
   decide
@@ -465,6 +440,31 @@ class StarCommRing (R : Type) where
 
 namespace StarCommRing
 
+/-- Non-instance `CommRing` bridge unlocking Mathlib's `ring` tactic on any `StarCommRing R`. -/
+@[instance_reducible]
+def toCommRing (R : Type) [StarCommRing R] : CommRing R where
+  zero := zero
+  one := one
+  add := add
+  neg := neg
+  mul := mul
+  add_assoc := add_assoc
+  zero_add := zero_add
+  add_zero := add_zero
+  nsmul := @nsmulRec R ⟨zero⟩ ⟨add⟩
+  zsmul := @zsmulRec R ⟨zero⟩ ⟨add⟩ ⟨neg⟩ (@nsmulRec R ⟨zero⟩ ⟨add⟩)
+  neg_add_cancel a := by change add (neg a) a = zero; rw [add_comm, add_neg]
+  add_comm := add_comm
+  left_distrib := mul_add
+  right_distrib := add_mul
+  zero_mul := zero_mul
+  mul_zero := mul_zero
+  mul_assoc := mul_assoc
+  one_mul := one_mul
+  mul_one := mul_one
+  mul_comm := mul_comm
+  npow := @npowRec R ⟨one⟩ ⟨mul⟩
+
 def sub {R : Type} [StarCommRing R] (a b : R) : R := add a (neg b)
 
 def powR {R : Type} [StarCommRing R] (a : R) : Nat → R
@@ -479,19 +479,6 @@ def sumN {R : Type} [StarCommRing R] : Nat → (Nat → R) → R
   | 0, _ => zero
   | n + 1, f => add (sumN n f) (f n)
 
-private theorem neg_mul {R : Type} [StarCommRing R] (a b : R) :
-    mul (neg a) b = neg (mul a b) := by
-  have h1 : add (mul a b) (mul (neg a) b) = zero := by
-    rw [← add_mul, add_neg, zero_mul]
-  have h2 : add (neg (mul a b)) (add (mul a b) (mul (neg a) b)) = neg (mul a b) := by
-    rw [h1, add_zero]
-  rw [← add_assoc, add_comm (neg (mul a b)) (mul a b), add_neg, zero_add] at h2
-  exact h2
-
-private theorem mul_neg {R : Type} [StarCommRing R] (a b : R) :
-    mul a (neg b) = neg (mul a b) := by
-  rw [mul_comm, neg_mul, mul_comm]
-
 -- [helper]
 theorem sub_self {R : Type} [StarCommRing R] (a : R) : sub a a = zero :=
   add_neg a
@@ -499,54 +486,49 @@ theorem sub_self {R : Type} [StarCommRing R] (a : R) : sub a a = zero :=
 -- [helper]
 theorem add_sub_cancel {R : Type} [StarCommRing R] (a b : R) :
     add b (sub a b) = a := by
-  unfold sub
-  rw [add_comm a (neg b), ← add_assoc, add_neg, zero_add]
-
-private theorem sub_mul {R : Type} [StarCommRing R] (a b c : R) :
-    mul (sub a b) c = sub (mul a c) (mul b c) := by
-  unfold sub
-  rw [add_mul, neg_mul]
+  let _ : CommRing R := toCommRing R
+  change b + (a + -b) = a
+  ring
 
 -- [helper]
 theorem unit_compose_identity {R : Type} [StarCommRing R] (u v : R) :
     add (sub u one) (mul (sub v one) u) = sub (mul v u) one := by
-  rw [sub_mul, one_mul]
-  unfold sub
-  rw [add_comm u (neg one), add_assoc (neg one) u (add (mul v u) (neg u))]
-  rw [add_comm (mul v u) (neg u), ← add_assoc u (neg u) (mul v u)]
-  rw [add_neg, zero_add, add_comm (neg one) (mul v u)]
+  let _ : CommRing R := toCommRing R
+  change (u + -1) + (v + -1) * u = v * u + -1
+  ring
 
 -- [helper]
 theorem sumN_const {R : Type} [StarCommRing R] (n : Nat) (c : R) :
     sumN n (fun _ => c) = mul (ofNatR n) c := by
+  let _ : CommRing R := toCommRing R
   induction n with
-  | zero => simp only [sumN, ofNatR, zero_mul]
+  | zero => exact (zero_mul c).symm
   | succ n ih =>
-    simp only [sumN, ofNatR]
-    rw [ih, add_mul, one_mul]
+    have ih' : sumN n (fun _ => c) = ofNatR n * c := ih
+    change sumN n (fun _ => c) + c = (ofNatR n + 1) * c
+    rw [ih']; ring
 
 -- [helper]
 theorem sumN_scale {R : Type} [StarCommRing R] (n : Nat) (c : R) (f : Nat → R) :
     sumN n (fun i => mul c (f i)) = mul c (sumN n f) := by
+  let _ : CommRing R := toCommRing R
   induction n with
-  | zero => simp only [sumN, mul_zero]
+  | zero => exact (mul_zero c).symm
   | succ n ih =>
-    simp only [sumN]
-    rw [ih, mul_add]
+    have ih' : sumN n (fun i => mul c (f i)) = c * sumN n f := ih
+    change sumN n (fun i => mul c (f i)) + c * f n = c * (sumN n f + f n)
+    rw [ih']; ring
 
 -- [helper]
 theorem sumN_add {R : Type} [StarCommRing R] (n : Nat) (f g : Nat → R) :
     sumN n (fun i => add (f i) (g i)) = add (sumN n f) (sumN n g) := by
+  let _ : CommRing R := toCommRing R
   induction n with
-  | zero => simp only [sumN, add_zero]
+  | zero => exact (add_zero zero).symm
   | succ n ih =>
-    simp only [sumN]
-    rw [ih]
-    rw [add_assoc (sumN n f) (sumN n g) (add (f n) (g n))]
-    rw [← add_assoc (sumN n g) (f n) (g n)]
-    rw [add_comm (sumN n g) (f n)]
-    rw [add_assoc (f n) (sumN n g) (g n)]
-    rw [← add_assoc (sumN n f) (f n) (add (sumN n g) (g n))]
+    have ih' : sumN n (fun i => add (f i) (g i)) = sumN n f + sumN n g := ih
+    change sumN n (fun i => add (f i) (g i)) + (f n + g n) = (sumN n f + f n) + (sumN n g + g n)
+    rw [ih']; ring
 
 end StarCommRing
 
@@ -557,22 +539,24 @@ instance : StarCommRing Eis where
   neg := Eis.neg
   mul := Eis.mul
   conj := Eis.conj
-  add_zero := Eis.add_zero
-  zero_add := Eis.zero_add
-  add_comm := Eis.add_comm
-  add_assoc := Eis.add_assoc
-  add_neg := Eis.add_neg
-  mul_one := Eis.mul_one
-  one_mul := Eis.one_mul
-  mul_zero := Eis.mul_zero
-  zero_mul := Eis.zero_mul
-  mul_comm := Eis.mul_comm
-  mul_assoc := Eis.mul_assoc
-  mul_add := Eis.mul_add
-  add_mul := Eis.add_mul
-  conj_conj := Eis.conj_conj
-  conj_add := Eis.conj_add
-  conj_mul := Eis.conj_mul
-  conj_one := Eis.conj_one
+  add_zero := _root_.add_zero
+  zero_add := _root_.zero_add
+  add_comm := _root_.add_comm
+  add_assoc := _root_.add_assoc
+  add_neg := _root_.add_neg_cancel
+  mul_one := _root_.mul_one
+  one_mul := _root_.one_mul
+  mul_zero := MulZeroClass.mul_zero
+  zero_mul := MulZeroClass.zero_mul
+  mul_comm := _root_.mul_comm
+  mul_assoc := _root_.mul_assoc
+  mul_add := _root_.mul_add
+  add_mul := _root_.add_mul
+  conj_conj := star_star
+  conj_add := star_add
+  conj_mul a b := by change star (a * b) = star a * star b; rw [star_mul, _root_.mul_comm]
+  conj_one := star_one Eis
 
 end Vibe
+
+end

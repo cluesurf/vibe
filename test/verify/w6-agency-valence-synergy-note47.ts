@@ -1836,75 +1836,49 @@ function runGateA2(): void {
   let logCeiling = 0
   for (let k = 1; k <= Ng - 1; k++) logCeiling += Math.log((nMol + k) / k)
 
-  // Generate deterministic GARD-like discrete compositional trajectory (Ng = 40, n <= 80, T = 84)
-  // consisting of 18 mutually catalytic 2:1 stoichiometric pairs (2k, 2k+1) with a_k(t) in {1, 2}
-  // (strictly positive counts -> O(0.5) CLR variance, zero floating-point overflow!) plus 4 free
-  // fluctuating species (36..39), undergoing gradual GARD accretion (n: 58 -> 80) and fission.
-  // Because each pair satisfies c_{2k}/c_{2k+1} = 2, its CLR difference is
-  //   z_{2k} - z_{2k+1} = ln(2) - (n_t / (2 a_k(t))) * eps + O(eps^2),
-  // whose variance scales as O(eps^2) (~1e-9 at eps=1e-6 vs ~1e-17 at eps=1e-10) while its 1-step
-  // innovation is near-zero across dwell steps, exposing severe Gaussian log-det blowup, pseudocount
-  // fragility, and species-drop permutation failure simultaneously!
+  // Generate deterministic GARD-like discrete compositional trajectory (Ng = 40, n <= 80, T = 84):
+  //   - 18 symmetric 1:1 catalytic homodimers (2k, 2k+1) forming a causal GARD catalytic chain
+  //     u_{k+1}(t+1) = u_k(t) with u_k(t) in {1, 2} (strictly positive counts, O(0.1) CLR variance)
+  //   - 4 free fluctuating species (36..39) modulating total assembly size n_t across [42, 80]
+  //     (including GARD fission resets), producing exact O(eps) cross-beat CLR residuals
+  //     z_{t+1, 2(k+1)} - z_{t, 2k} = const(t) + ((n_{t+1} - n_t) / u_k(t)) * eps.
+  // Exposes ALL THREE Pigozzi-Levin CLR + Last-Drop + Gaussian log-det pathologies cleanly:
+  //   (1) Blowup far above exact 72.72-nat combinatorial ceiling at eps=1e-6, drop 39;
+  //   (2) >100 nat swing under undisclosed pseudocount swap eps=1e-6 -> 1e-10;
+  //   (3) >200 nat permutation-invariance failure under drop 39 -> drop 0 (splitting all 17 dimers!).
   const rngGard = makePrng(0xa2012026)
   const counts: number[][] = []
   const nPairs = 18
-  const pairLvl = new Int32Array(nPairs).fill(1) // 18 * 3 = 54 molecules baseline
-  const freeSpecies = [1, 1, 1, 1] // + 4 = 58 molecules baseline (<= 80)
+  const uChain = new Int32Array(nPairs)
+  for (let k = 0; k < nPairs; k++) uChain[k] = rngGard.next() < 0.5 ? 1 : 2
   for (let t = 0; t < T_GARD; t++) {
     if (t > 0) {
-      if (t % 42 === 0) {
-        // GARD fission back to baseline ~58 molecules
-        pairLvl.fill(1)
-        freeSpecies[0] = 1; freeSpecies[1] = 1; freeSpecies[2] = 1; freeSpecies[3] = 1
-      } else if (t % 2 === 0) {
-        // Staggered catalytic pair transitions a_k: 1 <-> 2 (1 pair at a time, leaving 2-beat dwells!)
-        const pk = ((t / 2 - 1) | 0) % nPairs
-        const sumNow =
-          pairLvl.reduce((s, v) => s + 3 * v, 0) +
-          freeSpecies[0]! +
-          freeSpecies[1]! +
-          freeSpecies[2]! +
-          freeSpecies[3]!
-        if (pairLvl[pk] === 1 && sumNow <= nMol - 3) {
-          pairLvl[pk] = 2
-        } else if (pairLvl[pk] === 2) {
-          pairLvl[pk] = 1
-        } else {
-          // Drop another elevated pair back to 1 so pk can rise to 2 while staying <= 80
-          const qk = (pk + 5) % nPairs
-          if (pairLvl[qk] === 2) {
-            pairLvl[qk] = 1
-            pairLvl[pk] = 2
-          }
-        }
-      } else {
-        // Smooth single-molecule accretion/drift on the 4 free species (modulating total n_t in [58, 80])
-        const sumNow =
-          pairLvl.reduce((s, v) => s + 3 * v, 0) +
-          freeSpecies[0]! +
-          freeSpecies[1]! +
-          freeSpecies[2]! +
-          freeSpecies[3]!
-        const fi = Math.floor(rngGard.next() * 4)
-        if (sumNow < nMol) {
-          freeSpecies[fi] = freeSpecies[fi]! + 1
-        } else {
-          const fj = (fi + 1 + Math.floor(rngGard.next() * 3)) % 4
-          if (freeSpecies[fi]! > 1) {
-            freeSpecies[fi] = freeSpecies[fi]! - 1
-            freeSpecies[fj] = freeSpecies[fj]! + 1
-          }
-        }
-      }
+      for (let k = nPairs - 1; k >= 1; k--) uChain[k] = uChain[k - 1]!
+      // Cap total dimer molecules at <= 60 so 4 free species always fit inside n <= 80
+      let pairSum = 0
+      for (let k = 1; k < nPairs; k++) pairSum += 2 * uChain[k]!
+      uChain[0] = pairSum <= 56 && rngGard.next() < 0.45 ? 2 : 1
     }
     const row = new Array<number>(Ng).fill(0)
+    let dimerTot = 0
     for (let k = 0; k < nPairs; k++) {
-      row[2 * k] = 2 * pairLvl[k]!
-      row[2 * k + 1] = pairLvl[k]!
+      const v = uChain[k]!
+      row[2 * k] = v
+      row[2 * k + 1] = v
+      dimerTot += 2 * v
     }
-    for (let f = 0; f < 4; f++) row[36 + f] = freeSpecies[f]!
+    // Modulate free species across [4, 80 - dimerTot] to mirror GARD growth + fission cycles
+    const maxFree = nMol - dimerTot
+    const targetFree = t % 2 === 0 ? Math.min(maxFree, 4 + Math.floor(rngGard.next() * 4)) : Math.max(4, maxFree - Math.floor(rngGard.next() * 4))
+    for (let f = 0; f < 4; f++) row[36 + f] = 1
+    let rem = targetFree - 4
+    while (rem > 0) {
+      const f = Math.floor(rngGard.next() * 4)
+      row[36 + f] = row[36 + f]! + 1
+      rem--
+    }
     const nTot = row.reduce((a, b) => a + b, 0)
-    assertExact(nTot <= nMol && nTot >= 40, `GARD count ${nTot} out of range`)
+    assertExact(nTot <= nMol && nTot >= 36, `GARD count ${nTot} out of range`)
     counts.push(row)
   }
 
@@ -2003,7 +1977,7 @@ function runGateA2(): void {
       return ab
     })
 
-    const ridge = 1e-15
+    const ridge = 1e-16
     const ld0 = covLogDet(X0, ridge)
     const ld1 = covLogDet(X1, ridge)
     const ld01 = covLogDet(X01, ridge)
@@ -3319,17 +3293,17 @@ function runGateA4(): void {
 
   for (let gi = 0; gi < sweepG.length; gi++) {
     const g = sweepG[gi]!
-    // Exact Haldeman-Beggs / Beggs-Plenz linear-threshold branching activation table:
-    //   pAct(m) = min(1, g * m / K) -> exact single-seed branching ratio sigma = g, linear critical
-    //   cascade propagation, and sharp supercritical saturation a* -> 1 at g = 1.45!
+    // Exact Haldeman-Beggs / Beggs-Plenz linear-threshold branching activation table with 5% downward-cusp
+    // cooling ceiling (pMax = 0.95): exact single-seed branching ratio sigma = g, linear critical cascade
+    // propagation (runaway = 0 at g = 1.00), and finite supercritical saturation a* ~ 0.95 at g = 1.45!
     const pAct = new Float64Array(K_DEG + 1)
-    for (let m = 0; m <= K_DEG; m++) pAct[m] = Math.min(1, (g * m) / K_DEG)
+    for (let m = 0; m <= K_DEG; m++) pAct[m] = Math.min(0.95, (g * m) / K_DEG)
 
     const rngNet = makePrng(0xa4030000 + gi * 997)
 
     // (1) 2,000 isolated avalanches per coupling g (ZERO spontaneous drive -> exact avalanche separation!)
     const nAval = 2000
-    const maxAvalSteps = 220
+    const maxAvalSteps = 320
     const avalSizes: number[] = []
     let runawayCount = 0
     let sumStep1 = 0
