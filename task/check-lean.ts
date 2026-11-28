@@ -464,7 +464,7 @@ const REQUIRED_THEOREMS = [
   // Vibe.PartitionedStep (2 headline: the partitioned global step is a charge-conserving bijection)
   'thm_cf_partitioned_block_global_invariants',
   'thm_cf_partitioned_rule_step_bijective',
-  // Vibe.Compute.Round (4 headline, L02: the round over any graph and schedule is an Equiv.Perm keeping Q, D and negation; decision 006 confined)
+  // Vibe.Compute.Round (4 headline, L02: the round over any graph and schedule is an Equiv.Perm keeping Q, D and negation; confined)
   'thm_cmp_round_perm_charge_negation',
   'thm_cmp_pair_rule_perm',
   'thm_cmp_recurrence_is_periodic',
@@ -640,7 +640,7 @@ const REQUIRED_THEOREMS = [
   'thm_q2r_odd_degree_frozen',
   'thm_q2r_vacancy_needs_ratio',
   'gen_q2r_move_eq',
-  // Vibe.Compute.CoverDistance (15 headline, L20: decision 006 A32 for any graph covering map: walks lift uniquely, quotient distance <= cover distance and equal when 2 d <= L (loop systole), injective on balls with 2r < L, induced-graph ball isomorphism when 2r + 1 < L, the lower-bound logic L >= 2r + 1 / 2r + 2 and the lab's L = 2r + 2 or 2r + 3 rule, sharpness at L, and what the surface_limited systole gate reads)
+  // Vibe.Compute.CoverDistance (15 headline, L20: A32 for any graph covering map: walks lift uniquely, quotient distance <= cover distance and equal when 2 d <= L (loop systole), injective on balls with 2r < L, induced-graph ball isomorphism when 2r + 1 < L, the lower-bound logic L >= 2r + 1 / 2r + 2 and the lab's L = 2r + 2 or 2r + 3 rule, sharpness at L, and what the surface_limited systole gate reads)
   'thm_cover_exists_lift',
   'thm_cover_lift_unique',
   'thm_cover_dist_le',
@@ -790,7 +790,7 @@ const REQUIRED_THEOREMS = [
   'thm_q8_witten_z2_flux_parity',
   'thm_zero_veto_3smooth_closure',
   'thm_wf4_spin2_diffeo_uniqueness',
-  // Vibe.Compute.QuantumCoarse (10 headline, L16: q-ladder Q6 on the 2-role Fock beat; A16 the lone split k e_(k_a, a) + f e_(k_opp a, opp a), weights 1/4 and 3/4, the walk to beat 3, no dock map that tells a lone vibe from an empty dock makes U, U^2 or U^3 a coarse function; A17 U fixes the vacuum and mixes a one-dock state in every sector of 1..24 excitations; B8 the four declared tone maps tied to DECLARED_TONE_MAPS by Generated/QuantumCoarse, three see a lone vibe, pairedSign blind and still no function under U)
+  // Vibe.Compute.QuantumCoarse (10 headline, L16: Q6 on the 2-role Fock beat; A16 the lone split k e_(k_a, a) + f e_(k_opp a, opp a), weights 1/4 and 3/4, the walk to beat 3, no dock map that tells a lone vibe from an empty dock makes U, U^2 or U^3 a coarse function; A17 U fixes the vacuum and mixes a one-dock state in every sector of 1..24 excitations; B8 the four declared tone maps tied to DECLARED_TONE_MAPS by Generated/QuantumCoarse, three see a lone vibe, pairedSign blind and still no function under U)
   'thm_qc_lone_split',
   'thm_qc_lone_targets',
   'thm_qc_lone_walk',

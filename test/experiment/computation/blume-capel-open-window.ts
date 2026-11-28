@@ -1,10 +1,10 @@
-// M7 follow-up (item vibe-computation-models-0063). Algebra: spin-one. Does the reversible Blume-Capel rule (M2-B), which
+// M7 follow-up. Algebra: spin-one. Does the reversible Blume-Capel rule (M2-B), which
 // keeps energy but neither the charge Q nor the excitation D, restore erased or flipped tones on a readout region in the
 // OPEN window, where M7 saw it do so only transiently on the closed flat {6,3} torus? Library
 // code/compute/lab/open-blume-capel.ts (the open and walled rule) and code/substrate/coxeter/canonical-vertex-coloring.ts
 // (the proper vertex coloring of the infinite tiling it needs); the census is M7's (code/compute/lab/association.ts).
 //
-// Declared before the first full run (note/project/vibe/computation/models/m7-association.md, section "Item 0063"):
+// Declared before the first full run:
 // - M7'S CRITERIA UNCHANGED: R the radius-1 ball of the origin in canonical order, every cue on R, 48 rounds, late trace
 //   rounds 24..48, field-realized readout (the external nearest-word decoder labeled), J = 1, Delta in {1, 2}.
 // - BOXES: the open lazy coset window and the same tiling and coloring behind a wall at radius 7 (the induced ball, a
@@ -735,7 +735,7 @@ export default experiment({
         quotientReproduced: reproduced ? 1 : 0,
       },
       notes:
-        `Item vibe-computation-models-0063. Colorings: ${r.gates.map(g => `${g.space} ${g.kind} ${g.used}/${g.colors} colors on ${g.cells} cells, order check ${g.orderCells} cells`).join('; ')}. Open: ${perBox(r.readings.filter(x => x.boxKind === 'open'))}. Walled: ${perBox(walled)}. Recall ledgers: ${recallLedgers.slice(0, 24).map(l => `${l.cue}>${l.target} ${l.kind} Qout ${l.qOut} Dout ${l.dOut} D ${l.dStart}->${l.dFinal}`).join('; ')}. D-kept control: ${r.dKept.map(d => `${d.box} D${d.crystalField} ${d.completions}/${d.eraseFlip}${d.refused ? ' refused' : ''}`).join('; ')}. Quotients: ${r.quotients.map(q => `${q.name} (${q.cells} cells, injectivity ${q.systole}, loop systole ${q.loopSystole}) D${q.crystalField} completions ${q.completions}, erase or flip ${q.recall}, returned ${q.transient}`).join('; ')}. Curvature: ${curvatureText}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
+        `Colorings: ${r.gates.map(g => `${g.space} ${g.kind} ${g.used}/${g.colors} colors on ${g.cells} cells, order check ${g.orderCells} cells`).join('; ')}. Open: ${perBox(r.readings.filter(x => x.boxKind === 'open'))}. Walled: ${perBox(walled)}. Recall ledgers: ${recallLedgers.slice(0, 24).map(l => `${l.cue}>${l.target} ${l.kind} Qout ${l.qOut} Dout ${l.dOut} D ${l.dStart}->${l.dFinal}`).join('; ')}. D-kept control: ${r.dKept.map(d => `${d.box} D${d.crystalField} ${d.completions}/${d.eraseFlip}${d.refused ? ' refused' : ''}`).join('; ')}. Quotients: ${r.quotients.map(q => `${q.name} (${q.cells} cells, injectivity ${q.systole}, loop systole ${q.loopSystole}) D${q.crystalField} completions ${q.completions}, erase or flip ${q.recall}, returned ${q.transient}`).join('; ')}. Curvature: ${curvatureText}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
     })
   },
 })

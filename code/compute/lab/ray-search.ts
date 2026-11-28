@@ -1,4 +1,4 @@
-// Item vibe-computation-models-0061: do Kleene min and max exist for the four 3-cycle wire rules that compute neg
+// Do Kleene min and max exist for the four 3-cycle wire rules that compute neg
 // (id.CAB.swap, id.BCA.swap on +1; swap.BCA.id, swap.CAB.id on -1)? Layer 2, on code/compute/lab/gates.ts only.
 //
 // THE RAY PICTURE OF THE BRICK LINE. Under the brick schedule every pair is (first, second) = (a cell that just left a
@@ -614,7 +614,7 @@ export function searchRayBus(input: {
 // when no event will ever be other than free: every off-background tone on a left ray (odd cell at a round end) lies to
 // the left of every off-background tone on a right ray (even cell), every left tone passes a background right ray, and
 // every right tone passes a background left ray. Then left tones only meet background right rays and conversely, all
-// passes. For a cell with a one-sided wire on +-1 every finite start settles (m6-universality.md: a background crossing
+// passes. For a cell with a one-sided wire on +-1 every finite start settles (a background crossing
 // ray outside the window stays background, and every other event at a background ray lowers the crossing tone's
 // deficit), and the run below finds the round.
 

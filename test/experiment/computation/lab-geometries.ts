@@ -1,4 +1,4 @@
-// The computation lab's twelve geometries, gated before any rule runs on them (plan M1-B, decision 001). A cell is a
+// The computation lab's twelve geometries, gated before any rule runs on them. A cell is a
 // tile, so a {p,q} cell has p neighbors. Eight geometries are the ones the sources name (the line, {4,4}, {6,3},
 // {3,6}, {5,4}, {7,3}, {8,3}, {3,4,3,4}); four are added so curvature is never confounded with degree: {4,5} against
 // {4,4}, {6,4} against {6,3}, {3,7} against {3,6} and the flat D4 honeycomb {3,4,3,3} against {3,4,3,4}.

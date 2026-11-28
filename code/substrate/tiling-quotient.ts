@@ -1,6 +1,6 @@
-// CLOSED QUOTIENTS of the lab tilings (item vibe-computation-models-0003, plan.md section 1.3): finite cell graphs with
+// CLOSED QUOTIENTS of the lab tilings : finite cell graphs with
 // no boundary, so a reversible rule's global map is a permutation of a finite set and every orbit is periodic. A cell is
-// a tile (decision 001), and two cells are neighbours when their tiles share an edge (a facet, in 4D).
+// a tile, and two cells are neighbours when their tiles share an edge (a facet, in 4D).
 //
 // THE PIECES, all exact integers (residues, never floats):
 //
@@ -16,7 +16,7 @@
 //   whose cell graph is simple. Klein's quartic {7,3} (PSL(2,7), 24 heptagons, genus 3) and Bring's surface {5,4}
 //   (PGL(2,5) = S5, 24 pentagons, genus 4) come out of this search.
 // - `squareTorus`, `triangleTorus`, `hexagonTorus`: flat tori from integer vertex cycles (`mapFromFaces`), the
-//   degree-matched flat partners (decision 001) of equal cell count.
+//   degree-matched flat partners of equal cell count.
 // - `ballSystole`: the largest r for which EVERY r-ball of the quotient equals the infinite tiling's r-ball. The tiling
 //   covers the quotient (a closed map with all faces p-gons and all vertices of degree q has the {p,q} tiling as its
 //   universal cover), so the cover restricted to a ball is a surjective graph map onto the quotient's ball; equal cell
@@ -25,7 +25,7 @@
 //   of its shortest loop. The loop systole L (the shortest closed walk of the cell graph that does not lift to a closed
 //   walk of the tiling) follows from the first radius that fails: L is 2r + 2 when some (r + 1)-ball has fewer cells
 //   than the tiling's (two tiles at distance r + 1 from a centre fold onto one cell), and 2r + 3 when every (r + 1)-ball
-//   has all its cells but an extra edge (item vibe-computation-models-0040). The quotient's distance from a cell equals
+//   has all its cells but an extra edge. The quotient's distance from a cell equals
 //   the cover distance for every cover distance up to L / 2, and only past it can the two differ.
 // - `honeycombQuotient3434`: the {3,4,3,4} congruence quotient K mod (sqrt 2)^m (congruence-3434.ts) under a size cap,
 //   with its open Euler characteristic -E + F - C3 + C4 counted by union-find over (dock, edge) and (dock, triangle)
@@ -522,7 +522,7 @@ export type RotarySurveyRow = {
 }
 
 // Every {p,q} regular map with a simple cell graph whose rotation group <x, y> lies in PGL(2, m), for each prime m in
-// `moduli` (item vibe-computation-models-0004: how far the loop systole of a regular map reaches at a given size). x
+// `moduli` (how far the loop systole of a regular map reaches at a given size). x
 // runs over one representative of each conjugacy class of elements of order p (conjugate generating pairs give
 // isomorphic maps), y over the elements of order q with xy of order 2, ascending packed keys. The rotation group acts
 // transitively on the faces, so the systole is read from cell 0 alone. Rows are distinct (group order, genus, r, L).
@@ -938,7 +938,7 @@ export function referenceTiling(symbol: readonly number[], maxCells: number): nu
   return buildCellGraph({ symbol: [...symbol], maxCells }).neighbors
 }
 
-// ---- edge colorings into matchings (the partition schedule's raw material, decision 002) ----
+// ---- edge colorings into matchings (the partition schedule's raw material) ----
 
 export type MatchingCheck = {
   readonly colors: number
@@ -1203,7 +1203,7 @@ export type ClosedQuotient = {
   readonly systoleLowerBound: boolean
   readonly loopSystole: number | null
   readonly construction: string
-  // the degree-matched partner of equal cell count, by name (decision 001), or null when no flat tiling has the degree
+  // the degree-matched partner of equal cell count, by name, or null when no flat tiling has the degree
   readonly partner: string | null
 }
 
@@ -1222,11 +1222,10 @@ export function torusSides(n: number): [number, number] | null {
 
 export const QUOTIENT_MODULI: readonly number[] = [3, 5, 7, 11]
 
-// the {3,4,3,4} size cap: every 2-adic level under it with a simple dock graph is kept (laptop runs, plan.md
-// section 9)
+// the {3,4,3,4} size cap: every 2-adic level under it with a simple dock graph is kept (the small-size runs)
 export const HONEYCOMB_MAX_DOCKS = 20000
 
-// the hyperbolic surfaces: the three the sources name and the three degree-matched controls of decision 001
+// the hyperbolic surfaces: the three the sources name and the three degree-matched controls
 export const SURFACE_SYMBOLS: readonly (readonly [number, number])[] = [
   [7, 3],
   [5, 4],
@@ -1236,7 +1235,7 @@ export const SURFACE_SYMBOLS: readonly (readonly [number, number])[] = [
   [3, 7],
 ]
 
-// the flat tiling of each degree that has one (decision 001)
+// the flat tiling of each degree that has one
 const FLAT_OF_DEGREE: Readonly<Record<number, readonly [number, number]>> = {
   3: [3, 6],
   4: [4, 4],
@@ -1431,7 +1430,7 @@ export function closedQuotients(): CatalogEntry[] {
   return entries
 }
 
-// ---- independent checks of a quotient (item vibe-computation-models-0048) ----
+// ---- independent checks of a quotient ----
 //
 // ballSystole and loopSystole read cell and edge COUNTS, which decide an isomorphism only because the tiling covers the
 // quotient. The checks below read adjacency instead, so they can fail where a count agrees by accident:

@@ -1,6 +1,6 @@
 /**
- * A control solver for the evaluator's metered mesh round on a declared background (item 0032 of
- * vibe/computation/intelligence, decision 003). It asks the evaluator for one batch of runs of a layout it is handed as
+ * A control solver for the evaluator's metered mesh round on a declared background.
+ * It asks the evaluator for one batch of runs of a layout it is handed as
  * data, every run labelled with the problem's initial state, and reports the read cells it was answered in its id
  * ('mesh-background-probe <digits>', residue digits 0, 1, 2 for 0, +1, -1), so a judge can compare them with its own
  * runs. The initial state is the goal: the solve itself is empty, only the metered runs matter.
@@ -45,7 +45,7 @@ export function meshBackgroundProbe<S>(args: BackgroundProbeArgs, host: Candidat
     id: BACKGROUND_PROBE_ID,
     solve(problem: Problem<S>) {
       const ledger = emptyLedger()
-      // a layout with no inputs (refused by the evaluator since audit 3, m2) is asked for `runs` empty words
+      // a layout with no inputs (refused by the evaluator) is asked for `runs` empty words
       const runs = args.arity === 0 ? (args.runs ?? 0) : args.words.length / args.arity
 
       if (!Number.isInteger(runs) || runs < 1) {

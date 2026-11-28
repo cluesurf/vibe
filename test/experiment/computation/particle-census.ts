@@ -1,9 +1,9 @@
-// M3-A, the particle census (item vibe-computation-models-0012). Algebra: spin-one. For every M1 class labeled
+// M3-A, the particle census. Algebra: spin-one. For every M1 class labeled
 // interacting or ballistic (E-CMP-0025, E-CMP-0027: every class but the identity, which is frozen everywhere), on every
 // lab geometry, this reads which small starts become persistent localized structures (species), their speed and
 // period, and the outcome of every collision of two species at several phase offsets (code/measure/particle-census.ts).
 //
-// Schedules (decision 002), boundaries and seeds, declared before the first run:
+// Schedules, boundaries and seeds, declared before the first run:
 // - OPEN: the lazy exact windows of E-CMP-0032 and E-CMP-0035 (code/compute/lab/lazy-space.ts, read only), each with
 //   its M1 schedule family: generator coloring ({5,4}, {6,4}, {3,4,3,4}), step-parity coloring ({6,3} as A2,
 //   {3,4,3,3} as D4), the coloring lifted from a finite quotient (the coset tilings), and the brick schedule of the
@@ -11,7 +11,7 @@
 //   the 16 creating rules on +1 and -1 only (no rule moves (b, b) for b = +-1, so those runs are exact open windows
 //   too; the creating rules see the declared orientation, the shorter tile first).
 // - CLOSED: the M1 closed quotient of the same column (code/compute/lab/harness.ts closedInstances, read only), under
-//   its greedy coloring, with its systole field (ballSystole, an injectivity radius: audit finding 0040) beside it.
+//   its greedy coloring, with its systole field (ballSystole, an injectivity radius) beside it.
 // - SEEDS: every support of at most two cells containing the origin and lying within SEED_RADIUS facets of it, with
 //   every off-background tone. SEED_RADIUS = 2 is the span of the widest M1 seed shapes (ac and bd: two cells two hops
 //   apart). The 4D pair at scale 1 reads radius 1 (both sides alike); scale >= 1.5 reads radius 2 there too.
@@ -26,7 +26,7 @@
 //   lattices and the line, the address path on the coset tilings (not an automorphism there, so a placement whose shape
 //   changes is counted as a mismatch and left out).
 //
-// Curvature (decision 001, audit finding 0045): a comparison counts only between a flat tiling and its degree-matched
+// Curvature: a comparison counts only between a flat tiling and its degree-matched
 // hyperbolic control under ONE schedule family. The three 2D pairs are read on the coset family on both sides ({6,3}
 // and {6,4} are rebuilt as coset tilings for this, beside their M1 families), under both color orders. The 4D pair has
 // no common family (step-parity D4 against the generator coloring of {3,4,3,4}), so it is reported unresolved, with its
@@ -1000,7 +1000,7 @@ export default experiment({
         plantedDifferenceCaught: r.plantedDifferenceCaught ? 1 : 0,
       },
       notes:
-        `M3-A (item vibe-computation-models-0012). Spaces: ${r.spaceInfo.map(s => `${s.key} ${s.family} r${s.seedRadius}`).join(', ')}. Closed quotients: ${r.closedInfo.map(c => `${c.name} (${c.size} cells, ${c.colors} colors, systole field ${c.systole})`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `M3-A. Spaces: ${r.spaceInfo.map(s => `${s.key} ${s.family} r${s.seedRadius}`).join(', ')}. Closed quotients: ${r.closedInfo.map(c => `${c.name} (${c.size} cells, ${c.colors} colors, systole field ${c.systole})`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

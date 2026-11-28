@@ -1,4 +1,4 @@
-// The reversible Blume-Capel rule (M2-B) in the open window and behind a wall (item vibe-computation-models-0063).
+// The reversible Blume-Capel rule (M2-B) in the open window and behind a wall.
 // Algebra: spin-one.
 //
 // THE RULE is code/rule/spin-one-q2r.ts q2rMove, unchanged: a cell swaps the two tones of equal local energy

@@ -36,7 +36,7 @@
  * at or above 0.9. The mean-only rule is kept as a control, to show the hole
  * the harm constraints close.
  *
- * Its records are its own (audit 2, K1): an evaluation handed out is a deep
+ * Its records are its own: an evaluation handed out is a deep
  * frozen copy, the cache keeps the original, and the face handed to the loop
  * compares the judge's own records of the two genomes, never the objects it
  * is passed.

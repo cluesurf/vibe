@@ -1,12 +1,12 @@
 /**
- * Level 5, slice 2 (level5.md): a structure that a stream of movers rewrites, asked to route a later mover. On the
+ * Level 5, slice 2: a structure that a stream of movers rewrites, asked to route a later mover. On the
  * vacuum under `id.CBA.swap` (M6's T5 counter) a static -1 is shifted one cell by every +1 that crosses it. Each
  * successor a search generates gets one such structure: its experience stream is one +1 mover when the learned table
  * holds the successor (a state on or beside a taught path, level 2), none otherwise; then a probe +1 is sent after it,
  * and the read cell at the read round says whether the successor is preferred. A preferred successor wins ties of A*
  * (equal g + h): the search stays optimal, and only its order, so its expansions, can change.
  *
- * The candidate never runs a round. Every run is asked of the evaluator through `meshRuns` (decision 003), which names
+ * The candidate never runs a round. Every run is asked of the evaluator through `meshRuns`, which names
  * the rule, gives the layout as data and per successor the issued state and the input word [stream, probe]; the
  * evaluator executes and meters every round. So the structure is rebuilt in every run from the static, its stream and
  * the probe: what the stream left is carried by the mesh's own dynamics inside the run, never by candidate code.
@@ -47,7 +47,7 @@ export interface RouterLayout {
   readRound: number
 }
 
-/** What the evaluator answers for one batch of metered runs (decision 003). */
+/** What the evaluator answers for one batch of metered runs. */
 export interface RouterRunsReply {
   values: number[]
   pairUpdates: number

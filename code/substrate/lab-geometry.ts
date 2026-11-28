@@ -23,7 +23,7 @@
 //
 // `exact: true` builds a hyperbolic ball from the exact chamber tiling instead (chamber-tiling.ts: integer chamber
 // ids and the Coxeter matrix, no floating point anywhere in the adjacency), grown lazily, so the radius is limited only
-// by memory and by `maxCells` (decision 003 of vibe/computation/models). It changes nothing for flat geometries, which
+// by memory and by `maxCells`. It changes nothing for flat geometries, which
 // are integer lattices already. The default stays the float build, so existing experiments read the same balls.
 
 import { exactTileBall } from '@/code/substrate/coxeter/chamber-tiling'
@@ -208,7 +208,7 @@ export type LabGeometry = {
   readonly patchCells: number
 }
 
-// The float precision wall of buildCellGraph is near 15,500 cells (traps.md), so a hyperbolic patch stays below it.
+// The float precision wall of buildCellGraph is near 15,500 cells, so a hyperbolic patch stays below it.
 export const HYPERBOLIC_PATCH_CAP = 15000
 
 export function labGeometrySpec(name: LabGeometryName): LabGeometrySpec {

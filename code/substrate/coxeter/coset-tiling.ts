@@ -1,7 +1,7 @@
 // A LAZY EXACT tiling for every regular tiling {p,q}, right-angled or not: the tiles are the cosets w W_J of the cell
 // subgroup W_J = <s_0, s_1> (the dihedral group of the p-gon, order 2p) in the triangle group
 // W = <s_0, s_1, s_2 | (s_0 s_1)^p, (s_1 s_2)^q, (s_0 s_2)^2>, created one at a time as a caller asks for a neighbour
-// (item vibe-computation-models-0038). It covers {7,3}, {8,3}, {4,5}, {3,7}, where q is odd and no tile group acts
+// It covers {7,3}, {8,3}, {4,5}, {3,7}, where q is odd and no tile group acts
 // simply transitively on the tiles (so the Foata forms of right-angled-tiling.ts do not apply), and every other {p,q}.
 //
 // ELEMENTS. A group element w is its matrix in the geometric (Tits) representation on the root basis: column j is

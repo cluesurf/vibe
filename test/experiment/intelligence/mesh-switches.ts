@@ -1,4 +1,4 @@
-// Intelligence level 4, slice 2 (item vibe-computation-intelligence-0022, level4.md of vibe/computation/intelligence):
+// Intelligence level 4, slice 2:
 // the decisions of the level-4 solver that a mesh layout can make, made by one. Slice 1 (E-CMP-0056) left every
 // decision in candidate code. Here the lit test |x| and the expand gate run as M5 switch layouts of the occupancy-blind
 // exchange rule swap.ABC.swap on the vacuum, on the line under the brick schedule, one run per decision, and the
@@ -10,7 +10,7 @@
 // stop test and min are not even occupancy-routed (M5). The expand gate's 0/1 form fails the same test, so it runs in
 // signed form (+1 expand, -1 not), whose output cell is always occupied.
 //
-// Gates, fixed before the first run (level4.md, slice 2), each able to fail:
+// Gates, fixed before the first run, each able to fail:
 // - S1 certificate: the solver's table equals swap.ABC.swap (occupancy-blind on 0); for each layout and every input the
 //   solver's run equals lineBrickRun at every round, cell for cell; the read cell gives the decision's truth table and
 //   rides its wire for 8 more rounds; every run spends the same pair updates. Controls: a layout with one constant
@@ -23,7 +23,7 @@
 //   wave, register and field digests equal meshWave's (BFS optimality unchanged); runs equal decisions; pair updates
 //   equal runs times the layout's constant.
 // - S4 judge: on every wall instance the lit and expand frame digests and run counts equal the judge's recomputation
-//   (its own frame hash over lineBrickRun frames, its own discovered set). Since decision 003 the evaluator runs every
+//   (its own frame hash over lineBrickRun frames, its own discovered set). Now the evaluator runs every
 //   switch round itself (a metered operator, rule by name, layout as data) and the judge reads the evaluator's meter,
 //   not the report: a decision is mesh-realized only when the evaluator ran it on the certified layout (S3 gates that
 //   every meshSwitch decision was, and that meshWave's meter is empty).
@@ -178,7 +178,7 @@ function judgeHashes(layout: SwitchLayout): Map<string, { frameHash: number; val
   return out
 }
 
-// ---------------------------------------------------------------- the knockout (item 0030)
+// ---------------------------------------------------------------- the knockout
 
 /** The identity pair rule: a knockout puts it in place of every round of a layout. */
 const IDENTITY: { gate: GateRule; table: readonly number[] } = (() => {
@@ -230,7 +230,7 @@ function certify(layout: SwitchLayout, formula: (x: readonly number[]) => number
     const frames: Int8Array[] = []
     const mine = runSwitch(layout, word, cells, table, frames)
     const judged = judgeRun(layout, word, rule)
-    // the evaluator's own runner (decision 003), the one that executes every metered round
+    // the evaluator's own runner, the one that executes every metered round
     const meteredFrames: Int8Array[] = []
     const metered = meshLineRun(table, layout, word, new Int8Array(switchLength(layout)), meteredFrames)
     const differ = (a: readonly Int8Array[], b: readonly Int8Array[]): boolean =>
@@ -393,7 +393,7 @@ function recompute(wall: WallCase, litHash: JudgeHashes, expandHash: JudgeHashes
   const firstLit = new Int32Array(n).fill(-1)
   const slot = new Int8Array(n)
   const discovered = new Uint8Array(n)
-  // the evaluator's chain (item 0037), one request per step and layout: the lit request on every discovered node, the
+  // the evaluator's chain, one request per step and layout: the lit request on every discovered node, the
   // expand request on the lit-read ones; the step, each node's key, word, frame hash and read are folded in
   const litChain = meshChain(EXCHANGE_RULE, { ...LIT_SWITCH, background: 0 })
   const expandChain = meshChain(EXCHANGE_RULE, { ...EXPAND_SWITCH, background: 0 })
@@ -569,13 +569,13 @@ function wallCases(): Map<string, WallCase> {
   return out
 }
 
-// ---------------------------------------------------------------- the evaluator's mesh meter (decision 003)
+// ---------------------------------------------------------------- the evaluator's mesh meter
 
 /** Whether a metered layout is the certified one under the claimed rule. */
 function isLayout(entry: MeshLayoutMeter, layout: SwitchLayout): boolean {
   return (
     entry.rule === EXCHANGE_RULE &&
-    // the vacuum, checked on every entry (audit 3, m1), never assumed from the digest
+    // the vacuum, checked on every entry, never assumed from the digest
     entry.layout.background === 0 &&
     entry.layout.start === layout.start &&
     entry.layout.readPosition === layout.readPosition &&
@@ -609,7 +609,7 @@ function meteredOf(mesh: MeshMeter): Metered {
 }
 
 /**
- * The judge (decision 003): it reads the evaluator's meter, never the report, for what the mesh ran. On a wall instance
+ * The judge: it reads the evaluator's meter, never the report, for what the mesh ran. On a wall instance
  * the metered runs and frame digests of the certified layouts must equal its recomputation, nothing else may have been
  * run, the report's outcome and stop step must equal the recomputed wave's, and the report must agree with the meter.
  */
@@ -724,7 +724,7 @@ export default experiment({
       fail('the full swap passed the expand certificate')
     }
 
-    // the switch knockouts (item 0030): a layout is mesh computation only if knocking out its rounds changes some read
+    // the switch knockouts: a layout is mesh computation only if knocking out its rounds changes some read
     if (IDENTITY.table.some((q, p) => q !== p)) {
       fail('id.ABC.id is not the identity, so it cannot stand in for a knocked-out round')
     }
@@ -851,7 +851,7 @@ export default experiment({
     let judgeRejected = 0
 
     const totals: Record<string, number> = {}
-    // item 0036 (audit 3, M1): the same sums over the judged wall instances only, where credit rests on recomputation
+    // the same sums over the judged wall instances only, where credit rests on recomputation
     const judgedTotals: Record<string, number> = {}
 
     let currentJudged = false
@@ -916,7 +916,7 @@ export default experiment({
         fail(`${instance.id}: pair updates are not runs times the layout's constant`)
       }
 
-      // decision 003: every decision ran in the evaluator, on the certified layouts, and the report is the meter's
+      // every decision ran in the evaluator, on the certified layouts, and the report is the meter's
       const metered = meteredOf(grade.mesh)
 
       if (
@@ -967,7 +967,7 @@ export default experiment({
       add('litPairUpdates', switches.litPairUpdates)
       add('expandPairUpdates', switches.expandPairUpdates)
 
-      // the knockout reading of the two step components (item 0030)
+      // the knockout reading of the two step components
       const knock = report.knockout
 
       if (knock === undefined || !Number.isInteger(knock.waveChangedValues) || !Number.isInteger(knock.registerChangedPairs)) {
@@ -1048,7 +1048,7 @@ export default experiment({
       }
     }
 
-    // S5, the lookup control on every instance (decision 003): its report is the honest solver's field for field, so no
+    // S5, the lookup control on every instance: its report is the honest solver's field for field, so no
     // judge of the report alone can reject it; the evaluator's meter shows no run, so its decisions are external
     {
       const lookup = CONTROL_RECIPES.find(([name]) => name === 'lookupSwitch')![1]
@@ -1111,8 +1111,8 @@ export default experiment({
       fail(`random number or clock source: ${findings.map(f => `${f.file}:${f.line} ${f.kind}`).join(', ')}`)
     }
 
-    // the provenance table, slice 1 against slice 2, one count per operation as slice 1 counts. The rule (item 0030,
-    // fixed before the run): a component counts as mesh-realized only if knocking out its rounds changes some read. The
+    // the provenance table, slice 1 against slice 2, one count per operation as slice 1 counts. The rule (fixed
+    // before the run): a component counts as mesh-realized only if knocking out its rounds changes some read. The
     // wave and both switches pass; the M4 register's knockout changes nothing (its round is the identity at spacing 2),
     // so its pair updates are mesh storage with an identity round, counted in the whole but not credited.
     if ((totals.waveKnockoutChangedValues ?? 0) === 0) {
@@ -1127,7 +1127,7 @@ export default experiment({
     const identityStorage = totals.registerPairUpdates!
     const lit = totals.litTests!
     const expand = totals.expandGates!
-    // decision 003: a decision is mesh-realized only when the evaluator ran it; the rest are external though routed
+    // a decision is mesh-realized only when the evaluator ran it; the rest are external though routed
     const meteredLit = totals.meteredLitRuns ?? 0
     const meteredExpand = totals.meteredExpandRuns ?? 0
     const unmetered = lit - meteredLit + (expand - meteredExpand)
@@ -1142,7 +1142,7 @@ export default experiment({
     const share = (part: number, whole = all): string => (part / whole).toFixed(4)
     // the same table with each switch run counted at its pair updates instead of 1
     const weightedAll = wave + identityStorage + totals.litPairUpdates! + totals.expandPairUpdates! + writes + stopAndRead
-    // item 0036: the credited shares over the judged wall solves only (the judge recomputes the wave and every metered
+    // the credited shares over the judged wall solves only (the judge recomputes the wave and every metered
     // run there); over all solves the wave part is the candidate's report on the directed kinds
     const j = (name: string): number => judgedTotals[name] ?? 0
     const judgedWave = j('waveArcReads') + j('waveCellUpdates')
@@ -1183,7 +1183,7 @@ export default experiment({
     metrics.oldMeshShare = Number(share(wave))
     metrics.oldRoutedExternalShare = Number(share(lit + expand + writes))
     metrics.oldNoGoExternalShare = Number(share(stopAndRead))
-    // item 0036: the credited share is the judged one; the all-solve one is candidate-reported on the directed kinds
+    // the credited share is the judged one; the all-solve one is candidate-reported on the directed kinds
     metrics.newMeshShare = Number(judgedShare(judgedWave + judgedSwitches))
     metrics.newMeshShareWeighted = Number(judgedShare(judgedWave + j('meteredPairUpdates'), judgedWeightedAll))
     metrics.judgedOldMeshShare = Number(judgedShare(judgedWave))
@@ -1214,7 +1214,7 @@ export default experiment({
       claim: `intelligence level 4, slice 2: the lit test |x| and the expand gate (signed: +1 expand, -1 not) of the level-4 solver run as M5 switch layouts of the occupancy-blind exchange ${EXCHANGE_RULE} on the line (widths ${LIT_SWITCH.window.length} and ${EXPAND_SWITCH.window.length}, ${metrics.litLayoutConstants} and ${metrics.expandLayoutConstants} constants, read at rounds ${LIT_SWITCH.readRound} and ${EXPAND_SWITCH.readRound}, certified cell for cell against lineBrickRun on every input), one run per decision; on all ${graded.length} family-A instances the solver is graded clean and its search is unchanged (${behaviourDifferences} differences from slice 1; ${optimal} of ${optimal + longer} solves optimal); every switch run is executed and metered by the evaluator (${meteredLit + meteredExpand} runs, ${unmetered} decisions unmetered), and a judge reading that meter recomputes the frames of every run on all ${judged} wall instances, rejecting a lookup-table solver whose report is the honest one's on every wall instance; counting a component as mesh-realized only if knocking out its rounds changes some read (the lit switch on ${litKnockout.changed} of ${litKnockout.words} words, the expand gate on ${expandKnockout.changed} of ${expandKnockout.words}, the wave on ${totals.waveKnockoutChangedValues ?? 0} node values; the M4 register on 0, so it is mesh storage with an identity round, ${share(identityStorage)}, not credited), the mesh-realized share of the solver's own operations on the ${judged} judged wall solves rises from ${judgedShare(judgedWave)} to ${judgedShare(judgedWave + judgedSwitches)} (over all ${graded.length} solves ${share(wave)} to ${share(wave + meteredLit + meteredExpand)}, the wave part candidate-reported on the directed kinds, where no judge recomputes it); the register write joins the stop test and read-back as external with a proof (the M6 no-feedback lemma: an occupancy-blind cell's occupancy at any round is one fixed start cell's, and a write needs x and g, or x or s), ${share(writes + stopAndRead)}; the 0/1 expand gate fails the same test`,
       metrics,
       control,
-      notes: `L2. Layouts (swap.ABC.swap on the vacuum, the brick line, start parity 0; window tones left to right, x and s the inputs): lit test [x, +1], read at position ${LIT_SWITCH.readPosition} after ${LIT_SWITCH.readRound} round, ${litCertificate.pairUpdates} pair updates a run; expand gate [x, 0, +1, -1, -1, s, 0, -1], read at position ${EXPAND_SWITCH.readPosition} after ${EXPAND_SWITCH.readRound} rounds, ${expandCertificate.pairUpdates} pair updates a run, output riding left. Each output rides its wire ${HOLD} rounds past the read. Why the expand layout works: on the line the exchange keeps the movers' order (M6 G5), so the read cell holds the tone of the k-th occupied start cell, k one more than the number of free tracks left of it; x's track crosses the read cell and s's does not, so x present moves k on by one and s present moves the list on by one, and the constants (+1, -1, -1, -1) sit so that only x present with s empty brings the +1. Certificate: ${litCertificate.inputs + expandCertificate.inputs} inputs, frame differences ${litCertificate.frameDifferences + expandCertificate.frameDifferences}, table differences ${litCertificate.tableDifferences + expandCertificate.tableDifferences}; a flipped constant gives ${flippedCertificate.tableDifferences} wrong entries, the full swap ${fullSwapCertificate.tableDifferences}. Transport lemma: ${blindCells} occupancy-blind cells, each moving a lone tone alike in both pair orders (bijectivity forces it), so occupancy moves by one fixed permutation (identity or the full swap) whatever the tones; live on the line (every width-5 window, 6 rounds, both parities) ${liveTransported} of ${blindCells}, the reactive control ${reactiveTransported ? 'passed (wrong)' : 'failed'}. Decision tables: ${classified.join('; ')}. A probe (exhaustive line search to width 10, read to round 16, held 8) found the signed expand gate first at width 8 (48 of 40,824 layouts) and the 0/1 gate and both writes at no width, as the lemma says. Provenance, slice 1 (E-CMP-0056) against slice 2, every count summed over the ${graded.length} solves, one count per operation. The rule (fixed before the run): a component counts as mesh-realized only if knocking out its rounds (id.ABC.id, the identity, in place of every round) changes some read. Knockouts: the lit switch changes its read on ${litKnockout.changed} of ${litKnockout.words} words (${litKnockout.changedWords.join(' and ')}; ${totals.litKnockoutChangedRuns} of ${meteredLit} runs on the solves), the expand gate on ${expandKnockout.changed} of ${expandKnockout.words} (${expandKnockout.changedWords.join(' and ')}; ${totals.expandKnockoutChangedRuns} of ${meteredExpand} runs), the wave on ${totals.waveKnockoutChangedValues} node values, the M4 register on ${totals.registerKnockoutChangedPairs} pairs of ${totals.registerPairUpdates} pair updates (at spacing 2 its round is the identity). So mesh computation ${share(wave)} -> ${share(wave + lit + expand)} (wave ${totals.waveArcReads} arc reads and ${totals.waveCellUpdates} node updates, now also ${lit} lit runs and ${expand} expand runs); mesh storage with an identity round, not credited, ${share(identityStorage)} in both (register ${totals.registerPairUpdates} pair updates; before this rule it was credited, and the mesh share read ${share(wave + identityStorage)} -> ${share(wave + identityStorage + lit + expand)}); external but routed ${share(lit + expand + writes)} -> 0; external with a proof ${share(stopAndRead)} -> ${share(writes + stopAndRead)} (register writes ${writes}: the M4 write port, and no blind layout can make the slot's occupancy x and g; stop tests and read-back comparisons ${stopAndRead}: not occupancy-routed). With each run counted at its pair updates (${totals.litPairUpdates} lit, ${totals.expandPairUpdates} expand) the mesh share is ${share(wave + totals.litPairUpdates! + totals.expandPairUpdates!, weightedAll)} (identity-round storage ${share(identityStorage, weightedAll)}; ${share(wave + identityStorage + totals.litPairUpdates! + totals.expandPairUpdates!, weightedAll)} with the register credited). Credit (item 0036, audit 3 M1): the shares above are over all solves; the credited ones rest on the ${judged} judged wall solves, where the judge recomputes the wave and every metered run: mesh computation ${judgedShare(judgedWave)} -> ${judgedShare(judgedWave + judgedSwitches)}, ${judgedShare(judgedWave + j('meteredPairUpdates'), judgedWeightedAll)} weighted, identity-round storage ${judgedShare(j('registerPairUpdates'))}. The added structure is the layout (programmer_layout): ${metrics.litLayoutConstants + metrics.expandLayoutConstants} constants per node per step and the read cells and rounds; each decision's garbage (the other cells of the final frame) is dropped. Controls (the judged wall instances): formulaDecisions clean by the evaluator ${control.formulaDecisionsEvaluatorClean} of ${control.formulaDecisionsTried}, judge rejected ${control.formulaDecisionsJudgeRejected}; extraConstantSwitch clean ${control.extraConstantSwitchEvaluatorClean}, rejected ${control.extraConstantSwitchJudgeRejected} of ${control.extraConstantSwitchTried}; lookupSwitch (each layout run once per input word in candidate code, 3 lit and 9 expand words, every decision looked up) clean ${control.lookupSwitchEvaluatorClean}, rejected ${control.lookupSwitchJudgeRejected} of ${control.lookupSwitchTried}, its report identical to meshSwitch's on ${control.lookupSwitchReportIdentical} of ${control.lookupSwitchInstances} instances and classified external (no metered run) on ${control.lookupSwitchClassifiedExternal} of ${control.lookupSwitchInstances}. Metered mesh rounds (decision 003: the evaluator executes every switch round, rule by name, layout as data, and the judge reads its meter): ${meteredLit} lit and ${meteredExpand} expand runs, ${totals.meteredRounds} rounds, ${totals.meteredPairUpdates} pair updates, ${unmetered} decisions unmetered. Limits: the layouts sit on the line beside the configuration graph, one per node per step, not inside the wave's own mesh, and their inputs are written and their outputs read by candidate code (ports, as M4's); the meter proves the evaluator ran each decision's layout, not that the candidate's branch read its answer (one that ran it and decided by its own table would pay every round and decide alike); the wave step and the M4 register round stay candidate code (the wave's field is recomputed whole by the judge; the register at spacing 2 is the identity, so it is not credited as mesh); the directed kinds are checked for consistency (runs equal decisions, pair updates) and against slice 1, not recomputed. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
+      notes: `L2. Layouts (swap.ABC.swap on the vacuum, the brick line, start parity 0; window tones left to right, x and s the inputs): lit test [x, +1], read at position ${LIT_SWITCH.readPosition} after ${LIT_SWITCH.readRound} round, ${litCertificate.pairUpdates} pair updates a run; expand gate [x, 0, +1, -1, -1, s, 0, -1], read at position ${EXPAND_SWITCH.readPosition} after ${EXPAND_SWITCH.readRound} rounds, ${expandCertificate.pairUpdates} pair updates a run, output riding left. Each output rides its wire ${HOLD} rounds past the read. Why the expand layout works: on the line the exchange keeps the movers' order (M6 G5), so the read cell holds the tone of the k-th occupied start cell, k one more than the number of free tracks left of it; x's track crosses the read cell and s's does not, so x present moves k on by one and s present moves the list on by one, and the constants (+1, -1, -1, -1) sit so that only x present with s empty brings the +1. Certificate: ${litCertificate.inputs + expandCertificate.inputs} inputs, frame differences ${litCertificate.frameDifferences + expandCertificate.frameDifferences}, table differences ${litCertificate.tableDifferences + expandCertificate.tableDifferences}; a flipped constant gives ${flippedCertificate.tableDifferences} wrong entries, the full swap ${fullSwapCertificate.tableDifferences}. Transport lemma: ${blindCells} occupancy-blind cells, each moving a lone tone alike in both pair orders (bijectivity forces it), so occupancy moves by one fixed permutation (identity or the full swap) whatever the tones; live on the line (every width-5 window, 6 rounds, both parities) ${liveTransported} of ${blindCells}, the reactive control ${reactiveTransported ? 'passed (wrong)' : 'failed'}. Decision tables: ${classified.join('; ')}. A probe (exhaustive line search to width 10, read to round 16, held 8) found the signed expand gate first at width 8 (48 of 40,824 layouts) and the 0/1 gate and both writes at no width, as the lemma says. Provenance, slice 1 (E-CMP-0056) against slice 2, every count summed over the ${graded.length} solves, one count per operation. The rule (fixed before the run): a component counts as mesh-realized only if knocking out its rounds (id.ABC.id, the identity, in place of every round) changes some read. Knockouts: the lit switch changes its read on ${litKnockout.changed} of ${litKnockout.words} words (${litKnockout.changedWords.join(' and ')}; ${totals.litKnockoutChangedRuns} of ${meteredLit} runs on the solves), the expand gate on ${expandKnockout.changed} of ${expandKnockout.words} (${expandKnockout.changedWords.join(' and ')}; ${totals.expandKnockoutChangedRuns} of ${meteredExpand} runs), the wave on ${totals.waveKnockoutChangedValues} node values, the M4 register on ${totals.registerKnockoutChangedPairs} pairs of ${totals.registerPairUpdates} pair updates (at spacing 2 its round is the identity). So mesh computation ${share(wave)} -> ${share(wave + lit + expand)} (wave ${totals.waveArcReads} arc reads and ${totals.waveCellUpdates} node updates, now also ${lit} lit runs and ${expand} expand runs); mesh storage with an identity round, not credited, ${share(identityStorage)} in both (register ${totals.registerPairUpdates} pair updates; before this rule it was credited, and the mesh share read ${share(wave + identityStorage)} -> ${share(wave + identityStorage + lit + expand)}); external but routed ${share(lit + expand + writes)} -> 0; external with a proof ${share(stopAndRead)} -> ${share(writes + stopAndRead)} (register writes ${writes}: the M4 write port, and no blind layout can make the slot's occupancy x and g; stop tests and read-back comparisons ${stopAndRead}: not occupancy-routed). With each run counted at its pair updates (${totals.litPairUpdates} lit, ${totals.expandPairUpdates} expand) the mesh share is ${share(wave + totals.litPairUpdates! + totals.expandPairUpdates!, weightedAll)} (identity-round storage ${share(identityStorage, weightedAll)}; ${share(wave + identityStorage + totals.litPairUpdates! + totals.expandPairUpdates!, weightedAll)} with the register credited). Credit: the shares above are over all solves; the credited ones rest on the ${judged} judged wall solves, where the judge recomputes the wave and every metered run: mesh computation ${judgedShare(judgedWave)} -> ${judgedShare(judgedWave + judgedSwitches)}, ${judgedShare(judgedWave + j('meteredPairUpdates'), judgedWeightedAll)} weighted, identity-round storage ${judgedShare(j('registerPairUpdates'))}. The added structure is the layout (programmer_layout): ${metrics.litLayoutConstants + metrics.expandLayoutConstants} constants per node per step and the read cells and rounds; each decision's garbage (the other cells of the final frame) is dropped. Controls (the judged wall instances): formulaDecisions clean by the evaluator ${control.formulaDecisionsEvaluatorClean} of ${control.formulaDecisionsTried}, judge rejected ${control.formulaDecisionsJudgeRejected}; extraConstantSwitch clean ${control.extraConstantSwitchEvaluatorClean}, rejected ${control.extraConstantSwitchJudgeRejected} of ${control.extraConstantSwitchTried}; lookupSwitch (each layout run once per input word in candidate code, 3 lit and 9 expand words, every decision looked up) clean ${control.lookupSwitchEvaluatorClean}, rejected ${control.lookupSwitchJudgeRejected} of ${control.lookupSwitchTried}, its report identical to meshSwitch's on ${control.lookupSwitchReportIdentical} of ${control.lookupSwitchInstances} instances and classified external (no metered run) on ${control.lookupSwitchClassifiedExternal} of ${control.lookupSwitchInstances}. Metered mesh rounds (the evaluator executes every switch round, rule by name, layout as data, and the judge reads its meter): ${meteredLit} lit and ${meteredExpand} expand runs, ${totals.meteredRounds} rounds, ${totals.meteredPairUpdates} pair updates, ${unmetered} decisions unmetered. Limits: the layouts sit on the line beside the configuration graph, one per node per step, not inside the wave's own mesh, and their inputs are written and their outputs read by candidate code (ports, as M4's); the meter proves the evaluator ran each decision's layout, not that the candidate's branch read its answer (one that ran it and decided by its own table would pay every round and decide alike); the wave step and the M4 register round stay candidate code (the wave's field is recomputed whole by the judge; the register at spacing 2 is the identity, so it is not credited as mesh); the directed kinds are checked for consistency (runs equal decisions, pair updates) and against slice 1, not recomputed. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
     })
   },
 })

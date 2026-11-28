@@ -1,4 +1,4 @@
-// Q0 of the quantum ladder (item vibe-computation-models-0029, decision 004 of vibe/computation/models): the bare beat U
+// Q0 of the quantum ladder: the bare beat U
 // as an exact library. code/rule/bare-beat.ts ports the self-contained script test/universe.ts (which exports nothing
 // and stays unchanged); code/algebra/ninth-real-sign.ts decides the sign of a real number of Q(zeta_9) in rational
 // intervals; code/measure/quantum-lab-measures.ts reads exact norms, weights, return probabilities, supports and moments.

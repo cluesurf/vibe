@@ -9,7 +9,7 @@ import Vibe.Compute.RuleCensus
 /-!
 # Vibe Computation Lab: Relative Charge, No Copy Without Food, and the Frontier Bound
 
-Lean track item L05 (lean-track.md, claims A24 and I-a4). Everything is stated for any vertex type
+Claims A24 and I-a4. Everything is stated for any vertex type
 `V` (any graph, finite or infinite), any schedule of matchings (`Vibe.Compute.Schedule`, possibly
 infinite matchings) and any number of rounds, on the round of `Vibe.Compute.Round`.
 

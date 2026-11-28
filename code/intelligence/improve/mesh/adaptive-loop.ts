@@ -1,10 +1,10 @@
 /**
- * Level 6, slice 4 (level6.md): the improve loop whose proposer adapts only through the mesh. Each round the proposer
+ * Level 6, slice 4: the improve loop whose proposer adapts only through the mesh. Each round the proposer
  * proposes children of the parent, the lead edit first when the lead names one, then the fixed order. A tournament in
  * proposal order runs one metered adaptive step per child (adaptive-step.ts): the mesh selects between the incumbent
  * and the child, carries the winner's tag into the steer runs, and the mux reads the next lead (the child's edit when
  * the child won, the old lead when it lost). The loop decodes the winner's genome and hands the lead read to the
- * proposer and to the next step. The proposer hears nothing else: no grade, no adoption, no baseline (item 0040), and
+ * proposer and to the next step. The proposer hears nothing else: no grade, no adoption, no baseline, and
  * the face hands the loop no grade either; the experiment runs the proposer isolated.
  *
  * Candidate side, like improve.ts: the face is an argument, never an import. Exact, no random numbers.
@@ -70,8 +70,8 @@ export function editIndex(id: string): number {
 }
 
 /**
- * A proposer that hears only the parent genome and the lead (item 0040: no grade, no baseline). The experiment runs the
- * lead proposer isolated (improve/judge/lead-session.ts), as decision 001 runs every candidate.
+ * A proposer that hears only the parent genome and the lead (no grade, no baseline). The experiment runs the
+ * lead proposer isolated (improve/judge/lead-session.ts), as every candidate runs.
  */
 export interface LeadProposer {
   id: string
@@ -143,7 +143,7 @@ export function leadProposer(options: LeadProposerOptions): LeadProposer & { lea
 }
 
 /**
- * The lead proposer as an isolated candidate (item 0040): the sandbox builds it from data, and its methods take only
+ * The lead proposer as an isolated candidate: the sandbox builds it from data, and its methods take only
  * plain data, the parent genome and the lead's trits. `leadFirst` reports how many proposals the lead reordered.
  */
 export function leadProposerCandidate(args: unknown): LeadProposer & { leadFirst: () => number } {
@@ -164,7 +164,7 @@ export function leadProposerCandidate(args: unknown): LeadProposer & { leadFirst
 }
 
 /**
- * The evaluator as the adaptive loop holds it. Item 0040: nothing the loop is told carries a grade. `evaluate` has the
+ * The evaluator as the adaptive loop holds it. Nothing the loop is told carries a grade. `evaluate` has the
  * evaluator grade a genome on validation and returns nothing; `step` returns only the word the step's carrier wrote.
  */
 export interface AdaptiveFace {
@@ -256,7 +256,7 @@ export function adaptiveEpisodes(
 
 /**
  * A digest of a run, for the determinism and equivalence checks: every round's best genome and every proposal's edit,
- * choice and lead (item 0040: the loop holds no grade, so none is in the digest; a grade is a function of the genome).
+ * choice and lead (the loop holds no grade, so none is in the digest; a grade is a function of the genome).
  */
 export function adaptiveDigest(episodes: readonly AdaptiveEpisode[]): string {
   return episodes

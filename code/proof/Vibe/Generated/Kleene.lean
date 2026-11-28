@@ -6,15 +6,15 @@ The drift gate task/check-lean-link.ts regenerates this file and fails on any by
 Source: code/rule/pair-rule.ts
 SHA-256: 9b80b1a252181c3fff4f966b6134e3164870669cb12768e7b6b980619cd37568
 Source: code/compute/lab/gates.ts
-SHA-256: da6bda873f1fcc498d390e468fe1ce53a91a5746d87ee4617f7ebe70d8cf78b0
+SHA-256: c56cadfe531864f4aa1a882be4385d55c3559084c976f70783714a71fe3dcd8a
 Source: code/compute/lab/ray-search.ts
-SHA-256: c43eb5181a2956d476f533288bfca6f314d981adc7bd0df3e0c5992a0eda4bb1
+SHA-256: be818e875a7450e000eaf6ce6b569b872069da40a547c0cb750e7d75fa3a3d8b
 Source: code/compute/lab/wire-invariant.ts
-SHA-256: b0c2f8e5c343563c88df38c670bccd3dfe3c165d75983ff8d0b94e33800f043d
+SHA-256: 589688a7e616db8c8601c586098af63e0afb0c896af01983891ddcdd0d8f3a9c
 Source: code/compute/lab/counter.ts
-SHA-256: eabb8a9b24b4f75bf0f671f4d7f5113938f5549bcbf240b80cacf017ea89430e
+SHA-256: ece0f9f6df1217e3a107c139c8f2e1031f6a28aafd9d1cd96dd46038547cbd56
 Source: test/experiment/computation/wire-neg.ts
-SHA-256: 281d1f66b342a123b12e4712f6d2742b54eee9d99ec425bdf040d7fa8daefeae
+SHA-256: 979836a54ac6bff310ac6dc135d2b3c5baef6bef3a818e692855e544eff5a823
 
 Exports the 16 Kleene layouts of E-CMP-0058 and E-CMP-0061 with their dense tables, and the T5 counter
 on all 162 ADD and SUB cases.

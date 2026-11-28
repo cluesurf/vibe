@@ -1,4 +1,4 @@
-// Q6 of the quantum ladder (item vibe-computation-models-0033, decision 004 of vibe/computation/models): the boundary
+// Q6 of the quantum ladder: the boundary
 // between the bare beat U and the 24 classical pair rules of M1. Exact over Q(zeta_9), no floats, no random numbers.
 //
 // What it measures (code/compute/quantum/classical-boundary.ts):

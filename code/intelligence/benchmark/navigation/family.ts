@@ -1,6 +1,6 @@
 /**
  * Benchmark family A, navigation on the mesh: every kind on every one of
- * the twelve lab geometries, at sizes a laptop solves exhaustively.
+ * the twelve lab geometries, at sizes small enough to solve exhaustively.
  *
  * Each geometry is built once, as an open ball at the largest radius any
  * kind needs, and the smaller balls are cut from it: a breadth-first

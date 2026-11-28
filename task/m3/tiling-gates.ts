@@ -1,8 +1,8 @@
-// M3 driver (item vibe-computation-models-0068, part a): the E-CMP-0061 tiling Kleene layout search
+// Batch driver: the E-CMP-0061 tiling Kleene layout search
 // (code/compute/lab/gates.ts searchSpaceGates) with its bounds as flags: more constants, every input anchor in the
 // ball, a wider ball, and the two two-law rules beside the four one-law cells.
 //
-//   pnpm call task/m3/tiling-gates.ts [--cells id.CAB.swap/1,...] [--spaces 4.4,4.5,...,5.4/m1,3.4.3.4/m1]
+//   pnpm call task/batch/tiling-gates.ts [--cells id.CAB.swap/1,...] [--spaces 4.4,4.5,...,5.4/m1,3.4.3.4/m1]
 //                                     [--orders forward,reverse] [--neg 2] [--bin 2] [--neg4 2] [--bin4 1]
 //                                     [--radius 2] [--radius4 1] [--anchors first|all]
 //
@@ -123,7 +123,7 @@ for (const def of spaces) {
 }
 
 summary({
-  item: 'vibe-computation-models-0068a',
+  driver: 'tiling-gates',
   cells: cells.map(c => `${c.name}/${c.background}`),
   constants: { flat, four },
   radius,

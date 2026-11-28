@@ -1,4 +1,4 @@
-// Item vibe-computation-models-0061: do Kleene min and max exist for the four 3-cycle wire rules that compute neg
+// Do Kleene min and max exist for the four 3-cycle wire rules that compute neg
 // (id.CAB.swap and id.BCA.swap on +1, swap.BCA.id and swap.CAB.id on -1; E-CMP-0058), and if so, does the full basis
 // reopen M6 universality for that reactive class? Library: code/compute/lab/ray-search.ts on code/compute/lab/gates.ts
 // and code/compute/lab/wire-invariant.ts.
@@ -17,7 +17,7 @@
 //   id.CAB.swap for the ternary mux (c = v ? b : a), the swapped pair and the Fredkin-style controlled swap (c, a', b'),
 //   v = -1, 0, 1, to BUS_SPAN; and the binary tables ray 0 reaches by span (functional completeness on two inputs).
 // - PART D, finitely many interactions on the line: every start of width <= SETTLE_WIDTH of each one-sided-wire cell
-//   reaches a settled state (m6-universality.md) within SETTLE_ROUNDS, and is in free flight for SETTLE_EXTRA rounds
+//   reaches a settled state within SETTLE_ROUNDS, and is in free flight for SETTLE_EXTRA rounds
 //   after. Control: a reactive cell with a static (id.CAB.id on +1) has starts that never settle.
 // - PART E, side alternation: on the line and on every tiling read by M5, under both color orders, which cells of the
 //   ball (radius 2, 1 in 4D) alternate sides through one round; the passenger theorem needs every cell to.
@@ -611,7 +611,7 @@ export default experiment({
         corruptedRejected: corruptedRejected ? 1 : 0,
       },
       notes:
-        `Item vibe-computation-models-0061. Line hits: ${r.line.flatMap(c => c.hits.map(h => `${h.rule}/${h.background} ${h.target} span ${h.span} (${h.windows} windows) start ${h.layout.start} window ${JSON.stringify(h.layout.window)} read ${h.layout.readPosition}@${h.layout.readRound}`)).join('; ')}. Binary tables by span (id.CAB.swap): ${tables.slice(1).join(',')}. Bus: ${JSON.stringify(bus.foundSpan)}, ${bus.windows} windows. Settle: ${r.settleRows.map(s => `${s.rule}/${s.background} ${s.settled}/${s.starts} worst ${s.worst}`).join('; ')}. Alternation: ${r.alternationRows.map(a => `${a.space}/${a.order} ${a.alternating}/${a.ball}`).join('; ')}. Tilings: ${r.tilingRows.map(t => `${t.space}/${t.order}/${t.rule} wires ${t.wires} layouts ${t.layouts} gates ${t.gates.join('+') || 'none'}`).join('; ')}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
+        `Line hits: ${r.line.flatMap(c => c.hits.map(h => `${h.rule}/${h.background} ${h.target} span ${h.span} (${h.windows} windows) start ${h.layout.start} window ${JSON.stringify(h.layout.window)} read ${h.layout.readPosition}@${h.layout.readRound}`)).join('; ')}. Binary tables by span (id.CAB.swap): ${tables.slice(1).join(',')}. Bus: ${JSON.stringify(bus.foundSpan)}, ${bus.windows} windows. Settle: ${r.settleRows.map(s => `${s.rule}/${s.background} ${s.settled}/${s.starts} worst ${s.worst}`).join('; ')}. Alternation: ${r.alternationRows.map(a => `${a.space}/${a.order} ${a.alternating}/${a.ball}`).join('; ')}. Tilings: ${r.tilingRows.map(t => `${t.space}/${t.order}/${t.rule} wires ${t.wires} layouts ${t.layouts} gates ${t.gates.join('+') || 'none'}`).join('; ')}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
     })
   },
 })

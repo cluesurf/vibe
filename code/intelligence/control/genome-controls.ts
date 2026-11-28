@@ -50,7 +50,7 @@ export const WRECKED = 'obstacle-{6,4}-'
  * clean, unsolved answer). Under a genome whose mean beats its parent's, it
  * raises the mean while wrecking that environment, which the mean-only rule
  * adopts and the harm rule refuses. The wrecking itself lowers the mean
- * against its honest twin (audit 2, n1); the experiment reports both.
+ * against its honest twin; the experiment reports both.
  */
 export function wreckingSolver<S>(args: RealizedSolverArgs, host: CandidateHost<S>): Solver<S> {
   const honest = realizedSolver(args, host)

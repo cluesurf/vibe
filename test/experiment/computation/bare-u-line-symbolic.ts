@@ -1,4 +1,4 @@
-// Q3b symbolic (item vibe-computation-models-0055, decision 004 of vibe/computation/models): the one-line S-matrix of
+// Q3b symbolic: the one-line S-matrix of
 // bare U as an identity in the momenta. The proof is Lean (code/proof/Vibe/LineScattering.lean, core only, grind's
 // commutative-ring solver): over any commutative ring with omega, i and a half, every mode is an exact coin eigenvector,
 // the like-tone S is (W P - i D) / (W + i D) in line order, i.e. Yang's R(theta1 - theta2) in the particle frame,

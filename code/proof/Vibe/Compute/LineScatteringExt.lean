@@ -4,14 +4,14 @@ import Vibe.UniversalityObstructions
 /-!
 # Bare U on one mesh line, continued: `det(left)`, the rapidity identities, the bridge to the 2-to-1 law, door B
 
-Item `vibe-computation-models-0075` (lean-track L13: claims A12 and A33). It builds on `Vibe.LineScattering`
-(item 0055) and cites `Vibe.UniversalityObstructions`; neither is edited. As there, every identity is over any
+Claims A12 and A33. It builds on `Vibe.LineScattering`
+and cites `Vibe.UniversalityObstructions`; neither is edited. As there, every identity is over any
 commutative ring holding `ω` (`ω² + ω + 1 = 0`), `i` (`i² = -1`) and a half `h` (`2 h = 1`), so it holds in the
 complex numbers at every momentum; a statement that needs to cancel a factor is stated over a `Lean.Grind.Field`.
 A mode is `a = e^{ip}`, `ab = 1 / a`, `μ = e^{iW}` on the genus-1 curve `2 μ² - (a + ab) μ + 2 = 0`, worked in its
 coordinate ring (`μ` is a unit there, `μ⁻¹ = (a + ab) / 2 - μ`).
 
-**A12, `det(left)`** (q-ladder Q3b symbolic, its open limit). The defining equation `left S = right` of
+**A12, `det(left)`** (Q3b symbolic, its open limit). The defining equation `left S = right` of
 line-scattering.ts has `left = leftI I + leftP P` on span `{I, P}`, so `det(left) = leftI² - leftP²`.
 
 - `thm_lsx_det_left_factor`: `det(left) = -ω² (vf (1 + ω) h)² · S_ch · A_ch` with the channel factors
@@ -34,7 +34,7 @@ circle):
 - `thm_lsx_equal_rapidity_iff`: over a field (`3 ≠ 0`), for moving modes (`a ≠ ab`),
   `θ₁ = θ₂ ↔ (a₂, μ₂) = ±(a₁, μ₁)`: coincident rapidities are one mode up to the parity sign.
 
-**The rapidity bridge** (lean-track section 3). make's `thm_univ_dispersion_floor_and_rapidity_nogo` states the law
+**The rapidity bridge**. make's `thm_univ_dispersion_floor_and_rapidity_nogo` states the law
 `v(u₁) = v(u₂) ↔ u₁ = u₂ ∨ 3 u₁ u₂ = 1` for `v(u) = u / (3u² + 1)`, over the integers in cleared form. Here the
 velocity of a mode is `v = -sin p / (2 sin W) = velNum / velDen`, and:
 
@@ -46,7 +46,7 @@ velocity of a mode is `v = -sin p / (2 sin W) = velNum / velDen`, and:
   expression at `(u₁, u₂) = (θ₁, θ₂)`, and make's integer law is the integer instance of the factorization.
 - `thm_lsx_equal_velocity_iff`: over a field, two moving modes have equal velocity iff `θ₁ = θ₂ ∨ 3 θ₁ θ₂ = 1`.
 
-**A33, door B** (decision 007, Q3c door B, P50, E-CMP-0054):
+**A33, door B** (Q3c door B, P50, E-CMP-0054):
 
 - `thm_lsx_doorb_orientations`: the like pair beside an opposite tone misses Yang-Baxter by `∓x y (x + y)(I + P)` on
   both orientations `(+, +, -)` and `(-, +, +)`; role-antisymmetric inputs never diffract.
@@ -82,7 +82,7 @@ variable {α : Type} [Lean.Grind.CommRing α]
 /-- `μ⁻¹` on the curve: `(a + ab) / 2 - μ`. -/
 def muBar (h a ab μ : α) : α := h * (a + ab) - μ
 
-/-- grind never divides: halve by hand (traps.md). -/
+/-- grind never divides: halve by hand. -/
 -- [helper]
 theorem ring_halve (h z : α) (hh : 2 * h = 1) (hz : 2 * z = 0) : z = 0 := by
   have e : z = h * (2 * z) := by grind

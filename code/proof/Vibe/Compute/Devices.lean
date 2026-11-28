@@ -6,13 +6,13 @@ import Vibe.Generated.Devices
 /-!
 # Vibe Computation Lab: Devices and Collectives (levels 7 and 8)
 
-Lean track I03 (intelligence-0047, lean-track.md I-a11 to I-a15). Level 7's template: A* breaks
+Claims I-a11 to I-a15. Level 7's template: A* breaks
 ties of `f = g + h` by a preference bit, decided per successor from the word `[t, d]` (`t` = the
 taught bit, written as tone `0` or `+1`; `d` = the tone of the estimate change). A preference
 function maps the 6 words to prefer or not: 64 functions. F1 (`OneInput`) holds the 10 that depend
 on at most one input.
 
-A device (decision 003: every metered run starts from its window) is a start configuration on any
+A device (every metered run starts from its window) is a start configuration on any
 graph, two input cells, a read cell, a round count and a tone set `P`; its decision on a word is
 `[read in P]` after the rounds of a pair rule from the window with the word written in. So a
 device's decision is one of the 64 functions (`Device.decision`), on any vertex type and schedule.
@@ -48,7 +48,7 @@ Headline theorems:
 
 The general theorems speak about the Lean round of `Vibe.Compute.Round` on any graph. The census
 bridge speaks about the code that ran: its masks are computed by `lineBrickRun` itself. The held-out
-numbers (8,130 against 8,131 and 8,143) and the C2 gain stay measurements (lean-track.md (c)).
+numbers (8,130 against 8,131 and 8,143) and the C2 gain stay measurements.
 
 Mathlib (`Set.exists_min_image`, `Function.update`), zero `sorry`, zero `native_decide`.
 -/

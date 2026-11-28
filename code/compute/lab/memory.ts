@@ -1,4 +1,4 @@
-// M4 memory (item vibe-computation-models-0014). Algebra: spin-one. A trit is written into the mesh by setting one cell's
+// M4 memory. Algebra: spin-one. A trit is written into the mesh by setting one cell's
 // tone, it is left to the fixed pair rule for T rounds, and a decoder outside the mesh reads it back.
 //
 // WRITE. On a uniform background b the rule fixes, the trit v is written at a slot cell by giving that cell the tone v;

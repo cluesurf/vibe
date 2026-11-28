@@ -1,5 +1,5 @@
 // The open window that never ends: a lab geometry as an infinite tiling grown only where a run's excitation is, with a
-// partition schedule defined on the infinite tiling itself (item vibe-computation-models-0028, decision 003's limit).
+// partition schedule defined on the infinite tiling itself (the limit of the exact chamber tiling).
 //
 // SPACES. A `LazySpace` hands out integer cell ids as cells are reached, gives each cell's exact distance from the
 // origin (cell 0) and between two cells, a canonical order of cells (ties in the harness never depend on the order
@@ -110,7 +110,7 @@ export function rightAngledSpace(input: {
   }
 }
 
-// ---- coset tilings: every {p,q}, q odd included (item vibe-computation-models-0038) ----
+// ---- coset tilings: every {p,q}, q odd included ----
 //
 // Tiles are cosets of the cell subgroup in the (2, p, q) triangle group, named by the matrix of their minimal
 // representative (coset-tiling.ts); distance by the parent chain, ball sizes by the small-root automaton
@@ -344,7 +344,7 @@ export class LazyRun {
 }
 
 // A space whose colors are another's renumbered: color k here is color permutation[k] there, so its forward round runs
-// the other's colors in permutation order (a schedule variant of the same coloring, item vibe-computation-models-0045).
+// the other's colors in permutation order (a schedule variant of the same coloring).
 export function permutedSpace(space: LazySpace, permutation: readonly number[], label: string): LazySpace {
   if (
     permutation.length !== space.colorCount ||

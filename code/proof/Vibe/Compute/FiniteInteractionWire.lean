@@ -6,8 +6,8 @@ import Vibe.Compute.RuleCensus
 /-!
 # Vibe Computation Lab: Finitely Many Interactions for the One-Sided-Wire Cells on the Line
 
-Claim A8 of the Lean track (lean-track.md, L09; m6-universality.md, "Reactive cells with a
-one-sided wire", and m12 P29). On the brick line every finite start of the 8 one-sided-wire cells
+Claim A8 (M6, reactive cells with a one-sided wire, and
+P29). On the brick line every finite start of the 8 one-sided-wire cells
 has finitely many interactions, so after some step every tone flies free and no counter with a zero
 test, no Minsky machine and no Turing machine runs there from a finite start.
 
@@ -51,7 +51,7 @@ The hypotheses of 3 to 5 are weaker than the note's: any pair rule that keeps th
 only the 24 reversible ones), any background `b ≠ 0` and only "every tone passes a background
 partner on the wire side" (the census's `wireSide` also asks the other side to fail, which the proof
 does not use). The rules of 6 are tied to the code by `RuleCensus` (`gen_rule_census_cells_eq`);
-the brick matchings are Lean definitions of the declared schedule (decision 002), equal to
+the brick matchings are Lean definitions of the declared schedule, equal to
 `lineBrickRun`'s pair order by construction, not by a generated table.
 
 Mathlib (`Set.Finite`, `BddAbove`, `Set.finite_Icc`), zero `sorry`, zero `native_decide`.

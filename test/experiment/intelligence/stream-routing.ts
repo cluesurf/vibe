@@ -1,4 +1,4 @@
-// Intelligence level 5, slice 2 (item vibe-computation-intelligence-0025, level5.md of vibe/computation/intelligence):
+// Intelligence level 5, slice 2:
 // pair-rule structures that a stream of movers rewrites (M5, M6: a mover meeting a static changes it). Does such a
 // structure, rewritten by a fixed stream that encodes taught paths, route a LATER mover differently, and better on
 // held-out inputs? Two parts.
@@ -10,11 +10,11 @@
 //
 // Part L, the routing task (sandbox candidates, graded by the outside evaluator): the T5 counter on the vacuum
 // (id.CBA.swap), one structure per generated successor, its stream one +1 when the level-2 table holds the successor,
-// then a probe; the read decides A*'s ties. Every run is the evaluator's metered round (decision 003). A dynamics
+// then a probe; the read decides A*'s ties. Every run is the evaluator's metered round. A dynamics
 // knockout (the identity rule), a frozen twin (no stream), a smuggler (preference from candidate code, runs ignored)
 // and a counter read (the static's tone: a register read, the instrument's positive control) say what the mesh adds.
 //
-// Algebra: spin-1 tones. Regime: pure. Gates C1 to C6 and L1 to L7, fixed in level5.md before the first run.
+// Algebra: spin-1 tones. Regime: pure. Gates C1 to C6 and L1 to L7, fixed before the first run.
 
 import { resolve } from 'node:path'
 import { LineRun, lineSpecies, splitCell, type Frame, type Species, type SpeciesType } from '@/code/compute/lab/counter'
@@ -62,7 +62,7 @@ const ARMS = [...HONEST, 'routerSmuggler'] as const
 
 type Arm = (typeof ARMS)[number]
 
-// ---------------------------------------------------------------- Part C parameters (level5.md)
+// ---------------------------------------------------------------- Part C parameters
 
 const SPECIES_WIDTH = 3
 const SPECIES_PERIOD = 24
@@ -468,7 +468,7 @@ interface JudgeSearch {
   differFromIdentity: number
 }
 
-/** The honest arm's whole search, recomputed from the instance with the judge's own runs (level5.md, Part L). */
+/** The honest arm's whole search, recomputed from the instance with the judge's own runs. */
 function judgeSearch(
   settings: RouterSettings,
   problem: Problem<MeshState>,
@@ -570,7 +570,7 @@ function judgeSearch(
       }
     }
 
-    // one request per expansion, its step the expansion count (item 0037: the chain binds step, key, word and read)
+    // one request per expansion, its step the expansion count (the chain binds step, key, word and read)
     if (request.length > 0) {
       out.frameDigest = chain.fold(expansions, request)
     }
@@ -625,7 +625,7 @@ function certify(grade: Grade<MeshState>, problem: Problem<MeshState>, judged: J
 
   const [metered] = layouts
 
-  // the vacuum, checked on the entry (audit 3, m1); the rule and layout are also bound into the digest's seed
+  // the vacuum, checked on the entry; the rule and layout are also bound into the digest's seed
   if (metered!.layout.background !== 0) {
     return `metered on background ${String(metered!.layout.background)}, not the vacuum`
   }
@@ -1126,7 +1126,7 @@ export default experiment({
       sensitiveCleanCells.length > 0
         ? `open: a clean rewrite changes a later mover's exit in ${sensitiveCleanCells.length} cells (${sensitiveCleanCells.map(c => c.cell).join(', ')}), filed`
         : sensitiveCells.length > 0
-          ? `a bounded absence for clean memory (0 of ${metrics.reactiveSensitive} sensitive placements follow a clean rewrite); in ${sensitiveCells.length} cells (${sensitiveCells.map(c => c.cell).join(', ')}) a probe's exit follows the debris a stream leaves (${metrics.reactiveSensitive} placements, ${metrics.reactiveSensitiveNeedsStatic} of them debris that needs the static), routing that follows damage, filed as a lead: the metered round runs +1 and -1 backgrounds since item 0032 (E-CMP-0084), but no router in a reactive cell is built here`
+          ? `a bounded absence for clean memory (0 of ${metrics.reactiveSensitive} sensitive placements follow a clean rewrite); in ${sensitiveCells.length} cells (${sensitiveCells.map(c => c.cell).join(', ')}) a probe's exit follows the debris a stream leaves (${metrics.reactiveSensitive} placements, ${metrics.reactiveSensitiveNeedsStatic} of them debris that needs the static), routing that follows damage, filed as a lead: the metered round runs +1 and -1 backgrounds since E-CMP-0084, but no router in a reactive cell is built here`
           : 'a bounded absence: no probe exit depends on the stream'
     const cellTable = structured
       .map(c => `${c.cell} ${c.type ?? 'reactive'}: ${c.statics} statics, ${c.movers} movers, rewritten ${c.rewritten} of ${c.pairs}, clean zones ${c.cleanZones}, dirty ${c.dirtyZones}, sensitive ${c.sensitive} (clean ${c.sensitiveClean}, needs the static ${c.needsStatic}) of ${c.placements}, capable ${c.capable}, planted ${c.planted}`)
@@ -1137,7 +1137,7 @@ export default experiment({
       claim: `intelligence level 5, slice 2: ${constructed ? `a construction, the T5 counter routes with credit ${credit}` : `the mesh is credited with ${credit} expansions`} on the ${outside.aStar.starts} held-out starts outside the taught table (${results.length} environments, ${heldOut} starts): the T5 counter on the vacuum, rewritten per successor by one +1 when the table holds it and read by a later +1's arrival, ${sameAsControls ? 'decides A*\'s ties exactly as its dynamics knockout and its frozen twin do' : 'decides A*\'s ties differently from its dynamics knockout or its frozen twin'} (${outside.meshRouter.expansions}, ${outside.routerKnockout.expansions}, ${outside.routerFrozen.expansions} expansions; level-1 A* ${outside.aStar.expansions}), because by M6's no-feedback lemma the probe flies free whatever the static did; on the line no T4 structure is ever rewritten (${metrics.t4Rewritten} of ${sum(t4, c => c.pairs)}) though it routes probes (${metrics.t4Capable} placements), and no T5 probe depends on a rewritten structure (${metrics.t5Sensitive} sensitive, ${metrics.t5Capable} routed, of ${sum(t5, c => c.placements)}): a sharp no-go for the species-conserving cells; reactive cells: ${reactiveVerdict}; reading the static's tone instead (a register read through the counter, not routing) the knockout loses ${counterCreditAll} expansions over all starts (${counterCredit} outside), so the instrument sees dynamics-carried experience; the judge recomputes every honest search and its metered digest from the instance and refuses a smuggler that routes from candidate code in ${divergedRefused} of ${diverged} diverging solves, which the evaluator alone accepts in ${smugglerAccepted} of ${heldOut}`,
       metrics,
       control,
-      notes: `L2. Part C (line, width-3 species, 1 static per structure, streams of 0 to ${STREAM_MAX} copies, zone ${ZONE}, probes at every phase): ${cellTable}. Example sensitive placement: ${sensitiveCells[0]?.example ?? 'none'}. Part L outside the table (expansions / operator calls / optimal of starts / metered pair updates): ${SOLVERS.map(n => `${n} ${outside[n].expansions} / ${outside[n].calls} / ${outside[n].optimal} of ${outside[n].starts} / ${outside[n].pairUpdates}`).join('; ')}. Inside: ${SOLVERS.map(n => `${n} ${inside[n].expansions} / ${inside[n].optimal} of ${inside[n].starts}`).join('; ')}. Learning charge ${charge} expansions; net gain against level-1 A* over all held-out starts: ${ARMS.map(n => `${n} ${net(n)}`).join(', ')}. Certified by the judge: ${ARMS.map(n => `${n} ${metrics[`${n}Certified`]} of ${heldOut}`).join(', ')}. Layouts: the arrival read is +1 exactly when the probe is present, for both stream values; the counter read is -1 exactly when the stream mover is present; under id.ABC.id both read 0; the evaluator's runner equals lineBrickRun on all 16 runs. Limits: one structure in Part L, on the vacuum (built before item 0032 gave the metered round a background; every reactive cell lives on +1 or -1, and no reactive router is built here); a tie-break of A* as the use of a decision; held-out starts in trained environments; the census on the line only. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+      notes: `L2. Part C (line, width-3 species, 1 static per structure, streams of 0 to ${STREAM_MAX} copies, zone ${ZONE}, probes at every phase): ${cellTable}. Example sensitive placement: ${sensitiveCells[0]?.example ?? 'none'}. Part L outside the table (expansions / operator calls / optimal of starts / metered pair updates): ${SOLVERS.map(n => `${n} ${outside[n].expansions} / ${outside[n].calls} / ${outside[n].optimal} of ${outside[n].starts} / ${outside[n].pairUpdates}`).join('; ')}. Inside: ${SOLVERS.map(n => `${n} ${inside[n].expansions} / ${inside[n].optimal} of ${inside[n].starts}`).join('; ')}. Learning charge ${charge} expansions; net gain against level-1 A* over all held-out starts: ${ARMS.map(n => `${n} ${net(n)}`).join(', ')}. Certified by the judge: ${ARMS.map(n => `${n} ${metrics[`${n}Certified`]} of ${heldOut}`).join(', ')}. Layouts: the arrival read is +1 exactly when the probe is present, for both stream values; the counter read is -1 exactly when the stream mover is present; under id.ABC.id both read 0; the evaluator's runner equals lineBrickRun on all 16 runs. Limits: one structure in Part L, on the vacuum (built before E-CMP-0084 gave the metered round a background; every reactive cell lives on +1 or -1, and no reactive router is built here); a tie-break of A* as the use of a decision; held-out starts in trained environments; the census on the line only. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

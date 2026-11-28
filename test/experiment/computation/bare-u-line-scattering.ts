@@ -1,4 +1,4 @@
-// Q3b of the quantum ladder (item vibe-computation-models-0049, decision 004 of vibe/computation/models): the
+// Q3b of the quantum ladder: the
 // momentum-resolved two-body S-matrix of bare U on one mesh line, per species pair, and a three-body factorization
 // (Yang-Baxter) test, exact over K = Q(zeta_9)(i, sqrt 91), on {3,4,3,4} against the flat {3,4,3,3}. Library:
 // code/compute/quantum/line-scattering (on routing, particles and bare-beat, none edited).

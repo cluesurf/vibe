@@ -1,5 +1,5 @@
 /**
- * The level-5 slice-2 solvers as isolated candidates (level5.md): one stream router in six arms. Each factory takes
+ * The level-5 slice-2 solvers as isolated candidates: one stream router in six arms. Each factory takes
  * its arguments as plain data and the host the evaluator hands in (sealed estimate, learned table, metered mesh runs).
  *
  * Candidate side.

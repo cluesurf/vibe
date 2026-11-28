@@ -1,15 +1,15 @@
-// M3 driver (item vibe-computation-models-0069 part a): the exact Grover search of E-CMP-0039 (Q5,
+// Batch driver: the exact Grover search of E-CMP-0039 (Q5,
 // test/experiment/computation/bare-u-walk-search.ts) on every 2D degree-matched pair at many sizes, flat torus against
 // closed hyperbolic quotient of equal cell count and degree, to test whether the hyperbolic side's lower R = T^2/(PN)
-// is a scaling law or a single-size reading (P52 of m12-predictions.md).
+// is a scaling law or a single-size reading.
 //
-//   pnpm call task/m3/grover-size-series.ts [--set reference|series] [--pairs 4.5,6.4,3.7] [--max-cells 30000]
+//   pnpm call task/batch/grover-size-series.ts [--set reference|series] [--pairs 4.5,6.4,3.7] [--max-cells 30000]
 //                                           [--cells 330,364] [--systole true]
 //
 // --set reference (the default) rebuilds E-CMP-0039's three 2D closed pairs (closedQuotients, as the experiment) and
 // its two near-square shape controls, and prints each row in the experiment's format, so the run can be compared with
 // the experiment's notes byte for byte. --set series adds, for each pair, every {p,q} regular map whose rotation group
-// lies in PGL(2, m) for the moduli below (task/m3/q2r-size-series-quotients.ts regularMapSeries: one map per distinct
+// lies in PGL(2, m) for the moduli below (task/batch/q2r-size-series-quotients.ts regularMapSeries: one map per distinct
 // group order, genus, injectivity radius r and loop systole L), each against the flat torus of equal cell count by the
 // catalog's rule (flatPartnerOf, factor pair closest to square). --cells keeps only those cell counts, --max-cells drops
 // larger maps. --systole false skips the flat tori's systole (the maps always carry theirs).
@@ -19,7 +19,7 @@
 // experiment, so they are copied here between pin markers and the driver refuses to run unless each copied block occurs
 // in the experiment's source (whitespace collapsed).
 //
-// READING RULE, declared 2026-11-27 before any series run (item 0069 asks for it before the run):
+// READING RULE, declared 2026-11-27 before any series run:
 // - per side of a pair, the experiment's series reading over its sizes: R = T^2/(PN) at each size, 'quadratic' when R at
 //   the largest N is at most twice R at the smallest, 'slower' when more, only when N grows at least 16-fold from
 //   N >= 16 ('short' otherwise, 'no peak' when a size never reaches 2/N). Where several hyperbolic maps share one cell
@@ -241,7 +241,7 @@ function torusSide(torus: FlatTorus, withSystole: boolean): Side {
 }
 
 // the 2D pairs of E-CMP-0039 (flat symbol / hyperbolic symbol), and the moduli of their regular-map series (the same
-// moduli as the models-0051 size series)
+// moduli as the Q2R size series)
 const PAIRS = [
   { key: '4.5', label: '{4,4}/{4,5}', p: 4, q: 5, flatName: 'torus-4-4-genus-1-5x6', hyperName: 'surface-4-5-genus-4', moduli: [5, 11, 19, 29, 31, 41] },
   { key: '6.4', label: '{6,3}/{6,4}', p: 6, q: 4, flatName: 'torus-6-3-genus-1-11x20', hyperName: 'surface-6-4-genus-56', moduli: [11, 13, 17, 19, 23, 29, 31, 37, 41, 43] },
@@ -451,7 +451,7 @@ for (const [k, v] of Object.entries(report.ok)) {
 log(`gates: ${Object.keys(report.ok).length} checked, ${failures.length} failed${failures.length ? `: ${failures.join(', ')}` : ''}`)
 
 summary({
-  item: 'vibe-computation-models-0069',
+  driver: 'grover-size-series',
   part: 'a',
   set,
   maxCells,

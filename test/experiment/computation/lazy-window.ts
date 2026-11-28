@@ -1,4 +1,4 @@
-// Lazy open windows for the M1 lab (item vibe-computation-models-0028, decision 003's limit). No materialized ball
+// Lazy open windows for the M1 lab (the exact balls' limit). No materialized ball
 // reaches the a-priori window c T + r0 on a hyperbolic tiling (shells grow 1.6 to 18 times per hop), so the harness reads
 // the open cells on the infinite tiling itself, grown only where a run's excitation is: right-angled tile groups by
 // Foata normal forms ({5,4}, {6,4}, {3,4,3,4}, right-angled-tiling.ts) and the flat lattices of their degree-matched
@@ -507,7 +507,7 @@ export function lazyWindow(): LazyWindowRun {
 
   // negative controls of the equality gate, on {5,4}
   const five54 = instances.find(i => i.column === '{5,4}')!
-  // every vacuum-fixing rule commutes with the swap (plan 1.1), so no open run sees the orientation; the second
+  // every vacuum-fixing rule commutes with the swap, so no open run sees the orientation; the second
   // control is a color-order mismatch instead, on an interacting class
   const interacting = rules.find(r => r.name === 'id.ABC.swap')!
   const swap = rules.find(r => r.name === 'swap.CBA.swap')!
@@ -631,7 +631,7 @@ export default experiment({
         reversedOrderRejected: r.reversedOrderCaught ? 1 : 0,
       },
       notes:
-        `L2 infrastructure gate (item vibe-computation-models-0028): the M1 harness reads open cells of these geometries on the lazy tilings. Light cone, cells held by one 24-round full-swap run against the ball of radius c T: ${r.lightCone.map(x => `${x.name} ${x.held} of ${x.ball.toExponential(2)}`).join(', ')}. {7,3}, {8,3}, {4,5}, {3,7} (q odd) and the flat partners {4,4}, {3,6} have no right-angled tile group here and read on the coset lazy windows E-CMP-0035 gates. This gate builds the dense ball from the same lazy space, so it proves the sparse loop equals the dense loop on one schedule; adjacency is checked against the chamber complex, orientation and the coloring choice are not (M1 audit, minor 4). The ball-size check against the closed form compares latticeBall with the space ballSize, which is latticeBall itself (minor 7), so only the tile count against the closed form is independent. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `L2 infrastructure gate: the M1 harness reads open cells of these geometries on the lazy tilings. Light cone, cells held by one 24-round full-swap run against the ball of radius c T: ${r.lightCone.map(x => `${x.name} ${x.held} of ${x.ball.toExponential(2)}`).join(', ')}. {7,3}, {8,3}, {4,5}, {3,7} (q odd) and the flat partners {4,4}, {3,6} have no right-angled tile group here and read on the coset lazy windows E-CMP-0035 gates. This gate builds the dense ball from the same lazy space, so it proves the sparse loop equals the dense loop on one schedule; adjacency is checked against the chamber complex, orientation and the coloring choice are not (M1 audit, minor 4). The ball-size check against the closed form compares latticeBall with the space ballSize, which is latticeBall itself (minor 7), so only the tile count against the closed form is independent. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

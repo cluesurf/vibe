@@ -1,5 +1,4 @@
-// The evaluator's metered mesh round on a declared background (item vibe-computation-intelligence-0032, decision 003 of
-// vibe/computation/intelligence). Before this item the metered round padded the line with tone 0, so only rules on the
+// The evaluator's metered mesh round on a declared background. Before this change the metered round padded the line with tone 0, so only rules on the
 // vacuum could be metered; every reactive cell lives on +1 or -1. The layout may now declare its background (0, +1 or
 // -1, 0 when left out), validated as data and folded into the metered digest; the rule is still looked up by name.
 //
@@ -20,7 +19,7 @@
 //   and the exported runner throws on one; an unknown rule name on +1 is refused.
 // - B6 the background is in the digest beyond the frames: the +1 meter differs from the same frames folded as the
 //   vacuum, and from the same frames folded as -1.
-// Added by item 0037 (audit 3, M2, m2, m3), after the audit, each able to fail:
+// Added after the audit, each able to fail:
 // - B4 restated: the digest is the SHA-256 chain of solver/mesh/mesh-digest.ts, so the vacuum default must equal the
 //   judge's chain on the vacuum (the pre-0037 sum is gone for every caller).
 // - B7 the chain's SHA-256 equals node:crypto on 304 inputs.
@@ -116,7 +115,7 @@ function judgeRequest(rule: GateRule, background: number, keyHash: number, words
 
 /**
  * The digest a judge recomputes for one batch of the probe (the 9 words in order, one request at `step`), the runs made
- * on `background` and the chain seeded with a layout naming `fold` (item 0037: the chain of mesh-digest.ts).
+ * on `background` and the chain seeded with a layout naming `fold` (the chain of mesh-digest.ts).
  */
 function judgeDigest(rule: GateRule, background: number, keyHash: number, fold: number, step = STEP, words: readonly (readonly number[])[] = WORDS): number {
   return meshChain(rule.name, { ...layoutOn(background), background: fold }).fold(step, judgeRequest(rule, background, keyHash, words))
@@ -306,7 +305,7 @@ export default experiment({
       const named = meteredProbe('vacuum-left-out', VACUUM_RULE, { ...layoutOn(0) })
       const a = left.mesh.layouts[0]
       const b = named.mesh.layouts[0]
-      // since item 0037 the digest is the chain, so 'unchanged' means: left out and named 0 meter the same, equal to the
+      // now the digest is the chain, so 'unchanged' means: left out and named 0 meter the same, equal to the
       // judge's chain on the vacuum (the pre-0037 sum is gone for every caller)
       const preDigest = judgeDigest(vacuum, 0, meshKeyHash('probe vacuum-left-out'), 0)
 
@@ -385,7 +384,7 @@ export default experiment({
       }
     }
 
-    // ---- B7 (item 0037) the digest's SHA-256 against node:crypto ----
+    // ---- B7 the digest's SHA-256 against node:crypto ----
     let shaCompared = 0
     let shaDifferent = 0
 
@@ -403,7 +402,7 @@ export default experiment({
       fail(`the digest's SHA-256 differs from node:crypto on ${shaDifferent} of ${shaCompared} inputs`)
     }
 
-    // ---- B8 (item 0037, audit 3 M2) the step-fitting forger: wrong words, the step picked to hit the judge's target ----
+    // ---- B8 the step-fitting forger: wrong words, the step picked to hit the judge's target ----
     const forging = { fitted: 0, legacyAccepted: 0, refused: 0, newChainHits: 0, stepsSearched: 0, tries: 0 }
 
     if (headline !== undefined) {
@@ -469,7 +468,7 @@ export default experiment({
       fail(`B8: forger fitted ${forging.fitted}, pre-0037 judge accepts ${forging.legacyAccepted}, refused ${forging.refused}, chain hits ${forging.newChainHits}`)
     }
 
-    // ---- B9 (item 0037) the chain is bound to order and decision; the pre-0037 sum is not ----
+    // ---- B9 the chain is bound to order and decision; the pre-0037 sum is not ----
     let orderBound = 0
 
     if (headline !== undefined) {
@@ -493,7 +492,7 @@ export default experiment({
       fail('B9: the chain does not tell a reordered request or another step apart, or the pre-0037 sum did')
     }
 
-    // ---- B10 (audit 3, m2) layouts that compute nothing are refused with no run metered ----
+    // ---- B10 layouts that compute nothing are refused with no run metered ----
     const empty = [
       ['no inputs', { ...layoutOn(1), inputs: [] }],
       ['read left of the light cone', { ...layoutOn(1), readPosition: START - 2 * READ_ROUND - 1 }],
@@ -553,7 +552,7 @@ export default experiment({
       claim: `the evaluator's metered mesh round runs on a declared background: the reactive cell ${name} on +1 runs metered through the sandbox and matches lineBrickRun cell for cell on all ${WORDS.length} words of a width-${WIDTH} window (reads ${headlineReads}, ${metrics.headlinePairUpdates} pair updates, digest recomputed by the judge), and so do all ${certified} of ${cells.length} reactive cells on +1 and -1 (${frameComparisons} cells compared, ${frameDifferences} different); a layout that leaves the background out meters exactly as before; ${wrongRefused} of ${WRONG_BACKGROUNDS.length} wrong backgrounds are refused with no run metered; the digest is a SHA-256 chain bound to the layout, the step, the order and each run's decision, which refuses the step-fitting forger that every pre-0037 check accepted (${forging.refused} of ${forging.fitted}, ${forging.newChainHits} of ${forging.stepsSearched} steps fit the chain), and layouts that compute nothing are refused (${emptyRefused} of ${empty.length})`,
       metrics,
       control,
-      notes: `Layout: window of ${WIDTH} background tones at start ${START}, inputs at offsets ${INPUTS.join(', ')}, read at offset ${READ_OFFSET} after ${READ_ROUND} rounds, step ${STEP}; every run labelled with the probe's initial state. Since item 0037 the digest is a SHA-256 chain seeded by the rule and the whole layout (background included) and folded per request over the step and every run's key hash, occurrence, word, frame hash and read; its SHA-256 equals node:crypto on ${shaCompared} inputs. The step-fitting forger (wrong words, the step picked so the pre-0037 sum hits the judge's target, found in ${forging.tries} tries) passes every pre-0037 check (${forging.legacyAccepted}) and is refused by the chain (${forging.refused}); none of the ${forging.stepsSearched} admissible steps fits the chain with its words (${forging.newChainHits} hits). Layouts with no input or a read outside the light cone are refused (${emptyRefused} of ${empty.length}); reads on the cone's edge are admitted (${control.coneEdgeLayoutsAdmitted} of 2). The probe reports its answered reads in its id; the judge compares them with lineBrickRun. The vacuum padding differs from the +1 run on ${vacuumDiffers} of ${WORDS.length} words of the headline cell. Limits: one window and one read; the line only; the probe asks for runs and decides nothing. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+      notes: `Layout: window of ${WIDTH} background tones at start ${START}, inputs at offsets ${INPUTS.join(', ')}, read at offset ${READ_OFFSET} after ${READ_ROUND} rounds, step ${STEP}; every run labelled with the probe's initial state. The digest is a SHA-256 chain seeded by the rule and the whole layout (background included) and folded per request over the step and every run's key hash, occurrence, word, frame hash and read; its SHA-256 equals node:crypto on ${shaCompared} inputs. The step-fitting forger (wrong words, the step picked so the pre-0037 sum hits the judge's target, found in ${forging.tries} tries) passes every pre-0037 check (${forging.legacyAccepted}) and is refused by the chain (${forging.refused}); none of the ${forging.stepsSearched} admissible steps fits the chain with its words (${forging.newChainHits} hits). Layouts with no input or a read outside the light cone are refused (${emptyRefused} of ${empty.length}); reads on the cone's edge are admitted (${control.coneEdgeLayoutsAdmitted} of 2). The probe reports its answered reads in its id; the judge compares them with lineBrickRun. The vacuum padding differs from the +1 run on ${vacuumDiffers} of ${WORDS.length} words of the headline cell. Limits: one window and one read; the line only; the probe asks for runs and decides nothing. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

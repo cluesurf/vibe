@@ -1,9 +1,9 @@
-// M11 on the tilings (item vibe-computation-models-0065): block coarse-graining of the 24 spin-one pair rules on the
-// matched pairs {4,4}/{4,5}, {6,3}/{6,4}, {3,6}/{3,7}, read on exact coset tilings (decision 005) under one schedule
+// M11 on the tilings: block coarse-graining of the 24 spin-one pair rules on the
+// matched pairs {4,4}/{4,5}, {6,3}/{6,4}, {3,6}/{3,7}, read on exact coset tilings under one schedule
 // family on both sides of every pair: the coloring lifted from a finite quotient of the triangle group, two colorings
 // per tiling (variants 0 and 1), colors in index order. Libraries: code/compute/lab/coarse-tiling.ts (frame, blocks,
-// lone-mover theorem, sparse and dense runs, witnesses) and coarse-tiling-contract.ts (exact contracts). Note:
-// m11-coarse-graining.md, tilings section, whose plan fixed every criterion below before the first run.
+// lone-mover theorem, sparse and dense runs, witnesses) and coarse-tiling-contract.ts (exact contracts). A plan
+// fixed every criterion below before the first run.
 //
 // PART A, the lone-mover no-go of the line slice on every tiling and blocking. The product permutation P of a round's
 // matchings is the track of every lone mover (theorem in coarse-tiling.ts). For every tiling, coloring, declared
@@ -25,7 +25,7 @@
 //   - 'clean' otherwise (no witness in the bounded search; never called lumpable).
 //
 // PART C, exact simulation contracts on edge blocks under the lifted orientation (N-periodic, so exact on the whole
-// tiling), tau 1 (tau 2 filed for the M3), every section of the five declared maps (75 distinct ordered sections of b = 2), every rule.
+// tiling), tau 1 (tau 2 left to a larger run), every section of the five declared maps (75 distinct ordered sections of b = 2), every rule.
 // Each contract's G is named identity, onsite (each block maps its own letter by a fixed map of its class), transport
 // (each block copies one other block's letter; at the lone speed when that block holds the P^-tau image of the
 // target's cells), or local. Flat against degree-matched hyperbolic: counts per kind and the rule classes that have
@@ -94,7 +94,7 @@ const ORIENTATIONS: Orientation[] = ['radial', 'lifted']
 const TAUS = [1, 2]
 const MOTION_TAUS = [1, 2, 3, 4, 6]
 // tau 2 contracts leave classes undecided at the node budget unevenly across a pair (probe: 307 on {4,4}, 17 on
-// {4,5}), which would bias the comparison: filed as an M3 run
+// {4,5}), which would bias the comparison: left to a larger run
 const CONTRACT_TAUS = [1]
 const CONTRACT_BUDGET = 400_000
 const BACKGROUNDS = [-1, 0, 1]
@@ -102,7 +102,7 @@ const BACKGROUNDS = [-1, 0, 1]
 const SEARCH_BALL1 = 3
 const SEARCH_BALL2 = 2
 
-// The sizes an M3 run may raise (task/m3/tiling-coarse.ts); every default is the parameter fixed above, which
+// The sizes a larger run may raise (task/batch/tiling-coarse.ts); every default is the parameter fixed above, which
 // E-CMP-0069 runs.
 export type TilingKnobs = {
   contractTaus: readonly number[]
@@ -1111,7 +1111,7 @@ export default experiment({
         identityContractFailures: s.identityControlFailures,
       },
       notes:
-        `Item vibe-computation-models-0065. Blocks kept by P^tau: ${keptList.join('; ') || 'none'}. Flat motion: ${flatMotion.join('; ') || 'none'}. Verdicts: ${JSON.stringify(verdicts)}. Reading rows not refused: ${JSON.stringify(readNotNotBySide)} ${readNotNotList.slice(0, 40).join('; ')}${readNotNotList.length > 40 ? ` (+${readNotNotList.length - 40})` : ''}. Contracts by side: ${JSON.stringify(contractsBySide)}. Pairs (identity/onsite/transport/local): ${diffText}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
+        `Blocks kept by P^tau: ${keptList.join('; ') || 'none'}. Flat motion: ${flatMotion.join('; ') || 'none'}. Verdicts: ${JSON.stringify(verdicts)}. Reading rows not refused: ${JSON.stringify(readNotNotBySide)} ${readNotNotList.slice(0, 40).join('; ')}${readNotNotList.length > 40 ? ` (+${readNotNotList.length - 40})` : ''}. Contracts by side: ${JSON.stringify(contractsBySide)}. Pairs (identity/onsite/transport/local): ${diffText}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
     })
   },
 })

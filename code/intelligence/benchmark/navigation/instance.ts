@@ -84,7 +84,7 @@ export interface GradeSummary {
   ledgerPeakBytes: number
   /** a quantum solver's typed ledger as the evaluator read and checked it, null for a classical solver */
   quantum: QuantumLedger | null
-  /** the mesh runs the evaluator executed for the solve (decision 003), empty for a solver that asked for none */
+  /** the mesh runs the evaluator executed for the solve, empty for a solver that asked for none */
   mesh: MeshMeter
   violations: string[]
 }

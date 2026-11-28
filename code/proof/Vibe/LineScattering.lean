@@ -1,7 +1,7 @@
 /-!
 # Bare U on one mesh line: the two-body S-matrix is Yang's R at the rapidity difference
 
-Item `vibe-computation-models-0055` (Q3b of the quantum ladder, symbolic). E-CMP-0045 found, at 20 exact sample modes,
+Q3b of the quantum ladder, symbolic. E-CMP-0045 found, at 20 exact sample modes,
 that the one-line two-body S-matrix of the bare beat is Yang's `R(w) = (w I - i P) / (w + i)` at `w = θ₁ - θ₂`. Here
 that is an identity in the momenta, over any commutative ring holding `ω` (`ω² + ω + 1 = 0`), `i` (`i² = -1`) and a
 half `h` (`2 h = 1`); the complex numbers are one such ring, so it holds at every momentum.

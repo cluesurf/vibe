@@ -1,4 +1,4 @@
-// M7 association without per-cell weights (item vibe-computation-models-0018). Algebra: spin-one.
+// M7 association without per-cell weights. Algebra: spin-one.
 //
 // A cue is a word of tones on a readout region R (the background everywhere else). A fixed rule runs forward for END
 // rounds and the tones of R are read at every round end: that readout is FIELD-REALIZED (the mesh's own tones, no table,

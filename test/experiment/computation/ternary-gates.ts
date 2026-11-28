@@ -1,7 +1,7 @@
-// M5, routing and gates (item vibe-computation-models-0016). Algebra: balanced ternary (Kleene neg, min, max) read
+// M5, routing and gates. Algebra: balanced ternary (Kleene neg, min, max) read
 // through the spin-one tones of the 24 conservative reversible pair rules (M1) and their particles (M3). Library:
 // code/compute/lab/gates.ts. Nothing is added to the mesh but a LAYOUT (tones on chosen cells at the start, the
-// `programmer_layout` of Q3) and the schedule of decision 002.
+// `programmer_layout` of Q3) and the declared schedule.
 //
 // Declared before the experiment's first run (after four exploratory probes, W/tmp/gates-probe*.ts, which fixed the
 // widths, radii and round counts below and showed the occupancy structure the theorem part states):
@@ -27,9 +27,9 @@
 //   every color, classified exchange (the movers trade tracks: head-on a reflection pair, else a turn pair), cross or
 //   other; and a bounded layout search (one input on a wire cell, the second input on any wire cell of the ball,
 //   constants on any ball cell: up to 2 for neg, 1 for min and max; 1 and 0 in 4D) for every rule that is not blind.
-// - SCHEDULES: every space of part C is read under its coloring in both color orders (decision 002, finding 0045);
+// - SCHEDULES: every space of part C is read under its coloring in both color orders;
 //   a signature that changes with the order is reported as schedule-sensitive.
-// - CURVATURE: flat against degree-matched hyperbolic only under one schedule family (decision 001, finding 0045): the
+// - CURVATURE: flat against degree-matched hyperbolic only under one schedule family: the
 //   three coset pairs. The M1-family pairs ({6,3} A2 against {6,4} generator, D4 against {3,4,3,4}) are listed, not
 //   credited.
 // Gates (fail the run): the 24 rules; the lemma on every blind cell and set; a non-blind rule failing the lemma
@@ -137,7 +137,7 @@ type SpaceDef = {
   make: (order: Order) => { space: PairSpace; colors: number[]; coloring: string }
 }
 
-// the two schedules of each space (decision 002, finding 0045): its coloring with the colors in index order and reversed
+// the two schedules of each space: its coloring with the colors in index order and reversed
 type Order = 'forward' | 'reverse'
 
 const ORDERS: readonly Order[] = ['forward', 'reverse']
@@ -822,7 +822,7 @@ export default experiment({
         fullSwapNonCross: fullSwapNotCross.length,
       },
       notes:
-        `M5 (item vibe-computation-models-0016). Spaces: ${r.tiling.spaces.map(s => `${s.key} (${s.ball} ball cells)`).join(', ')}. Comparisons: ${r.comparisons.map(c => `${c.pair} ${c.order}${c.oneFamily ? '' : ' (no common family)'} ${c.differ.length}/${c.cells}`).join('; ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `M5. Spaces: ${r.tiling.spaces.map(s => `${s.key} (${s.ball} ball cells)`).join(', ')}. Comparisons: ${r.comparisons.map(c => `${c.pair} ${c.order}${c.oneFamily ? '' : ' (no common family)'} ${c.differ.length}/${c.cells}`).join('; ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

@@ -1,5 +1,5 @@
-// PROPAGATION AND PARTICLES UNDER THE BARE BEAT U (item vibe-computation-models-0032, Q2; decision 004 of
-// vibe/computation/models). Exact one- and two-excitation readings of code/rule/bare-beat on its two geometries, the
+// PROPAGATION AND PARTICLES UNDER THE BARE BEAT U (Q2).
+// Exact one- and two-excitation readings of code/rule/bare-beat on its two geometries, the
 // hyperbolic {3,4,3,4} and the flat 24-cell honeycomb {3,4,3,3} (bare-beat withGeometry). Every amplitude, weight and
 // moment is an exact number of Q(zeta_9) (code/algebra/ninth-field Ninth); an order is read by a certified sign.
 //

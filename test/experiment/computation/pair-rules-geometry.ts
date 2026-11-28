@@ -1,12 +1,12 @@
 // M1 across geometries: the 12 classes of conservative reversible ternary pair rules on every lab geometry (the line,
 // {4,4}, {6,3}, {3,6}, {5,4}, {7,3}, {8,3}, {3,4,3,4} and the degree-matched controls {4,5}, {6,4}, {3,7},
 // {3,4,3,3}), under several schedules and two boundaries. Algebra: spin-one (Q = sum s conserved, D = sum s^2 for the 8
-// vacuum-fixing rules). Schedule (decision 002, every one read in forward and reversed color order): the greedy edge
+// vacuum-fixing rules). Schedule (every one read in forward and reversed color order): the greedy edge
 // coloring of each closed instance graph, plus a second greedy coloring with the cells taken in reversed order; pairs
 // oriented left to right on the ring and lower cell index first elsewhere; on the lazy open windows the coloring the
 // infinite tiling defines (the generators of the right-angled tile group for {5,4}, {6,4}, {3,4,3,4}, the step
 // parities of the A2 and D4 lattices for {6,3}, {3,4,3,3}, colorings lifted from finite quotients of the coset tilings
-// for the rest), the shorter tile or the -r end first, plus schedule variants (item vibe-computation-models-0045): a
+// for the rest), the shorter tile or the -r end first, plus schedule variants: a
 // second lifted coloring of every coset tiling, lifted colorings of {5,4}, {6,4} and {6,3} (so the degree-6 pair is read
 // in one family), and a color-order permutation of the two degree-24 spaces, which have no second family here.
 // Boundary: an open ball with uniform background outside, for the 8 vacuum-fixing rules only, read only over rounds the
@@ -30,10 +30,10 @@
 //   - the C-members of a class read the same label and the same numbers (to 1e-9) on every instance and order
 //   - line control: on the ring the harness gives E-CMP-0025's labels (1 frozen, 1 ballistic, 10 interacting), and
 //     the P-members of every class agree with it there, as the ring's mirror makes them equivalent
-//   - decision 006, re-derived independently (item vibe-computation-models-0042): every confined reading's orbits are
+//   - the gated labels, re-derived independently: every confined reading's orbits are
 //     replayed from a fresh lazy space (state(P) = state(0), no earlier return, some seed moving); every
 //     no-collidable-pair reading's pair search is redone from fresh seed runs, here and on the larger quotient that must
-//     have a pair (item 0043); every systole reading's loop systole is recomputed from the instance's cells and its
+//     have a pair; every systole reading's loop systole is recomputed from the instance's cells and its
 //     movers from fresh seed runs. Planted bad gates (a wrong period, a confined gate on ballistic seeds, a no-pair gate
 //     where pairs exist, a systole gate under a too-large systole) must all be rejected.
 //   - controls of the gated labels: no ballistic seed of the full swap on {3,7} closes an orbit; on a square torus whose
@@ -42,7 +42,7 @@
 //   - two runs give identical bytes on the open balls and on every closed instance of at most 256 cells, and no file
 //     of the lab draws a random number
 //
-// Status (item vibe-computation-models-0044): pass only when every reading (every member of every class, both orders,
+// Status: pass only when every reading (every member of every class, both orders,
 // every schedule) carries one of the six labels.
 //
 // Curvature: a class is curvature-sensitive only when its label differs between a flat geometry and the hyperbolic
@@ -131,7 +131,7 @@ const LINE_LABELS: Record<string, string> = {
 // the closed instances the identical-bytes rerun covers
 const RERUN_MAX_CELLS = 256
 
-// the systole controls (item vibe-computation-models-0041): a square torus whose loop systole exceeds 2 c T for every
+// the systole controls: a square torus whose loop systole exceeds 2 c T for every
 // greedy coloring of up to 5 colors (L = 242 > 2 x 5 x 24), read against a reference patch large enough to see its
 // injectivity radius; a small square torus whose loop systole a full-swap mover passes within its rounds; the planted
 // loop systole under which the large torus's movers must pass
@@ -187,7 +187,7 @@ export type CurvatureRow = {
   loopSystoles: [number | null, number | null]
 }
 
-// one verdict per matched pair and class over every same-family schedule (item 0045)
+// one verdict per matched pair and class over every same-family schedule
 export type CurvatureVerdict = {
   flat: string
   hyperbolic: string
@@ -252,14 +252,14 @@ export type GeometryRun = {
   // lazy open windows: runs stopped on the support budget, and the farthest any run got past r0 + c t (<= 0 holds)
   lazyBudgetStops: number
   lazyConeExcess: number
-  // decision 006: every confined or surface_limited reading re-derived independently, and the planted bad gates
+  // gated labels: every confined or surface_limited reading re-derived independently, and the planted bad gates
   gateProofFailures: string[]
   gatedReadings: number
   plantedGates: { name: string; rejected: boolean }[]
   // every reading over every member, order and schedule, by label, and the unresolved ones by why a gate was refused
   readingLabels: Record<string, number>
   unresolvedReadings: { reading: string; refused: string | null }[]
-  // every reading the extended census ran on (item 0004): the level it stopped at, its seeds and pairs, the label
+  // every reading the extended census ran on: the level it stopped at, its seeds and pairs, the label
   extendedReadings: {
     reading: string
     instance: string
@@ -280,7 +280,7 @@ export type GeometryRun = {
   serialized: string
 }
 
-// ---- independent re-derivation of the gated labels (item vibe-computation-models-0042) ----
+// ---- independent re-derivation of the gated labels ----
 
 // The least round P <= budget at which a seed's state on a FRESH lazy space equals its start, cell for cell, and
 // whether its state ever differed from the start in which cells it holds; null when it never returns.
@@ -925,7 +925,7 @@ export function pairRulesGeometry(input: { rerunSubset: boolean }): GeometryRun 
     }
   }
 
-  // decision 006, re-derived from scratch
+  // gated labels, re-derived from scratch
   const recheck: Recheck = {
     instances: new Map([...instances, ...catalog].map(i => [i.key, i])),
     rules,
@@ -1057,7 +1057,7 @@ export function pairRulesGeometry(input: { rerunSubset: boolean }): GeometryRun 
     gateProofFailures.push('confined-control:no-lazy-{3,7}')
   }
 
-  // systole controls on square tori of {4,4} (item 0041): the large one negative and flippable, the small one positive
+  // systole controls on square tori of {4,4}: the large one negative and flippable, the small one positive
   const vacuumFixingRules = [...rules.values()].filter(r => r.vacuumFixing)
   const emptyControl = (name: string): SystoleControl => ({
     instance: name,
@@ -1158,7 +1158,7 @@ export function pairRulesGeometry(input: { rerunSubset: boolean }): GeometryRun 
   }
 }
 
-// ---- the tables of m1-classification.md ----
+// ---- the classification tables ----
 
 const SHORT: Record<string, string> = {
   frozen: 'F',
@@ -1220,7 +1220,7 @@ export function m1Tables(run: GeometryRun): string {
   lines.push('', '#### Labels, classes x geometries', '')
   lines.push(
     'Each cell: open window / closed quotient, base schedule, forward color order. F frozen, B ballistic, I interacting, M mixing, ' +
-      'C confined, S surface-limited (both gated, decision 006), U unresolved, - not run (creating rules have no open window). Flags: m mixing not excluded (periods undecided ' +
+      'C confined, S surface-limited (both gated), U unresolved, - not run (creating rules have no open window). Flags: m mixing not excluded (periods undecided ' +
       'at one size, every measured mixing test passes), s schedule-sensitive (forward and reversed ' +
       'color order disagree), o orientation-sensitive (a P-member, the rule under reversed orientation, disagrees). ' +
       '{3,4,3,4} closed shows level 4 then level 5. Schedule variants are in their own table below.',
@@ -1462,7 +1462,7 @@ export default experiment({
       baseCells.filter(
         x => x.boundary === boundary && x.representative.forward.label === l,
       ).length
-    // every reading: every member, both orders, every schedule (item 0044)
+    // every reading: every member, both orders, every schedule
     const status = !gatesPass ? 'fail' : r.unresolvedReadings.length > 0 ? 'partial' : 'pass'
     const credited = r.curvature.filter(x => x.credited)
     const verdictCount = (v: CurvatureVerdict['verdict']): number =>
@@ -1547,8 +1547,8 @@ export default experiment({
         `Periods grow with N only on the ring, so mixing is undecided off it and a run passing its measured mixing tests carries mixing-not-excluded. ` +
         `Curvature verdicts over same-family schedules: ${verdictCount('null')} null, ${verdictCount('differs')} differ, ${verdictCount('schedule_dependent')} schedule-dependent, ${verdictCount('unmatched')} unmatched (no shared family); credited: ${credited.map(x => `${x.representative} ${x.flat}/${x.hyperbolic} ${x.flatSchedule}`).join(', ') || 'none'}. ` +
         `Schedule-dependent class cells: ${r.scheduleDependence.length} (${r.scheduleDependence.map(d => `${d.representative}@${d.column}/${d.boundary === 'openBall' ? 'open' : 'closed'}`).join(', ') || 'none'}). ` +
-        `Gated labels (decision 006, re-derived from scratch): ${r.gatedReadings} gated readings, ${r.gateProofFailures.length} proof failures, ${r.plantedGates.filter(p => p.rejected).length} of ${r.plantedGates.length} planted bad gates rejected. Controls: ${r.confinedControl.closedOrbits} of ${r.confinedControl.ballisticSeeds} ballistic {3,7} full-swap seeds closed an orbit (${r.confinedControl.stopped} stopped on the cap); on ${large.instance} (L ${large.loopSystole}, ${large.colors} colors, L > 2cT ${large.boundHolds}) ${large.passing} of ${large.movers} movers passed L/2 and ${large.plantedPassing} passed a planted L of ${SYSTOLE_CONTROL_PLANTED}; on ${small.instance} (L ${small.loopSystole}) ${small.passing} of ${small.movers} full-swap movers passed L/2. ` +
-        `Extended census (item 0004: readings the 60 seeds left unresolved with no collidable pair, re-read on every support through the anchor up to the stated radius and size, closed under C): ${r.extendedReadings.length} readings, ${r.extendedReadings.filter(x => x.exists).length} found pairs, ${r.extendedReadings.filter(x => x.label !== 'unresolved').length} resolved. ` +
+        `Gated labels (re-derived from scratch): ${r.gatedReadings} gated readings, ${r.gateProofFailures.length} proof failures, ${r.plantedGates.filter(p => p.rejected).length} of ${r.plantedGates.length} planted bad gates rejected. Controls: ${r.confinedControl.closedOrbits} of ${r.confinedControl.ballisticSeeds} ballistic {3,7} full-swap seeds closed an orbit (${r.confinedControl.stopped} stopped on the cap); on ${large.instance} (L ${large.loopSystole}, ${large.colors} colors, L > 2cT ${large.boundHolds}) ${large.passing} of ${large.movers} movers passed L/2 and ${large.plantedPassing} passed a planted L of ${SYSTOLE_CONTROL_PLANTED}; on ${small.instance} (L ${small.loopSystole}) ${small.passing} of ${small.movers} full-swap movers passed L/2. ` +
+        `Extended census (readings the 60 seeds left unresolved with no collidable pair, re-read on every support through the anchor up to the stated radius and size, closed under C): ${r.extendedReadings.length} readings, ${r.extendedReadings.filter(x => x.exists).length} found pairs, ${r.extendedReadings.filter(x => x.label !== 'unresolved').length} resolved. ` +
         `Unresolved readings: ${r.unresolvedReadings.length}${r.unresolvedReadings.length > 0 ? ` (${r.unresolvedReadings.slice(0, 12).map(u => `${u.reading}${u.refused ? ` [${u.refused}]` : ''}`).join('; ')})` : ''}. ` +
         `Failures: ${[...r.gateFailures, ...r.readingFailures, ...r.memberFailures, ...r.gateProofFailures, ...r.plantedGates.filter(p => !p.rejected).map(p => `planted:${p.name}`), ...lineControlFailures.map(l => `line:${l.representative}:${l.got}`)].slice(0, 40).join(', ') || 'none'}. ` +
         `Random findings: ${findings.map(f => `${f.file}:${f.line}`).join(', ') || 'none'}.`,

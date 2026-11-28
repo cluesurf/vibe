@@ -6,11 +6,11 @@ The drift gate task/check-lean-link.ts regenerates this file and fails on any by
 Source: code/rule/pair-rule.ts
 SHA-256: 9b80b1a252181c3fff4f966b6134e3164870669cb12768e7b6b980619cd37568
 Source: code/compute/lab/gates.ts
-SHA-256: da6bda873f1fcc498d390e468fe1ce53a91a5746d87ee4617f7ebe70d8cf78b0
+SHA-256: c56cadfe531864f4aa1a882be4385d55c3559084c976f70783714a71fe3dcd8a
 Source: code/intelligence/solver/develop/develop-router.ts
-SHA-256: 300fccbb2c55aaff381268f46c30eb83a61ac2433a3b59dda6a83e9902e3e3fd
+SHA-256: edd2b16f00f9d2b2008c5040546c314ca37813cb411dd05e65895f4cee29343e
 Source: test/experiment/intelligence/develop.ts
-SHA-256: 1c12cd31df7a1d15ed3a6f7dbf109d13342a33bd47dd8623df6ccdd4917e3351
+SHA-256: 99b17b33f6dae1ac0bec4816917405ca7dddf2ee45573d375f98c2347ed96dfd
 
 Exports id.ABC.id's table, wordIndex on the six words, and the identity census of level 7 (D3):
 windows of width 2 and 3 on backgrounds -1, 0, +1 at both parities, every input pair,

@@ -533,7 +533,7 @@ export function lineConservedSearch(input: {
 // ---- period growth ----
 
 // The effective power of period growth over EVERY ring size measured: the least-squares slope of ln(mean state
-// period) against ln(n) (item vibe-computation-models-0047; a two-point exponent between the smallest and largest ring
+// period) against ln(n) (a two-point exponent between the smallest and largest ring
 // rested on two points). Also the slope of ln(period) against n, the rate an exponential fit would give, and the
 // residual sums of both fits, so a reader can see which form the points follow. Needs at least two sizes.
 export type PeriodGrowthFit = {

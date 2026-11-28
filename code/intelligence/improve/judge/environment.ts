@@ -8,7 +8,7 @@
  * loop or the meta-learner). The three sets are disjoint.
  *
  * Validation and test are each cut in two by the support of the largest
- * table a genome can be taught (audit 2, J3): the value table the
+ * table a genome can be taught: the value table the
  * level-2 learner builds from every training start (each taught path and
  * its one ring). A taught genome learns from the first k training starts
  * with the same teacher, so its table is a subset: a start outside this

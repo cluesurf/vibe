@@ -46,7 +46,7 @@ export function readSlot(register: LineRegister, slot: number): number {
 /**
  * One round: both brick colours, every pair, through the table. Returns the pair updates that changed their pair:
  * the work a knockout of this round (the identity in its place) would undo. Zero means the round did nothing, so no
- * read anywhere can tell it from no round (provenance accounting, item 0030).
+ * read anywhere can tell it from no round (provenance accounting).
  */
 export function registerRound(register: LineRegister, table: readonly number[]): number {
   const cells = register.cells

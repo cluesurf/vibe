@@ -17,7 +17,7 @@ rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
 [[lean_lib]]
 name = "Vibe"
 roots = ["Vibe"]
-# Plain (non-`module`) Vibe files import Mathlib beside the core Vibe files (lean-track.md, Header form).
+# Plain (non-`module`) Vibe files import Mathlib beside the core Vibe files.
 allowNonModules = true
 
 [[lean_lib]]

@@ -1,13 +1,13 @@
-// Q3c door B of the quantum ladder (item vibe-computation-models-0056, decision 007 of vibe/computation/models): the
+// Q3c door B of the quantum ladder: the
 // opposite-tone box. Does three-body diffraction on one line of bare U vanish on some set of momenta, and if so, does the
 // like pair inside a box (tone word -, +, +, -) get a fixed nontrivial gate from repeated bounces? Exact over K =
 // Q(zeta_9)(i, sqrt 91) at Q3b's 20 sample modes, on {3,4,3,4} against the flat {3,4,3,3}. Library:
 // code/compute/quantum/box-diffraction (on line-scattering, ninth-extension, routing, bare-beat, none edited).
 //
-// Declared before the run (item 0056): diffraction zero on an open set or curve of incoming momenta would make the box a
+// Declared before the run: diffraction zero on an open set or curve of incoming momenta would make the box a
 // multi-pass ball machine (escalate); bounded below at every sample records door B as scrambling. Hypotheses, fixed after
 // one exploratory probe (W/tmp/q3c-box/probe.ts) and gated below:
-// - the two collision orders of a like pair beside an opposite tone differ by exactly D(x, y) (I + P) (Lean item 0055),
+// - the two collision orders of a like pair beside an opposite tone differ by exactly D(x, y) (I + P) (Lean),
 //   on both orientations (+, +, -) and (-, +, +), so the antisymmetric role channel never diffracts and the symmetric
 //   channel diffracts unless x y (x + y) = 0, i.e. two rapidities coincide;
 // - theta^2 = -Im(lambda) / (3 Im(zeta6 lambda)) on every mode, and theta_1 = theta_2 for two modes iff they are the same
@@ -111,7 +111,7 @@ const SPECS: ModeSpec[] = COSINES.flatMap(cos =>
 
 const display = (x: Num): string => toComplexDisplay(K, x)[0].toExponential(4)
 
-// -x y (x + y) / ((x + i)(y + i)(x + y + i)), Lean's mixed-tone defect (item 0055), recomputed here
+// -x y (x + y) / ((x + i)(y + i)(x + y + i)), Lean's mixed-tone defect, recomputed here
 function mixedDefect(x: Num, y: Num): Num {
   const s = add(x, y)
 
@@ -511,7 +511,7 @@ export default experiment({
         reflectionControls: firstRun.ok.h_reflectionControls ? 1 : 0,
         oneToneControlMoves: firstRun.ok.h_oneToneControlMoves ? 1 : 0,
       },
-      notes: `L2, exact over K = Q(zeta_9)(i, sqrt 91). The defect formula is Lean's (item 0055, every momentum); the rapidity identities are checked at the ${n.h_modes} sample modes and follow by hand for every momentum (q-ladder Q3c door B). cos p = 0 rapidities ${t.h_cosZeroRapidities}. Coincident box scalar ${t.h_boxScalar}. Failed checks: ${failed.join(', ') || 'none'}.`,
+      notes: `L2, exact over K = Q(zeta_9)(i, sqrt 91). The defect formula is Lean's (every momentum); the rapidity identities are checked at the ${n.h_modes} sample modes and follow by hand for every momentum (Q3c door B). cos p = 0 rapidities ${t.h_cosZeroRapidities}. Coincident box scalar ${t.h_boxScalar}. Failed checks: ${failed.join(', ') || 'none'}.`,
     })
   },
 })

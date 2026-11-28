@@ -1,4 +1,4 @@
-// M10, self-reproduction and adaptation from the M1 rules (item vibe-computation-models-0021). Algebra: spin-one.
+// M10, self-reproduction and adaptation from the M1 rules. Algebra: spin-one.
 // Layer 2: reads the pair rules through gates.ts, the line runner and the species split of counter.ts (M6) and the sparse
 // runner of particle-census.ts, and adds nothing to the mesh but a LAYOUT (a structure and an enumerated environment).
 //
@@ -13,7 +13,7 @@
 // changes D at exactly one cell later, and one that keeps D changes the whole state at exactly one cell later. `markCheck`
 // reads that cell live against its prediction.
 //
-// Criteria and parameters are fixed in note/project/vibe/computation/models/m10-reproduction.md (re-plan).
+// Criteria and parameters are fixed before the first run.
 
 import { CellSplit, Frame, LineRun, Schedule, applyStep, frameAt } from '@/code/compute/lab/counter'
 import { GateRule } from '@/code/compute/lab/gates'

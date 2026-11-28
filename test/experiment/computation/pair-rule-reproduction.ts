@@ -1,7 +1,7 @@
-// M10, self-reproduction and adaptation from the M1 rules alone (item vibe-computation-models-0021). Algebra: spin-one.
+// M10, self-reproduction and adaptation from the M1 rules alone. Algebra: spin-one.
 // Library: code/compute/lab/reproduction.ts. Control: E-CMP-0009 (code/dynamics/replication.ts, a copying constructor).
 // Nothing is added to the mesh but a LAYOUT (a structure and an enumerated environment beside it). Criteria fixed before
-// the first run in note/project/vibe/computation/models/m10-reproduction.md.
+// the first run.
 //
 // P1  no reproduction without food on any quiet cell (charge of one sign on +-1, species counts on the vacuum): the line
 //     search over every start of width <= 5 finds 0 events.
@@ -55,7 +55,7 @@ import { verdict } from '@/test/scaffold/verdict'
 const BASE = resolve(import.meta.dirname, '../../..')
 const LAB_FILES = ['code/compute/lab/reproduction.ts', 'test/experiment/computation/pair-rule-reproduction.ts']
 
-// ---- parameters, fixed before the first run (m10-reproduction.md) ----
+// ---- parameters, fixed before the first run ----
 
 const W_ALONE = 5
 const W_FOOD = 3
@@ -744,7 +744,7 @@ export default experiment({
         identityResponsive: identityA1.reduce((s, a) => s + a.responsive, 0),
       },
       notes:
-        `M10 (item vibe-computation-models-0021). Vacuum periods: ${r.vacuum.periods.join(' ')}. Tilings: ${Object.entries(r.tilingSearch).map(([k, v]) => `${k} runs ${v.runs} candidates ${v.candidates}${v.examples.length > 0 ? ` (${v.examples.join(', ')})` : ''}; marks ${r.tilingMark[k]?.cases ?? 0} cases ${r.tilingMark[k]?.breaks ?? 0} breaks`).join('; ')}. Curvature: ${curvature.map(c => `${c.pair} ${c.flat}/${c.hyperbolic}`).join(', ')}. Hits: species ${r.food.species.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')}@${h.structure.start} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}; reactive ${r.food.reactive.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}; live ${r.vacuum.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}. A1: ${r.adaptation.filter(a => a.responsive > 0).map(a => `${a.cell} ${a.responsive}/${a.distinct}`).join(' ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `M10. Vacuum periods: ${r.vacuum.periods.join(' ')}. Tilings: ${Object.entries(r.tilingSearch).map(([k, v]) => `${k} runs ${v.runs} candidates ${v.candidates}${v.examples.length > 0 ? ` (${v.examples.join(', ')})` : ''}; marks ${r.tilingMark[k]?.cases ?? 0} cases ${r.tilingMark[k]?.breaks ?? 0} breaks`).join('; ')}. Curvature: ${curvature.map(c => `${c.pair} ${c.flat}/${c.hyperbolic}`).join(', ')}. Hits: species ${r.food.species.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')}@${h.structure.start} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}; reactive ${r.food.reactive.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}; live ${r.vacuum.hits.slice(0, 6).map(h => `${h.cell} ${h.structure.window.join('')} r${h.event.round} x${h.event.copies.length} true ${h.breedTrue}/${h.mutations}`).join(', ')}. A1: ${r.adaptation.filter(a => a.responsive > 0).map(a => `${a.cell} ${a.responsive}/${a.distinct}`).join(' ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

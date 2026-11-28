@@ -1,5 +1,5 @@
 /**
- * The level-5 learners as isolated candidates (level5.md): one register learner in five arms of the causal test. Each
+ * The level-5 learners as isolated candidates: one register learner in five arms of the causal test. Each
  * factory takes its arguments as plain data and the metered operators and key the evaluator hands it.
  *
  * Candidate side.

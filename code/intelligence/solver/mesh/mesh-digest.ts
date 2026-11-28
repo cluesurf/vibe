@@ -1,7 +1,7 @@
 /**
- * The metered mesh digest (decision 003, as tightened by item 0037 after audit 3, M2).
+ * The metered mesh digest, as tightened against the step-fitting forger.
  *
- * Before item 0037 an entry's digest was a sum over its runs of key x (frame + 1) x (step + 1) mod 2^31 - 1: the step was
+ * Before the tightening an entry's digest was a sum over its runs of key x (frame + 1) x (step + 1) mod 2^31 - 1: the step was
  * a free multiplier (a candidate could run other words and pick the step that hits the judge's target), and the sum was
  * blind to order (runs could be moved between decisions). Now the evaluator folds every request into an order-sensitive
  * chain of SHA-256:
@@ -16,7 +16,7 @@
  * So a step is one more hashed field, never a multiplier, a run cannot change decision, layout, step or background
  * without changing the chain, and fitting the chain by choosing a step needs a 48-bit preimage per try (10^6 steps give
  * about 10^6 / 2^48, 3.6 x 10^-9). The key hash is the first 48 bits of SHA-256 of the key (was a polynomial mod
- * 1,000,003, where two keys collide by about 1,000 states: audit 3, m3).
+ * 1,000,003, where two keys collide by about 1,000 states).
  *
  * Import-free and pure, so the evaluator, every judge and any candidate (the lookup control of E-CMP-0060) fold the same
  * chain. Certified against node:crypto's SHA-256 in E-CMP-0084. Exact integer arithmetic (32-bit words), no random

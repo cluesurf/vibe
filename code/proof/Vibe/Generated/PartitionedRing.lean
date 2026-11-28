@@ -6,7 +6,7 @@ The drift gate task/check-lean-link.ts regenerates this file and fails on any by
 Source: code/rule/partitioned-pair.ts
 SHA-256: 1e51f1e004673b10d0034745927b2811e18a2003f9800f0db53a157668f7e7f2
 Source: code/compute/lab/coarse-block.ts
-SHA-256: dcbd879e647ed613e56ada28169802ad4c0709cd197b4bcb9f4bf64de31c550a
+SHA-256: dd2305f5b272a1112ef47a51b690d8afbc88ad7e7e86e6100a65964a0c4d041f
 Source: code/rule/pair-rule.ts
 SHA-256: 9b80b1a252181c3fff4f966b6134e3164870669cb12768e7b6b980619cd37568
 

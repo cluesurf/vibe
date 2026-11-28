@@ -1,5 +1,5 @@
 // EXACT arithmetic in the ring Z[2cos(pi/m_1), 2cos(pi/m_2), ...] that the geometric representation of a Coxeter group
-// lives in, with a CERTIFIED real sign (item vibe-computation-models-0038). No floating point anywhere.
+// lives in, with a CERTIFIED real sign. No floating point anywhere.
 //
 // ELEMENTS. One variable v_m = 2cos(pi/m) per distinct m >= 4 (2cos(pi/2) = 0 and 2cos(pi/3) = 1 need none). v_m is an
 // algebraic integer whose minimal polynomial psi_2m (degree phi(2m)/2) is monic with integer coefficients, read from the

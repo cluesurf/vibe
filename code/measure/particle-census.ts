@@ -1,5 +1,5 @@
-// The M3 particle census (item vibe-computation-models-0012). Algebra: spin-one. A conservative reversible pair rule
-// runs on a cell graph under a partition schedule (decision 002); this module reads, from exact sparse runs, which
+// The M3 particle census. Algebra: spin-one. A conservative reversible pair rule
+// runs on a cell graph under a declared partition schedule; this module reads, from exact sparse runs, which
 // small starts become persistent localized structures (species), how they move, and what two of them do when they meet.
 //
 // SPACE. Any graph with a schedule: `PairSpace` gives the partner of a cell in each color (-1 when the color leaves it

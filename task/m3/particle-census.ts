@@ -1,7 +1,7 @@
-// M3 driver (item vibe-computation-models-0054): the E-CMP-0043 particle census on chosen spaces and scales, so the 4D
+// Batch driver: the E-CMP-0043 particle census on chosen spaces and scales, so the 4D
 // pair {3,4,3,3}/{3,4,3,4} reads seed radius 2 at scale 1.5 like every other geometry.
 //
-//   pnpm call task/m3/particle-census.ts [--scales 1,1.5] [--spaces 3.4.3.3,3.4.3.4]
+//   pnpm call task/batch/particle-census.ts [--scales 1,1.5] [--spaces 3.4.3.3,3.4.3.4]
 //
 // Spaces are written with dots ({3,4,3,4} is 3.4.3.4). Each census cell prints one JSON line, each scale its
 // comparisons, and the closing SUMMARY line the per-scale species and collision totals.
@@ -64,4 +64,4 @@ for (const scale of scales) {
   }
 }
 
-summary({ item: 'vibe-computation-models-0054', scales, spaces: only, seconds: seconds(start), totals })
+summary({ driver: 'particle-census', scales, spaces: only, seconds: seconds(start), totals })

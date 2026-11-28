@@ -1,7 +1,7 @@
-// M3 driver (item vibe-computation-models-0053): is the excited-mode deficit of E-CMP-0046 (fewer standing modes from
+// Batch driver: is the excited-mode deficit of E-CMP-0046 (fewer standing modes from
 // one source on every hyperbolic quotient) curvature, or the symmetry group of the regular maps it was read on?
 //
-//   pnpm call task/m3/symmetry-modes.ts [--reproduce true] [--surfaces 4-5-11,6-4-11,3-7-13] [--max-subgroup 12]
+//   pnpm call task/batch/symmetry-modes.ts [--reproduce true] [--surfaces 4-5-11,6-4-11,3-7-13] [--max-subgroup 12]
 //        [--min-cells 20] [--max-quotients 1] [--honeycomb-level 5] [--honeycomb-read false]
 //        [--honeycomb-quotients 0] [--honeycomb-subgroup-order 8] [--honeycomb-scan 48] [--honeycomb-min-word 3]
 //        [--orbit-cap 0]
@@ -19,7 +19,7 @@
 // the size of level 4, which is the quotient by the normal kernel). Flat side: tori of every shape class
 // (rectangular and twisted) and flat Klein bottles of the same degree and size band, and twisted D4 tori for degree 24.
 //
-// Declared before any run (the measures and the curvature reading are E-CMP-0046's, m8-resonance.md):
+// Declared before any run (the measures and the curvature reading are E-CMP-0046's):
 // - Measures per graph and law (self 0, self 1), source at cell 0: k (Krylov degree of A' on delta_0 over F3) and k/N;
 //   the exact orbit period P from the order of x modulo x^k m(x + 1/x) (mode-bounds.ts, NO cap; checked equal to the
 //   run wherever the run closes under the cap); the period mean of M^2 / N^2 when the run closes under the cap; the
@@ -874,7 +874,7 @@ for (const c of failed) {
 }
 
 summary({
-  item: 'vibe-computation-models-0053',
+  driver: 'symmetry-modes',
   seconds: seconds(t0),
   gates: checks.length,
   controls: negatives.length,

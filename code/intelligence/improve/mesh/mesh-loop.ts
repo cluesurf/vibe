@@ -1,5 +1,5 @@
 /**
- * Level 6, slice 3 (level6.md): E-CMP-0031's bounded improvement loop with its selection made by the mesh. The
+ * Level 6, slice 3: E-CMP-0031's bounded improvement loop with its selection made by the mesh. The
  * proposer proposes children of the parent as before; the evaluator grades each candidate alone; then a tournament in
  * proposal order runs one metered selection solve per child, the incumbent as candidate A and the child as B, and the
  * genome the selection's carrier wrote out becomes the incumbent. The loop never compares two grades itself: it only

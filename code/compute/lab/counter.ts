@@ -1,4 +1,4 @@
-// M6, universality from the M1 rules alone (item vibe-computation-models-0017). Layer 2: reads the pair rules
+// M6, universality from the M1 rules alone. Layer 2: reads the pair rules
 // (code/rule/pair-rule.ts), the sparse runner (code/measure/particle-census.ts) and the M5 line runner
 // (code/compute/lab/gates.ts), and adds nothing to the mesh but a LAYOUT.
 //
@@ -23,7 +23,7 @@
 import { GateRule, fixesUniform } from '@/code/compute/lab/gates'
 import { PairSpace, Tones } from '@/code/measure/particle-census'
 
-// ---- parameters, fixed before the first run (m6-universality.md) ----
+// ---- parameters, fixed before the first run ----
 
 export const SPECIES_WIDTH = 3
 export const SPECIES_PERIOD = 24

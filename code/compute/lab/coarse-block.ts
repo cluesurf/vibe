@@ -1,5 +1,5 @@
-// Block coarse-graining of partitioned pair dynamics on the line (item vibe-computation-models-0022, plan.md M11,
-// note m11-coarse-graining.md). Two exact notions of an effective rule at a larger scale:
+// Block coarse-graining of partitioned pair dynamics on the line (milestone
+// M11). Two exact notions of an effective rule at a larger scale:
 //
 //   - lumpability: a block map F (b cells to one coarse tone) is lumpable at a coarse step of tau rounds when
 //     F(Phi^tau x) is a function of F(x) over every configuration of the infinite line. The center block's image
@@ -11,7 +11,7 @@
 //     maps every configuration made of sigma blocks to one made of sigma blocks. Then G = sigma^-1 Phi^tau sigma is
 //     a deterministic coarse rule on exactly that subset of configurations.
 //
-// The line's schedules are declared structure (decision 002): edge (i, i + 1) has color i mod p and a round applies
+// The line's schedules are declared structure: edge (i, i + 1) has color i mod p and a round applies
 // the colors in a fixed order, every edge oriented left to right. Exact integer arithmetic on Int8Array tones, no
 // floating point in any decision, no random numbers.
 

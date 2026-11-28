@@ -1,6 +1,6 @@
 /**
- * The lead proposer of level 6, slice 4 run as an isolated candidate (item 0040 of vibe/computation/intelligence, after
- * audit 3, M5; decision 001). It is built once in its own context from data and asked by method name with plain data:
+ * The lead proposer of level 6, slice 4 run as an isolated candidate, as
+ * every candidate runs. It is built once in its own context from data and asked by method name with plain data:
  * the parent genome and the lead's trits, nothing else. It never holds the face, a grade or a baseline, and what it
  * proposes comes back as frozen copies.
  *

@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 2 (item vibe-computation-intelligence-0029, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 2 :
 // selection with each candidate's score written into several cells. The evaluator writes A's score as a k-tuple of
 // tones and B's likewise, each through a code of its own (a map from the levels to the 3^k tuples). A read is a
 // selector at L levels when some pair of codes makes it hold the better candidate's content on every content pair and
@@ -6,7 +6,7 @@
 //
 // Import-free on purpose (a candidate folder, check:layers forbids it the rules): the caller hands in the runs.
 //
-// Lemma K (level6.md): if the read sees a distinct values of A's score cells and b of B's, at most
+// Lemma K: if the read sees a distinct values of A's score cells and b of B's, at most
 // min(a + b - 1, 2a, 2b) levels are ordered. `abstractMaxLevels` checks the bound by exact backtracking over class maps.
 
 /** the frames of one run, read at a round end: the tone of a cell, and the cells off the background */

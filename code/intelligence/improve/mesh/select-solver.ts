@@ -1,8 +1,8 @@
 /**
- * Level 6, slice 3 (level6.md): the selection step of the improve loop as a solve the evaluator meters. The selection
+ * Level 6, slice 3: the selection step of the improve loop as a solve the evaluator meters. The selection
  * problem's initial state names both candidates' contents (genome words, content-code.ts) and the score tone the
  * evaluator wrote for each. The selector asks the evaluator for one run per content trit of E-CMP-0068's T1 selector
- * (`id.CBA.id` on the vacuum, window [a b sA sB], read at b's cell after 3 rounds) through `meshRuns` (decision 003):
+ * (`id.CBA.id` on the vacuum, window [a b sA sB], read at b's cell after 3 rounds) through `meshRuns`:
  * it names the rule, gives the layout as data and the word [a_k, b_k, sA, sB], and the evaluator runs every round. It
  * then writes the read trits into the problem's output, one metered operator application each: that write is the
  * carrier, and the output is what the loop takes to the next generation.
@@ -19,7 +19,7 @@ import type { Problem } from '@/code/intelligence/problem/problem'
 import { emptyLedger, type Solver } from '@/code/intelligence/solver/solver'
 import { hold, type Held } from '@/code/intelligence/solver/search/expand'
 
-/** A brick-line layout as the evaluator takes it (decision 003). */
+/** A brick-line layout as the evaluator takes it. */
 export interface SelectLayout {
   start: number
   window: number[]

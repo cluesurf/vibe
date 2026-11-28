@@ -74,7 +74,7 @@ function candidateFile(path: string): boolean {
 
 /**
  * Where module files are read: this package, or first a fixture tree laid
- * out like it (the audit probes), whose imports of real modules fall back to
+ * out like it (the probe controls), whose imports of real modules fall back to
  * this package.
  */
 interface Tree { roots: readonly string[] }

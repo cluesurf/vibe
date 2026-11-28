@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 1 (item vibe-computation-intelligence-0008, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 1 :
 // can the SELECTION step of an improve loop run as mesh dynamics? The outside evaluator grades each candidate alone
 // and writes each candidate's own score (one trit, through a code) into the mesh beside its content (one trit). A
 // selector is a line layout of a pair rule, a pair of codes and a read cell and round such that, for every content

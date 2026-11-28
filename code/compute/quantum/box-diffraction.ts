@@ -1,11 +1,11 @@
-// THE OPPOSITE-TONE BOX: WHERE THREE-BODY DIFFRACTION ON ONE LINE OF BARE U VANISHES (item vibe-computation-models-0056,
-// Q3c door B; decision 007 of vibe/computation/models). Built on code/compute/quantum/line-scattering, ninth-extension,
+// THE OPPOSITE-TONE BOX: WHERE THREE-BODY DIFFRACTION ON ONE LINE OF BARE U VANISHES (Q3c
+// door B). Built on code/compute/quantum/line-scattering, ninth-extension,
 // routing and code/rule/bare-beat, none edited.
 //
 // The question. A like pair next to an opposite tone fails Yang-Baxter (Q3b): along the two collision orders the like
 // pair's symmetric channel collects -sigma(x) sigma(y) and sigma(x + y), sigma(u) = (u - i)/(u + i), x = theta_a -
 // theta_b, y = theta_b - theta_c, and the two orders differ by -x y (x + y)(I + P)/((x + i)(y + i)(x + y + i)) (Lean,
-// item 0055). Where that vanishes no Bethe state is inconsistent and the triple does not diffract. This module supplies
+// Vibe.LineScattering). Where that vanishes no Bethe state is inconsistent and the triple does not diffract. This module supplies
 // the exact pieces that decide on which momenta that happens and what the like pair's role register gets there.
 //
 //   rapidity            theta = (2 / sqrt 3) Im(lambda) / Im(a), as Q3b

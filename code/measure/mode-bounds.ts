@@ -1,5 +1,5 @@
-// Bounds on the standing modes one source excites, and the exact orbit period of the Z3 wave without a run cap (item
-// vibe-computation-models-0053). Exact integers, polynomials over F3 and bigint only.
+// Bounds on the standing modes one source excites, and the exact orbit period of the Z3 wave without a run cap.
+// Exact integers, polynomials over F3 and bigint only.
 //
 // THE BOUNDS. A' = A + sigma I commutes with every graph automorphism, so A'^j delta_0 is fixed by the stabilizer of
 // cell 0 and the Krylov space of delta_0 lies in the span of the stabilizer's orbit indicators: k <= the number of

@@ -1,8 +1,8 @@
-// Intelligence level 7, slice 1 (item vibe-computation-intelligence-0009, level7.md of vibe/computation/intelligence):
+// Intelligence level 7, slice 1:
 // does a problem-solving component develop from a primitive start? A primitive start (a window of at most three tones on
 // a quiet rule-background cell of the line) is run forward; the frame after T rounds is a device that a fixed A*
 // template reads, one metered run per generated successor, to break ties from the word [t, d] (t: the learned table
-// holds the successor; d: the sign of the base estimate's change). Three parts, every criterion fixed in level7.md
+// holds the successor; d: the sign of the base estimate's change). Three parts, every criterion fixed
 // before the first run.
 //
 // Part R (judge side, exact): the capacity of all 64 preference functions of the word, ranked on the training starts,
@@ -60,7 +60,7 @@ const BASE = resolve(import.meta.dirname, '../../..')
 const ARM_MODULE = 'code/intelligence/solver/develop/develop-catalog'
 const IDENTITY_RULE = 'id.ABC.id'
 
-// ---------------------------------------------------------------- parameters (level7.md, fixed before the first run)
+// ---------------------------------------------------------------- parameters
 
 const START_WIDTH = 3
 const T_DEV = 6
@@ -633,7 +633,7 @@ function certify(args: DevelopArgs, grade: Grade<MeshState>, problem: Problem<Me
     const want = expected[i]!
     const got = metered[i]!
 
-    // the background, checked on the entry itself (audit 3, m1); it is also bound into the chain's seed
+    // the background, checked on the entry itself; it is also bound into the chain's seed
     if (got.layout.background !== args.background) {
       return `entry ${i} metered on background ${String(got.layout.background)}, the cell's is ${args.background}`
     }
@@ -652,7 +652,7 @@ function certify(args: DevelopArgs, grade: Grade<MeshState>, problem: Problem<Me
 
 // ---------------------------------------------------------------- the arms
 
-// 'shifted' and 'shiftedMisdeveloped' were added after the first run (disclosed in level7.md): the selected development
+// 'shifted' and 'shiftedMisdeveloped' were added after the first run (disclosed): the selected development
 // left its window unchanged, so the misdeveloped control could not fail; these run the first development realizing
 // g_dev whose window the rounds do change, and its misdeveloped twin.
 type Arm = 'developed' | 'undeveloped' | 'knockout' | 'wire' | 'smuggler' | 'misdeveloped' | 'shifted' | 'shiftedMisdeveloped'
@@ -1239,7 +1239,7 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `intelligence level 7, slice 1: ${verdictText}; ${rDevTwo.length} functions of both inputs are realized by developed devices and ${[...r0].filter(g => !oneInput(g)).length} by undeveloped starts (${globalOnlyDeveloped.length} only after development) over ${metrics.probedDevelopments} developments of primitive starts on ${quiet.length} quiet cells; growth: species ${metrics.speciesGrown} (D1: none can), reactive ${metrics.reactiveGrown} developments larger than their start, 0 above twice; ${metrics.collisions} collisions between developments (D2); the identity device realizes exactly the ${identity.length} one-input functions (D3); held-out expansions developed ${all('developed').expansions}, undeveloped ${all('undeveloped').expansions}, knockout ${all('knockout').expansions}, wire ${all('wire').expansions}, level-1 A* ${all('aStar').expansions} on ${heldOut} starts; every honest solve certified by a judge recomputing development reads, device window, decisions, background and SHA-256 chains; a smuggler deciding in code is classified external on ${smugglerExternal} of ${heldOut}, ${windowsDiffer ? `a misdeveloped device refused on ${misdevelopedRefused} of ${misdevelopedAsked}` : `the selected development leaves its window unchanged, so on the first development whose rounds change it (${shiftedDev.cell.name}, ${shiftedDev.rounds} rounds, held-out ${all('shifted').expansions}) a misdeveloped twin is refused on ${shiftedMisRefused} of ${shiftedMisAsked}`}; the undeveloped starts alone realize ${r0.size} of the 64 functions, so the best no-development device already reaches the ceiling (D4); the item's clause (M10 reproduction and adaptation) stays a sharp no-go in the species cells and a bounded absence elsewhere pending models-0062`,
+      claim: `intelligence level 7, slice 1: ${verdictText}; ${rDevTwo.length} functions of both inputs are realized by developed devices and ${[...r0].filter(g => !oneInput(g)).length} by undeveloped starts (${globalOnlyDeveloped.length} only after development) over ${metrics.probedDevelopments} developments of primitive starts on ${quiet.length} quiet cells; growth: species ${metrics.speciesGrown} (D1: none can), reactive ${metrics.reactiveGrown} developments larger than their start, 0 above twice; ${metrics.collisions} collisions between developments (D2); the identity device realizes exactly the ${identity.length} one-input functions (D3); held-out expansions developed ${all('developed').expansions}, undeveloped ${all('undeveloped').expansions}, knockout ${all('knockout').expansions}, wire ${all('wire').expansions}, level-1 A* ${all('aStar').expansions} on ${heldOut} starts; every honest solve certified by a judge recomputing development reads, device window, decisions, background and SHA-256 chains; a smuggler deciding in code is classified external on ${smugglerExternal} of ${heldOut}, ${windowsDiffer ? `a misdeveloped device refused on ${misdevelopedRefused} of ${misdevelopedAsked}` : `the selected development leaves its window unchanged, so on the first development whose rounds change it (${shiftedDev.cell.name}, ${shiftedDev.rounds} rounds, held-out ${all('shifted').expansions}) a misdeveloped twin is refused on ${shiftedMisRefused} of ${shiftedMisAsked}`}; the undeveloped starts alone realize ${r0.size} of the 64 functions, so the best no-development device already reaches the ceiling (D4); the item's clause (M10 reproduction and adaptation) stays a sharp no-go in the species cells and a bounded absence elsewhere pending a later run`,
       metrics,
       control,
       notes: `L2. Selected: g_dev ${gDev} (${selection.gDevOutsideF1 ? 'two inputs' : 'one input'}; train ${cTrain[gDev]}, held-out ${cTest[gDev]}), from ${dev.cell.name} start [${dev.start.join(',')}] parity ${dev.parity}, ${dev.rounds} rounds, span ${dev.spanLo}..${dev.spanLo + dev.developed.length - 1}, developed [${dev.developed.join(',')}], undeveloped [${dev.undeveloped.join(',')}], inputs ${placement.inputs.join(',')}, read ${placement.readPosition} at round ${placement.readRound}, prefer {${placement.prefer.join(',')}}; undeveloped realizes it with some placement: ${selection.undevelopedRealizes}. Shifted (added after the first run): ${shiftedDev.cell.name} start [${shiftedDev.start.join(',')}] parity ${shiftedDev.parity}, ${shiftedDev.rounds} rounds, span ${shiftedDev.spanLo}, developed [${shiftedDev.developed.join(',')}], undeveloped [${shiftedDev.undeveloped.join(',')}], inputs ${shiftedPlacement.inputs.join(',')}, read ${shiftedPlacement.readPosition} at round ${shiftedPlacement.readRound}, prefer {${shiftedPlacement.prefer.join(',')}}. g_wire ${gWire} (train ${cTrain[gWire]}, held-out ${cTest[gWire]}). Ceiling (function: train / held-out / held-out outside the table; * one input): ${ceilingRows}. Per arm (all held-out / outside / metered runs / rounds / pair updates): ${SOLVERS.map(n => `${n} ${all(n).expansions} / ${outside[n].expansions} / ${all(n).runs} / ${all(n).rounds} / ${all(n).pairUpdates}`).join('; ')}. Table charge ${charge} expansions (every arm but level-1 A* reads the table). Certified: ${ARMS.map(n => `${n} ${certified[n]}`).join(', ')}. Census: ${cellRows}. ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),

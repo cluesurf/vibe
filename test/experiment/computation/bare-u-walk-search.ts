@@ -1,4 +1,4 @@
-// Q5 of the quantum ladder (item vibe-computation-models-0036; decisions 001, 003 and 004 of vibe/computation/models):
+// Q5 of the quantum ladder:
 // quantum walks and spatial search, exact, with degree-matched controls. Library: code/compute/quantum/walk.
 //
 // Two walks.
@@ -208,7 +208,7 @@ function measureBare(geometry: BeatGeometry): BareReport {
     const ok: Record<string, boolean> = {}
     const text: Record<string, string> = {}
 
-    // hop distances to radius 3 (traps.md: radius 4 builds 162,033 docks); lines through dock 0 are geodesic there
+    // hop distances to radius 3 (radius 4 builds 162,033 docks); lines through dock 0 are geodesic there
     const distance = hopDistances(0, BARE_SEARCH_RADIUS)
     const ballSizes = [0, 0, 0, 0]
 
@@ -560,7 +560,7 @@ export default experiment({
   depth: 'L2',
   paper: false,
   // context.scale >= 1.5 adds the larger sizes (D4 torus side 10, {3,4,3,4} level 5 and ball radius 3, more balls);
-  // not declared `scales`, so the perturbation check leaves it alone. Those runs belong on the M3 machine (q-ladder.md).
+  // not declared `scales`, so the perturbation check leaves it alone. Those belong to a larger run.
   run(context) {
     const scale = context.scale ?? 1
     const firstRun = compute(scale)

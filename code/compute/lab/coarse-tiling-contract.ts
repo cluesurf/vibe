@@ -1,5 +1,5 @@
-// Simulation contracts on the coset tilings (item vibe-computation-models-0065, note m11-coarse-graining.md, tilings
-// section). A section sigma sends each coarse letter to one ordered pattern of an edge block E(c) (first cell, second
+// Simulation contracts on the coset tilings (milestone M11, the
+// tilings slice). A section sigma sends each coarse letter to one ordered pattern of an edge block E(c) (first cell, second
 // cell by the orientation of color c). It is a contract at tau when Phi^tau maps every configuration made of sigma
 // blocks to one made of sigma blocks; G = sigma^-1 Phi^tau sigma is then an exact coarse rule on that subset.
 //

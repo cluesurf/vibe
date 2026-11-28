@@ -9,7 +9,7 @@ import Vibe.Generated.BeatSlots
 /-!
 # Vibe Computation Lab: Two Lines of the Mesh Meet at Most Once
 
-Lean track L12 (lean-track.md, claim A13; q-ladder Q3c point 1). A line of the bare beat is the
+Claim A13 (Q3c point 1). A line of the bare beat is the
 chain a vibe follows when it keeps its slot: from a dock with frame `g` along slot `a`, the docks
 `g k_a^m c_0` for every integer `m` (`code/rule/bare-beat.ts` steps a frame by `k_s = F_s Z`, and
 `code/compute/quantum/particles.ts` `lineChain` walks `stepDock` on the slot and on its opposite).
@@ -577,7 +577,7 @@ theorem thm_lines_meet_once_lorentz (g1 g2 : Mat5)
   rw [t1, t2]
   exact hP (lmoV x)
 
-/-- A13, q-ladder Q3c point 1 on the whole mesh: two lines of the mesh (frames reached by any
+/-- A13, Q3c point 1 on the whole mesh: two lines of the mesh (frames reached by any
     words `w1`, `w2`, any slots) that share two distinct docks are the same set of docks. So two
     distinct lines share at most one dock. -/
 theorem thm_lines_meet_once (w1 w2 : List (Fin 24)) (a1 a2 : Fin 24) (m1 m2 n1 n2 : Int)

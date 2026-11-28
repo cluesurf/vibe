@@ -78,7 +78,7 @@ export function unmetered<S>(_args: unknown, operators: readonly Operator<S>[], 
 }
 
 /**
- * Audit C1: a table that lists nothing but answers `get` by a breadth-first
+ * A table that lists nothing but answers `get` by a breadth-first
  * search at lookup time, through the operators the learner kept. The
  * evaluator copies a table out as plain data and closes the learner's context
  * at hand-over, so it must be refused (not a plain Map) and answer nothing.
@@ -103,7 +103,7 @@ export function lazy<S>(_args: unknown, operators: readonly Operator<S>[], key: 
   }
 }
 
-/** Audit 2, n6: the honest table handed over behind a Proxy, which passes every plainness test it can trap. */
+/** The honest table handed over behind a Proxy, which passes every plainness test it can trap. */
 export function proxyTable<S>(_args: unknown, operators: readonly Operator<S>[], key: (state: S) => string): TableLearner<S> {
   const inner = valueTableLearner(operators, key)
 

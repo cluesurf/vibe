@@ -1,5 +1,5 @@
-// The Z3-linear reversible pair rules (item vibe-computation-models-0010, plan.md M2-A, algebra Z3 cyclic of plan.md
-// section 3): the tones of a matched edge read as residues mod 3 (0, +1, -1 stand for 0, 1, 2), and the pair map
+// The Z3-linear reversible pair rules (milestone M2-A, algebra Z3 cyclic):
+// the tones of a matched edge read as residues mod 3 (0, +1, -1 stand for 0, 1, 2), and the pair map
 //
 //   (x, y) -> (a x + b y, c x + d y)   (mod 3)
 //
@@ -9,7 +9,7 @@
 // The same nine pairs and the same table layout as the spin-one rules (code/rule/pair-rule.ts: rule[p] is the image of
 // pair p = (a + 1) * 3 + (b + 1)), so a Z3-linear rule runs on the same schedules, harness and measures. What changes is
 // the algebra: a spin-one rule conserves the integer charge Q = a + b, a Z3-linear rule is additive mod 3. Only the
-// identity and the swap are both (plan.md 3).
+// identity and the swap are both.
 //
 // Structure, each fact gated live by the experiment:
 //   - negation C is -I, central in GL(2,3), so every Z3-linear rule commutes with C: the class group {1, P, C, PC}

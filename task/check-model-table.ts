@@ -2,7 +2,7 @@
 //
 // One row per model of computation from the source list, saying whether the model emerges from one fixed local
 // rule on the ternary mesh, emerges only with named added structure, or is excluded by a base property, and on
-// what basis. The rules this enforces are plan.md section 5 of note/project/vibe/computation/models:
+// what basis. The rules this enforces:
 //
 // - every number 1 to 227 present exactly once (a missing number fails unless --allow-missing is passed)
 // - each part file holds only the numbers its name spans, and each number sits in its source family
@@ -51,7 +51,7 @@ const COLUMNS = [
 type Column = (typeof COLUMNS)[number]
 type Row = Record<Column, string>
 
-// the source's family boundaries (source/models-of-computing.md headings 1 to 12)
+// the source's family boundaries
 const FAMILIES: { name: string; first: number; last: number }[] = [
   { name: 'classical_symbolic', first: 1, last: 14 },
   { name: 'automata_rewriting', first: 15, last: 29 },
@@ -67,7 +67,7 @@ const FAMILIES: { name: string; first: number; last: number }[] = [
   { name: 'hypercomputation', first: 216, last: 227 },
 ]
 
-// the 12 mechanism classes of source/computation-model-types.md, by their primitive
+// the 12 mechanism classes of the source list, by their primitive
 const CLASSES = [
   'transition',
   'rewrite',
@@ -123,7 +123,7 @@ const VOCABULARY: Partial<Record<Column, string[]>> = {
     'm10',
     'm11',
     'm12',
-    // the quantum ladder under the bare beat U (decision 004, plan.md 11.3)
+    // the quantum ladder under the bare beat U
     'q0',
     'q1',
     'q2',
@@ -136,7 +136,7 @@ const VOCABULARY: Partial<Record<Column, string[]>> = {
   ],
 }
 
-// ingredients beyond the mesh, the ternary state and one fixed local rule (decision 002, plan.md 5)
+// ingredients beyond the mesh, the ternary state and one fixed local rule
 const ADDED_STRUCTURE = [
   'schedule',
   'orientation',
@@ -149,9 +149,9 @@ const ADDED_STRUCTURE = [
   'coarse_grain',
   'dynamic_topology',
   'deterministic_surrogate',
-  // a quantum row realized by the bare beat U: `measurement` is a kept record branch (plan.md 11.4 row 153), and
-  // `amplitudes` names Z[zeta_9][1/6] amplitudes as an outside ingredient, for the reading of plan.md 12 in which
-  // bare U is not one fixed local rule; under decision 004 point 2 they are base state and no row names them
+  // a quantum row realized by the bare beat U: `measurement` is a kept record branch, and
+  // `amplitudes` names Z[zeta_9][1/6] amplitudes as an outside ingredient, for the reading in which
+  // bare U is not one fixed local rule; under the beat decision they are base state and no row names them
   'measurement',
   'amplitudes',
 ]

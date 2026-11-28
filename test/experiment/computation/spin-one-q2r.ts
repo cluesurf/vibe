@@ -1,12 +1,12 @@
-// M2-B (item vibe-computation-models-0011, plan.md section 3): a Q2R-style reversible, energy-conserving spin-1
+// M2-B: a Q2R-style reversible, energy-conserving spin-1
 // Blume-Capel rule on every lab geometry. Does an equilibrium magnetization and energy curve emerge from
 // deterministic reversible dynamics alone, with no heat bath and no randomness, and does anything differ between flat
 // and degree-matched hyperbolic geometries under one schedule family? Code: code/rule/spin-one-q2r.ts.
 //
 // Algebra spin-1, energy E = -J sum s_i s_j + Delta sum s_i^2 with integer J, Delta. A cell moves only between two
 // tones of equal local energy (Q2R flip at J h = 0, vacancy moves at J h = +-Delta), one independent set at a time,
-// so every round conserves E exactly and its inverse is the sets in reverse order. Schedule (declared structure,
-// decision 002): a greedy vertex coloring in breadth-first order ('greedy-bfs') or its reverse
+// so every round conserves E exactly and its inverse is the sets in reverse order. Schedule (declared structure):
+// a greedy vertex coloring in breadth-first order ('greedy-bfs') or its reverse
 // ('greedy-reverse-bfs'), the SAME family on both sides of every matched pair (audit-m1 finding F). Boundary: closed
 // (rings, flat tori, the closed quotients of tiling-quotient.ts), so E is conserved with no exchange at all.
 // Microcanonical: every run starts from a structured state at a fixed energy (an integer Fibonacci-Kronecker tone
@@ -255,7 +255,7 @@ function geometries(): Geometry[] {
   ]
 
   // the catalog: every hyperbolic surface with its flat partner, and the {3,4,3,4} level of 2048 docks with the D4
-  // torus (level 5, 16384 docks, has no flat partner and is left to the M3 machine)
+  // torus (level 5, 16384 docks, has no flat partner and is left to a larger run)
   for (const e of closedQuotients()) {
     const q = e.quotient
 
@@ -726,7 +726,7 @@ export function spinOneQ2rRun(): Verdict {
       negativesTripped: controls.filter(c => c.ok).length,
     },
     notes:
-      'L2. Algebra spin-1, closed boundaries, schedule a greedy vertex coloring (breadth-first or reversed) applied set by set: declared structure (decision 002), the same family on both sides of every pair (audit-m1 F). Equilibrium is read, not imposed: beta from tone-per-field counts, thresholds fixed after one square-torus probe. Starts are an integer Fibonacci-Kronecker tone pattern quenched to the target energy, never a draw. Deep in the ordered phase and at Delta > z J / 2 the reading fails: isolated defects with no degenerate site are frozen, and a vacancy move needs |h| = Delta, rare there, so those runs do not equilibrate within the budget. The odd-degree Ising limit never moves. At Delta = 0 every C-symmetric rule fixes the vacancy, so D is conserved and only a chiral rule could change it. A curvature verdict is about these closed quotients of equal cell count and degree, which also differ in systole and genus; it is not a statement about the infinite tilings.',
+      'L2. Algebra spin-1, closed boundaries, schedule a greedy vertex coloring (breadth-first or reversed) applied set by set: declared structure, the same family on both sides of every pair (audit-m1 F). Equilibrium is read, not imposed: beta from tone-per-field counts, thresholds fixed after one square-torus probe. Starts are an integer Fibonacci-Kronecker tone pattern quenched to the target energy, never a draw. Deep in the ordered phase and at Delta > z J / 2 the reading fails: isolated defects with no degenerate site are frozen, and a vacancy move needs |h| = Delta, rare there, so those runs do not equilibrate within the budget. The odd-degree Ising limit never moves. At Delta = 0 every C-symmetric rule fixes the vacancy, so D is conserved and only a chiral rule could change it. A curvature verdict is about these closed quotients of equal cell count and degree, which also differ in systole and genus; it is not a statement about the infinite tilings.',
   })
 }
 

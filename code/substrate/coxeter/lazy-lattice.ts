@@ -1,7 +1,7 @@
 // A LAZY EXACT flat tiling whose tiles are the points of an integer lattice and whose facet neighbours are the lattice
 // steps ±r: the hexagonal tiling {6,3} (the A2 lattice, 6 steps) and the 24-cell honeycomb {3,4,3,3} (the D4 lattice,
 // its 24 roots). Tiles are created as a caller reaches them, keyed by their integer coordinates, so a run grows only
-// where its excitation is (item vibe-computation-models-0028). Integers only.
+// where its excitation is. Integers only.
 //
 // Distance and ball sizes are closed forms, checked against breadth-first search by the experiment that uses them:
 //   A2 with steps ±(1,0), ±(0,1), ±(1,-1): d(x, y) = max(|x|, |y|, |x + y|), ball 1 + 3 r (r + 1)

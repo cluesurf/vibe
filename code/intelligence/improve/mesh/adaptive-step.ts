@@ -1,5 +1,5 @@
 /**
- * Level 6, slice 4 (level6.md): one adaptive proposer step as a solve the evaluator meters, in a reactive cell on its
+ * Level 6, slice 4: one adaptive proposer step as a solve the evaluator meters, in a reactive cell on its
  * background. The step problem's initial state holds both candidates' contents (genome word, then a tag), the score
  * tone the evaluator wrote for each, P (the child's edit, as bits) and Q (the current lead). The solver
  *
@@ -21,7 +21,7 @@ import type { Problem } from '@/code/intelligence/problem/problem'
 import { hold, type Held } from '@/code/intelligence/solver/search/expand'
 import { emptyLedger, type Solver } from '@/code/intelligence/solver/solver'
 
-/** A brick-line layout as the evaluator takes it (decision 003), its background always stated. */
+/** A brick-line layout as the evaluator takes it, its background always stated. */
 export interface StepLayout {
   start: number
   window: number[]

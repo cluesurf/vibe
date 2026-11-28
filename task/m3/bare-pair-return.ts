@@ -1,10 +1,9 @@
-// M3 driver (item vibe-computation-models-0069 part b): the identical pair of E-CMP-0037 (Q2,
+// Batch driver: the identical pair of E-CMP-0037 (Q2,
 // test/experiment/computation/bare-u-particles.ts) run under the bare beat U on {3,4,3,4} and the flat {3,4,3,3} for
-// more beats, to find the first beat at which its return probability differs between the two meshes (P47 of
-// m12-predictions.md). Library only: bare-beat withGeometry, particles pairRunReadings, the same start, the same hop
+// more beats, to find the first beat at which its return probability differs between the two meshes. Library only: bare-beat withGeometry, particles pairRunReadings, the same start, the same hop
 // table (radius 3) and the same mesh line through dock 0 as the experiment.
 //
-//   pnpm call task/m3/bare-pair-return.ts [--beats 8]
+//   pnpm call task/batch/bare-pair-return.ts [--beats 8]
 //
 // With no flags it reproduces E-CMP-0037's identical-pair rows (8 beats) exactly. Each beat prints one JSON line per
 // mesh (configurations, docks, configurations off the start line, the exact return probability and its weight by hop
@@ -17,7 +16,7 @@ import { hopDistances } from '@/code/measure/quantum-lab-measures'
 import { type BeatGeometry, BEAT_GEOMETRIES, OPPOSITE_SLOT, basisKet, withGeometry } from '@/code/rule/bare-beat'
 import { flags, intFlag, seconds, summary } from './args'
 
-// as in the experiment: the hop table stops at radius 3 (radius 4 builds 162,033 exact docks, traps.md), and the line
+// as in the experiment: the hop table stops at radius 3 (radius 4 builds 162,033 exact docks), and the line
 // table reaches LINE_PAIR_BEATS + 2 = 14 docks each way (longer runs extend it so the pair never leaves it)
 const DISTANCE_RADIUS = 3
 const LINE_PAIR_BEATS = 12
@@ -107,7 +106,7 @@ console.log(`Identical pair per beat, configurations ${notes.pairConfigurations}
 console.log(`first difference ${JSON.stringify(first)}, unit norm ${unitNorm}`)
 
 summary({
-  item: 'vibe-computation-models-0069',
+  driver: 'bare-pair-return',
   part: 'b',
   beats,
   firstDifference: first,

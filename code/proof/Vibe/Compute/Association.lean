@@ -5,7 +5,7 @@ import Vibe.Compute.Boundary
 /-!
 # Vibe Computation Lab: Association without Weights (M7)
 
-The claims of m7-association.md that hold for every box (lean-track.md, L06, claims A18 and A19),
+The claims of milestone M7 that hold for every box (claims A18 and A19),
 built on `Vibe.Compute.Round` (`round`, `roundPerm`, `finRoundPerm`, `charge`, `dCount`,
 `thm_cmp_round_perm_charge_negation`, `thm_cmp_pair_rule_perm`) and `Vibe.Compute.Boundary`
 (`exteriorD`, `interior`, `thm_cmp_d_no_repair_of_erase`, `thm_cmp_finite_perm_return`).
@@ -38,7 +38,7 @@ Headline theorems:
    round on.
 
 The Lean definitions here speak about Lean rounds, not a generated table of
-`code/compute/lab/association.ts` (decision 008 point 3). Mathlib (`finsum`, `Finset.sum`,
+`code/compute/lab/association.ts`. Mathlib (`finsum`, `Finset.sum`,
 `Set.indicator`, `Equiv.Perm`, `Even`), zero `sorry`, zero `native_decide`.
 -/
 

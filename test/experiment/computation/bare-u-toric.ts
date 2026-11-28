@@ -1,4 +1,4 @@
-// The qutrit toric code under the bare beat U on closed quotients (Q4 follow-up, item vibe-computation-models-0039).
+// The qutrit toric code under the bare beat U on closed quotients (Q4 follow-up).
 //
 // Q4 (E-CMP-0038) could not run the toric code: it holds logical qutrits only on a closed space and the beat library had
 // none. code/rule/bare-beat.ts now runs U on closed quotients (withClosedMesh): the {3,4,3,4} congruence quotients K mod
@@ -98,7 +98,7 @@ const meshesFor = (scale: number): { mesh: ClosedBeatMesh; logical: boolean }[] 
   { mesh: { kind: 'torus-3433', side: 4 }, logical: true },
   { mesh: { kind: 'torus-3433', side: 8 }, logical: true },
   { mesh: { kind: 'congruence-3434', twoPower: 4 }, logical: true },
-  // the cocycle route on 16,384 docks needs more memory than a laptop heap holds: scale >= 2 (q-ladder.md follow-up)
+  // the cocycle route on 16,384 docks needs more memory than a default heap holds: scale >= 2
   { mesh: { kind: 'congruence-3434', twoPower: 5 }, logical: scale >= 2 },
 ]
 

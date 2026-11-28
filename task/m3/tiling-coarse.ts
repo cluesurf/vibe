@@ -1,8 +1,8 @@
-// M3 driver (item vibe-computation-models-0070): the E-CMP-0069 tiling coarse-graining with the contract node budget,
+// Batch driver: the E-CMP-0069 tiling coarse-graining with the contract node budget,
 // the contract steps and the bounded witness search as flags, so the tau 2 contracts can run with no class undecided
 // on either side of a pair, and the lumpability search can pass 3 excitations on the radius-1 ball.
 //
-//   pnpm call task/m3/tiling-coarse.ts [--contract-taus 1] [--budget 400000] [--ball1 3] [--ball2 2]
+//   pnpm call task/batch/tiling-coarse.ts [--contract-taus 1] [--budget 400000] [--ball1 3] [--ball2 2]
 //                                      [--pairs 4.4/4.5,6.3/6.4,3.6/3.7] [--variants 0,1] [--orientations radial,lifted]
 //                                      [--contracts true]
 //
@@ -108,7 +108,7 @@ console.log(JSON.stringify(metrics))
 console.log(`caps per tiling ${JSON.stringify(capsByTiling)}`)
 console.log(`contracts per side ${JSON.stringify(countBy(r.contracts, x => `${x.tiling} ${x.side} v${x.variant} t${x.tau} ${x.kind}`))}`)
 summary({
-  item: 'vibe-computation-models-0070',
+  driver: 'tiling-coarse',
   knobs: { contractTaus, contractBudget, searchBall1, searchBall2 },
   pairs: pairNames,
   variants,

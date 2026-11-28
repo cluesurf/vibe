@@ -1,10 +1,10 @@
-// Second-order reversible Z3 dynamics on any cell graph (item vibe-computation-models-0013, plan.md M3-B, algebra Z3
-// cyclic of plan.md section 3): a tone per cell, read as a residue mod 3 (0, 1, 2 stand for the tones 0, +1, -1), and
+// Second-order reversible Z3 dynamics on any cell graph (milestone M3-B, algebra Z3
+// cyclic): a tone per cell, read as a residue mod 3 (0, 1, 2 stand for the tones 0, +1, -1), and
 //
 //   s(t+1) = f(s(t) on the cell and its neighbors) - s(t-1)   (mod 3)
 //
 // every cell at once. No pair schedule, no orientation: the update is a function of the graph alone, so a flat tiling
-// and its degree-matched hyperbolic control (decision 001) differ only in the graph. Exact integer arithmetic mod 3,
+// and its degree-matched hyperbolic control differ only in the graph. Exact integer arithmetic mod 3,
 // no floating point, no random numbers.
 //
 // Reversibility is structural. Given the two slices (s(t), s(t+1)), the earlier slice is s(t-1) = f(s(t)) - s(t+1),

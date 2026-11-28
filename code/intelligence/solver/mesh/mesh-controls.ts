@@ -33,7 +33,7 @@ export function adjacentRegister<S>(): Solver<S> {
  *   alone (a decision in candidate code claimed as a mesh layout);
  * - extraConstantSwitch: the evaluator runs, metered, the expand layout with one more constant far outside the read
  *   cell's light cone, so every decision is right but the layout run is not the certified one;
- * - lookupSwitch (decision 003): each layout run once per input word in candidate code (3 lit words, 9 expand words),
+ * - lookupSwitch: each layout run once per input word in candidate code (3 lit words, 9 expand words),
  *   every decision looked up; its report is the honest solver's, field for field, and only the evaluator's meter,
  *   which shows no run, tells it apart.
  */

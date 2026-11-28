@@ -1,6 +1,6 @@
 // EXACT tile balls of a regular tiling, grown on demand from a Coxeter group alone: no coordinates, no floating point,
 // no rounding, only integer chamber ids and the Coxeter matrix. It lifts the float precision wall of buildCellGraph
-// (about 15,000 cells), so a ball's radius is limited only by memory (item vibe-computation-models-0027, decision 003).
+// (about 15,000 cells), so a ball's radius is limited only by memory.
 //
 // THE CHAMBER COMPLEX. A chamber is an element w of a Coxeter group W = <s_0..s_n | (s_i s_j)^m_ij> (m_ij may be
 // infinite: no relation), and w s_i is its neighbour across panel i. Chambers are built in shells of word length L.

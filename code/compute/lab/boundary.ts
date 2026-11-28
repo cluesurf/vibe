@@ -1,4 +1,4 @@
-// M9 self-maintaining boundaries (item vibe-computation-models-0020). Algebra: spin-one. A structure is an in-place
+// M9 self-maintaining boundaries. Algebra: spin-one. A structure is an in-place
 // species of a pair rule (a localized start that returns exactly within MAX_PERIOD rounds); its region B is every cell
 // its orbit occupies after any single matching of one period. A perturbation changes one cell's tone at round 0; the
 // forward rule alone runs on, and the state on B is compared with the unperturbed orbit at the same phase.
@@ -11,7 +11,7 @@
 // agree on B at the horizon, so they differ outside B: the configuration outside B carries the whole perturbation
 // ensemble. `exportReading` counts those exterior configurations exactly.
 //
-// Parameters are fixed before the first run (m9-boundaries.md, re-plan).
+// Parameters are fixed before the first run.
 
 import {
   CensusRule,

@@ -1,6 +1,6 @@
 /**
  * The evaluator: the one module that grades an attempt. It stands outside
- * every candidate, and since 2026-11-26 (decision 001 of this project) in
+ * every candidate, and since 2026-11-26 in
  * another thread and another realm: every candidate, solver, learner,
  * discoverer, genome realization or meta-learner, runs in an isolated
  * context inside a worker (code/intelligence/sandbox), built from a bundle of
@@ -63,7 +63,7 @@
  * through a metered channel, and rejects a learner reporting less work than
  * the meter saw.
  *
- * - Mesh rounds (decision 003). A pair-rule layout on the brick line, the
+ * - Mesh rounds. A pair-rule layout on the brick line, the
  *   step a level-4 switch decision claims, runs only here: the candidate
  *   names a rule the evaluator knows, gives the layout as data and, per run,
  *   an input word and the issued state the decision is for; the evaluator
@@ -72,7 +72,7 @@
  *   digest per rule and layout (`Grade.mesh`). A judge reads that meter, so a
  *   decision counts as made by the mesh only when the evaluator ran it. The
  *   line's background tone (0, +1 or -1; 0 when the layout leaves it out) is
- *   part of the layout's data and is folded into the digest (item 0032).
+ *   part of the layout's data and is folded into the digest.
  *
  * Residual: a candidate's own computation that never touches the evaluator
  * (arithmetic on the keys it was handed) is unmetered; it can know only what
@@ -470,7 +470,7 @@ export function sealControlLibrary<S>(
   )
 }
 
-// ---------------------------------------------------------------- mesh rounds (decision 003)
+// ---------------------------------------------------------------- mesh rounds
 
 /** A layout on the brick line, as data: window cell i sits at position start + i; the inputs are written per run. */
 export interface MeshLayoutSpec {
@@ -483,7 +483,7 @@ export interface MeshLayoutSpec {
   readRound: number
   /**
    * the tone every cell outside the window holds at the start (0, +1 or -1). Left out, the vacuum 0: every layout
-   * written before item 0032 runs exactly as it did. The evaluator's meter always states it.
+   * written before backgrounds existed runs exactly as it did. The evaluator's meter always states it.
    */
   background?: number
 }
@@ -499,7 +499,7 @@ export interface MeshLayoutMeter {
   /**
    * the first 48 bits of the entry's SHA-256 chain (solver/mesh/mesh-digest.ts): seeded by the rule and the whole layout,
    * background included, and folded request by request in request order, each request binding its step and every run's
-   * named state, occurrence on that state, input word, final frame hash and read (item 0037)
+   * named state, occurrence on that state, input word, final frame hash and read
    */
   frameDigest: number
   /** requests folded into the chain (a request with no run is not folded) */
@@ -647,14 +647,14 @@ function meshLayoutOf(raw: unknown): MeshLayoutSpec | string {
     return 'a mesh layout window is 1 to 256 tones'
   }
 
-  // at least one input (audit 3, m2): a layout with none computes one constant read, whatever the word
+  // at least one input: a layout with none computes one constant read, whatever the word
   if (!Array.isArray(inputs) || inputs.length < 1 || !inputs.every(at => isCount(at, window.length - 1)) || new Set(inputs).size !== inputs.length) {
     return 'mesh layout inputs are one or more distinct window offsets'
   }
 
   const spec: MeshLayoutSpec = { start, window: [...window] as number[], inputs: [...inputs] as number[], readPosition: 0, readRound, background }
 
-  // the read cell inside the final light cone (audit 3, m2): a tone moves at most one cell per pair update, two per
+  // the read cell inside the final light cone: a tone moves at most one cell per pair update, two per
   // round, so a cell farther than 2 * readRound from the window holds the background whatever the input
   if (
     typeof readPosition !== 'number' ||
@@ -792,7 +792,7 @@ function serveMeshRuns<S>(ledger: MeshLedger, issued: Issued<S>, text: string): 
     values[n] = run.value === -1 ? '2' : run.value === 1 ? '1' : '0'
   }
 
-  // a request with no run changes nothing (item 0037: the chain binds every run to its step and decision, in order)
+  // a request with no run changes nothing (the chain binds every run to its step and decision, in order)
   if (handles.length > 0) {
     entry.chain = meshRequestFold(entry.chain, step, runs)
     entry.frameDigest = meshDigestValue(entry.chain)
@@ -1278,7 +1278,7 @@ export interface Grade<S> {
   measured: Measured
   /** goal tests, distance, estimate, table and links reads the solver made */
   reads: Reads
-  /** the mesh runs the evaluator executed for the solve (decision 003), one entry per rule and layout */
+  /** the mesh runs the evaluator executed for the solve, one entry per rule and layout */
   mesh: MeshMeter
   /** the preprocessing the evaluator charged this solve: every sealed artifact read or handed in, each piece once */
   charge: Preprocessing

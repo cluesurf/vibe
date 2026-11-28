@@ -3,7 +3,7 @@
 // 12 and 15.5: a found path fragment composed into one operator). The outside evaluator keeps a macro only when it cuts
 // the primitive work of A* on validation starts by more than the macro's share of the whole generation's discovery
 // cost, teacher solves included, then measures the kept library on test starts no step of learning used, on its own
-// geometry and, unchanged, on the degree-matched control (decision 001 pairs {4,5}/{4,4}, {6,4}/{6,3}, {3,7}/{3,6},
+// geometry and, unchanged, on the degree-matched control (pairs {4,5}/{4,4}, {6,4}/{6,3}, {3,7}/{3,6},
 // {3,4,3,4}/{3,4,3,3}), both ways. Three generations: each teaches with the library so far, so later macros are built
 // from earlier ones, and the learning rate L = test gain / charge is read per generation.
 //
@@ -870,7 +870,7 @@ export default experiment({
     control.meterControls = meterControls
     control.hiddenCallRejected = hiddenCallRejected
 
-    // control (audit M3): a macro library appended as plain operators, never sealed, is refused by the evaluator
+    // control: a macro library appended as plain operators, never sealed, is refused by the evaluator
     let unsealedRefused = 0
     let unsealedTried = 0
 

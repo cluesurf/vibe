@@ -1,4 +1,4 @@
-// Q3 of the quantum ladder (item vibe-computation-models-0035, decision 004 of vibe/computation/models): interference
+// Q3 of the quantum ladder: interference
 // routing and gates found in the bare beat U, not hand-placed, exact, on the hyperbolic {3,4,3,4} against the flat
 // 24-cell honeycomb {3,4,3,3} (code/rule/bare-beat withGeometry; the readings are code/compute/quantum/routing). Only the
 // initial state is chosen; the excitation layout (line, coordinates, directions, species, a spectator vibe) is declared

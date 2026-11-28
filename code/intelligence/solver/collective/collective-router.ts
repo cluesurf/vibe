@@ -1,11 +1,11 @@
 /**
- * Level 8, reading B (level8.md of vibe/computation/intelligence): a collective of two mesh devices on one line, entity
+ * Level 8, reading B: a collective of two mesh devices on one line, entity
  * 1 holding the input t and entity 2 the input d, read by a fixed A* template to break ties. Per generated successor the
  * word is [t, d]: t = +1 when the learned table holds the successor, else 0; d = the sign of the base estimate's change
  * from the parent. A preferred successor wins ties of f = g + h before h does, so the search stays optimal and only its
  * order can change.
  *
- * Modes (the candidate never runs a round, decision 003):
+ * Modes (the candidate never runs a round):
  * - 'joint': one metered run of the whole window, both inputs written, per successor;
  * - 'apart': the same two devices run separately, two metered runs per successor (device 1 with only t, device 2 with
  *   only d, the other device's start cells at the background); the decision reads the run of the device nearer the read

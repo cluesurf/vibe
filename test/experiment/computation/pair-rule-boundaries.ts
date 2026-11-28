@@ -1,11 +1,11 @@
-// M9 self-maintaining boundaries (item vibe-computation-models-0020). Algebra: spin-one. For each of the 12 pair-rule
+// M9 self-maintaining boundaries. Algebra: spin-one. For each of the 12 pair-rule
 // classes, every in-place structure made by a start of at most two cells near the origin is perturbed by an enumerated
 // family (one cell changed at round 0: every cell of its region B, the hits, and every cell one facet from B, the
 // contacts) and left to the forward rule. A structure keeps its boundary when every hit is repaired (B wrong, then right
 // for the whole last window) and every contact is kept. The entropy a repair exports through the boundary of B is counted
 // exactly: the configurations outside B at the horizon over the ensemble of repaired hits.
 //
-// Declared before the first run (m9-boundaries.md, re-plan):
+// Declared before the first run:
 // - RULES: the 12 class representatives, forward round only; vacuum-fixing rules on -1, 0, +1, creating rules on -1, +1.
 // - BOXES: open, the infinite line (brick schedule) and {4,4}/{4,5}, {3,6}/{3,7}, {6,3}/{6,4} on the exact coset lazy
 //   windows under the lifted coloring, variants 0 and 1 (one family on both sides of each pair). Sink control: the same
@@ -563,7 +563,7 @@ export default experiment({
         phaseTried: phaseTried.length,
         phaseMissed: phaseMissed.length,
       },
-      notes: `M9 (item vibe-computation-models-0020). Repairing: ${repairing.slice(0, 30).map(describe).join(' || ') || 'none'}. Curvature-sensitive: ${curvatureSensitive.slice(0, 30).map(c => `${c.pair} ${c.className} b${c.background} ${c.field} ${c.sign > 0 ? 'hyperbolic' : 'flat'} larger`).join('; ') || 'none'}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
+      notes: `M9. Repairing: ${repairing.slice(0, 30).map(describe).join(' || ') || 'none'}. Curvature-sensitive: ${curvatureSensitive.slice(0, 30).map(c => `${c.pair} ${c.className} b${c.background} ${c.field} ${c.sign > 0 ? 'hyperbolic' : 'flat'} larger`).join('; ') || 'none'}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
     })
   },
 })

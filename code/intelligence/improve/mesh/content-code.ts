@@ -1,5 +1,5 @@
 /**
- * Level 6, slice 3 (level6.md): a genome as a word of content trits, and back. Every field is its index on its list or
+ * Level 6, slice 3: a genome as a word of content trits, and back. Every field is its index on its list or
  * ladder in fixed-width binary, most significant bit first, then the version in 6 bits; a 0 bit is the vacuum
  * excitation -1 and a 1 bit is +1, the two contents a T1 selector routes. The map is fixed and exact, so the word the
  * mesh's read cells hand on decodes to exactly one genome or to none: the carrier decides nothing.

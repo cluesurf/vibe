@@ -7,7 +7,7 @@ pair of distinct points keeps (or grows) its distance. That rules out one map pu
 configurations closer at once. It does not rule out local attraction of a basin (some pairs
 shrinking while others grow), and the metric and injectivity hypotheses of the headline theorem are
 not used. The stronger fact for memory, that a bijection of a finite set has f^k = id for some
-k > 0, so no pair's distance tends to 0, is not proved here (M1 audit, minor 2).
+k > 0, so no pair's distance tends to 0, is not proved here.
 
 The proof is the maximal-pair argument. Take a pair `(a, b)` of distinct points whose distance is
 maximal. Surjectivity gives preimages `a'`, `b'`, which are distinct, and a strict contraction would

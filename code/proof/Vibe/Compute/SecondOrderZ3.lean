@@ -15,7 +15,7 @@ public import Mathlib.Tactic.LinearCombination
 /-!
 # Second-order Z3 waves (M3-B): bijectivity, time reversal, superposition, the front theorem
 
-Lean track item L18 (claims A10, A11, B14 of the models lab). The rule of `code/rule/second-order-z3.ts`:
+Claims A10, A11 and B14 of the models lab. The rule of `code/rule/second-order-z3.ts`:
 
   s(t+1) = f(s(t)) - s(t-1)   (mod 3), every tile at once,
 
@@ -55,7 +55,7 @@ flat, which is what the note found on every geometry. On a directed neighbour fu
 when `j ∈ nbr i` (the tiles a tile reads); on a tiling the relation is symmetric and these are ordinary walks.
 
 These theorems speak about the Lean definitions below, which mirror `secondOrderZ3Step` and `geodesicCountsMod3`
-line for line; no generated table ties them to the TypeScript yet (decision 008 item 3).
+line for line; no generated table ties them to the TypeScript yet.
 -/
 
 @[expose] public section

@@ -1,13 +1,13 @@
-// M9 slice 2 (item vibe-computation-models-0058). Algebra: spin-one tones; the Z3-linear rules read them as residues
+// M9 slice 2. Algebra: spin-one tones; the Z3-linear rules read them as residues
 // mod 3. Self-maintaining boundaries under the M2 rules (Z3-linear pair rules on matchings, the Q2R / Blume-Capel rule on
 // independent vertex sets) and the M1 classes at start size 3: every in-place structure from starts of up to three
 // cells is perturbed at every phase of its period (single hits on its region B, two-cell hits on the cells it holds,
 // contacts on B's rim) and left to the forward rule. A structure keeps its boundary when every hit is repaired and every
 // contact is kept; a repaired hit on a HELD cell is self-maintenance, and orbit and transit repairs are reported apart.
 //
-// Declared before the first run (m9-boundaries.md, slice 2). This file runs the laptop size (the line and the three
+// Declared before the first run. This file runs the default size (the line and the three
 // degree-matched 2D pairs, both colorings of each family, start sizes up to 3; widened after a timing probe, before the
-// first run); task/m3/m2-boundaries.ts runs the same code at the M3 size (adds the 4D pair). Library: code/compute/lab/boundary-m2.ts and boundary-m2-lab.ts (boundary.ts unchanged).
+// first run); task/batch/m2-boundaries.ts runs the same code at the full size (adds the 4D pair). Library: code/compute/lab/boundary-m2.ts and boundary-m2-lab.ts (boundary.ts unchanged).
 // Gates (each can fail): rule censuses (24 M1 rules in 12 classes, 48 Z3 rules in 26 classes); every kept quantity kept
 // in every run; per structure and phase the finals pairwise distinct; every repaired hit exports exactly its change of
 // every kept quantity and the distinct exterior count equals the ensemble; Z3 superposition on every Z3 run; the D
@@ -22,7 +22,7 @@ import { resolve } from 'node:path'
 import { scanSource } from '@/code/check/determinism'
 import {
   Cell,
-  LAPTOP_SIZES,
+  BOUNDED_SIZES,
   StructureResult,
   boundarySlice,
   entropyOf,
@@ -38,7 +38,7 @@ const LIBRARIES = ['code/compute/lab/boundary-m2.ts', 'code/compute/lab/boundary
 const LAB_FILES = [...LIBRARIES, 'test/experiment/computation/m2-boundaries.ts']
 
 export function m2Boundaries(): ReturnType<typeof boundarySlice> {
-  return boundarySlice(LAPTOP_SIZES)
+  return boundarySlice(BOUNDED_SIZES)
 }
 
 export default experiment({
@@ -52,7 +52,7 @@ export default experiment({
   paper: false,
   run() {
     const r = m2Boundaries()
-    const twice = (): string => boundarySlice({ ...LAPTOP_SIZES, columns: ['line'], lineStart: 2 }).serialized
+    const twice = (): string => boundarySlice({ ...BOUNDED_SIZES, columns: ['line'], lineStart: 2 }).serialized
     const identicalBytes = twice() === twice()
     const repro = reproduceSlice1()
     const findings = LAB_FILES.flatMap(f => scanSource(f, readFileSync(resolve(BASE, f), 'utf8')))
@@ -184,7 +184,7 @@ export default experiment({
         q2rControlStructures: control.length,
         q2rControlRepaired: controlRepaired,
       },
-      notes: `M9 slice 2 (item vibe-computation-models-0058). Repairing: ${repairing.slice(0, 30).map(describe).join(' || ') || 'none'}. Skipped (background not fixed): ${r.skipped.join('; ') || 'none'}. Curvature-sensitive: ${r.curvature.filter(c => c.reading === 'curvature').slice(0, 30).map(c => `${c.family} ${c.pair} ${c.rule} b${c.background} ${c.field} ${c.sign > 0 ? 'hyperbolic' : 'flat'} larger`).join('; ') || 'none'}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
+      notes: `M9 slice 2. Repairing: ${repairing.slice(0, 30).map(describe).join(' || ') || 'none'}. Skipped (background not fixed): ${r.skipped.join('; ') || 'none'}. Curvature-sensitive: ${r.curvature.filter(c => c.reading === 'curvature').slice(0, 30).map(c => `${c.family} ${c.pair} ${c.rule} b${c.background} ${c.field} ${c.sign > 0 ? 'hyperbolic' : 'flat'} larger`).join('; ') || 'none'}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
     })
   },
 })

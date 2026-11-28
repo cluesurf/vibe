@@ -31,9 +31,9 @@ Casimir projector on `S = 1` and the eight generators `i P_ab Π_std(abc) Π_S` 
 code's `tripleGenerators` entry for entry; `Π_S` is a projector of trace 9, and each generator is symmetric,
 traceless and supported on the sector, so `i G` lies in `su(9)` of the sector. That their Lie closure is all of
 `su(9)` (dimension 80) is NOT certified here: `lieClosureDimension`'s 80 stays the code's reading
-(`gateSetDimension`), a follow-up item.
+(`gateSetDimension`), left for later.
 
-**B11** (decision 006's no-collidable-pair searches) is not in this module: it is a follow-up item.
+**B11** (the no-collidable-pair searches) is not in this module: it is left for later.
 
 Zero `sorry`, zero `native_decide`; the finite checks are `decide +kernel`.
 -/

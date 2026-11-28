@@ -1,4 +1,4 @@
-// THE BARE BEAT U AS A LIBRARY (item vibe-computation-models-0029, Q0; decision 004 of vibe/computation/models).
+// THE BARE BEAT U AS A LIBRARY (Q0).
 // A port of the self-contained script test/universe.ts, which exports nothing and stays unchanged. The arithmetic is
 // the script's, line for line: every layer, the branching denominators, the ring Z[zeta_9][1/6] (mod z^6 + z^3 + 1),
 // the {3,4,3,4} Coxeter engine in O^+(4,1; Z[sqrt 2]) and the chi_odd orbit sign. E-CMP (bare-beat-lab) gates that
@@ -11,7 +11,7 @@
 //   - the lazily discovered dock tables sit in one record so withFreshMesh can run a computation on a fresh mesh, with
 //     the dock ids the script would assign, and restore the shared one after;
 //   - three integer max / min / abs calls of the host Math object became plain integer comparisons (no Math call in a
-//     quantum module, decision 004 point 3);
+//     quantum module);
 //   - adapters to code/algebra/ninth-field (Ninth, a number of Q(zeta_9)) and a few read-only accessors.
 //
 // EXPORTED API (stable names; code/compute/quantum/ builds on them):
@@ -29,9 +29,9 @@
 //   geometry   ROOTS, OPPOSITE_SLOT, LINES, LINE_OF_SLOT, WF4_GROUP, stepDock, lorentzCosh2, dockParityOf,
 //              dockCount, dockCenterKey, inconsistentStepCount, withFreshMesh
 //   geometries BeatGeometry ('3434' default, '3433' the flat D_4 control), BEAT_GEOMETRIES, withGeometry,
-//              currentGeometry, flatCenterOf (item 0032, Q2; section 6 says what transfers and what does not)
+//              currentGeometry, flatCenterOf (Q2; section 6 says what transfers and what does not)
 //   closed     ClosedBeatMesh (congruence-3434 level m, torus-3433 side s), withClosedMesh, currentClosedMesh,
-//              closedMeshName, closedMeshDocks, closedDockResidues (item 0039; section 8)
+//              closedMeshName, closedMeshDocks, closedDockResidues (section 8)
 //   checks    chiral4Sign, chiralOrientationDock, verifyD4Isotropy, verifyHoneycombShells, verifyReversibleTrajectory,
 //              verifyLowScaleAchiral, verifyGlobalWF4PlusCovariance, verifyDiscreteSymmetries, universeReport
 //
@@ -1853,14 +1853,14 @@ let neighbors: Int32Array[] = [new Int32Array(24).fill(-1)]
 
 let inconsistentSteps = 0
 
-// The geometry the current mesh tables describe (item 0032, Q2). '3434' is the script's hyperbolic honeycomb and the
+// The geometry the current mesh tables describe (Q2). '3434' is the script's hyperbolic honeycomb and the
 // default of every caller; '3433' is the flat 24-cell honeycomb, used only inside withGeometry('3433', ...).
 let meshGeometry: BeatGeometry = '3434'
 
 // Flat docks only: the exact center of each dock in the D_4 lattice (integer coordinates, the 24 roots as steps).
 let flatCenters: Root4[] = []
 
-// The closed quotient the current mesh tables describe, or null on the infinite meshes (item 0039, section 8).
+// The closed quotient the current mesh tables describe, or null on the infinite meshes (section 8).
 let closedMesh: ClosedBeatMesh | null = null
 
 type MeshTables = {
@@ -1919,7 +1919,7 @@ export function withFreshMesh<T>(compute: () => T): T {
   return withGeometry('3434', compute)
 }
 
-// The beat's two geometries (item 0032, Q2; decision 004 point 5). Both tile space by 24-cells with 24 octahedral
+// The beat's two geometries (Q2). Both tile space by 24-cells with 24 octahedral
 // facets, so the dock space (24 slots, 5 states each) and the seven per-dock layers are the same code on both. Only the
 // facet gluing differs, which lives in stepDock alone:
 //   '3434'  the hyperbolic honeycomb of the script: four 24-cells around each triangle, docks as frames in
@@ -2094,7 +2094,7 @@ export function lorentzCosh2(dock: number): bigint {
 }
 
 // =================================================================================================
-// 8. Closed quotients (item vibe-computation-models-0039, the Q4 follow-up): finite meshes with no boundary
+// 8. Closed quotients (the Q4 follow-up): finite meshes with no boundary
 // =================================================================================================
 //
 // The seven per-dock layers and the stream run unchanged on a closed quotient; only stepDock changes, as for the two

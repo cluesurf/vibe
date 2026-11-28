@@ -1,5 +1,5 @@
-// THE QUTRIT TORIC CODE UNDER THE BARE BEAT U ON CLOSED QUOTIENTS (item vibe-computation-models-0039, the Q4 follow-up;
-// decision 004 of vibe/computation/models). Q4 (E-CMP-0038) could not run the toric code: it holds logical qutrits only
+// THE QUTRIT TORIC CODE UNDER THE BARE BEAT U ON CLOSED QUOTIENTS (the Q4
+// follow-up). Q4 (E-CMP-0038) could not run the toric code: it holds logical qutrits only
 // on a closed space (zero on an open patch, E-QTM-0095), and the beat library had no closed quotient. bare-beat.ts now
 // has two (section 8): the {3,4,3,4} congruence quotients K mod (sqrt 2)^m and the flat D_4 tori {3,4,3,3}.
 //

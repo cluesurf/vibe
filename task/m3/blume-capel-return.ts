@@ -1,13 +1,13 @@
-// M3 driver (item vibe-computation-models-0071): the E-CMP-0067 boxes rebuilt from the library exactly as the
+// Batch driver: the E-CMP-0067 boxes rebuilt from the library exactly as the
 // experiment builds them, measuring the exact return time of every walled completion (WalledBlumeCapel.returnTime) up
 // to a cap, and how long every open completion keeps its word (OpenBlumeCapel.persists) up to a round.
 //
-//   pnpm call task/m3/blume-capel-return.ts [--boxes walled,open] [--return-cap 512] [--persist-until 96]
+//   pnpm call task/batch/blume-capel-return.ts [--boxes walled,open] [--return-cap 512] [--persist-until 96]
 //                                           [--columns 6.4,...] [--colorings greedy,greedy-shifted] [--deltas 1,2]
 //                                           [--support-cap 40000] [--shard 0/1]
 //
 // The defaults are E-CMP-0067's (return within 512, persistence to round 96, wall radius 7, support budget 40,000), so
-// each box's completion count, returned count and persistent count reproduce the experiment's per-box notes. The M3
+// each box's completion count, returned count and persistent count reproduce the experiment's per-box notes. The full-size
 // run raises --return-cap to 2^20 and --persist-until to 384.
 import { regionCensus, regionCues } from '@/code/compute/lab/association'
 import { LazySpace, cosetSpace } from '@/code/compute/lab/lazy-space'
@@ -167,7 +167,7 @@ const walled = rows.filter(r => r.returnTimes)
 const open = rows.filter(r => r.lastRounds)
 
 summary({
-  item: 'vibe-computation-models-0071',
+  driver: 'blume-capel-return',
   returnCap,
   persistUntil,
   supportCap,

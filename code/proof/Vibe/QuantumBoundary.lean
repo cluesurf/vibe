@@ -3,7 +3,7 @@ import Vibe.Fock.Ring
 /-!
 # Vibe Theory: the Dephased Bare Beat is Doubly Stochastic (Q6)
 
-Item `vibe-computation-models-0033` (decision 004 of `vibe/computation/models`). The boundary between the bare beat
+Milestone Q6. The boundary between the bare beat
 `U` and the classical pair rules is read through the dephased beat `P i j = |U i j|^2 = conj (U i j) * U i j`, the
 classical process left when every phase is forgotten.
 

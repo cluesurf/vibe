@@ -1,5 +1,5 @@
-// Command-line flags for the M3 drivers in this folder: `--name value` pairs, each with a default equal to the size
-// the laptop experiment ran, so a driver called with no flags reproduces that experiment's numbers.
+// Command-line flags for the batch drivers in this folder: `--name value` pairs, each with a default equal to the size
+// the experiment ran, so a driver called with no flags reproduces that experiment's numbers.
 
 export function flags(argv: readonly string[] = process.argv.slice(2)): Map<string, string> {
   const out = new Map<string, string>()
@@ -8,7 +8,7 @@ export function flags(argv: readonly string[] = process.argv.slice(2)): Map<stri
     const word = argv[k]!
 
     if (!word.startsWith('--')) {
-      throw new Error(`m3 driver: expected a --flag, got ${word}`)
+      throw new Error(`batch driver: expected a --flag, got ${word}`)
     }
 
     const eq = word.indexOf('=')
@@ -44,7 +44,7 @@ export function intFlag(f: Map<string, string>, name: string, fallback: number):
   const value = power ? Number(power[1]) ** Number(power[2]) : Number(raw.replaceAll('_', ''))
 
   if (!Number.isSafeInteger(value) || value < 0) {
-    throw new Error(`m3 driver: --${name} must be a whole number, got ${raw}`)
+    throw new Error(`batch driver: --${name} must be a whole number, got ${raw}`)
   }
 
   return value

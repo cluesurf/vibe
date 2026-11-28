@@ -8,7 +8,7 @@ import Vibe.PairRules
 /-!
 # Vibe Computation Lab: the Partitioned Round
 
-The shared vocabulary of the computation lab's Lean track (lean-track.md, L02). Every later
+The shared vocabulary of the computation lab's Lean track. Every later
 module (species transport, charge bounds, association, boundary, lumpability, devices) builds on
 these definitions.
 
@@ -38,7 +38,7 @@ Headline theorems:
    permutation, with an inverse that is again one of the 24.
 3. `thm_cmp_recurrence_is_periodic` (A31, bijectivity): a recurrence at any time is a return to
    the start, so an orbit has no transient.
-4. `thm_cmp_confined_period` (A31, decision 006 confined): `state(P) = state(0)` gives period `P`
+4. `thm_cmp_confined_period` (A31, the confined reading): `state(P) = state(0)` gives period `P`
    forever, every round-end support and every within-round state at any time is one of the first
    `P` rounds', and the cells the orbit can ever hold form a finite set when the start has finite
    support.
@@ -440,7 +440,7 @@ private theorem partials_finite (F : Equiv.Perm Pair) (s : Schedule V)
     · exact ih (fun M' hM' => hk M' (List.mem_cons_of_mem M hM')) _
         (Matching.step_finite M F (hk M List.mem_cons_self) x hx) y hy
 
-/-- **A31, decision 006 confined.** If a round orbit returns to its start after `P > 0` rounds,
+/-- **A31, the confined reading.** If a round orbit returns to its start after `P > 0` rounds,
     then it has period `P` forever (`Function.IsPeriodicPt`, and `state(t) = state(t mod P)`),
     every round-end support at any time lies inside the cells the first `P` round ends hold,
     every within-round state at any time is a within-round state of one of the first `P` rounds

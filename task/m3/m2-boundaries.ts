@@ -1,18 +1,18 @@
-// M3 driver (item vibe-computation-models-0058): M9 slice 2 at the M3 size, the same code as the laptop experiment
+// Batch driver: M9 slice 2 at the full size, the same code as the experiment
 // E-CMP-0097 (code/compute/lab/boundary-m2-lab.ts boundarySlice), wider boxes and starts.
 //
-//   pnpm call task/m3/m2-boundaries.ts [--columns line,4.4,4.5,3.6,3.7,6.3,6.4] [--families z3,q2r,m1]
+//   pnpm call task/batch/m2-boundaries.ts [--columns line,4.4,4.5,3.6,3.7,6.3,6.4] [--families z3,q2r,m1]
 //                                      [--line-start 3] [--tiling-start 3] [--deltas 1,2] [--doubles true]
 //                                      [--walled true] [--rules name,...] [--reproduce true]
 //
-// With no flags it reads exactly the laptop experiment's slice (its LAPTOP_SIZES), so every count in its claim
-// reproduces. The M3 run adds the 4D pair (--columns ...,3.4.3.3,3.4.3.4) and start size 3 on every tiling. Each cell
+// With no flags it reads exactly the experiment's slice (its BOUNDED_SIZES), so every count in its claim
+// reproduces. The full-size run adds the 4D pair (--columns ...,3.4.3.3,3.4.3.4) and start size 3 on every tiling. Each cell
 // prints one line; the closing SUMMARY holds the totals per family, every repairing structure, the curvature readings
 // and the gate counts.
 import {
   ALL_COLUMNS,
   Family,
-  LAPTOP_SIZES,
+  BOUNDED_SIZES,
   SliceSizes,
   boundarySlice,
   columnName,
@@ -45,7 +45,7 @@ const bool = (name: string, fallback: boolean): boolean => {
   return raw === 'true'
 }
 
-const columns = listFlag(f, 'columns', LAPTOP_SIZES.columns.map(c => (c === 'line' ? c : c.slice(1, -1).split(',').join('.')))).map(columnName)
+const columns = listFlag(f, 'columns', BOUNDED_SIZES.columns.map(c => (c === 'line' ? c : c.slice(1, -1).split(',').join('.')))).map(columnName)
 
 for (const c of columns) {
   if (!ALL_COLUMNS.includes(c)) {
@@ -53,7 +53,7 @@ for (const c of columns) {
   }
 }
 
-const families = listFlag(f, 'families', LAPTOP_SIZES.families) as Family[]
+const families = listFlag(f, 'families', BOUNDED_SIZES.families) as Family[]
 
 for (const fam of families) {
   if (!['m1', 'z3', 'q2r'].includes(fam)) {
@@ -65,11 +65,11 @@ const rules = f.get('rules')
 const sizes: SliceSizes = {
   columns,
   families,
-  lineStart: intFlag(f, 'line-start', LAPTOP_SIZES.lineStart),
-  tilingStart: intFlag(f, 'tiling-start', LAPTOP_SIZES.tilingStart),
-  doubles: bool('doubles', LAPTOP_SIZES.doubles),
-  walled: bool('walled', LAPTOP_SIZES.walled),
-  deltas: intListFlag(f, 'deltas', LAPTOP_SIZES.deltas),
+  lineStart: intFlag(f, 'line-start', BOUNDED_SIZES.lineStart),
+  tilingStart: intFlag(f, 'tiling-start', BOUNDED_SIZES.tilingStart),
+  doubles: bool('doubles', BOUNDED_SIZES.doubles),
+  walled: bool('walled', BOUNDED_SIZES.walled),
+  deltas: intListFlag(f, 'deltas', BOUNDED_SIZES.deltas),
   ...(rules === undefined ? {} : { rules: rules.split(',') }),
 }
 

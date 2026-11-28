@@ -1,5 +1,5 @@
-// THE CLOSED FORMS BEHIND THE SYMBOLIC LINE S-MATRIX OF BARE U (item vibe-computation-models-0055, Q3b symbolic;
-// decision 004 of vibe/computation/models). Each function here mirrors one definition of code/proof/Vibe/LineScattering
+// THE CLOSED FORMS BEHIND THE SYMBOLIC LINE S-MATRIX OF BARE U (Q3b symbolic).
+// Each function here mirrors one definition of code/proof/Vibe/LineScattering
 // .lean, evaluated in K = Q(zeta_9)(i, sqrt 91) (line-scattering LINE_FIELD), so an experiment can check that the Lean
 // objects are the ones bare U produces: the coin and the contact blocks read off the beat, the mode vectors makeMode
 // builds, the S-matrix sMatrix solves for, and the Yang-Baxter vectors yangBaxterDefects returns. Built on

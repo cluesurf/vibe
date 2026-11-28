@@ -1,7 +1,7 @@
 // M8 slice 2: collective modes of the reversible spin-1 Q2R rule (E-CMP-0044) on matched closed quotients, flat
-// against degree-matched hyperbolic, under both schedule families (item vibe-computation-models-0052, plan.md M8).
-// Criteria, measures, run lengths and the confound filter were fixed in
-// note/project/vibe/computation/models/m8-resonance.md ("Slice 2") before the first run.
+// against degree-matched hyperbolic, under both schedule families.
+// Criteria, measures, run lengths and the confound filter were fixed
+// before the first run.
 //
 // Per graph, schedule family (greedy-bfs, greedy-reverse-bfs), crystal field (ising, low) and energy (k = 2, 3, 4 of 8
 // between the ground and the infinite-temperature mean, identical per cell on both sides of a pair), one structured
@@ -56,7 +56,7 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 
 type Check = { name: string; ok: boolean }
 
-// ---- declared parameters (m8-resonance.md, slice 2) ----
+// ---- declared parameters ----
 
 const BURN = 256
 const WINDOW = 2048
@@ -449,7 +449,7 @@ function confounds(pairs: readonly PairSpec[], facts: ReadonlyMap<string, GraphF
   }
 }
 
-// the declared confound filter for one pair (m8-resonance.md, slice 2)
+// the declared confound filter for one pair
 function pairConfounds(p: PairSpec, facts: ReadonlyMap<string, GraphFacts>): Confounds {
   const h = p.hyperbolic
   const hf = facts.get(h.name)!

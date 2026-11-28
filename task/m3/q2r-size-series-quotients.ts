@@ -1,4 +1,4 @@
-// The quotients of the M3 size series for the spin-one Q2R Blume-Capel pairs (item vibe-computation-models-0051),
+// The quotients of the full-size series for the spin-one Q2R Blume-Capel pairs,
 // built from code/substrate/tiling-quotient.ts by import and never changing it:
 //
 // - `regularMapSeries`: every {p,q} regular map with a simple cell graph whose rotation group <x, y> lies in PGL(2, m),
@@ -6,7 +6,7 @@
 //   `rotaryMapSurvey` (x over one representative per conjugacy class of order-p elements, y over the order-q elements
 //   with xy of order 2, ascending packed keys) but returning the map itself, so the run can read its cell graph.
 //   Maps of one size and genus but different systoles are kept apart: they separate the systole from the genus.
-// - `flatPartnerOf`: the flat torus of equal cell count and degree (decision 001), by the catalog's own rule (the
+// - `flatPartnerOf`: the flat torus of equal cell count and degree, by the catalog's own rule (the
 //   factor pair closest to square, `torusSides`).
 // - `d4Box`: the flat D4 honeycomb {3,4,3,3} on a box of even sides (a, b, c, d), the even-sum points of Z^4 modulo
 //   the box, with the 24 D4 roots as the facet steps. `d4Torus(side)` is the cube; the box gives the matched sizes
@@ -170,7 +170,7 @@ export function regularMapSeries(input: {
   return out.sort((a, b) => a.analysis.faces - b.analysis.faces || b.systole - a.systole)
 }
 
-// the flat tiling of each degree that has one (decision 001)
+// the flat tiling of each degree that has one
 const FLAT_OF_DEGREE: Readonly<Record<number, readonly [number, number]>> = {
   3: [3, 6],
   4: [4, 4],

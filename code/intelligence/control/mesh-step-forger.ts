@@ -1,7 +1,7 @@
 /**
- * The step-fitting forger of audit 3, M2 (item 0037 of vibe/computation/intelligence), as a control.
+ * The step-fitting forger, as a control.
  *
- * Before item 0037 the metered digest of a layout was the sum over its runs of key x (frame + 1) x (step + 1) mod
+ * Before the chained digest, the metered digest of a layout was the sum over its runs of key x (frame + 1) x (step + 1) mod
  * M = 2^31 - 1 (key and frame hashes polynomials mod 1,000,003, the key factor carrying the background). The step was
  * chosen by the candidate and checked by no judge, so a candidate could run other words, pay every round, and pick the
  * step that makes its sum equal the judge's target: step + 1 = target / S mod M, in range about once in 2,147 word sets.

@@ -1,4 +1,4 @@
-// QUANTUM MEMORY UNDER THE BARE BEAT U (Q4, item vibe-computation-models-0034; decision 004 of vibe/computation/models).
+// QUANTUM MEMORY UNDER THE BARE BEAT U (Q4).
 // Exact tools to ask whether a logical qutrit kept in a code survives T beats of the bare beat U
 // (code/rule/bare-beat.ts), and which of the beat's layers leave the code space invariant.
 //

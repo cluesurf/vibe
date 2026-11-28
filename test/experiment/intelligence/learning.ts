@@ -30,9 +30,9 @@
 // Controls that must be caught (each passed the evaluator before the 2026-11-26 audit fixes): learners reporting zero
 // work, one operator call less, one expansion less or one byte less; a learner adding entries for states it made
 // itself, not through an operator; a lazy learner whose table is not plain data and computes at lookup time through
-// operators it kept (audit C1), whose kept operators must also stop working; a learned A* hiding its search behind its
-// preprocessing charge (C2); a solver reading the table while declaring only the base charge, with no charge passed
-// in by the caller (M3; accepted on an unsealed copy, which shows the hole was real); a solver hiding its search
+// operators it kept, whose kept operators must also stop working; a learned A* hiding its search behind its
+// preprocessing charge; a solver reading the table while declaring only the base charge, with no charge passed
+// in by the caller (accepted on an unsealed copy, which shows the hole was real); a solver hiding its search
 // expansions; a learner taught by greedy search, whose suboptimal paths make the table inadmissible.
 
 import { readFileSync } from 'node:fs'
@@ -453,7 +453,7 @@ export default experiment({
         }
       }
 
-      // audit 2, n6: a Proxy over the honest table passes every plainness test it traps; the copy fails, and the
+      // a Proxy over the honest table passes every plainness test it traps; the copy fails, and the
       // evaluator records that as a violation instead of throwing
       const proxied = evaluateLearning({
         build: candidate(LEARNER_CONTROLS, 'proxyTable'),
@@ -503,7 +503,7 @@ export default experiment({
       for (const problem of environment.heldOut) {
         solveControls++
 
-        // audit M3: no charge passed in by the caller; the evaluator charges the sealed table it saw read
+        // no charge passed in by the caller; the evaluator charges the sealed table it saw read
         if (!evaluate(hidingCharge(environment, learned.table), problem, environment.operators).solved) {
           hiddenChargeRejected++
         }

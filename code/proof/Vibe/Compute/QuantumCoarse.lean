@@ -5,7 +5,7 @@ import Vibe.Generated.QuantumCoarse
 /-!
 # Vibe Computation Lab: no tone reading turns the bare beat into a classical rule
 
-Lean track L16 (lean-track.md, claims A16, A17 and B8, q-ladder Q6, `code/compute/quantum/classical-boundary.ts`).
+Claims A16, A17 and B8 (Q6, `code/compute/quantum/classical-boundary.ts`).
 Everything is about the Lean Fock beat `fockBeat χ` of `Vibe.FockBeat`, which `Vibe.Compute.BeatLink` ties to
 `code/rule/bare-beat.ts` on its declared base-dock family. The Fock model has two roles (`r : Bool`), so every
 theorem here speaks about the 2-role restriction of bare-beat.ts (roles 0 and 1), as L15's do.
@@ -33,7 +33,7 @@ theorem here speaks about the 2-role restriction of bare-beat.ts (roles 0 and 1)
 **Not here.** The exhaustive censuses of Q6 (layer monomiality on 134,048 base-dock states and the 28,476
 4-excitation family, the 96 states monomial for one beat and none for two, the dephased support components, the
 16,233-state coarse census) stay the experiment's: one kernel evaluation of a layer costs about 0.1 s, so they
-are far past a laptop kernel. Sectors of more than 24 excitations (more than one dock) and `pairedSign` under
+are far past a kernel proof. Sectors of more than 24 excitations (more than one dock) and `pairedSign` under
 `U^2`, `U^3` are not proved. `dh_monomial_fock_clifford_classification` (make) classifies `(N, Q)`-conserving
 Cliffords, a different object from `U`, and is consistent with A17 (no step here needs it).
 -/

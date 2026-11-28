@@ -1,8 +1,8 @@
-// M3 driver (item vibe-computation-models-0069 part c): the number of logical qutrits of the qutrit toric code of
+// Batch driver: the number of logical qutrits of the qutrit toric code of
 // E-CMP-0042 (Q4 follow-up, test/experiment/computation/bare-u-toric.ts) on the closed quotients, so the {3,4,3,4}
-// level-5 quotient (16,384 docks) gets the count the laptop could not hold (P51 of m12-predictions.md).
+// level-5 quotient (16,384 docks) gets the count the smaller run could not hold.
 //
-//   pnpm call task/m3/toric-logical.ts [--meshes t4,t8,l4] [--route library|packed|both] [--second true]
+//   pnpm call task/batch/toric-logical.ts [--meshes t4,t8,l4] [--route library|packed|both] [--second true]
 //
 // Meshes: tS is the flat D4 torus {3,4,3,3} of side S (S^4 / 2 docks), lM the {3,4,3,4} congruence quotient K mod
 // (sqrt 2)^M (level 4: 2,048 docks, level 5: 16,384). The complex is code/compute/quantum/toric-memory's toricComplex
@@ -12,7 +12,7 @@
 // gauge, the plaquette equations are propagated by peeling, every facet left undetermined becomes a free symbol, and
 // logical = symbols - rank of the residual constraints over F_3):
 // - library: toric-memory's logicalQutritsByCocycles itself. Each facet's value is a Map from symbol to coefficient, so
-//   memory grows as facets x symbols (traps.md: level 5 ran out of a 4 GB heap).
+//   memory grows as facets x symbols (level 5 ran out of a 4 GB heap).
 // - packed: the same propagation in two passes. Pass 1 replays the library's settle order exactly with counters only
 //   (which facets are tree, free or derived, and from which plaquette, depends on the counts alone, never on the
 //   values), so the number of symbols S is known before any value is stored. Pass 2 stores every facet's value as a
@@ -463,7 +463,7 @@ for (const mesh of meshes) {
 console.log(`failures: ${failures.length === 0 ? 'none' : failures.join('; ')}`)
 
 summary({
-  item: 'vibe-computation-models-0069',
+  driver: 'toric-logical',
   part: 'c',
   route,
   results,

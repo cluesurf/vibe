@@ -1,9 +1,9 @@
-// M3 driver (item vibe-computation-models-0060): the extended seed census of id.ACB.id (and its conjugate id.BAC.id)
+// Batch driver: the extended seed census of id.ACB.id (and its conjugate id.BAC.id)
 // on the closed quotients where the 60 seeds find no collidable pair, with the census's seed budget as a flag.
 //
-//   pnpm call task/m3/acb-census.ts [--budget 200000] [--rules id.ACB.id,id.BAC.id] [--only honeycomb-3-4-3-4]
+//   pnpm call task/batch/acb-census.ts [--budget 200000] [--rules id.ACB.id,id.BAC.id] [--only honeycomb-3-4-3-4]
 //
-// With no flags it prints exactly the lines of tmp/acb-census-probe.ts (tmp/acb-census.log), budget 200,000. The M3
+// With no flags it prints exactly the lines of tmp/acb-census-probe.ts (tmp/acb-census.log), budget 200,000. The full-size
 // run raises --budget to 1,000,000 so the {3,4,3,4} levels 4 and 5 reach level (2, 3).
 import {
   COLOR_ORDERS,
@@ -68,4 +68,4 @@ for (const inst of targets) {
   }
 }
 
-summary({ item: 'vibe-computation-models-0060', budget, rules: names, seconds: seconds(start), rows })
+summary({ driver: 'acb-census', budget, rules: names, seconds: seconds(start), rows })

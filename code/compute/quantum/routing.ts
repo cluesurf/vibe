@@ -1,5 +1,5 @@
-// INTERFERENCE ROUTING AND GATES FOUND IN BARE U (item vibe-computation-models-0035, Q3; decision 004 of
-// vibe/computation/models). Every element here is a process the bare beat performs on a declared initial state, read
+// INTERFERENCE ROUTING AND GATES FOUND IN BARE U (Q3).
+// Every element here is a process the bare beat performs on a declared initial state, read
 // off exactly from code/rule/bare-beat with nothing inserted: no layer edited, no gate placed, no schedule beyond the
 // beat. What a caller chooses is the initial state and, declared as added structure, the excitation layout (which line,
 // which coordinates and directions, which species, a spectator vibe in a dock).

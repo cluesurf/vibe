@@ -1,4 +1,4 @@
-// The certified sign of a real number of Q(zeta_9) (item vibe-computation-models-0029, decision 004 point 3: a decision
+// The certified sign of a real number of Q(zeta_9) (a decision
 // that needs an order, such as a probability above a baseline, reads a certified sign, never a float comparison).
 //
 // The embedding is the standard one of code/algebra/ninth-field: zeta = e^(2 pi i / 9). A real x = sum_k n_k zeta^k / d

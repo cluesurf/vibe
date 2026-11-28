@@ -8,7 +8,7 @@ import Vibe.Compute.SecondOrderZ3
 /-!
 # Resonance of the Z3 wave (M8): the Lucas front and the uniform mode
 
-Lean track item L17 (claims A29 and A30 of the models lab, note m8-resonance, experiment E-CMP-0046, measure code
+Claims A29 and A30 of the models lab (M8, experiment E-CMP-0046, measure code
 `code/measure/z3-resonance.ts`). Builds on `Vibe.Compute.SecondOrderZ3` (the M3 wave `s(t+1) = f(s(t)) - s(t-1)`
 over `ZMod 3` and its front theorem, tone = number of geodesics mod 3).
 

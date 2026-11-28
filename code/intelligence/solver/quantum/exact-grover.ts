@@ -1,11 +1,11 @@
 /**
  * The exact Grover walk a quantum solver runs, carried inside the solver's
- * own bundle (item vibe-computation-intelligence-0014, Q7).
+ * own bundle (Q7).
  *
  * Why it is not imported: the layer-2 walk (code/compute/quantum/walk.ts,
  * Q5) reaches code/rule/bare-beat and lives in the quantum lab, and a
  * candidate may reach neither: check:layers rule 2 forbids a candidate the
- * quantum lab and the rules, and the sandbox bundle (decision 001) refuses
+ * quantum lab and the rules, and the sandbox bundle refuses
  * any module outside the candidate folders. So the solver carries this
  * module, which imports nothing, and the experiment certifies it against
  * walk.ts beat for beat on graphs the evaluator builds itself.

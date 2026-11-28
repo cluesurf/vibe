@@ -10,7 +10,7 @@ import Mathlib.Tactic.LinearCombination
 /-!
 # Quantum walks and the bare-U search bound (Lean item L14, claims A14 and A15 of Q5)
 
-The notes: `q-ladder.md` section Q5, the library `code/compute/quantum/walk.ts` and the
+Milestone Q5: the library `code/compute/quantum/walk.ts` and the
 experiment `test/experiment/computation/bare-u-walk-search.ts` (E-CMP-0039).
 
 ## A14: the exact Grover walk
@@ -64,7 +64,7 @@ gated to radius 3). The unitarity of `U` is proved in `Vibe.FockBeat`
 space, so that link is by reading, not by a Lean bridge. The bound needs no light cone: unitarity on
 the line sector alone gives it.
 
-Measurements that stay experiments (decision 008): the first-maximum beats `T`, probabilities `P`,
+Measurements that stay experiments: the first-maximum beats `T`, probabilities `P`,
 the figure of merit `R = T²/(P N)` and its `quadratic` or `slower` reading, the curvature
 comparisons on closed quotients and balls, the spreading second moments, and the bare-U beat
 tables of Q5. The Lean definitions here are not tied to `walk.ts` by a generated table: the

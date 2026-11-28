@@ -1,6 +1,6 @@
 // A LAZY EXACT tiling for every regular tiling whose tile is a right-angled Coxeter polytope: the tiles are the elements
 // of a right-angled Coxeter group W (every m_ij is 2 or infinite: {5,4}, {6,4}, the right-angled 24-cell {3,4,3,4}),
-// created one at a time as a caller asks for a neighbour, never a ball at a time (item vibe-computation-models-0028).
+// created one at a time as a caller asks for a neighbour, never a ball at a time.
 // No coordinates and no floating point: a tile is a canonical normal form, built from the Coxeter matrix alone.
 //
 // THE NORMAL FORM. In a right-angled Coxeter group two reduced words name the same element exactly when one turns into

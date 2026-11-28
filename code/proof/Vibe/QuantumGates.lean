@@ -3,7 +3,7 @@ import Vibe.Fock.Ring
 /-!
 # Vibe Theory: Exact Gates of the Bare Beat `U` (Q1)
 
-Item `vibe-computation-models-0030` (decision 004 of `vibe/computation/models`). Two exact facts over
+Milestone Q1. Two exact facts over
 `NinthLoc6 = ℤ[ζ_9][1/6]` about gates that W12 read in floating point:
 
 - `thm_q_meet_gates_unitary`: the role meeting `M = (ζ_6 / 2) I + ((ω - 1) / 2) SWAP` on the roles of two like-sign

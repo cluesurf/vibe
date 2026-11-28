@@ -1,7 +1,6 @@
 /**
  * The candidates of the second audit's probes, ported to the isolated
- * evaluator, each one a control that must be refused (audit-levels-1-3-
- * improve.md):
+ * evaluator, each one a control that must be refused:
  *
  * - P1 (K2) `scratchState`: breadth-first search that keeps its frontier as
  *   keys and asks the operators about a state it builds itself (a scratch
@@ -14,7 +13,7 @@
  *
  * P3 (a solver rebuilding the world from the substrate and the hop-distance
  * oracle) cannot live in this tree: check:layers refuses the file. Its
- * fixture is in the audit's tmp tree, and the bundle refuses it at run time.
+ * fixture is outside this tree, and the bundle refuses it at run time.
  *
  * Candidate side.
  */

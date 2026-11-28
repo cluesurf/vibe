@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 2 (item vibe-computation-intelligence-0029, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 2:
 // selection with each candidate's score written into two cells, the slice-1 selector census on matched coset tilings,
 // and whether a selected content can STEER a later proposal (adaptation to past grades), per cell class.
 //
@@ -8,7 +8,7 @@
 //   C  the steering census (control c, data P and Q): line widths 3 to 7, reads to 8; the same tilings, reads to 6.
 //   D  the one-layout adaptive step (a, b, sA, sB, P, Q): line width 6, one score trit, levels 2 and 3, reads to 8.
 //
-// Gates, fixed in level6.md before the first run, each able to fail:
+// Gates, fixed before the first run, each able to fail:
 // - G1 the split: 24 species, 32 reactive, 16 live-vacuum cells; types T0 3, T1 3, T2 3, T3 3, T4 6, T5 6.
 // - G2 Lemma K: abstract max levels = min(a + b - 1, 2a, 2b) for a, b in 1..4, and no census read exceeds its bound.
 // - G3 Lemma P live: 0 selectors in every T0, T3, T4, T5 cell in A and on every space and order of B.
@@ -18,8 +18,8 @@
 // - G6 independent replay of the first example per cell (A under lineBrickRun, B under counter.ts stepRun, C and D
 //   likewise); the space runner equals stepRun at every round of every B layout of every cell on {4,5} forward.
 // - G7 corruption: kept selectors with reversed codes and kept steering reads with c's values exchanged are refused.
-//   Audit 3 (m5): for a read that replays this holds by construction, so it is a checker check. Added after the audit
-//   (disclosed in level6.md): every single code value of every kept selector (A and B) changed, judged by the census's
+//   For a read that replays this holds by construction, so it is a checker check. Added after the audit
+//   (disclosed): every single code value of every kept selector (A and B) changed, judged by the census's
 //   own runner and by the reference runner; the verdicts agree on every change and some change is refused.
 // - G8 every cell with a D step has a C line steering read at width <= 6; a second run of A and C on two cells gives
 //   the same digests; no random or clock source in the new files.
@@ -69,7 +69,7 @@ const NEW_FILES = [
   'test/experiment/intelligence/mesh-adaptation.ts',
 ]
 
-// ---- parameters, fixed before the first run (level6.md, slice 2) ----
+// ---- parameters, fixed before the first run ----
 
 const LINE_ROUNDS = 8
 const SPACE_ROUNDS = 6
@@ -241,7 +241,7 @@ function censusA(cell: Cell): ACensus {
 const brickFrames = (cell: Cell, layout: LineLayout, values: readonly number[]): Int8Array[] =>
   lineBrickRun({ rule: cell.rule, background: cell.background, start: layout.start, window: lineWindow(layout, values), rounds: LINE_ROUNDS }).frames
 
-// the census's own import-free runner, for the single-change cross-check (audit 3, m5)
+// the census's own import-free runner, for the single-change cross-check
 const censusLineFrames = (cell: Cell, layout: LineLayout, values: readonly number[]): Int8Array[] =>
   runLine({ rule: cell.rule, background: cell.background, start: layout.start, window: lineWindow(layout, values), rounds: LINE_ROUNDS })
 
@@ -383,7 +383,7 @@ function referenceRead(setup: SpaceSetup, order: Order, cell: Cell, start: [numb
   return states[round * colors.length]!.get(at) ?? cell.background
 }
 
-// the census's own sparse runner read at a round end, for the single-change cross-check (audit 3, m5)
+// the census's own sparse runner read at a round end, for the single-change cross-check
 function censusSpaceRead(setup: SpaceSetup, order: Order, cell: Cell, start: [number, number][], round: number, at: number): number {
   return runOn(setup, order, cell, start).value(round, at)
 }
@@ -949,7 +949,7 @@ export default experiment({
         fail(`${what}: replay wrong on ${wrong} inputs`)
       }
 
-      // a checker check (audit 3, m5): reversed codes and exchanged control values are refused by construction for a
+      // a checker check: reversed codes and exchanged control values are refused by construction for a
       // read that replays, so a miss means the checker is broken
       if (corrupted > 0) {
         refused++
@@ -958,7 +958,7 @@ export default experiment({
       }
     }
 
-    // audit 3, m5: the reversed codes of a selector that replays pick the worse content on every strictly ordered pair by
+    // the reversed codes of a selector that replays pick the worse content on every strictly ordered pair by
     // construction, so they are a checker check. The control that can fail: every single code value of every kept
     // selector changed, judged by the census's own runner and by the reference runner; the verdicts must agree on every
     // change, and some change must be refused
@@ -1229,7 +1229,7 @@ export default experiment({
       claim: `intelligence level 6, slice 2: with each candidate's score written into two cells, ${multiVerdict}, in ${metrics.aCellsAtLeast3} cells three or more; Lemma K (a selector whose read sees a values of A's score and b of B's orders at most min(a + b - 1, 2a, 2b) levels, any rule, graph and schedule; checked by exact backtracking for a, b to 4) makes three levels per score cell the ceiling of every occupancy-blind cell on every graph and bounds two cells by 7 there and 17 elsewhere; Lemma P holds for any number of score cells (0 selectors in the 18 T0, T3, T4, T5 cells, line and tilings); on matched coset tilings {3,6}/{3,7} and {4,4}/{4,5}, both color orders, the best one-trit selector reaches ${metrics.bBestLevels} levels, T2 reaches three levels in ${t2TilingThree.length} of 3 cells, and ${alwaysDiffer.length} cells differ between flat and hyperbolic in both pairs and both orders; adaptation: no species cell can adapt on any graph (Lemma X: T0 to T3 never steer, ${blindSteer} steering reads found, and T4, T5 never select), while ${reactiveSteer.length} of 32 reactive cells steer and ${twoStage.length} both select and steer (a two-stage lead with an unbuilt carrier), and ${oneLayout.length} cells hold a one-layout adaptive step at width ${D_WIDTH} (${oneLayout3.length} at three levels); every kept example replays under the reference runners (the corruption check, ${refused} of ${replayed} refused, is a checker check only), and every single code change of every kept selector gets the same verdict from the census's runner and the reference (${single.changes} changes, ${single.changes - single.stillValid} refused, ${single.stillValid} still selectors, ${single.disagree} disagreements)`,
       metrics,
       control,
-      notes: `L2. A: cells with a selector, largest level count: ${aTable || 'none'}; histogram ${JSON.stringify(aHistogram)}; best example ${aExample}. B: ${spaceTable}. Matched pairs: ${pairsCompared.join('; ')}${alwaysDiffer.length > 0 ? `; differ everywhere: ${alwaysDiffer.map(c => c.label).join(', ')}` : ''}. C: steering cells on the line ${cells.filter(c => cOf(c).steering > 0).map(c => `${c.label} ${cOf(c).steering} (mux ${cOf(c).mux}, w${cOf(c).minWidth})`).join(', ') || 'none'}; on the tilings ${cells.filter(c => cSpaceSteer(c) > 0).map(c => `${c.label} ${cSpaceSteer(c)}`).join(', ') || 'none'}; T4/T5 cells that steer: ${steerT45.map(c => c.label).join(', ') || 'none'}; example ${cExample}. D: ${oneLayout.map(c => `${c.label} L2 ${dOf(c).steps[2]} L3 ${dOf(c).steps[3]}`).join(', ') || 'none'}; example ${dExample}. Two-stage reactive leads: ${twoStage.map(c => c.label).join(', ') || 'none'}. Bounds: A width ${A_WIDTH} (${metrics.aLayoutsPerCell} layouts, ${metrics.aRuns} runs), cap ${A_CAP}; B radius-1 balls, reads to ${SPACE_ROUNDS}, cap ${B_CAP}; C line widths ${C_MIN_WIDTH} to ${C_MAX_WIDTH}; D width ${D_WIDTH}, levels ${D_LEVELS.join(' and ')}. Not run: width 7 with two-trit scores, {6,3}/{6,4}, two-trit scores on the tilings (M3), a carrier, metered rounds, held-out Q. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+      notes: `L2. A: cells with a selector, largest level count: ${aTable || 'none'}; histogram ${JSON.stringify(aHistogram)}; best example ${aExample}. B: ${spaceTable}. Matched pairs: ${pairsCompared.join('; ')}${alwaysDiffer.length > 0 ? `; differ everywhere: ${alwaysDiffer.map(c => c.label).join(', ')}` : ''}. C: steering cells on the line ${cells.filter(c => cOf(c).steering > 0).map(c => `${c.label} ${cOf(c).steering} (mux ${cOf(c).mux}, w${cOf(c).minWidth})`).join(', ') || 'none'}; on the tilings ${cells.filter(c => cSpaceSteer(c) > 0).map(c => `${c.label} ${cSpaceSteer(c)}`).join(', ') || 'none'}; T4/T5 cells that steer: ${steerT45.map(c => c.label).join(', ') || 'none'}; example ${cExample}. D: ${oneLayout.map(c => `${c.label} L2 ${dOf(c).steps[2]} L3 ${dOf(c).steps[3]}`).join(', ') || 'none'}; example ${dExample}. Two-stage reactive leads: ${twoStage.map(c => c.label).join(', ') || 'none'}. Bounds: A width ${A_WIDTH} (${metrics.aLayoutsPerCell} layouts, ${metrics.aRuns} runs), cap ${A_CAP}; B radius-1 balls, reads to ${SPACE_ROUNDS}, cap ${B_CAP}; C line widths ${C_MIN_WIDTH} to ${C_MAX_WIDTH}; D width ${D_WIDTH}, levels ${D_LEVELS.join(' and ')}. Not run: width 7 with two-trit scores, {6,3}/{6,4}, two-trit scores on the tilings (a larger run), a carrier, metered rounds, held-out Q. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

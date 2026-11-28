@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 2 (item vibe-computation-intelligence-0029): can a selected content STEER a later
+// Intelligence level 6, slice 2: can a selected content STEER a later
 // proposal? A control cell c and two data cells P and Q each range over the two excitations u and v (index 0 and 1).
 // A read STEERS when its behaviour over (P, Q) differs between c = u and c = v, both behaviours are "copy of P", "copy
 // of Q" or a constant, and at least one is a copy (a mux is copy P against copy Q, a gate a copy against a constant).

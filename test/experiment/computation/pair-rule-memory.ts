@@ -1,8 +1,8 @@
-// M4 memory (item vibe-computation-models-0014). Algebra: spin-one. Trits are written into the M3 lone excitation of
+// M4 memory. Algebra: spin-one. Trits are written into the M3 lone excitation of
 // each pair-rule class (one cell's tone set to the trit, the background value the empty slot), left to the fixed rule
 // for T rounds, and read back by a decoder declared outside the mesh (code/compute/lab/memory.ts): the slot positions,
 // the lone-run table of every value at every slot, and a clock for the phase. That decoder is added structure, and so is
-// the partition schedule (decision 002).
+// the partition schedule.
 //
 // Declared before the first run:
 // - CLASSES: the 12 class representatives (pair-rule.ts), each on every uniform background it fixes (vacuum-fixing
@@ -14,10 +14,10 @@
 //     walled isolates the outward sink;
 //   QUOTIENT: the M1 closed quotient of each column (harness.ts closedInstances, first per column, plus the ring of
 //     244) under its greedy coloring, with its injectivity radius and loop systole beside every result.
-// - SCHEDULE FAMILY (audit finding 0045): every 2D matched pair, {4,4}/{4,5}, {3,6}/{3,7}, {6,3}/{6,4}, is read on the
+// - SCHEDULE FAMILY: every 2D matched pair, {4,4}/{4,5}, {3,6}/{3,7}, {6,3}/{6,4}, is read on the
 //   coset tilings under the lifted coloring on BOTH sides, under two colorings of that family (variants 0 and 1), open
 //   and walled. The quotient pairs are read under the greedy family on both sides and are never credited to curvature
-//   (decision 006 point 5). The 4D pair has no common open family (finding 0045) and is read on its quotients only.
+//   (point 5 of the gated labels). The 4D pair has no common open family and is read on its quotients only.
 // - MEMORY KIND at the origin: in_place (both off-background lone writes are localized and exactly periodic within
 //   CODE_MAX_PERIOD rounds), moves (localized, no return), spreads (not localized).
 // - CAPACITY (in-place kinds): the least slot spacing s in 1..MAX_SPACING at which a register of REGISTER_SLOTS slots
@@ -845,7 +845,7 @@ export default experiment({
         fullSwapInPlace: r.cells.filter(c => c.className === FULL_SWAP && c.kind === 'in_place').length,
       },
       notes:
-        `M4 (item vibe-computation-models-0014). Decoder: slot positions, lone-run table, clock (added structure); every damage and capacity reading uses the forward rule only, the inverse reads are counted apart. Curvature fields under both colorings: ${curvatureFields.slice(0, 40).join('; ') || 'none'}. Quotients: ${quotientNotes.join(', ')}. Walled radius ${WALL_RADIUS}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
+        `M4. Decoder: slot positions, lone-run table, clock (added structure); every damage and capacity reading uses the forward rule only, the inverse reads are counted apart. Curvature fields under both colorings: ${curvatureFields.slice(0, 40).join('; ') || 'none'}. Quotients: ${quotientNotes.join(', ')}. Walled radius ${WALL_RADIUS}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
     })
   },
 })

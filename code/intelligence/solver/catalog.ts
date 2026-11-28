@@ -81,7 +81,7 @@ export function meshWave<S>(): Solver<S> {
 
 /**
  * Level 4, slice 2: meshWave with the lit test and the expand gate run as M5 switch layouts (solver/mesh/switch),
- * every run executed and metered by the evaluator through the host (decision 003).
+ * every run executed and metered by the evaluator through the host.
  */
 export function meshSwitch<S>(_args: unknown, host: CandidateHost<S> & MeshHost<S>): Solver<S> {
   return meshWaveSolver<S>(SWITCH_SETTINGS, host)

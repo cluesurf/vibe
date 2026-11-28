@@ -6,7 +6,7 @@ import Vibe.Compute.RuleCensus
 /-!
 # Vibe Computation Lab: Species Transport (the M6 No-Feedback Lemma)
 
-Lean track L04 (lean-track.md rows A4, A5, A25, B15). In a species-conserving cell every pair is
+Claims A4, A5, A25 and B15. In a species-conserving cell every pair is
 kept or swapped, and which of the two is decided by a driving pattern alone: a predicate
 `d : Tone → Bool` on the two tones of the pair (occupancy for `T0` to `T3`, the mover tone for
 `T5`, the static tone for `T4`). When the move on a pair with one driving tone does not depend on
@@ -22,7 +22,7 @@ which side holds it (`Balanced m σ`), then on any vertex type and any schedule:
    `n` rounds the tone of cell `v` is the start tone of the one cell
    `iterPullPerm m σ s n D v`, and the driving layer after `k` rounds is the start's read through
    `(fixedRoundPerm σ s)^[k]`, so the cell is found by a backward walk that reads the start's
-   driving layer at one cell per step. The L = P step itself is deferred (decision 008).
+   driving layer at one cell per step. The L = P step itself is deferred.
 3. **B15** (`thm_species_transport_cells`): for each of the 24 species cells of the 72 the
    driving pattern `drive` and the move table `mtab` satisfy the lemma's hypotheses over the nine
    pairs, by `decide`, with `σ = keep` exactly for `T0`, `T1`, `T4`; the same holds for the code's
@@ -296,7 +296,7 @@ theorem thm_species_transport (f : Pair → Pair) (d : Tone → Bool) (m : Bool 
     the driving layer of round `k`, which is the start's read through `(fixedRoundPerm σ s)^[k]`, a
     bijection no tone changes. So the cell a tone at time `n` comes from is found by a backward
     walk that reads the start's driving layer at one cell per step (the tracer of m6 G2(b)). The
-    complexity consequence (efficient universality gives L = P) is deferred (decision 008). -/
+    complexity consequence (efficient universality gives L = P) is deferred. -/
 theorem thm_species_pull_back (f : Pair → Pair) (d : Tone → Bool) (m : Bool → Bool → Move)
     (σ : Move) (hf : MovedBy f d m) (hb : Balanced m σ) (s : Schedule V) :
     (∀ (x : Config V) (n : Nat) (v : V),

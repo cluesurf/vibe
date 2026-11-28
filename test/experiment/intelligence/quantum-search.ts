@@ -1,5 +1,4 @@
-// Q7 of the quantum ladder (item vibe-computation-intelligence-0014; plan.md sections 7 and 11 of vibe/computation/models,
-// decision 001 of vibe/computation/intelligence): what the intelligence lab gains from a quantum walk. The exact Grover walk
+// Q7 of the quantum ladder: what the intelligence lab gains from a quantum walk. The exact Grover walk
 // of Q5 runs as a candidate solver (code/intelligence/solver/quantum, named in the solver catalog as quantumWalk) on every
 // instance of benchmark family A (E-CMP-0026), isolated in the sandbox, graded by the same outside evaluator and resource
 // ledger as the level-1 baselines (breadth-first, A*, IDA*, greedy), and reported as a profile.
@@ -14,7 +13,7 @@
 // below by the bundle's own refusal). So the solver carries its own exact walk, certified here against walk.ts.
 //
 // The quantum ledger (beats, success probability and expected repeats as exact numbers, amplitude bytes, arc updates, goal
-// tests, states and cells touched) travels in the shared Ledger's typed `quantum` field (item 0021; it rode in the solver id
+// tests, states and cells touched) travels in the shared Ledger's typed `quantum` field (it rode in the solver id
 // before). The evaluator rejects any field it does not know, meters what it can (states swept and goal tests never below
 // its count, the probability exactly in [0, 1], the repeats never below 1/p, by ninth-real-sign), and the judge below
 // (evaluator side) checks the rest: a claimed success needs a measured probability in (0, 1], the states it walked

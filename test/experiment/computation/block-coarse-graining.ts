@@ -1,5 +1,5 @@
-// M11, effective higher-scale laws (item vibe-computation-models-0022): block coarse-graining of the M1 pair rules
-// on the line. Library: code/compute/lab/coarse-block.ts. Note: m11-coarse-graining.md, whose re-plan fixed every
+// M11, effective higher-scale laws: block coarse-graining of the M1 pair rules
+// on the line. Library: code/compute/lab/coarse-block.ts. A re-plan fixed every
 // criterion below before the first run.
 //
 // PART A, lumpability: for each of the 24 spin-one rules and the 48 Z3-linear rules, each line schedule (brick2,
@@ -182,7 +182,7 @@ function patternOf(code: number, b: number): number[] {
   return out
 }
 
-// Every input defaults to the parameters fixed above, which E-CMP-0066 runs; the M3 driver (task/m3/block-coarse.ts)
+// Every input defaults to the parameters fixed above, which E-CMP-0066 runs; the batch driver (task/batch/block-coarse.ts)
 // raises the cap, adds b = 4 contracts and tau 3.
 export function blockCoarseGraining(input: {
   schedules?: readonly LineSchedule[]
@@ -598,7 +598,7 @@ export default experiment({
         corruptedSigmaCaught: r.corruption.sigmaCaught ? 1 : 0,
       },
       notes:
-        `Item vibe-computation-models-0022. Lumpable beyond the identity: ${lumpSummary.slice(0, 60).join('; ')}${lumpSummary.length > 60 ? ` (+${lumpSummary.length - 60})` : ''}. Contract rules: ${contractSummary.slice(0, 80).join('; ')}${contractSummary.length > 80 ? ` (+${contractSummary.length - 80})` : ''}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
+        `Lumpable beyond the identity: ${lumpSummary.slice(0, 60).join('; ')}${lumpSummary.length > 60 ? ` (+${lumpSummary.length - 60})` : ''}. Contract rules: ${contractSummary.slice(0, 80).join('; ')}${contractSummary.length > 80 ? ` (+${contractSummary.length - 80})` : ''}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
     })
   },
 })

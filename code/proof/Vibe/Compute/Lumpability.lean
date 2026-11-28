@@ -12,7 +12,7 @@ import Vibe.Generated.PartitionedRing
 /-!
 # Vibe Computation Lab: Lumpability of Block Maps (M11)
 
-Lean track item L11 (lean-track.md, claims A26 and A27). A coarse reading `F` of a dynamics `φ`
+Claims A26 and A27. A coarse reading `F` of a dynamics `φ`
 is **lumpable** at `τ` steps when `F (φ^τ x)` is a function of `F x` over every configuration.
 
 Headline theorems:
@@ -57,10 +57,10 @@ Headline theorems:
    link is extensional on that family only).
 
 Step 5 (no `P^τ` commutes with every colour matching on a hyperbolic `{p,q}`, by Zariski density)
-is deferred (lean-track.md section 7, claim A28) and is not claimed here.
+is deferred (claim A28) and is not claimed here.
 
 Items 1 to 8 speak about the Lean definitions of `Vibe.Compute.Round`; the bridges of item 10 tie
-that round and the reading maps to the code on the stated finite families (decision 008 point 3).
+that round and the reading maps to the code on the stated finite families.
 Mathlib; the finite checks run in the kernel (`decide +kernel`).
 -/
 
@@ -1289,7 +1289,7 @@ private theorem allRing (k : Nat) (h2 : k < 24) : ringRuleOk k = true := by
 /-- Bridge for `partitionedRingImages` (the extensional link of `round` to
     code/rule/partitioned-pair.ts): for every rule of the census and every configuration `y` of
     the 6-ring, the code of the Lean round of `y` under `brick2` is `globalPermutation`'s image of
-    the code of `y`. The link holds on this finite family only (lean-track.md section 4.5); the
+    the code of `y`. The link holds on this finite family only; the
     general theorems speak about the Lean round, which equals the code here. -/
 theorem gen_partitioned_ring_eq :
     Generated.partitionedRingImages.length = 24 ∧

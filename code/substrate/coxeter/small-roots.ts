@@ -1,6 +1,6 @@
 // The Brink-Howlett small-root automaton of a rank-3 Coxeter group, and from it the EXACT growth of a coset tiling
 // (coset-tiling.ts) for every radius: tiles by facet distance, and minimal coset representatives by word length
-// (item vibe-computation-models-0038). Exact ring arithmetic and certified signs only (cosine-ring.ts).
+// Exact ring arithmetic and certified signs only (cosine-ring.ts).
 //
 // SMALL ROOTS. With 2B(alpha_i, alpha_j) = -2cos(pi/m_ij) (i != j) and 2 on the diagonal, the small (elementary) roots
 // form the smallest set holding the simple roots and closed under beta -> s(beta) whenever -1 < B(beta, alpha_s) < 0

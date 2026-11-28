@@ -1,9 +1,9 @@
-// M7 association without per-cell weights (item vibe-computation-models-0018). Algebra: spin-one. Does a fixed rule
+// M7 association without per-cell weights. Algebra: spin-one. Does a fixed rule
 // (the 12 M1 pair-rule classes, the M2-B reversible Blume-Capel rule) plus the open window's outward sink complete
 // partial patterns on a readout region, as a Hopfield network with per-cell weights does? Library
 // code/compute/lab/association.ts, which states the definitions and the conservation bound.
 //
-// Declared before the first run (note/project/vibe/computation/models/m7-association.md):
+// Declared before the first run:
 // - REGION R: the radius-1 ball of the origin in the box's canonical order (the line: radius 2, 5 cells). Readout
 //   FIELD-REALIZED (the tones of R at a round end). The nearest stored word is an EXTERNAL readout, also read at round 0.
 // - CUES: every word on R when |R| <= 7, else every word with at most 2 off-background cells; forward rule only, 48
@@ -863,7 +863,7 @@ export default experiment({
         hopfieldBlind: hopfieldBlind.length,
       },
       notes:
-        `M7 (item vibe-computation-models-0018). Readout field-realized (tones of R); the nearest stored word is external. Hopfield capacity per region (sparse/dense): ${r.hopfield.map(h => `${h.box} |R|=${h.regionSize} ${h.sparseCapacity}/${h.denseCapacity}`).join('; ')}. Whole-quotient sparse Hopfield capacity: ${r.graphHopfield.map(g => `${g.box} ${g.capacity}`).join('; ')}. Curvature fields under both colourings: ${curvatureFields.slice(0, 40).join('; ') || 'none'}. Quotients: ${r.quotientNotes.join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
+        `M7. Readout field-realized (tones of R); the nearest stored word is external. Hopfield capacity per region (sparse/dense): ${r.hopfield.map(h => `${h.box} |R|=${h.regionSize} ${h.sparseCapacity}/${h.denseCapacity}`).join('; ')}. Whole-quotient sparse Hopfield capacity: ${r.graphHopfield.map(g => `${g.box} ${g.capacity}`).join('; ')}. Curvature fields under both colourings: ${curvatureFields.slice(0, 40).join('; ') || 'none'}. Quotients: ${r.quotientNotes.join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 16).join('; ')}`}`.trim(),
     })
   },
 })

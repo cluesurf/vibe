@@ -1,7 +1,7 @@
-// M3 driver (item vibe-computation-models-0067): the E-CMP-0066 block coarse-graining with its enumeration cap, block
-// sizes and coarse steps as flags, to decide the cases the laptop left at 'cap' and to add b = 4 contracts and tau 3.
+// Batch driver: the E-CMP-0066 block coarse-graining with its enumeration cap, block
+// sizes and coarse steps as flags, to decide the cases the smaller run left at 'cap' and to add b = 4 contracts and tau 3.
 //
-//   pnpm call task/m3/block-coarse.ts [--cap 3^12] [--taus 1,2] [--lump-blocks 2,3,4] [--contract-blocks 2,3]
+//   pnpm call task/batch/block-coarse.ts [--cap 3^12] [--taus 1,2] [--lump-blocks 2,3,4] [--contract-blocks 2,3]
 //                                     [--contracts true] [--only id.ABC.id,...] [--schedules brick2,...]
 //
 // With no flags it reads exactly E-CMP-0066's cases and prints its metrics. Every lumpability case whose fine window
@@ -63,7 +63,7 @@ const metrics = {
 
 console.log(JSON.stringify(metrics))
 summary({
-  item: 'vibe-computation-models-0067',
+  driver: 'block-coarse',
   cap,
   taus,
   lumpBlocks,

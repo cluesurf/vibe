@@ -46,7 +46,7 @@ Canonical statements (each bridge is named beside it):
    is a strict contraction. Bridge: `thm_canon_no_contraction_int_iff` (restricted to integer-valued
    metrics, the canonical statement is equivalent to the core headline
    `thm_ms_reversible_no_global_contraction`).
-6. `thm_canon_bijection_no_collapse`: the claim the M1 audit (minor 2) says the memory argument needs
+6. `thm_canon_bijection_no_collapse`: the claim the memory argument needs
    and the core file does not prove. Every bijection `f` of a finite metric space has `f ^ k = 1`
    for some `k > 0`, and no pair of distinct points has a distance along the orbit that tends to
    `0`. This one is new, not a restatement: it has no core counterpart.
@@ -672,9 +672,9 @@ theorem thm_canon_no_contraction_int_iff :
       rw [h1, hdd] at h
       exact_mod_cast h
 
-/-! ## 6. The corrected claim of the M1 audit -/
+/-! ## 6. The corrected claim -/
 
-/-- **No pair collapses under a bijection (M1 audit, minor 2).** Every bijection `f` of a finite
+/-- **No pair collapses under a bijection.** Every bijection `f` of a finite
     metric space has `f ^ k = 1` for some `k > 0`, and for every pair of distinct points the
     distance along the orbit, `dist ((f ^ t) x) ((f ^ t) y)`, does not tend to `0`. This is the fact
     the memory argument needs; `NoContraction` proves only the weaker statement that `f` is not a

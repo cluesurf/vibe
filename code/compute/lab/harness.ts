@@ -1,7 +1,7 @@
 // The M1 classification harness: one conservative reversible pair rule on one lab geometry, under one schedule and
 // one boundary, read into one row of measured numbers and one of the four labels. Algebra: spin-one.
 //
-// Instances. Every lab geometry is read twice where valid (plan.md 1.3):
+// Instances. Every lab geometry is read twice where valid:
 //   - openBall: the ball of radius R around a tile, vacuum (or a uniform +-1 background) outside. Run only for the 8
 //     vacuum-fixing rules, whose background pairs (b, b) never move, so the ball is a window on the infinite tiling.
 //     The window is checked, never assumed: a run is EXACT through round t when no cell of the outer shell (the cells
@@ -11,7 +11,7 @@
 //     all 24 rules. Every closed hyperbolic quotient has a small systole, so a closed reading past a few hops sees
 //     finite wrap-around and is never credited to curvature.
 //
-// Schedules (decision 002). The greedy edge coloring of the instance graph, applied in forward and in reversed color
+// Schedules. The greedy edge coloring of the instance graph, applied in forward and in reversed color
 // order. Orientation: left to right on the ring, the lower cell index first everywhere else. A rule that does not
 // commute with the cell swap P sees the orientation; its P-conjugate is the same rule under the reversed orientation,
 // so the P-members of a class are read as an orientation variant, while the C-members (negation) must read the same
@@ -119,7 +119,7 @@ export const COLLISION_WORK = 40_000_000
 export const COLLISION_MIN_ORBITS = 4
 // the line ring: the order-5 de Bruijn length plus one, an even ring, as E-CMP-0025's damage ring
 export const LINE_RING = 244
-// rings whose exact cycle structure gives the line's period exponent (a least-squares fit over all four, item 0047),
+// rings whose exact cycle structure gives the line's period exponent (a least-squares fit over all four),
 // and the exponent ceiling (E-CMP-0025)
 export const LINE_EXPONENT_SIZES = [6, 8, 10, 12] as const
 export const PERIOD_EXPONENT_CEILING = 3
@@ -129,7 +129,7 @@ export const OPEN_HYPERBOLIC_MAX_RADIUS = 24
 export const OPEN_FLAT_CELL_CAP = 90_000
 export const OPEN_HYPERBOLIC_CELL_CAP = OPEN_FLAT_CELL_CAP
 export const OPEN_FLAT_4D_RADIUS = 7
-// lazy open windows (item vibe-computation-models-0028): a run whose support passes this many cells stops, its rounds
+// lazy open windows: a run whose support passes this many cells stops, its rounds
 // so far exact; the stop is a budget, recorded apart from any window
 export const LAZY_SUPPORT_CAP = 20_000
 
@@ -249,7 +249,7 @@ export type LabInstance = {
   systoleLowerBound: boolean
   loopSystole: number | null
   // the schedule's family (generator, step-parity, lifted, greedy, ring) and which variant of it (base, a lifted
-  // coloring's place in the search order, a color-order permutation); decision 002, item vibe-computation-models-0045
+  // coloring's place in the search order, a color-order permutation)
   scheduleFamily: string
   scheduleVariant: string
   construction: string
@@ -467,7 +467,7 @@ function makeInstance(input: {
 
 function tryOpen(name: LabGeometryName, radius: number): number[][] | null {
   try {
-    // hyperbolic balls come from the exact chamber tiling (decision 003), capped at the flat balls' cell budget
+    // hyperbolic balls come from the exact chamber tiling, capped at the flat balls' cell budget
     const g = labGeometry({
       name,
       boundary: 'openBall',
@@ -482,7 +482,7 @@ function tryOpen(name: LabGeometryName, radius: number): number[][] | null {
   }
 }
 
-// The geometries read on coset tilings (item vibe-computation-models-0038, E-CMP-0035): the q-odd tilings with no
+// The geometries read on coset tilings (E-CMP-0035): the q-odd tilings with no
 // right-angled tile group, and the flat partners of {4,5} and {3,7}, so every matched pair is read on lazy windows.
 export const COSET_LAZY_GEOMETRIES: ReadonlySet<LabGeometryName> = new Set<LabGeometryName>([
   '{7,3}',
@@ -547,7 +547,7 @@ export function strideOrder(c: number): number[] | null {
   return null
 }
 
-// The schedule variants of a geometry's lazy window beyond its base (item vibe-computation-models-0045): a second
+// The schedule variants of a geometry's lazy window beyond its base: a second
 // lifted coloring for every coset tiling; lifted colorings for {5,4}, {6,4} and {6,3}, so the degree-6 pair is also read
 // in ONE family; a color-order permutation for the two degree-24 spaces, which have no second family here.
 export function lazyVariants(name: LabGeometryName): LazyVariant[] {
@@ -822,7 +822,7 @@ function relabelledGreedy(neighbors: readonly number[][]): Int32Array[] {
 }
 
 // One schedule variant per closed quotient (not the ring, whose line schedules E-CMP-0025 varies): the greedy coloring of
-// the cells in reversed index order (item vibe-computation-models-0045).
+// the cells in reversed index order.
 export function closedVariantInstances(closed: readonly LabInstance[]): LabInstance[] {
   return closed
     .filter(i => i.column !== 'line')
@@ -856,7 +856,7 @@ export function closedVariantInstances(closed: readonly LabInstance[]): LabInsta
 }
 
 // The injectivity radius and loop systole of the ring of n cells against the infinite line (a path with the origin in
-// the middle), computed like every quotient's (item vibe-computation-models-0041), never typed.
+// the middle), computed like every quotient's, never typed.
 export function ringSystole(n: number): { systole: number; lowerBound: boolean; loopSystole: number | null } {
   const half = n + 4
   // cell 0 the origin, cell 2k - 1 at +k, cell 2k at -k
@@ -1066,7 +1066,7 @@ function ballLayers(
   return { cells, hops }
 }
 
-// ---- the extended seed census (item vibe-computation-models-0004, main-session decision of 2026-11-26) ----
+// ---- the extended seed census ----
 //
 // A closed reading that the 60 seeds leave unresolved with no collidable pair is read again on a larger seed set,
 // built systematically and never chosen by hand: every support that contains the anchor and lies inside its
@@ -1539,7 +1539,7 @@ export type HarnessNumbers = {
   vacuumPeriod: number | null
 }
 
-// The four labels of classifyDynamics plus two gated readings (decision 006), given only to a reading classifyDynamics
+// The four labels of classifyDynamics plus two gated readings, given only to a reading classifyDynamics
 // left unresolved and only with their proof: `confined` (open window: every seed's run returns exactly to its start,
 // so its support stays in the union of the orbit's cells for every round) and `surface_limited` (closed quotient: no
 // collidable pair exists here while a larger quotient of the same tiling has one, so the surface causes it; or every
@@ -2649,7 +2649,7 @@ function windowAgreement(
   return true
 }
 
-// ---- lazy open readings (item vibe-computation-models-0028) ----
+// ---- lazy open readings ----
 //
 // The same seeds, aimed collisions and damage starts as an open ball, read on a lazy space: no shell, so a run is exact
 // for every round it completes, and it stops only on LAZY_SUPPORT_CAP. Ties are broken by the space's canonical order,
@@ -3021,7 +3021,7 @@ function lazyDamageReadings(ctx: LazyContext, rule: HarnessRule): DamageReading[
   return out
 }
 
-// ---- gated readings (decision 006) ----
+// ---- gated readings ----
 
 function sameState(a: ReadonlyMap<number, number>, b: ReadonlyMap<number, number>): boolean {
   if (a.size !== b.size) {
@@ -3041,7 +3041,7 @@ function sameState(a: ReadonlyMap<number, number>, b: ReadonlyMap<number, number
 // the start, cell for cell and tone for tone, and the cells visited over one period. A round is a bijection of
 // finite-support states under a fixed color sequence, so state(P) = state(0) gives state(t + P) = state(t) for every t:
 // the support stays inside those cells forever. Null when the state does not return within the budget (a ballistic
-// mover never does), 'stopped' when the run stopped on its support cap first (minor 9 of the M1 audit: a stopped run
+// mover never does), 'stopped' when the run stopped on its support cap first (a stopped run
 // says nothing either way).
 export function confinedOrbit(
   ctx: LazyContext,
@@ -3151,8 +3151,8 @@ function confinedGate(
 // (at most 4 cells at every read round, the ballistic count bound) whose quotient radius passed half the LOOP systole
 // L. Quotient distance equals cover distance for every cover distance up to L / 2 and the quotient distance never
 // exceeds the cover distance, so a quotient radius m with 2 m > L proves the cover distance passed L / 2: only from
-// there can the radius track stop reading the cover distance, and the ballistic radius test cannot be decided. (Item
-// vibe-computation-models-0040: the gate first halved the injectivity radius r, a threshold any one-hop mover met.)
+// there can the radius track stop reading the cover distance, and the ballistic radius test cannot be decided. (The
+// gate first halved the injectivity radius r, a threshold any one-hop mover met.)
 // Null when the loop systole is unknown or only a lower bound, when some such seed fails, or when there is none.
 // `loopSystole` overrides the instance's own (a planted control only).
 export function systoleMovers(
@@ -3346,7 +3346,7 @@ export function squareTorusInstance(a: number, b: number, referenceCells?: numbe
 
 const largerCache = new Map<string, LabInstance | null>()
 
-// A larger closed quotient of the same tiling (item vibe-computation-models-0043): the flat tori with both sides
+// A larger closed quotient of the same tiling: the flat tori with both sides
 // doubled (the D4 torus two sides up), the {3,7} map of PSL(2,13), the next {3,4,3,4} level when the catalog holds it.
 // Null when none is built here.
 export function largerQuotient(inst: LabInstance, catalog: readonly LabInstance[]): LabInstance | null {
@@ -3440,7 +3440,7 @@ export function largerQuotient(inst: LabInstance, catalog: readonly LabInstance[
 // The surface_limited gate of a closed reading left unresolved with every collision and damage run read:
 //   - no collidable pair: the exhaustive pair search found none here, AND the same rule under the same order has a
 //     collidable pair on a larger quotient of the same tiling (largerQuotient), so the surface, not the seed set, causes
-//     it (item vibe-computation-models-0043); with no larger quotient, or none with a pair, the gate is refused and the
+//     it; with no larger quotient, or none with a pair, the gate is refused and the
 //     reading stays unresolved;
 //   - systole: no collision scattered and every non-localized seed passes the systole evidence (systoleMovers).
 function surfaceGate(input: {
@@ -3543,7 +3543,7 @@ export function extendedCensus(input: {
   rule: HarnessRule
   instance: LabInstance
   order: ColorOrder
-  // the largest family a level may hold and still be run (default EXTENDED_SEED_BUDGET; an M3 run raises it)
+  // the largest family a level may hold and still be run (default EXTENDED_SEED_BUDGET; a larger run raises it)
   budget?: number
 }): ExtendedCensus {
   const { rule, instance: inst, order } = input

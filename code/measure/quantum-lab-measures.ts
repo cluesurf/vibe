@@ -1,5 +1,5 @@
-// Exact quantum measures on a bare-beat state (item vibe-computation-models-0029, Q0; decision 004 of
-// vibe/computation/models). A state is code/rule/bare-beat's BeatState: amplitudes amp / den over Z[zeta_9][1/6]. Every
+// Exact quantum measures on a bare-beat state (Q0).
+// A state is code/rule/bare-beat's BeatState: amplitudes amp / den over Z[zeta_9][1/6]. Every
 // measure here is an exact number of Q(zeta_9) (code/algebra/ninth-field Ninth) or an integer; an order between two
 // real measures is read with code/algebra/ninth-real-sign, never with a float.
 //

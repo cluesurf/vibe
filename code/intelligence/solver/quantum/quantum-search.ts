@@ -1,5 +1,5 @@
 /**
- * The quantum solver of Q7 (item vibe-computation-intelligence-0014): the
+ * The quantum solver of Q7: the
  * exact Grover walk of Q5 run as a candidate on benchmark family A, under
  * the same outside evaluator and resource ledger as the level-1 baselines.
  *

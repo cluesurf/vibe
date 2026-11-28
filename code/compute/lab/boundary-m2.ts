@@ -1,11 +1,11 @@
-// M9 slice 2 (item vibe-computation-models-0058): self-maintaining boundaries read over ANY forward dynamics that is a
+// M9 slice 2: self-maintaining boundaries read over ANY forward dynamics that is a
 // bijection of finite-support states built from independent pieces (the matchings of a pair rule, the independent
 // vertex sets of the Q2R rule). Algebra: spin-one tones, read by each rule in its own algebra (integers for the M1 pair
 // rules and Q2R, residues mod 3 for the Z3-linear rules).
 //
 // Slice 1 (code/compute/lab/boundary.ts, imported unchanged) fixed the predicate, the horizon, the region and the export
 // count for the M1 pair rules at phase 0 and one changed cell. This module carries the same criteria
-// (m9-boundaries.md, slice 2) to:
+// (slice 2) to:
 //   - any dynamics: a `Dynamics` gives a background, a space and `pieces` ordered pieces of one round;
 //   - starts of up to three cells, with orbits found twice skipped;
 //   - a perturbation at every phase of the period, and two-cell hits on the cells a structure holds;

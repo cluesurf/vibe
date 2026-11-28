@@ -1,4 +1,4 @@
-// The drift gate of the TypeScript-to-Lean link (lean-track.md section 4, point 3). Fail-closed:
+// The drift gate of the TypeScript-to-Lean link. Fail-closed:
 //
 // 1. reruns every exporter of task/lean-export.ts into tmp/lean-export/ and compares each file byte for byte
 //    with the committed code/proof/Vibe/Generated/ copy, so a source change without regeneration fails

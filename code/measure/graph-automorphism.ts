@@ -1,5 +1,5 @@
 // The exact order of a graph's automorphism group, by individualization and refinement (the method of McKay's nauty,
-// written small): item vibe-computation-models-0052, so a symmetry confound can be read beside a curvature comparison.
+// written small), so a symmetry confound can be read beside a curvature comparison.
 //
 // |Aut(G)| = product over a base b_0, b_1, ... of the orbit size of b_i under the pointwise stabilizer of b_0 .. b_(i-1).
 // The orbit of b_i is found by testing each candidate image w (a vertex of b_i's cell in the refined partition with

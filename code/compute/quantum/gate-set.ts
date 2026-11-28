@@ -1,4 +1,4 @@
-// THE EXACT GATE SET OF THE BARE BEAT U (item vibe-computation-models-0030, Q1; decision 004 of vibe/computation/models).
+// THE EXACT GATE SET OF THE BARE BEAT U (Q1).
 // W12 read three gates inside bare U in float64 (test/verify/bare-universality-deep-checks.ts and the W12 note):
 // the role meeting M_meet, its Lie closure on the 9-dim S = 1 sector of six like-sign excitations (su(9)), the 2/3
 // role-SWAP of a pulse fused with a doublon, and the Sym^3 CZ near 0.99943 pi. This module rebuilds each one over

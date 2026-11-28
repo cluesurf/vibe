@@ -1,4 +1,4 @@
-// LOW-SYMMETRY closed quotients and SYMMETRY-MATCHED flat maps (item vibe-computation-models-0053): the controls that
+// LOW-SYMMETRY closed quotients and SYMMETRY-MATCHED flat maps: the controls that
 // separate the curvature of a tiling from the symmetry group of the quotient it is read on. E-CMP-0046 found fewer
 // standing modes on every hyperbolic quotient, but every one was a regular map (or the {3,4,3,4} congruence quotient,
 // |Aut| about 3.6e14 against 786,432 for the D4 torus of equal size). Everything here is exact integer work; nothing

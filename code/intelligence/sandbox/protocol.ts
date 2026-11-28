@@ -58,7 +58,7 @@ export const R_TABLE_SIZE = 38
 export const R_LINKS = 39
 /**
  * run a pair-rule layout on the brick line, once per word, on the layout's background tone (0, +1 or -1; 0 when left
- * out): the evaluator executes and meters every round (decision 003)
+ * out): the evaluator executes and meters every round
  */
 export const R_MESH_RUNS = 40
 

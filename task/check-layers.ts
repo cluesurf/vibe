@@ -17,7 +17,7 @@
  *    reach, through any chain, the evaluator, the judge, the sandbox, the
  *    benchmark (its hop-distance oracle included), the split builder, the
  *    substrate, geometry, tool, rule, the computation labs, the `@/code`
- *    barrel, or any node builtin (audit 2, J1: a solver rebuilding the world
+ *    barrel, or any node builtin (a solver rebuilding the world
  *    and the oracle is refused like a learner).
  * 3. Learners and discoverers (experience/learner, operator/discovery) also
  *    never reach the improve loop.
@@ -480,7 +480,7 @@ const FIXTURE: [string, string, boolean][] = [
   ['code/intelligence/genome/module.ts', "import { createRequire } from 'node:module'\n", true],
   ['code/intelligence/improve/worker.ts', "import { Worker } from 'node:worker_threads'\n", true],
   ['code/intelligence/genome/ok.ts', "import type { Solver } from '@/code/intelligence/solver/solver'\nimport { compose } from '../operator/operator'\n", false],
-  // the second audit's bypasses (audit-levels-1-3-improve.md, J1 and J2)
+  // the second audit's bypasses
   ['code/intelligence/experience/learner/builtin.ts', "const fs = (process as any).getBuiltinModule('node:fs')\nexport const text = fs.readFileSync('x', 'utf8')\n", true],
   ['code/intelligence/operator/discovery/comment.ts', "const name = '@/code/substrate/lab-geometry'\n/**/ const m = await import(name)\nexport { m }\n", true],
   ['code/intelligence/genome/indirect-eval.ts', "const run = (0, eval)\nexport const x = run('1 + 1')\n", true],

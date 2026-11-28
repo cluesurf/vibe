@@ -1,5 +1,5 @@
 /**
- * The M5 decisions of level 4, slice 2 (item vibe-computation-intelligence-0022, level4.md): switch layouts of the
+ * The M5 decisions of level 4, slice 2: switch layouts of the
  * occupancy-blind exchange rule `swap.ABC.swap` on the vacuum (background 0), run on the line under the two-colour
  * brick schedule exactly as code/compute/lab/gates.ts `lineBrickRun` runs them (pairs (2k, 2k + 1), then
  * (2k + 1, 2k + 2), left cell first, the array padded by 2 * rounds + 2 on each side, only the pairs touching the
@@ -14,10 +14,10 @@
  *   tracks so that k shifts by one with x present and the list shifts by one with s present.
  *
  * The 0/1 form of the expand gate (and both forms of the register write) cannot be laid out: under every
- * occupancy-blind cell a cell's occupancy at any round is the start occupancy of one fixed cell (level4.md, slice
+ * occupancy-blind cell a cell's occupancy at any round is the start occupancy of one fixed cell (slice
  * 2), and those tables need the output's occupancy to be x and not s, x and g, or x or s.
  *
- * Since decision 003 the honest solver never runs a layout itself: it asks the evaluator through `MeshHost`, which
+ * Since the metered round the honest solver never runs a layout itself: it asks the evaluator through `MeshHost`, which
  * executes and meters every round. `runSwitch` stays as the candidate-side copy the controls use (a lookup table built
  * from one run per input word, a formula with a made-up frame), checked against `swap.ABC.swap` of
  * code/rule/pair-rule.ts and against `lineBrickRun` cell for cell, on every input, in E-CMP-0060. No imports, exact
@@ -65,7 +65,7 @@ export const EXPAND_SWITCH: SwitchLayout = {
   table: [-1, -1, -1, 1, -1, 1, -1, -1, -1],
 }
 
-/** What the evaluator answers for one batch of metered runs (decision 003). */
+/** What the evaluator answers for one batch of metered runs. */
 export interface MeshRunsReply {
   /** each run's read cell, in request order */
   values: number[]
@@ -76,7 +76,7 @@ export interface MeshRunsReply {
 }
 
 /**
- * The metered mesh round (decision 003): the candidate never runs a layout itself; it names the rule and gives the
+ * The metered mesh round: the candidate never runs a layout itself; it names the rule and gives the
  * layout, the step, and per run the state the decision is for and its input word (`words`, layout.inputs.length tones
  * a run). The evaluator executes every round and meters it. The sandbox bridge adds this to every solver's host.
  */

@@ -1,5 +1,5 @@
 /**
- * Level 4 of the intelligence lab (item vibe-computation-intelligence-0006, level4.md): a solver whose frontier is
+ * Level 4 of the intelligence lab: a solver whose frontier is
  * an M3 signal and whose visited memory is an M4 register, with every decision left as candidate code and named.
  *
  * The solver's only access to a problem is the operators the evaluator hands over, so the mesh it runs on is the
@@ -12,7 +12,7 @@
  * - memory: the arrival tone of each lit node, written to its slot of a line register (register.ts) that runs one
  *   round of the static carrier `id.CBA.id` every wave step;
  * - decisions (slice 1: candidate code, each counted; slice 2, `decisions: 'switch'`: the lit test and the expand
- *   gate run as the M5 switch layouts of switch.ts, one run per decision, read at their read cell; since decision 003
+ *   gate run as the M5 switch layouts of switch.ts, one run per decision, read at their read cell; since the metered round
  *   the evaluator executes and meters every run, asked through the host in one batch per decision per step, and the
  *   solver only writes the input words and reads the answers): the lit test
  *   (non-zero), the expand gate (non-zero and slot empty), the register write, the goal
@@ -92,14 +92,14 @@ export interface MeshReport {
   readbackComparisons: number
   /** bytes of the mesh structures and the arc table, at the end */
   meshBytes: number
-  /** what knocking out each step's rounds would change (provenance accounting, item 0030) */
+  /** what knocking out each step's rounds would change (provenance accounting) */
   knockout: KnockoutReport
   /** slice 2: present when the lit test and the expand gate run as M5 switch layouts */
   switches?: SwitchReport
 }
 
 /**
- * The knockout reading of the two step components the solver runs itself (item 0030): a component counts as
+ * The knockout reading of the two step components the solver runs itself: a component counts as
  * mesh-realized only if knocking out its rounds (the identity in place of a round) changes some read. Summed over every
  * step, each knocking out that one step's round from the honest configuration.
  */
@@ -140,7 +140,7 @@ export interface MeshSettings {
   frontier: 'wave' | 'external'
   /**
    * 'candidate' decides the lit test and the expand gate in candidate code (slice 1); 'switch' has the evaluator run
-   * them as the M5 switch layouts, metered (slice 2, decision 003); 'formula' is a control that decides them in
+   * them as the M5 switch layouts, metered (slice 2); 'formula' is a control that decides them in
    * candidate code and reports a frame made up from the output alone; 'lookup' is a control that runs each layout once
    * per input word in candidate code and looks every decision up, reporting exactly what an honest run reports
    */
@@ -229,8 +229,8 @@ export function meshWaveSolver<S>(settings: MeshSettings, host?: MeshHost<S>): S
       const meshHashes: number[] = []
 
       /**
-       * Decide one table for a batch of nodes. 'switch': the evaluator runs the layout once per node, metered
-       * (decision 003). The controls decide in candidate code: 'lookup' runs the layout once per input word and looks
+       * Decide one table for a batch of nodes. 'switch': the evaluator runs the layout once per node, metered.
+       * The controls decide in candidate code: 'lookup' runs the layout once per input word and looks
        * every later run up, 'formula' computes the table and makes the frame up.
        */
       const decideBatch = (

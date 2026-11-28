@@ -6,7 +6,7 @@ import Vibe.Generated.Kleene
 /-!
 # Vibe Theory: Kleene and Counter Certificates on the Brick Line
 
-The line results of milestones M5 and M6 (item 0061, E-CMP-0058, E-CMP-0061, G6), proved on the round of
+The line results of milestones M5 and M6 (E-CMP-0058, E-CMP-0061, G6), proved on the round of
 `Vibe.Compute.Round` over the infinite line `Int` under the brick schedule (colour 0 pairs `(2k, 2k + 1)`,
 colour 1 pairs `(2k + 1, 2k + 2)`, the left cell first), with every rule read from the code's own census
 table (`RuleCensus.genTable`, tied to `pair-rule.ts` by `gen_pair_rules_eq`).

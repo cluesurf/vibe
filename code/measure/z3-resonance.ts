@@ -1,4 +1,4 @@
-// Exact resonance measures for linear Z3 dynamics on a cell graph (item vibe-computation-models-0019, M8). Everything
+// Exact resonance measures for linear Z3 dynamics on a cell graph (M8). Everything
 // is integer arithmetic mod 3 or bigint rationals: no floating point decides anything here.
 //
 // The linear second-order wave s(t+1) = A' s(t) - s(t-1) with A' = A + sigma I over F3 is the map

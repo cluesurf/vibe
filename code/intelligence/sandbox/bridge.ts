@@ -258,7 +258,7 @@ function hostOf(artifacts: readonly ArtifactRef[]): Record<string, unknown> {
     key: keyOf,
     /**
      * Run a layout of the pair rule named `rule` on the brick line once per node: the evaluator executes and meters
-     * every round (decision 003) and answers each run's read cell. `words` holds the input trits, run after run. A
+     * every round and answers each run's read cell. `words` holds the input trits, run after run. A
      * layout may name its line's `background` tone (0, +1 or -1); left out (or undefined) it is the vacuum 0. Whatever
      * it names is sent as given, so the evaluator, never this side, decides whether it is a tone.
      */

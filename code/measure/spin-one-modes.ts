@@ -1,5 +1,5 @@
 // Exact collective-mode measures of the reversible spin-1 Q2R rule (code/rule/spin-one-q2r.ts) on a closed cell graph
-// (item vibe-computation-models-0052, M8 slice 2). Integer arithmetic and bigint rationals only: no floating point
+// (M8 slice 2). Integer arithmetic and bigint rationals only: no floating point
 // decides anything here.
 //
 // - The orbit period: a round is a bijection of the configuration, so the orbit of a start is a pure cycle and its

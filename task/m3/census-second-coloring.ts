@@ -1,15 +1,15 @@
-// M3 driver (item vibe-computation-models-0069 part d): the particle census of E-CMP-0043 (M3-A,
+// Batch driver: the particle census of E-CMP-0043 (M3-A,
 // test/experiment/computation/particle-census.ts) under a second coloring of every tiling, so that a flat against
-// hyperbolic difference can be split from a coloring difference (audit finding 0045, P16 of m12-predictions.md).
+// hyperbolic difference can be split from a coloring difference.
 //
-//   pnpm call task/m3/census-second-coloring.ts [--colorings base|second|base,second] [--spaces 4.4,4.5,...]
+//   pnpm call task/batch/census-second-coloring.ts [--colorings base|second|base,second] [--spaces 4.4,4.5,...]
 //                                               [--scale 1]
 //
 // Spaces are columns written with dots ({4,4} is 4.4). Colorings:
 // - base: E-CMP-0043's open window of the column (lazySpaceFactory: the lifted coloring variant 0 on the coset
 //   tilings, the generator coloring on {5,4}, {6,4}, {3,4,3,4}, step-parity on {6,3} and {3,4,3,3}), plus the coset
 //   rebuilds {6,3}/coset and {6,4}/coset (lifted variant 0), as the experiment.
-// - second: code/compute/lab/harness.ts lazyVariants, the schedule variants item 0045 built for this: the lifted
+// - second: code/compute/lab/harness.ts lazyVariants, the schedule variants built for this: the lifted
 //   coloring variant 1 (code/substrate/coxeter/lifted-coloring.ts, the next 1-factorization in search order) on every
 //   coset tiling and on {6,3} and {6,4}; the lifted coloring variant 0 on {5,4} (its second family); and on the two
 //   degree-24 spaces, which have no second coloring here, a color-order permutation (stride) of their base coloring.
@@ -939,7 +939,7 @@ const failures = Object.entries(gate)
 log(`gates ${JSON.stringify(gate)}; failures: ${failures.length === 0 ? 'none' : failures.join(', ')}`)
 
 summary({
-  item: 'vibe-computation-models-0069',
+  driver: 'census-second-coloring',
   part: 'd',
   colorings,
   scale,

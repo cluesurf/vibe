@@ -10,8 +10,8 @@ import Vibe.Compute.Round
 /-!
 # Vibe Computation Lab: Boundaries (M9)
 
-The claims of m9-boundaries.md that hold for every box and every bijective round (lean-track.md,
-L10, claims A20 to A23). Built on `Vibe.Compute.Round` (`roundPerm`, `finRoundPerm`,
+The claims of milestone M9 that hold for every box and every bijective round (claims A20 to
+A23). Built on `Vibe.Compute.Round` (`roundPerm`, `finRoundPerm`,
 `thm_cmp_round_perm_charge_negation`, `thm_cmp_recurrence_is_periodic`).
 
 A *repair* at round `T` is the perturbed state agreeing with the unperturbed one on a region `B`

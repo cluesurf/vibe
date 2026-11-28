@@ -1,7 +1,7 @@
-// SECOND-ORDER REVERSIBLE Z3 WAVES on every lab geometry (item vibe-computation-models-0013, plan.md M3-B, algebra Z3
+// SECOND-ORDER REVERSIBLE Z3 WAVES on every lab geometry (algebra Z3
 // cyclic). The rule is code/rule/second-order-z3.ts: s(t+1) = f(s(t) on the cell and its neighbors) - s(t-1) mod 3,
 // every cell at once. No pair schedule and no orientation exist here, so a flat tiling and its degree-matched
-// hyperbolic control (decision 001: {4,4}/{4,5}, {6,3}/{6,4}, {3,6}/{3,7}, {3,4,3,3}/{3,4,3,4}) differ ONLY in the
+// hyperbolic control ({4,4}/{4,5}, {6,3}/{6,4}, {3,6}/{3,7}, {3,4,3,3}/{3,4,3,4}) differ ONLY in the
 // graph, and the face length p is equal inside each pair: the pair varies the vertex degree q, which is the curvature.
 // This answers audit-m1 finding F (matched pairs must hold everything but curvature fixed) by construction.
 //
@@ -44,7 +44,7 @@
 // checked exhaustively; N2 the square law breaks superposition on every geometry; N3 the sub-ball run past its window
 // disagrees with the larger ball; N4 the reversal run WITHOUT the swap does not return the earlier slices.
 //
-// Laptop sizes: balls of up to 90,000 tiles, under the 10-second budget.
+// Default sizes: balls of up to 90,000 tiles, under the 10-second budget.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

@@ -4,7 +4,7 @@ import Vibe.HolographicCode
 /-!
 # Vibe Theory: Code Spaces the Bare Beat `U` Leaves Invariant (Q4)
 
-Item `vibe-computation-models-0034` (decision 004 of `vibe/computation/models`). The experiment
+Milestone Q4. The experiment
 (`computation/bare-u-memory`) finds two layer-by-code invariances under the bare beat; both are stated here, with the
 one layer that breaks the second.
 

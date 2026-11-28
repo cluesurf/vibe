@@ -1,5 +1,4 @@
-// Exact hyperbolic tile balls for the computation lab (item vibe-computation-models-0027, decision 003 of
-// vibe/computation/models). buildCellGraph places tiles by floating-point positions and stops near 15,000 cells, which
+// Exact hyperbolic tile balls for the computation lab. buildCellGraph places tiles by floating-point positions and stops near 15,000 cells, which
 // held the hyperbolic open windows of E-CMP-0027 to radius 2 ({3,4,3,4}) to 15 ({3,7}). chamber-tiling.ts builds the
 // same tile graphs from the Coxeter group alone (integer chamber ids, the Coxeter matrix, no coordinates), lazily, to
 // any radius memory allows. This experiment proves those balls exact before the lab uses them.
@@ -590,7 +589,7 @@ export default experiment({
       metrics,
       control,
       notes:
-        `L2 infrastructure gate (decision 003 of vibe/computation/models): hyperbolic open windows of the M1 harness come from these balls. The 'tile' systems ({5,4}, {6,4}: right-angled polygon groups; {3,4,3,4}: the right-angled 24-cell) make word length equal to facet distance, so nothing is built outside the ball; 'sector' and 'chamber' systems build extra chambers beyond it (counted in the chamber metrics). Steinberg's formula and the isomorphism tests are independent of the construction; the recurrence is a consistency check, not a proof of the series for {7,3}, {8,3}, {4,5} and {3,7}. ${ok ? '' : `Failures: ${failures.slice(0, 8).join('; ')}`}`.trim(),
+        `L2 infrastructure gate: hyperbolic open windows of the M1 harness come from these balls. The 'tile' systems ({5,4}, {6,4}: right-angled polygon groups; {3,4,3,4}: the right-angled 24-cell) make word length equal to facet distance, so nothing is built outside the ball; 'sector' and 'chamber' systems build extra chambers beyond it (counted in the chamber metrics). Steinberg's formula and the isomorphism tests are independent of the construction; the recurrence is a consistency check, not a proof of the series for {7,3}, {8,3}, {4,5} and {3,7}. ${ok ? '' : `Failures: ${failures.slice(0, 8).join('; ')}`}`.trim(),
     })
   },
 })

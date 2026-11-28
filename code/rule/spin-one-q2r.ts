@@ -1,5 +1,5 @@
-// A Q2R-style reversible, energy-conserving spin-1 Blume-Capel rule on any cell graph (plan.md section 3, milestone
-// M2-B of vibe/computation/models).
+// A Q2R-style reversible, energy-conserving spin-1 Blume-Capel rule on any cell graph (milestone
+// M2-B).
 //
 // Algebra spin-1: a tone is -1, 0 or +1, read as an integer spin. The energy is
 //
@@ -23,10 +23,10 @@
 // and its inverse is itself. A round applies the sets in order; the inverse round applies them in the reverse order.
 // No randomness: the dynamics is deterministic, exact integer arithmetic throughout.
 //
-// The schedule (decision 002) is declared added structure: a proper vertex coloring of the cell graph by a greedy
+// The schedule is declared added structure: a proper vertex coloring of the cell graph by a greedy
 // pass in a canonical order (breadth-first from cell 0, or that order reversed), applied in forward or reversed color
-// order. The same construction is used on every graph, so the two sides of a degree-matched pair (decision 001,
-// audit-m1 finding F) carry ONE schedule family.
+// order. The same construction is used on every graph, so the two sides of a degree-matched pair
+// carry ONE schedule family.
 //
 // Q = sum s (magnetization) and D = sum s^2 are NOT conserved by this rule (a flip changes Q by 2, a vacancy move D
 // by 1); they are book-kept exactly, move by move, and checked against a recount.

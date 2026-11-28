@@ -1,4 +1,4 @@
-// Quantum memory and error protection under the bare beat U (Q4, item vibe-computation-models-0034).
+// Quantum memory and error protection under the bare beat U (Q4).
 //
 // Does a logical qutrit kept in a code survive T beats of the exact bare beat U (code/rule/bare-beat.ts), and which of
 // U's layers leave which code space invariant? Three codes were named: the [[24,1,8]]_3 holographic code of

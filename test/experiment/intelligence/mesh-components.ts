@@ -1,4 +1,4 @@
-// Intelligence level 4, slice 1 (item vibe-computation-intelligence-0006, level4.md of vibe/computation/intelligence):
+// Intelligence level 4, slice 1:
 // the solver's components realized as mesh structures where the models allow it. The frontier is the M3-B Z3 wave
 // s(t+1) = sum of in-neighbours - s(t-1) (mod 3) on the configuration graph the solver discovers through the
 // evaluator's operators; the visited memory is an M4 line register of the static carrier id.CBA.id at slot spacing 2,
@@ -8,7 +8,7 @@
 // 12 occupancy-blind rule-background cells on any graph, schedule or layout. Same problems (benchmark family A of
 // E-CMP-0026, all 104 instances) and the same outside evaluator as level 1, isolated in the sandbox.
 //
-// Gates, fixed in level4.md before the first run, each able to fail:
+// Gates, fixed before the first run, each able to fail:
 // - G1 every meshWave grade clean (no evaluator violation), no false claim.
 // - G2 cost never below breadth-first search; no solve where BFS proves the instance unsolvable.
 // - G3 exactness: on every judged instance with no hole (a state at distance k < d(goal) dark at step k), the cost
@@ -26,9 +26,9 @@
 //   once each; adjacentRegister (spacing 1) rejected at least once.
 // - G7 the sandbox bundle refuses code/rule/second-order-z3 and code/compute/lab/memory and accepts meshWave.
 // - G8 determinism (a second grading of two geometries, identical ids and numbers); no random or clock source.
-// - the decision tables classify as level4.md says: lit test, expand gate and register write occupancy-routed; stop test
+// - the decision tables classify as declared: lit test, expand gate and register write occupancy-routed; stop test
 //   and min not.
-// - knockout provenance (item 0030): a component counts as mesh-realized only if knocking out its rounds changes some
+// - knockout provenance: a component counts as mesh-realized only if knocking out its rounds changes some
 //   read. The wave's knockout must change reads (and agree with the judge's recomputation on every wall instance); the
 //   register's must change none on the honest solves and on every 4-slot word, while the spacing-1 control's must change
 //   some. The register is then labelled mesh storage with an identity round and left out of the mesh share.
@@ -568,7 +568,7 @@ export default experiment({
       fail('spacing 1 corrupted no word: the register control shows nothing')
     }
 
-    // the register knockout, for a register of any length (item 0030): at spacing 2 every brick pair holds one slot
+    // the register knockout, for a register of any length: at spacing 2 every brick pair holds one slot
     // cell and one background cell, so the pairs a valid layout ever shows are (t, 0) and (0, t); the static carrier
     // fixes each, so every round is the identity on every reachable frame and knocking the rounds out changes no read
     const register = pairRulesFromFibers().find(rule => rule.name === 'id.CBA.id')
@@ -602,7 +602,7 @@ export default experiment({
 
     for (const decision of decisions) {
       if (decision.routed !== decision.expected) {
-        fail(`decision ${decision.name}: occupancy-routed ${decision.routed}, level4.md says ${decision.expected}`)
+        fail(`decision ${decision.name}: occupancy-routed ${decision.routed}, declared ${decision.expected}`)
       }
     }
 
@@ -739,7 +739,7 @@ export default experiment({
 
       add('operatorCalls', grade.operatorCalls)
 
-      // item 0036 (audit 3, M1): credit rests on the judge's recomputation, so the solver's own operations are split by
+      // credit rests on the judge's recomputation, so the solver's own operations are split by
       // whether the judge recomputes the instance (the wall kinds) or only the candidate reports it (the directed kinds)
       const ownOps =
         report.waveArcReads + report.waveCellUpdates + report.registerPairUpdates + report.litTests + report.expandGates + report.registerWrites + report.stopTests + report.readbackComparisons
@@ -753,7 +753,7 @@ export default experiment({
       split.ownOps += ownOps
       split.knockout += report.knockout?.waveChangedValues ?? 0
 
-      // the knockout reading (item 0030)
+      // the knockout reading
       const knock = report.knockout
 
       if (knock === undefined || !Number.isInteger(knock.waveChangedValues) || !Number.isInteger(knock.registerChangedPairs)) {
@@ -839,7 +839,7 @@ export default experiment({
         if (report === null || mismatches(report, want).length > 0 || report.registerCorruptions > 0) {
           rejected++
         } else if (name === 'externalFrontier') {
-          // audit 3, m6: where the breadth-first layer equals the wave, the control's report is the honest one
+          // where the breadth-first layer equals the wave, the control's report is the honest one
           externalFrontierPassed.push(`${entry.instance.id} (stop step ${report.stopStep})`)
         }
 
@@ -857,9 +857,9 @@ export default experiment({
       }
     }
 
-    // item 0036 (audit 3, M1; the probe tmp/audit-intelligence-3/wave-split.ts, now a control): on the directed kinds no
+    // a control: on the directed kinds no
     // judge recomputes the wave, so externalFrontier (breadth-first layers claimed as the wave) is graded clean there with
-    // reports that differ from the honest solver's. Under the credit rule before item 0036 (every solve credited) those
+    // reports that differ from the honest solver's. Under the earlier credit rule (every solve credited) those
     // solves were credited unseen; the rule now credits only judged solves, and the gate below checks it.
     const externalFrontierRecipe = CONTROL_RECIPES.find(([name]) => name === 'externalFrontier')![1]
     const unjudgedExternal = { tried: 0, clean: 0, differing: 0 }
@@ -920,7 +920,7 @@ export default experiment({
       fail(`random number or clock source: ${findings.map(f => `${f.file}:${f.line} ${f.kind}`).join(', ')}`)
     }
 
-    // the provenance table. The rule (item 0030, fixed before the run): a component counts as mesh-realized only if
+    // the provenance table. The rule (fixed before the run): a component counts as mesh-realized only if
     // knocking out its rounds changes some read. The wave's knockout changes reads on every instance that steps; the
     // register's changes none (0 changed pairs on every solve, and none possible on a valid layout), so its rounds are
     // mesh storage with an identity round, counted but not credited.
@@ -946,7 +946,7 @@ export default experiment({
     const noGoOps = totals.stopTests! + totals.readbackComparisons!
     const interfaceOps = totals.operatorCalls! + totals.goalTests!
     const share = (part: number): string => (part / (waveOps + identityStorageOps + routedOps + noGoOps)).toFixed(4)
-    // item 0036: the credited shares are over the judged solves only; over all solves they are candidate-reported
+    // the credited shares are over the judged solves only; over all solves they are candidate-reported
     const judgedShare = (part: number): string => (part / judgedSplit.ownOps).toFixed(4)
     const unjudgedShare = (part: number): string => (unjudgedSplit.ownOps === 0 ? 0 : part / unjudgedSplit.ownOps).toFixed(4)
 
@@ -976,7 +976,7 @@ export default experiment({
     metrics.registerLoneTonesFixed = loneFixed ? 1 : 0
     metrics.meshOps = meshOps
     metrics.identityStorageOps = identityStorageOps
-    // item 0036: the credited share, judged solves only; the all-solve share beside it is candidate-reported
+    // the credited share, judged solves only; the all-solve share beside it is candidate-reported
     metrics.meshShare = Number(judgedShare(judgedSplit.waveOps))
     metrics.identityStorageShare = Number(judgedShare(judgedSplit.identityOps))
     metrics.judgedSolves = judgedSplit.solves
@@ -1017,7 +1017,7 @@ export default experiment({
       claim: `intelligence level 4, slice 1: on all ${graded.length} instances of benchmark family A a solver whose frontier is the M3-B Z3 wave on the configuration graph it discovers and whose visited memory is held in an M4 static register is graded clean by the level-1 evaluator; it is never below breadth-first search and matches its optimum on ${optimal} of ${optimal + longer} solves (${longer} longer, ${missed} solvable instances missed), exactly where the wave front has no Lucas hole inside the goal's radius (${holeFreeOptimal} of ${holeFreeChecked} judged hole-free instances optimal); a judge recomputes all ${judged} wall instances with the original rule; counting a component as mesh-realized only if knocking out its rounds changes some read, and crediting only what the judge recomputed, transport is mesh-realized on the ${judgedSplit.solves} judged wall solves (${judgedShare(judgedSplit.waveOps)} of their own operations; the judge's wave knockout changes ${totals.judgeWaveKnockoutChangedValues ?? 0} node values there), while on the ${unjudgedSplit.solves} directed-kind solves the wave counts are the candidate's report and are not credited (${unjudgedSplit.waveOps} wave operations, share ${unjudgedShare(unjudgedSplit.waveOps)} candidate-reported; a breadth-first control is graded clean on ${unjudgedExternal.clean} of ${unjudgedExternal.tried} of them with reports differing from the honest solver's on ${unjudgedExternal.differing}, and no judge looks there), and the register is mesh storage with an identity round, counted but not credited (${judgedShare(judgedSplit.identityOps)} on the judged solves; its knockout changes ${registerKnockout} pairs on the solves and ${spaced.changedReads} of ${spaced.reads} reads over every 4-slot word, and none can change on a valid layout of any length), the lit test, expand gate and register write are occupancy-routed decisions left in candidate code (${judgedShare(judgedSplit.routedOps)}), and the stop test and path read-back need tables the M5 lemma forbids every occupancy-blind rule (${judgedShare(judgedSplit.noGoOps)}); over all ${graded.length} solves, candidate-reported, the shares are ${share(meshOps)}, ${share(identityStorageOps)}, ${share(routedOps)} and ${share(noGoOps)}`,
       metrics,
       control,
-      notes: `L2. Provenance (every count summed over the ${graded.length} solves). The rule (fixed before the run): a component counts as mesh-realized only if knocking out its rounds (the identity in place of a round) changes some read. Mesh computation: frontier transport and fan-out by the M3-B wave (${totals.waveArcReads} arc reads, ${totals.waveCellUpdates} node updates; certified equal to secondOrderZ3Step on C16, the 8 x 8 torus, Q6 and K9 over ${certifiedSteps} steps, the self-1 law differing at ${foreignDifferences}); knocking out each step changes ${waveKnockout} node values in all, on ${totals.waveKnockoutInstancesChanged ?? 0} of ${graded.length} solves, the judge's recomputation agreeing on all ${judged} wall instances (${totals.judgeWaveKnockoutChangedValues ?? 0} there). Mesh storage with an identity round, not credited: the M4 line register of id.CBA.id at spacing 2 (${totals.registerPairUpdates} pair updates, ${registerKnockout} of them changing their pair; every 4-slot word held 48 rounds, ${spaced.changedReads} of ${spaced.reads} reads changed by the rounds, against ${adjacent.changedReads} at spacing 1, where ${adjacent.corrupted} of 81 words are corrupted; at spacing 2 a pair is always (t, 0) or (0, t) and id.CBA.id fixes all five, so the round is the identity on every valid layout and a plain array with the same ports computes the same function). Formerly the register was credited as mesh, giving a mesh share of ${share(meshOps + identityStorageOps)}. External but occupancy-routed, so not excluded by the M5 lemma (the lit test is the switch |x| M5 found; the expand gate and the write have no layout built): lit tests ${totals.litTests}, expand gates ${totals.expandGates}, register writes ${totals.registerWrites}. External and impossible for the 12 occupancy-blind cells (not occupancy-routed): stop tests (equality with +1) ${totals.stopTests}, read-back comparisons (min) ${totals.readbackComparisons}. The interface: operator calls ${totals.operatorCalls} and goal tests ${totals.goalTests}, the evaluator's. Shares of the solver's own operations on the judged solves: mesh computation ${judgedShare(judgedSplit.waveOps)}, identity-round storage ${judgedShare(judgedSplit.identityOps)}, routed external ${judgedShare(judgedSplit.routedOps)}, no-go external ${judgedShare(judgedSplit.noGoOps)}; over all solves, candidate-reported: ${share(meshOps)}, ${share(identityStorageOps)}, ${share(routedOps)}, ${share(noGoOps)}. Outcomes: ${[...outcomes].map(([o, n]) => `${o} ${n}`).join(', ')} (the wave work cap is ${WAVE_WORK_CAP} arc reads; exhausted means the field came back to its seed, so nothing more would ever light). Per kind: ${kindRows.join('; ')}. Holes inside the goal's radius on judged solved instances, per geometry: ${[...holesByGeometry].map(([g, n]) => `${g} ${n}`).join(', ')}; ${holedInstances} judged instances have one. The widest frontier is the number of movers a number-conserving M3-A transport would need placed at once: occupancy is conserved under the occupancy-blind rules, so one mover never fans out. Credit (item 0036, audit 3 M1): before the item every solve was credited, ${unjudgedSplit.solves} of them on the candidate's report alone (${unjudgedSplit.waveOps} wave operations, ${unjudgedSplit.knockout} knockout values); now the label, the knockout total and the shares rest on the ${judgedSplit.solves} judged solves (${judgedSplit.waveOps} wave operations, ${judgedSplit.knockout} knockout values reported, ${totals.judgeWaveKnockoutChangedValues ?? 0} recomputed). On the unjudged kinds externalFrontier is graded clean ${unjudgedExternal.clean} of ${unjudgedExternal.tried} and differs from the honest report on ${unjudgedExternal.differing}. Controls (the judged wall instances): externalFrontier graded clean by the evaluator ${control.externalFrontierEvaluatorClean} of ${control.externalFrontierTried}, judge rejected ${control.externalFrontierJudgeRejected} (it passes where the breadth-first layer equals the wave: ${externalFrontierPassed.join(', ') || 'none'}); foreignLaw clean ${control.foreignLawEvaluatorClean}, rejected ${control.foreignLawJudgeRejected} of ${control.foreignLawTried}; adjacentRegister clean ${control.adjacentRegisterEvaluatorClean}, rejected ${control.adjacentRegisterJudgeRejected} of ${control.adjacentRegisterTried} (the register is read once, at the stop step, and at spacing 1 an adjacent opposite pair trades cells once a round, so an even round count hides the corruption; the rest have no adjacent opposite pair). Limits: on a valid layout the static carrier is the identity, so a plain array computes the same function; the register is therefore not credited as mesh computation, and the judge can catch only an invalid layout. The wave runs on the configuration graph, the tiling's own open-cell graph only for maze and obstacle; on the directed kinds the in-neighbour sum is a declared extension of M3-B and is not recomputed by the judge. Sandbox: the bundle refuses code/rule/second-order-z3 (${refusedWave.ok ? 'accepted' : refusedWave.reason}). ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
+      notes: `L2. Provenance (every count summed over the ${graded.length} solves). The rule (fixed before the run): a component counts as mesh-realized only if knocking out its rounds (the identity in place of a round) changes some read. Mesh computation: frontier transport and fan-out by the M3-B wave (${totals.waveArcReads} arc reads, ${totals.waveCellUpdates} node updates; certified equal to secondOrderZ3Step on C16, the 8 x 8 torus, Q6 and K9 over ${certifiedSteps} steps, the self-1 law differing at ${foreignDifferences}); knocking out each step changes ${waveKnockout} node values in all, on ${totals.waveKnockoutInstancesChanged ?? 0} of ${graded.length} solves, the judge's recomputation agreeing on all ${judged} wall instances (${totals.judgeWaveKnockoutChangedValues ?? 0} there). Mesh storage with an identity round, not credited: the M4 line register of id.CBA.id at spacing 2 (${totals.registerPairUpdates} pair updates, ${registerKnockout} of them changing their pair; every 4-slot word held 48 rounds, ${spaced.changedReads} of ${spaced.reads} reads changed by the rounds, against ${adjacent.changedReads} at spacing 1, where ${adjacent.corrupted} of 81 words are corrupted; at spacing 2 a pair is always (t, 0) or (0, t) and id.CBA.id fixes all five, so the round is the identity on every valid layout and a plain array with the same ports computes the same function). Formerly the register was credited as mesh, giving a mesh share of ${share(meshOps + identityStorageOps)}. External but occupancy-routed, so not excluded by the M5 lemma (the lit test is the switch |x| M5 found; the expand gate and the write have no layout built): lit tests ${totals.litTests}, expand gates ${totals.expandGates}, register writes ${totals.registerWrites}. External and impossible for the 12 occupancy-blind cells (not occupancy-routed): stop tests (equality with +1) ${totals.stopTests}, read-back comparisons (min) ${totals.readbackComparisons}. The interface: operator calls ${totals.operatorCalls} and goal tests ${totals.goalTests}, the evaluator's. Shares of the solver's own operations on the judged solves: mesh computation ${judgedShare(judgedSplit.waveOps)}, identity-round storage ${judgedShare(judgedSplit.identityOps)}, routed external ${judgedShare(judgedSplit.routedOps)}, no-go external ${judgedShare(judgedSplit.noGoOps)}; over all solves, candidate-reported: ${share(meshOps)}, ${share(identityStorageOps)}, ${share(routedOps)}, ${share(noGoOps)}. Outcomes: ${[...outcomes].map(([o, n]) => `${o} ${n}`).join(', ')} (the wave work cap is ${WAVE_WORK_CAP} arc reads; exhausted means the field came back to its seed, so nothing more would ever light). Per kind: ${kindRows.join('; ')}. Holes inside the goal's radius on judged solved instances, per geometry: ${[...holesByGeometry].map(([g, n]) => `${g} ${n}`).join(', ')}; ${holedInstances} judged instances have one. The widest frontier is the number of movers a number-conserving M3-A transport would need placed at once: occupancy is conserved under the occupancy-blind rules, so one mover never fans out. Credit: before the item every solve was credited, ${unjudgedSplit.solves} of them on the candidate's report alone (${unjudgedSplit.waveOps} wave operations, ${unjudgedSplit.knockout} knockout values); now the label, the knockout total and the shares rest on the ${judgedSplit.solves} judged solves (${judgedSplit.waveOps} wave operations, ${judgedSplit.knockout} knockout values reported, ${totals.judgeWaveKnockoutChangedValues ?? 0} recomputed). On the unjudged kinds externalFrontier is graded clean ${unjudgedExternal.clean} of ${unjudgedExternal.tried} and differs from the honest report on ${unjudgedExternal.differing}. Controls (the judged wall instances): externalFrontier graded clean by the evaluator ${control.externalFrontierEvaluatorClean} of ${control.externalFrontierTried}, judge rejected ${control.externalFrontierJudgeRejected} (it passes where the breadth-first layer equals the wave: ${externalFrontierPassed.join(', ') || 'none'}); foreignLaw clean ${control.foreignLawEvaluatorClean}, rejected ${control.foreignLawJudgeRejected} of ${control.foreignLawTried}; adjacentRegister clean ${control.adjacentRegisterEvaluatorClean}, rejected ${control.adjacentRegisterJudgeRejected} of ${control.adjacentRegisterTried} (the register is read once, at the stop step, and at spacing 1 an adjacent opposite pair trades cells once a round, so an even round count hides the corruption; the rest have no adjacent opposite pair). Limits: on a valid layout the static carrier is the identity, so a plain array computes the same function; the register is therefore not credited as mesh computation, and the judge can catch only an invalid layout. The wave runs on the configuration graph, the tiling's own open-cell graph only for maze and obstacle; on the directed kinds the in-neighbour sum is a declared extension of M3-B and is not recomputed by the judge. Sandbox: the bundle refuses code/rule/second-order-z3 (${refusedWave.ok ? 'accepted' : refusedWave.reason}). ${metrics.isolatedSessions} isolated contexts, ${metrics.isolatedRequests} requests. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
     })
   },
 })

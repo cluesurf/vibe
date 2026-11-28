@@ -1,5 +1,5 @@
 /**
- * Level 7, slice 1 (level7.md of vibe/computation/intelligence): a tie-breaking device that develops from a primitive
+ * Level 7, slice 1: a tie-breaking device that develops from a primitive
  * start. Before the search the solver asks the evaluator to run a primitive start (a window of at most three tones) for
  * `rounds` rounds of the claimed pair rule, reading every cell of the device span at that round (one metered run per
  * cell); the reads are the device window (the evaluator-metered handoff of level 6, slice 4). With `rounds` 0 the window
@@ -8,7 +8,7 @@
  * learned table holds the successor, else 0; d = the sign of the base estimate's change from the parent. A preferred
  * successor wins ties of f = g + h before h does, so the search stays optimal and only its order can change.
  *
- * The candidate never runs a round (decision 003). Modes: 'mesh' (honest), 'code' (the smuggler: the preference from
+ * The candidate never runs a round. Modes: 'mesh' (honest), 'code' (the smuggler: the preference from
  * the fixed function `mask` in candidate code, no run asked), 'misdeveloped' (the development runs are asked, then the
  * undeveloped window is used while the developed one is claimed: a control the judge must refuse).
  *

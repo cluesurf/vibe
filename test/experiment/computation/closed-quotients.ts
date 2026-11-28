@@ -1,13 +1,13 @@
-// CLOSED QUOTIENTS for the M1 lab (item vibe-computation-models-0003, plan.md section 1.3): finite cell graphs with no
+// CLOSED QUOTIENTS for the M1 lab: finite cell graphs with no
 // boundary, on which a reversible rule's global map is a permutation of a finite set, so every orbit is periodic and
 // the 16 vacuum-creating pair rules can run without a vacuum outside. Code: code/substrate/tiling-quotient.ts.
 //
 // Built: the hyperbolic regular maps {7,3} (Klein's quartic), {5,4} (Bring's surface), {8,3}, and the degree-matched
-// controls {4,5}, {6,4}, {3,7} (decision 001), each the smallest found in PGL(2, m) whose cell graph is simple and whose
+// controls {4,5}, {6,4}, {3,7}, each the smallest found in PGL(2, m) whose cell graph is simple and whose
 // 1-balls are the tiling's; the flat torus of equal cell count and degree where a flat tiling of that degree exists;
 // the {3,4,3,4} congruence quotients K mod (sqrt 2)^m under 20,000 docks, with the flat D4 torus of equal size.
 //
-// GATES (fail the experiment). Item vibe-computation-models-0048 split them into IDENTITIES of the construction, which
+// GATES (fail the experiment). A later pass split them into IDENTITIES of the construction, which
 // hold by how the tables are built and are kept only as consistency checks, and INDEPENDENT checks, which read the
 // quotient another way and can fail:
 // G1 every cell has full degree p and p distinct neighbours (no self-adjacency); faces are p-gons, vertices have q
@@ -28,7 +28,7 @@
 //    systole (G3l) from non-backtracking closed walks equals the count-derived one, and on the flat tori the lattice
 //    value (min(a, b) for square and hexagon tori, 2 min(a, b) for triangle tori).
 // G4 a greedy edge coloring splits every graph into matchings that cover each edge once (the partition schedule's
-//    raw material, decision 002); the color count is recorded.
+//    raw material); the color count is recorded.
 // G5 two builds give identical tables.
 //
 // NEGATIVE CONTROLS (each must trip a gate): a 2 x 2 square torus (a directed edge twice), a triangle torus with one
@@ -459,7 +459,7 @@ export function closedQuotientsRun(): Verdict {
     })
   }
 
-  // ---- how far a {4,5} quotient's loop systole reaches (item vibe-computation-models-0004) ----
+  // ---- how far a {4,5} quotient's loop systole reaches ----
   //
   // The closed {4,5} full swap of E-CMP-0027 reads only on a quotient whose loop systole L exceeds 2 c T (c = 5 colors
   // of its greedy coloring, T = 24 rounds), so a mover cannot pass L / 2. Every r-ball of a quotient with injectivity

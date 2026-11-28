@@ -7,7 +7,7 @@ import Mathlib.Combinatorics.SimpleGraph.Walk.Traversal
 /-!
 # Cover distance: what a closed quotient can read of distance on its cover (L20, claim A32)
 
-Decision 006, as amended by the M1 audit fixes, gates the `surface_limited` systole branch on the loop systole `L`
+The gated readings gate the `surface_limited` systole branch on the loop systole `L`
 of a closed quotient (the shortest closed walk that does not lift to a closed walk on the tiling), and states:
 quotient distance never exceeds cover distance, and equals it whenever the cover distance is at most `L / 2`. The
 lab reads `L` as `2r + 2` when some `(r + 1)`-ball loses a cell and `2r + 3` otherwise, where `r` is the injectivity
@@ -43,7 +43,7 @@ determines cover distance (`thm_cover_dist_gap`, with the exact `L`), so the quo
 ballistic radius test. Below `L / 2` it reads cover distance exactly (`thm_cover_dist_eq`), which is why a mere lower
 bound on `L` must refuse the gate: with `L₀ < L`, a reading `L₀ < 2m ≤ L` is still an exact cover distance. The label
 says nothing about what the mover does on the cover (ballistic, bounded or wandering); that reading belongs to the
-open lazy window (M1 audit, m1-classification Limits).
+open lazy window.
 -/
 
 set_option autoImplicit false
@@ -161,7 +161,7 @@ theorem thm_cover_dist_le {x y : V} (h : G.Reachable x y) :
   calc H.dist (p.hom x) (p.hom y) ≤ (g.map p.hom).length := dist_le _
     _ = G.dist x y := by simp [hg]
 
-/-- Decision 006 (amended): quotient distance equals cover distance whenever the cover distance is at most `L / 2`. -/
+/-- Quotient distance equals cover distance whenever the cover distance is at most `L / 2`. -/
 theorem thm_cover_dist_eq {L : ℕ} (hL : p.LiftsBelow L) {x y : V} (h : G.Reachable x y)
     (hd : 2 * G.dist x y ≤ L) : H.dist (p.hom x) (p.hom y) = G.dist x y := by
   refine le_antisymm (p.thm_cover_dist_le h) ?_

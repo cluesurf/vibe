@@ -6,7 +6,7 @@ import Vibe.Compute.Charge
 /-!
 # Vibe Computation Lab: Mesh No-Gos of Levels 4, 5 and 8
 
-Lean track item I05 (lean-track.md rows I-a2, I-a3, I-a5, I-a17). Every result is a corollary of
+Claims I-a2, I-a3, I-a5 and I-a17. Every result is a corollary of
 the species transport lemma (`Vibe.Compute.SpeciesTransport`, L04) and, for counts, of
 `Vibe.Compute.Charge` (L05). Everything holds on any vertex type `V` (any graph, finite or not),
 any schedule of matchings and any number of rounds.

@@ -1,4 +1,4 @@
-// A proper vertex coloring of an INFINITE tile graph, defined on the tiling itself (item vibe-computation-models-0063).
+// A proper vertex coloring of an INFINITE tile graph, defined on the tiling itself.
 //
 // WHY. The reversible Blume-Capel rule (M2-B, code/rule/spin-one-q2r.ts) updates the cells of one independent set at a
 // time, so it needs a proper vertex coloring. On a closed quotient the schedule is a greedy pass in breadth-first order
@@ -10,7 +10,7 @@
 // THE RULE. A cell takes the first color, in its candidate order, that none of its EARLIER neighbours (canonical order)
 // holds. The candidate order is 0, 1, ..., K - 1 ('greedy'), or the same rotated to start at distance mod K
 // ('greedy-shifted', a second coloring of the same family, so that a reading can be checked under two colorings, as
-// decision 002 asks). K = degree + 1: an earlier-neighbour set has at most `degree` members, so a free color exists.
+// a declared schedule needs). K = degree + 1: an earlier-neighbour set has at most `degree` members, so a free color exists.
 //
 // PROPER ON EVERY BALL (proof). For an edge {u, w}, one end is earlier, say w < u; u avoids the colors of all its
 // earlier neighbours, w among them, so color(u) != color(w). This holds for every edge of the infinite tiling, hence on

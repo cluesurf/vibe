@@ -1,7 +1,6 @@
 /**
  * Dishonest quantum solvers the Q7 judge or the evaluator must reject, each
- * an isolated candidate like the honest one (items
- * vibe-computation-intelligence-0014 and 0021).
+ * an isolated candidate like the honest one.
  *
  * - noProbability: solves by breadth-first search and claims a quantum
  *   success with no measured probability (the path is valid and every

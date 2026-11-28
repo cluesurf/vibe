@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 2 (item vibe-computation-intelligence-0029): a sparse run of a pair rule on any graph
+// Intelligence level 6, slice 2: a sparse run of a pair rule on any graph
 // whose schedule is a sequence of perfect matchings (the coset tilings of lazy-space.ts, handed in as callbacks).
 // Import-free (a candidate folder): the caller hands in the partner function, the orientation and the rule tables.
 // It caches every partner lookup in typed arrays, holds only the support, and returns one sparse frame per round end.

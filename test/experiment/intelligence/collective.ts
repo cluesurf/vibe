@@ -1,5 +1,5 @@
-// Intelligence level 8, slice 1 (item vibe-computation-intelligence-0010, level8.md of vibe/computation/intelligence):
-// do many entities together grow in problem-solving capacity? Two readings, every criterion fixed in level8.md before
+// Intelligence level 8, slice 1:
+// do many entities together grow in problem-solving capacity? Two readings, every criterion fixed before
 // the first run.
 //
 // Part A (external solvers sharing an operator library, the isolated evaluator): three entities per environment of

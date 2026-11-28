@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 1 (item vibe-computation-intelligence-0008, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 1:
 // can the SELECTION step of an improve loop run as mesh dynamics while the evaluator stays outside? The evaluator
 // grades each candidate alone and writes each candidate's own score (one trit, through a code of its choosing) beside
 // the candidate's content (one trit). A selector is a line layout of a pair rule, a pair of codes and a read such
@@ -6,9 +6,9 @@
 //
 // Algebra: spin-1 tones. Regime: pure. The census covers all 56 quiet rule-background cells of the 24 pair rules on
 // the line (brick schedule), windows of width 4 to 6, reads to round 8; L = 2 levels is the positive control, L = 3
-// the test, L = 4 reported (added after the first probe, disclosed in level6.md).
+// the test, L = 4 reported.
 //
-// Gates, fixed in level6.md before the first run, each able to fail:
+// Gates, fixed before the first run, each able to fail:
 // - G1 the split: 24 species, 32 reactive, 16 live-vacuum cells; types T0 3, T1 3, T2 3, T3 3, T4 6, T5 6.
 // - G2 Lemma S by brute force: no one-score selector (constants included) works at L = 3; sA ? A : B works at L = 2.
 // - G3 Lemma P live: 0 selectors at any level in every T0, T3, T4 and T5 cell.
@@ -16,9 +16,9 @@
 // - G5 every kept example replays under lineBrickRun on every input; the import-free runner equals lineBrickRun frame
 //   for frame on every width-4 layout of every cell for one input.
 // - G6 every kept example with its codes read in reverse order (each written tone moved to the mirrored level) is
-//   refused by the replay. Audit 3 (m5) found this cannot fail for a selector that replays: reversed codes pick the
+//   refused by the replay. An audit found this cannot fail for a selector that replays: reversed codes pick the
 //   worse content on every strictly ordered pair by construction. It is now reported as a checker check, and G6 is
-//   replaced (after the audit, disclosed in level6.md) by: every single code value changed is judged by the census's
+//   replaced by: every single code value changed is judged by the census's
 //   own runner and by lineBrickRun, the two verdicts agree on every change, and at least one change is refused.
 // - G7 a second census of two cells gives identical digests; no random or clock source in the new files.
 
@@ -43,7 +43,7 @@ import { verdict } from '@/test/scaffold/verdict'
 const BASE = resolve(import.meta.dirname, '../../..')
 const NEW_FILES = ['code/intelligence/improve/mesh/selection.ts', 'test/experiment/intelligence/mesh-selection.ts']
 
-// ---- parameters, fixed before the first run (level6.md) ----
+// ---- parameters, fixed before the first run ----
 
 const MIN_WIDTH = 4
 const MAX_WIDTH = 6
@@ -60,7 +60,7 @@ interface CellRow {
   census: Census
 }
 
-// the census's own import-free runner, for the single-change cross-check (audit 3, m5)
+// the census's own import-free runner, for the single-change cross-check
 const censusRunner = (input: { rule: PairMap; background: number; start: number; window: ArrayLike<number>; rounds: number }) => runLine(input)
 
 const brick = (input: { rule: PairMap; background: number; start: number; window: ArrayLike<number>; rounds: number }) =>
@@ -239,14 +239,14 @@ export default experiment({
           fail(`${row.name}/${row.background} L ${L}: replay wrong on ${held.wrong} of ${held.inputs}`)
         }
 
-        // a checker check, not evidence about the selector (audit 3, m5): reversed codes pick the worse content on
+        // a checker check, not evidence about the selector: reversed codes pick the worse content on
         // every strictly ordered pair by construction, so this can fail only if the replay checker is broken
         const bad = selectorHolds(reversed(example), row.rule, row.background, contents, brick)
 
         reversedTried++
         reversedRefused += bad.wrong > 0 ? 1 : 0
 
-        // item 0037's follow-up (audit 3, m5): every single code value changed, judged twice, by the census's own
+        // a follow-up: every single code value changed, judged twice, by the census's own
         // import-free runner and by lineBrickRun. A change may leave a valid selector or break it, so neither verdict is
         // fixed by construction; the control fails when the two runners disagree on any change, or when no change is
         // refused (the checker would not discriminate)
@@ -378,7 +378,7 @@ export default experiment({
       claim: `intelligence level 6, slice 1: with the evaluator outside writing each candidate's own score as one trit through any code, ${verdictText}; ${sum(3)} three-level selector reads in all, and ${level2Cells.length} cells have a two-level selector (the positive control); no selector exists at any level in the 18 T0, T3, T4 and T5 cells (Lemma P: the read is pinned to one start cell's content there, on any graph and schedule; 0 found), and the three T2 cells have ${t2Level3} three-level selector reads; no one-score selector works at three levels (0 of ${s3.tried}), so every three-level selector reads both scores; in T1 the scores set occupancy and the cavity length decides which content arrives, so a score trit acts as one threshold bit, and T1 and T2 have ${t1Level4} four-level selector reads; every kept example replays under lineBrickRun on every input, and every one of its ${singleChanges} single code changes gets the same verdict from the census's runner and from lineBrickRun (${singleChanges - singleStillValid} refused, ${singleStillValid} still a selector; the reversed-code check, ${reversedRefused} of ${reversedTried} refused, is a checker check only); the loop is not built: a T1 content is a passive tone that never routes anything (M6), so a mesh proposer could adapt only by reading raw score bits, and the best loop this slice supports is the fixed-order proposer with mesh selection (E-CMP-0031: 6 of 52 hits, mean final Q 0.905, against the learning loop's 19 of 54 and 1.107), and no M1 rule keeps an M9 boundary`,
       metrics,
       control,
-      notes: `L2. Census per cell (selector reads, smallest width), cells with any: ${table}. Example in id.CBA.id on the vacuum (the M4 register's rule at spacing 1): ${exampleOf('id.CBA.id', 0, 3)}; A's score cell is occupied for levels 0 and 1, B's for level 0 only, the occupied run is a cavity whose brick permutation is a 4-cycle, a 3-cycle or a swap by its length, and after 3 rounds the read holds b exactly when A's cell is occupied and B's is empty, which on strictly ordered pairs is sB > sA. Reactive example: ${exampleOf('id.ACB.swap', -1, 3)}. Bounds: widths ${MIN_WIDTH} to ${MAX_WIDTH}, four role cells, any constant elsewhere, both parities, reads to round ${ROUNDS} on any cell (no wire riding), contents over the two excitations, ${metrics.skeletonsPerCell} layouts and ${metrics.runs} line runs. The four one-law reactive cells compute min and max only at line width 12 (E-CMP-0061), beyond this census; on the line every finite start of a species cell or a one-sided-wire reactive cell has finitely many interactions, so a closed run holds only bounded selection and each generation needs the evaluator's new injection. Not run: the carrier, the proposer, metered rounds (decision 003), held-out Q; multi-cell scores; the tilings. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+      notes: `L2. Census per cell (selector reads, smallest width), cells with any: ${table}. Example in id.CBA.id on the vacuum (the M4 register's rule at spacing 1): ${exampleOf('id.CBA.id', 0, 3)}; A's score cell is occupied for levels 0 and 1, B's for level 0 only, the occupied run is a cavity whose brick permutation is a 4-cycle, a 3-cycle or a swap by its length, and after 3 rounds the read holds b exactly when A's cell is occupied and B's is empty, which on strictly ordered pairs is sB > sA. Reactive example: ${exampleOf('id.ACB.swap', -1, 3)}. Bounds: widths ${MIN_WIDTH} to ${MAX_WIDTH}, four role cells, any constant elsewhere, both parities, reads to round ${ROUNDS} on any cell (no wire riding), contents over the two excitations, ${metrics.skeletonsPerCell} layouts and ${metrics.runs} line runs. The four one-law reactive cells compute min and max only at line width 12 (E-CMP-0061), beyond this census; on the line every finite start of a species cell or a one-sided-wire reactive cell has finitely many interactions, so a closed run holds only bounded selection and each generation needs the evaluator's new injection. Not run: the carrier, the proposer, metered rounds, held-out Q; multi-cell scores; the tilings. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

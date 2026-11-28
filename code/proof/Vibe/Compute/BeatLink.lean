@@ -10,7 +10,7 @@ import Vibe.Generated.BareBeat
 /-!
 # Vibe Computation Lab: the bare beat of the code is the Lean Fock beat on a declared family
 
-Lean track L15 (lean-track.md, claims B6 and B12; q-ladder Q0 and Q5). `code/rule/bare-beat.ts` runs the
+Claims B6 and B12 (Q0 and Q5). `code/rule/bare-beat.ts` runs the
 bare beat `U = S ∘ Φ_odd ∘ D ∘ M_meet ∘ M_pair(ζ_18) ∘ K ∘ D ∘ Φ_odd`; `Vibe.FockBeat` defines the same
 beat `fockBeat χ` on the infinite `{3,4,3,4}` Fock space over `ℤ[ζ_9][1/6]`. `Vibe.Generated.BareBeat`
 is exported from the TypeScript module itself (task/lean-export.ts). This module proves:
@@ -32,9 +32,9 @@ is exported from the TypeScript module itself (task/lean-export.ts). This module
    inverts it exactly.
 
 **Not here: B12.** The Q5 lone walk to beat 16 is exported (`bareBeatWalk`, `bareBeatLineCenters`,
-`bareBeatWalkMoments`, `bareBeatWalkReturns`; the exporter checks them against q-ladder Q5's printed
+`bareBeatWalkMoments`, `bareBeatWalkReturns`; the exporter checks them against Q5's printed
 table) but not bridged: frames `k_0^m` up to `m = 16` built as `Mat5` closures cost the kernel about
-3.6 GB for the 33 centers alone, too heavy for the laptop. A follow-up item bridges them.
+3.6 GB for the 33 centers alone, too heavy for this proof. A later module bridges them.
 
 **The family.** At the base dock (frame `mat5Id`, bare-beat's dock 0): every one-excitation state
 (96), every two-excitation state with an excitation on line 0, slot 0 or its opposite (720), and
@@ -1833,7 +1833,7 @@ theorem thm_beat_link_family (χ : ChiralInvariant) (hχ : BlSilent χ) (i : Nat
 
 /-! ## B6: the Q0 gates on the family -/
 
-/-- **B6, the Q0 gates (q-ladder Q0), on the family.** For every silent `χ` and family state: bare-beat's
+/-- **B6, the Q0 gates, on the family.** For every silent `χ` and family state: bare-beat's
     beat output has squared norm exactly `1`; every output configuration keeps the total charge, the
     excitation count and the `+1` count of the input; `fockBeatDag` inverts the beat exactly; and the beat
     is the code's output (`thm_beat_link_family`). Roles 0 and 1 only. -/

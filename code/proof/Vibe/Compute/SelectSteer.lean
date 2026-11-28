@@ -4,7 +4,7 @@ import Vibe.Compute.SpeciesTransport
 /-!
 # Vibe Computation Lab: Select and Steer (level 6, Lemma P and Lemma X)
 
-Lean track I04 (lean-track.md rows I-a7, I-a9). A **selection layout** holds A's content at cell
+Claims I-a7 and I-a9. A **selection layout** holds A's content at cell
 `aC`, B's at `bC`, and everything else is written by the evaluator from the two score levels
 `i j : Fin L` alone (`bg i j`: any number of score cells, any codes, any constants). It
 **selects** at read `v` after `n` rounds when, for both contents over two values and every strictly

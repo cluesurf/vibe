@@ -4,7 +4,7 @@ import Vibe.Compute.SecondOrderZ3
 /-!
 # Frontier read-back on the discovered graph (level 4, L4-Exact)
 
-Lean track item I02 (claim I-a1 of the intelligence lab). The level-4 solver `meshWave` runs the M3-B wave
+Claim I-a1 of the intelligence lab. The level-4 solver `meshWave` runs the M3-B wave
 `s(t+1) = (sum of in-neighbours of s(t)) + h(own) - s(t-1)` (mod 3) on the state graph it discovers, seeded with `+1` on
 the initial state `o`, expands each state the step it first lights, and reads a path back from the goal by stepping to
 the known in-neighbour with the least first-lit step (`readBack` of `code/intelligence/solver/mesh/mesh-wave.ts`).

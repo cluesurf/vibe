@@ -1,4 +1,4 @@
-// Lazy open windows for every tiling, q odd included (item vibe-computation-models-0038). {7,3}, {8,3}, {4,5} and {3,7}
+// Lazy open windows for every tiling, q odd included. {7,3}, {8,3}, {4,5} and {3,7}
 // have no right-angled tile group, so the Foata forms of E-CMP-0032 do not reach them; here a tile is a coset of the
 // cell subgroup of the (2, p, q) triangle group, named by the exact matrix of its minimal representative over
 // Z[2cos(pi/m)], with facet distance read off a canonical parent chain (proven by folding, coset-tiling.ts), ball sizes
@@ -934,7 +934,7 @@ export default experiment({
         reversedOrderRejected: r.reversedOrderCaught ? 1 : 0,
       },
       notes:
-        `L2 infrastructure gate (item vibe-computation-models-0038): the M1 harness reads open cells of these geometries on the coset tilings. Exact balls compared: ${r.tiling.map(t => `${t.name} r${t.radius} ${t.cells}`).join(', ')}. Colorings lifted from quotients: ${r.colorings.map(c => `${c.name} mod ${c.modulus} order ${c.groupOrder} (${c.quotientTiles} tiles)`).join(', ')}. Automaton states: ${r.growth.map(g => `${g.name} ${g.states} (${g.smallRoots} small roots)`).join(', ')}. Light cone, cells held by one 24-round full-swap run against the ball of radius c T: ${r.lightCone.map(x => `${x.name} ${x.held} of ${x.ball.toExponential(2)}`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `L2 infrastructure gate: the M1 harness reads open cells of these geometries on the coset tilings. Exact balls compared: ${r.tiling.map(t => `${t.name} r${t.radius} ${t.cells}`).join(', ')}. Colorings lifted from quotients: ${r.colorings.map(c => `${c.name} mod ${c.modulus} order ${c.groupOrder} (${c.quotientTiles} tiles)`).join(', ')}. Automaton states: ${r.growth.map(g => `${g.name} ${g.states} (${g.smallRoots} small roots)`).join(', ')}. Light cone, cells held by one 24-round full-swap run against the ball of radius c T: ${r.lightCone.map(x => `${x.name} ${x.held} of ${x.ball.toExponential(2)}`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

@@ -1,5 +1,5 @@
-// QUANTUM WALKS AND SPATIAL SEARCH, EXACT (item vibe-computation-models-0036, Q5; decisions 001 and 004 of
-// vibe/computation/models). Two families of walk, both exact:
+// QUANTUM WALKS AND SPATIAL SEARCH, EXACT (Q5).
+// Two families of walk, both exact:
 //
 //   the bare beat U       code/rule/bare-beat on {3,4,3,4} and on the flat {3,4,3,3} (withGeometry). A lone vibe never
 //                         leaves its mesh line (Q2), so its spreading, return and hitting are read on that line, and a

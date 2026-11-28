@@ -1,4 +1,4 @@
-// M3 driver (item vibe-computation-models-0051): the size series of every degree-matched pair for the spin-one Q2R
+// Batch driver: the size series of every degree-matched pair for the spin-one Q2R
 // Blume-Capel readings of E-CMP-0044 (test/experiment/computation/spin-one-q2r.ts), so the genus and the systole of a
 // closed quotient can be told apart from its curvature. For each pair ({4,5}/{4,4}, {6,4}/{6,3}, {3,7}/{3,6},
 // {3,4,3,4}/{3,4,3,3}) it builds quotients at several sizes, runs the unchanged rule (code/rule/spin-one-q2r.ts) with
@@ -6,7 +6,7 @@
 // pair verdict, with the genus, Euler characteristic, injectivity radius r and loop systole L of both sides printed
 // beside every reading.
 //
-//   pnpm call task/m3/q2r-size-series.ts [--set reference|series] [--pairs 4.5,6.4,3.7,3.4.3.4] [--cells 1710,364]
+//   pnpm call task/batch/q2r-size-series.ts [--set reference|series] [--pairs 4.5,6.4,3.7,3.4.3.4] [--cells 1710,364]
 //                                        [--max-cells 1100000] [--levels 4,5,6]
 //
 // --set reference (the default) runs exactly E-CMP-0044's six matched pairs (30, 330, 220, 56, 364 and 2048 cells),
@@ -651,7 +651,7 @@ for (const failure of failures) {
 }
 
 summary({
-  item: 'vibe-computation-models-0051',
+  driver: 'q2r-size-series',
   set,
   pairs: pairKeys,
   levels,

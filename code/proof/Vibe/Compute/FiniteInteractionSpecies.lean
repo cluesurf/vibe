@@ -7,7 +7,7 @@ import Vibe.Compute.SpeciesTransport
 /-!
 # Vibe Computation Lab: Finite Interaction in the Species Cells on the Brick Line
 
-Lean track L08 (lean-track.md row A7, m6 "The line, unconditional", m12 P26). The line is `Int`,
+Claim A7 (M6, the line, unconditional; P26). The line is `Int`,
 the schedule is the brick schedule of `counter.ts` (`lineTransient`): colour 0 pairs
 `(2k, 2k + 1)`, colour 1 pairs `(2k + 1, 2k + 2)`, the left cell first, colour 0 then colour 1 in
 every round. A start lies in the window `[a, a + w)` when every cell off the background `b` does.

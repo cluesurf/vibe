@@ -1,6 +1,6 @@
-// M9 slice 2 lab (item vibe-computation-models-0058): the boxes, rule families and readings of m9-boundaries.md
-// slice 2, shared by the laptop experiment (test/experiment/computation/m2-boundaries.ts) and the M3 driver
-// (task/m3/m2-boundaries.ts), so both read with the same code and differ only in sizes. Algebra: spin-one tones; the
+// M9 slice 2 lab: the boxes, rule families and readings of slice 2, shared by the small-size experiment
+// (test/experiment/computation/m2-boundaries.ts) and the full-size driver
+// (task/batch/m2-boundaries.ts), so both read with the same code and differ only in sizes. Algebra: spin-one tones; the
 // Z3-linear rules read them as residues mod 3.
 //
 // FAMILIES. Z3-linear (26 classes of the 48 invertible matrices under swap conjugation), Q2R / Blume-Capel (J = 1, the
@@ -94,7 +94,7 @@ export type SliceSizes = {
   readonly rules?: readonly string[]
 }
 
-export const LAPTOP_SIZES: SliceSizes = {
+export const BOUNDED_SIZES: SliceSizes = {
   columns: ['line', '{4,4}', '{4,5}', '{3,6}', '{3,7}', '{6,3}', '{6,4}'],
   families: ['z3', 'q2r', 'm1'],
   lineStart: 3,

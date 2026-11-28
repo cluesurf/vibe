@@ -12,7 +12,7 @@ import Vibe.Generated.SpinOneQ2R
 # Vibe Computation Lab: the Spin-1 Q2R Rule (M2-B)
 
 The reversible, energy-conserving spin-1 Blume-Capel rule of `code/rule/spin-one-q2r.ts` on any
-finite `SimpleGraph` (lean-track.md L07, claims A2 and A3; the bounded census B13 is superseded by A2
+finite `SimpleGraph` (claims A2 and A3; the bounded census B13 is superseded by A2
 and kept as evidence only).
 
 Tones `-1, 0, +1` are integer spins. With integer exchange `J` and crystal field `Δ` the energy is
@@ -47,13 +47,13 @@ Headline theorems:
 8. `gen_q2r_move_eq` (bridge): the generated `q2rMoveTable` (the TypeScript `q2rMove` on every tone,
    `J ∈ 1..3`, `Δ, h ∈ -12..12`) equals `q2rMove` on that family.
 
-Hypotheses stronger than m2-reversible.md: the frozen theorem (6) states the "no vacancy move"
+Hypotheses stronger than the milestone M2-B statement: the frozen theorem (6) states the "no vacancy move"
 condition that the note's "Ising limit" leaves implicit; the chirality theorem (5) states that the
 rule permutes the tones at each field (the note's "local map", which the involution gives) and needs
 `J ≠ 0`. Everything else is stated for every integer `J` and `Δ`, every finite graph and schedule.
 
 Limit of the link: the theorems speak about the Lean `q2rMove`; it equals the code's on the exported
-family only (lean-track.md section 4.5). The schedule here is any list of independent sets; the
+family only. The schedule here is any list of independent sets; the
 code's greedy colouring is one such list (gated proper by `checkIndependentSchedule`).
 
 Mathlib (`SimpleGraph`, `edgeFinset`, `Dart`, `IsIndepSet`, `Finset.sum`, `Equiv.Perm`), zero

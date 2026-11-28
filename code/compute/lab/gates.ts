@@ -1,7 +1,7 @@
-// M5, routing and gates (item vibe-computation-models-0016). Algebra: balanced ternary, read through the tones of the
+// M5, routing and gates. Algebra: balanced ternary, read through the tones of the
 // spin-one pair rules of M1 (code/rule/pair-rule.ts) and the particles of M3 (code/measure/particle-census.ts). Nothing
 // here adds a cell kind, a weight or a rule: a construction is a LAYOUT, a finite set of cells given tones on a uniform
-// background the rule fixes, under the schedule of decision 002. The layout is the one ingredient an outside programmer
+// background the rule fixes, under the declared partition schedule. The layout is the one ingredient an outside programmer
 // supplies (added structure `programmer_layout`), as in Q3.
 //
 // ENCODING (declared before the first run). A trit is the tone of one slot: a cell at a round end. On background b the

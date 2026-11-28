@@ -1,5 +1,5 @@
 /**
- * The level-7 slice-1 solver as an isolated candidate (level7.md): one developing tie-break router, every arm (developed,
+ * The level-7 slice-1 solver as an isolated candidate: one developing tie-break router, every arm (developed,
  * undeveloped, knockout, wire, smuggler, misdeveloped) told apart only by its plain-data arguments, which the
  * experiment fixes from its census before any held-out grade.
  *

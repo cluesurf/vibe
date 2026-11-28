@@ -6,7 +6,7 @@
  * register runs its rounds (the forward rule, the only thing that can reorganize the structure on its own). At hand-over
  * the read port decodes every block, and that decode is the table.
  *
- * Settings select the arms of the causal test (level5.md): rounds 0 is the dynamics knockout, writes off the frozen
+ * Settings select the arms of the causal test: rounds 0 is the dynamics knockout, writes off the frozen
  * structure, spacing 1 a register whose dynamics act, and `smuggle` a table whose ring bounds come from candidate code
  * while only path values are in the register. The report (plain data, unread by the evaluator) lets a judge replay the
  * register with the original rule.

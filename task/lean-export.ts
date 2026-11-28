@@ -1,6 +1,6 @@
 // The TypeScript-to-Lean link: export the finite tables of the code that ran into data-only Lean files under
 // code/proof/Vibe/Generated/, so a Lean bridge theorem can prove by `decide` that each table equals the Lean
-// definition its theorems quantify over (lean-track.md section 4, decision 008 of the computation models project).
+// definition its theorems quantify over.
 //
 // Every export calls the TypeScript module itself (never a hand copy) on every input of its finite domain and
 // writes the outputs. A generated file imports nothing, opens `namespace Vibe` then `namespace Generated`, sets
@@ -234,7 +234,7 @@ export function exportPairRuleTable(): string {
   })
 }
 
-// L03 (models-0074): the rule census. Per census rule its name, the four symmetry flags and its class index under
+// L03: the rule census. Per census rule its name, the four symmetry flags and its class index under
 // {1, P, C, PC} without and with time reversal (pair-rule.ts); its tone transport (wire-invariant.ts); per rule and
 // background its M6 cell kind and type (counter.ts), its wire side (ray-search.ts) and the M5 occupancy-blind flag
 // (gates.ts); and the sided and unsided unary closures of the two two-law wire rules (wire-invariant.ts).
@@ -420,7 +420,7 @@ export function exportBeatSlots(): string {
   })
 }
 
-// L07 (models-0083): q2rMove of spin-one-q2r.ts on its local finite family, every coupling J in 1..3, crystal field
+// L07: q2rMove of spin-one-q2r.ts on its local finite family, every coupling J in 1..3, crystal field
 // Delta in -12..12 and neighbour field h in -12..12 (degree at most 12). Each (J, Delta, h) is one small Nat, the
 // base-3 code (move(-1) + 1) + 3 (move(0) + 1) + 9 (move(+1) + 1), in the nesting order J, Delta, h (h innermost):
 // a list of 1,875 tuple literals times out in Lean's elaborator, a list of small Nats does not.
@@ -472,7 +472,7 @@ export function exportSpinOneQ2r(): string {
   })
 }
 
-// L11 (models-0090): the line lumpability witnesses of coarse-block.ts (E-CMP-0066) for every non-identity rule of
+// L11: the line lumpability witnesses of coarse-block.ts (E-CMP-0066) for every non-identity rule of
 // pairRuleCensus(), every line schedule, b 2 to 4 at every declared offset, tau 1 and 2, and the three reading maps
 // majority, netSign and netResidue. A row the capped search leaves open is decided by the C-conjugate rule's negated
 // witness, re-run by checkWitness on the rule's own table, as the experiment does; a row with no ring-checked witness
@@ -616,7 +616,7 @@ export function exportLumpability(): string {
   })
 }
 
-// L11 (models-0090): the round of partitioned-pair.ts as a permutation of all 3^6 configurations of the 6-ring under
+// L11: the round of partitioned-pair.ts as a permutation of all 3^6 configurations of the 6-ring under
 // brick2 (ringPartition of coarse-block.ts, base 0), for every rule of pairRuleCensus(), by globalPermutation.
 const RING_SOURCES = [
   'code/rule/partitioned-pair.ts',
@@ -663,12 +663,12 @@ export function exportPartitionedRing(): string {
   })
 }
 
-// L15 (models-0085): the bare beat against the Lean Fock beat (Vibe.Compute.BeatLink). A family vibe is
+// L15: the bare beat against the Lean Fock beat (Vibe.Compute.BeatLink). A family vibe is
 // (slot, tone, role) at dock 0 of a fresh {3,4,3,4} mesh. The family: every one-excitation state of dock 0, every
 // two-excitation state with an excitation on line 0 (slot 0 or its opposite), and every identical full-line pair
 // (same tone, same role) on any line, roles 0 and 1 only (the Lean Fock model has 2 roles). It is closed under the
 // seven dock-local layers, which the export checks. Also: the layer coefficients as the layers produce them, the
-// beat itself, the 24 neighbour centers, and the lone vibe (slot 0, +1, role 0) to beat 16 with q-ladder Q5's
+// beat itself, the 24 neighbour centers, and the lone vibe (slot 0, +1, role 0) to beat 16 with the Q5 walk table's
 // moments and returns, which the export checks against the printed table.
 const BARE_BEAT_SOURCES = ['code/rule/bare-beat.ts', 'code/compute/quantum/particles.ts'] as const
 const BARE_BEAT_LINE_REACH = 16
@@ -821,7 +821,7 @@ function bareBeatRatio(num: bigint, den: bigint): string {
   return `${num / g}/${den / g}`
 }
 
-// q-ladder Q5: the bare-U lone vibe's printed second moments and returns to the start dock
+// Q5: the bare-U lone vibe's printed second moments and returns to the start dock
 const Q5_LONE_MOMENT: Record<number, string> = {
   1: '1/1',
   2: '1/1',
@@ -962,11 +962,11 @@ export function exportBareBeat(): string {
       const den2 = state.den * state.den
 
       if (Q5_LONE_MOMENT[t] !== undefined && bareBeatRatio(moment, den2) !== Q5_LONE_MOMENT[t]) {
-        throw new Error(`beat ${t} second moment ${bareBeatRatio(moment, den2)} is not q-ladder's ${Q5_LONE_MOMENT[t]}`)
+        throw new Error(`beat ${t} second moment ${bareBeatRatio(moment, den2)} is not the Q5 walk table's ${Q5_LONE_MOMENT[t]}`)
       }
 
       if (Q5_LONE_RETURN[t] !== undefined && bareBeatRatio(back, den2) !== Q5_LONE_RETURN[t]) {
-        throw new Error(`beat ${t} return ${bareBeatRatio(back, den2)} is not q-ladder's ${Q5_LONE_RETURN[t]}`)
+        throw new Error(`beat ${t} return ${bareBeatRatio(back, den2)} is not the Q5 walk table's ${Q5_LONE_RETURN[t]}`)
       }
 
       moments.push(bareBeatRaw([moment, 0n, 0n, 0n, 0n, 0n], den2))
@@ -1042,7 +1042,7 @@ export function exportBareBeat(): string {
       `def bareBeatWalk : List (List Nat) :=\n  [${walk.join(',\n   ')}]`,
       '',
       '/-- Per beat of the lone walk, the second moment `sum k^2 p` (an amplitude; checked by the export against',
-      "    q-ladder Q5's printed table). -/",
+      "    the Q5 walk table). -/",
       `def bareBeatWalkMoments : List (List Nat) :=\n  [${moments.map(m => `[${m}]`).join(', ')}]`,
       '',
       '/-- Per beat of the lone walk, the return probability to dock 0 (an amplitude; checked likewise). -/',
@@ -1063,7 +1063,7 @@ export function exportBareBeat(): string {
   })
 }
 
-// L19 (models-0092): the Kleene and counter certificates. (1) The four width-9 neg layouts E-CMP-0058 replays, read
+// L19: the Kleene and counter certificates. (1) The four width-9 neg layouts E-CMP-0058 replays, read
 // from the LAYOUTS literal of its experiment file; (2) the neg, min and max layouts of E-CMP-0061 for the four one-law
 // cells, found here by the same ray search and line conversion the experiment runs (searchRays to span 10 for neg and
 // 12 for min and max, rayLayoutToLine); each with the dense runner's table on every input (denseLineTable), which must
@@ -1243,7 +1243,7 @@ export function exportKleene(): string {
   })
 }
 
-// I03 (intelligence-0047): level 7's identity census (D3), run by the code. The rule id.ABC.id of pair-rule.ts as a
+// I03: level 7's identity census (D3), run by the code. The rule id.ABC.id of pair-rule.ts as a
 // gate rule (gates.ts), the word index of develop-router.ts on the six words [t, d], and the preference functions the
 // identity device realizes: every window of width 2 and 3 on every background at both parities, every ordered pair of
 // distinct input cells, every read round 1 to R_READ and read cell in the light cone, and the 6 nonempty proper tone
@@ -1361,7 +1361,7 @@ export function exportDevices(): string {
   })
 }
 
-// L16 (models-0091): the four declared tone maps of classical-boundary.ts (DECLARED_TONE_MAPS, q-ladder Q6) on every
+// L16: the four declared tone maps of classical-boundary.ts (DECLARED_TONE_MAPS, Q6) on every
 // one- and two-excitation dock state of role 0, in the order Vibe.Compute.QuantumCoarse rebuilds (qcMapFamily): one
 // excitation by slot, then tone +1, -1; two by slot pair in lexicographic order, then tones ++, +-, -+, --. Each entry
 // is the base-3 code (netSign + 1) + 3 (netResidue + 1) + 9 (pairedSign + 1) + 27 (lowestSlotTone + 1).
@@ -1434,8 +1434,8 @@ export function exportQuantumCoarse(): string {
   })
 }
 
-// L21 (models-0093): the large certificates of Vibe.Compute.GateSetRank. Rows are packed into one Nat per row so the
-// generated lists stay short (traps.md, L07): a digit string lowest first, `CERT_BASE` per digit, signed entries
+// L21: the large certificates of Vibe.Compute.GateSetRank. Rows are packed into one Nat per row so the
+// generated lists stay short: a digit string lowest first, `CERT_BASE` per digit, signed entries
 // shifted by `CERT_OFFSET`, F3 entries in base 4.
 const CERT_BASE = 2n ** 32n
 const CERT_OFFSET = 2n ** 31n

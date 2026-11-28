@@ -1,7 +1,7 @@
-// M6, universality from the M1 rules alone (item vibe-computation-models-0017). Algebra: spin-one tones read as
+// M6, universality from the M1 rules alone. Algebra: spin-one tones read as
 // particle species, balanced ternary for register values. Library: code/compute/lab/counter.ts. Nothing is added to
-// the mesh but a LAYOUT; the railway CA (Paper 0012) is not used. Criteria fixed before the first run in
-// note/project/vibe/computation/models/m6-universality.md (G1 to G7), after two exploratory probes
+// the mesh but a LAYOUT; the railway CA (Paper 0012) is not used. Criteria fixed before the first run
+// (G1 to G7), after two exploratory probes
 // (W/tmp/m6-probe.ts, W/tmp/m6-probe2.ts) that read the split counts, the register's sign and the census size.
 //
 // G1  the split of the 72 rule-background cells: 24 species-conserving (types T0..T5), 32 reactive, 16 without a
@@ -466,7 +466,7 @@ export default experiment({
         t2RegisterMatches: r.t2RegisterMatches,
       },
       notes:
-        `M6 (item vibe-computation-models-0017). Types: ${Object.entries(r.types).map(([k, v]) => `${k}: ${v.join(' ')}`).join('; ')}. Reactive census: ${r.census.map(c => `${c.cell} s${c.statics} m${c.movers} c${c.collisions} sh${c.shifts}${c.counter ? ' ctr' : ''}`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
+        `M6. Types: ${Object.entries(r.types).map(([k, v]) => `${k}: ${v.join(' ')}`).join('; ')}. Reactive census: ${r.census.map(c => `${c.cell} s${c.statics} m${c.movers} c${c.collisions} sh${c.shifts}${c.counter ? ' ctr' : ''}`).join(', ')}. ${ok ? '' : `Failures: ${failures.slice(0, 12).join('; ')}`}`.trim(),
     })
   },
 })

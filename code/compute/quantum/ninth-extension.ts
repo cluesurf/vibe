@@ -1,4 +1,4 @@
-// A MULTIQUADRATIC EXTENSION OF Q(zeta_9) (item vibe-computation-models-0049, Q3b). The one-line scattering of bare U
+// A MULTIQUADRATIC EXTENSION OF Q(zeta_9) (Q3b). The one-line scattering of bare U
 // needs plane waves e^(ipk) and their beat eigenvalues exactly. Their cosines are rational, their sines and the square
 // roots of the dispersion are rational multiples of sqrt 3 or of sqrt 91, so every number the S-matrix needs lies in
 // K = Q(zeta_9)(sqrt d_1, ..., sqrt d_g) for a short list of square-free integers d_j (here -1 and 91).

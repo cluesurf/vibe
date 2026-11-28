@@ -1,9 +1,9 @@
 // A proper p-edge-coloring of the infinite tiling {p,q}, each color a perfect matching, defined LOCALLY: lifted from a
-// finite quotient of the triangle group (item vibe-computation-models-0038).
+// finite quotient of the triangle group.
 //
 // WHY A QUOTIENT. A tile group's generators color the tile graph for free (right-angled-tiling.ts), but with q odd no
 // group acts simply transitively on the tiles, and a coloring by the generators of the chamber group would need p | q
-// (a map to the dihedral group sending s_2 to s_0). So the coloring is declared structure (decision 002), chosen once
+// (a map to the dihedral group sending s_2 to s_0). So the coloring is declared structure, chosen once
 // on a finite quotient and pulled back.
 //
 // THE QUOTIENT. Reducing the integer coefficients of the geometric representation (coset-tiling.ts) modulo l is a
@@ -20,7 +20,7 @@
 // constrained edge first and a step budget. No randomness: the first candidate that passes, in this fixed order, is
 // the coloring.
 //
-// VARIANTS (item vibe-computation-models-0045). The schedule is declared structure, so a label read under one coloring
+// VARIANTS. The schedule is declared structure, so a label read under one coloring
 // must be checked under another. Variant k is the k-th coloring in the same fixed order: every 1-factorization the
 // search finds at a modulus, in search order, then the next passing modulus. Tile 0's slots always take colors 0..p-1,
 // so two variants of one quotient are never one coloring with its colors renamed; and the lift is onto the quotient's

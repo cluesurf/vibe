@@ -1,4 +1,4 @@
-// Q2 of the quantum ladder (item vibe-computation-models-0032, decision 004 of vibe/computation/models): propagation and
+// Q2 of the quantum ladder: propagation and
 // particles under the bare beat U, exact, on the hyperbolic {3,4,3,4} against the same beat on the flat 24-cell
 // honeycomb {3,4,3,3} (code/rule/bare-beat withGeometry; the readings are code/compute/quantum/particles).
 //
@@ -525,7 +525,7 @@ export default experiment({
   depth: 'L2',
   paper: false,
   // context.scale lengthens only the identical-pair run (PAIR_BEATS * scale beats, never fewer than PAIR_BEATS); it is
-  // not declared `scales`, so the perturbation check leaves it alone. Longer runs belong on the M3 machine (q-ladder.md).
+  // not declared `scales`, so the perturbation check leaves it alone. Longer runs belong to a larger run.
   run(context) {
     const scaled = Number((PAIR_BEATS * (context.scale ?? 1)).toFixed(0))
     const pairBeats = scaled > PAIR_BEATS ? scaled : PAIR_BEATS

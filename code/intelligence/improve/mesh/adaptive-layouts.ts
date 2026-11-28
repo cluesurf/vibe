@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 4 (item vibe-computation-intelligence-0033, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 4 :
 // the two layouts of an adaptive proposer step in one cell. A TIE-HOLDING selector reads the better candidate's content
 // on every strictly ordered level pair and A's content on every tied pair (the incumbent stays unless the child is
 // strictly better). A MUX reads a copy of P for one value of a control cell c and a copy of Q for the other.

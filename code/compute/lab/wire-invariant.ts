@@ -1,4 +1,4 @@
-// Item vibe-computation-models-0057: is there an invariant that keeps the sum-0-fiber 3-cycle wire rules (id.CAB.swap,
+// Is there an invariant that keeps the sum-0-fiber 3-cycle wire rules (id.CAB.swap,
 // id.BCA.swap, swap.BCA.*, swap.CAB.* on the +-1 backgrounds) from ever computing Kleene neg on an output wire? M5
 // (E-CMP-0050) found none of them reaching neg on the line to width 6 (7 by probe) and suspected one.
 //

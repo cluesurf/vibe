@@ -61,7 +61,7 @@ const hidingMemory = recipe('hidingMemory')
 // audit M2: A* on the problem's own distance, the same table the informed baselines pay for, declaring no charge
 const freeDistance = recipe('freeDistance')
 
-// audit 2 probes (code/intelligence/control/audit-probes): P1 (K2) asks the operators about states it made itself,
+// the audit probes (code/intelligence/control/audit-probes): P1 (K2) asks the operators about states it made itself,
 // a forged handle number or an object of its own; P2 (K3) patches its realm's Set, Map and WeakMap during an A* solve
 // on the sealed table and declares no charge and no expansions
 const PROBES = 'code/intelligence/control/audit-probes'
@@ -342,7 +342,7 @@ export default experiment({
     control.scratchStateRejected = scratchRejected
     control.patchingIntrinsicsRejected = patchingRejected
     if (scratchRejected !== 2 * liarTried || patchingRejected !== liarTried) {
-      fail(`audit 2 probes: scratch state ${scratchRejected} of ${2 * liarTried}, intrinsic patching ${patchingRejected} of ${liarTried} rejected`)
+      fail(`audit probes: scratch state ${scratchRejected} of ${2 * liarTried}, intrinsic patching ${patchingRejected} of ${liarTried} rejected`)
     }
     if (measuredBytesLiarAboveOne !== liarTried) {
       fail(`hiding-memory control: measured bytes above one on ${measuredBytesLiarAboveOne} of ${liarTried}`)

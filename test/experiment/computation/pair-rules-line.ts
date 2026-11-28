@@ -3,7 +3,7 @@
 // Schedules, two families, each in forward and in reversed color order, every matched pair oriented left to right:
 //   - brick2: the greedy edge coloring of the ring (2 matchings on an even ring, 3 on an odd one). On an even ring the
 //     reversed order is the forward one translated by one cell, so its two orders are one schedule.
-//   - brick3 (item vibe-computation-models-0046): the period-3 brick coloring, edge (i, i + 1) of color i mod 3, on
+//   - brick3: the period-3 brick coloring, edge (i, i + 1) of color i mod 3, on
 //     rings whose size is a multiple of 3. Its reversed order (2, 1, 0) is no translate of the forward order (0, 1, 2)
 //     under any shift or round phase (a gate checks this directly), so it is a second schedule.
 // Boundary: the closed ring; a ring of n > 2 c T + seed cells is also an exact window on the infinite line for T
@@ -32,12 +32,12 @@
 //   - two full runs give identical bytes, and no file of this lab draws a random number
 //
 // Measures per class: exact cycle structure on rings n = 3..12 (brick3: 3, 6, 9, 12), the period exponent as a
-// least-squares fit over every ring of the fit (brick2 6, 8, 10, 12; brick3 6, 9, 12; item 0047), small-support seeds
+// least-squares fit over every ring of the fit (brick2 6, 8, 10, 12; brick3 6, 9, 12), small-support seeds
 // (static, ballistic or spreading), pairwise collisions of moving seeds (superpose or scatter), damage on a dense de
 // Bruijn background, pair entropy from three low-entropy starts against the sector ceiling (the label's input), V,
 // A, B, T, and an exact rational search for additive conserved quantities of support at most 2 cells. For the
 // representatives, entropy is also read from more start families closed under P and C (de Bruijn eighths, block walls)
-// and reported start by start against the 0.9 threshold (item 0047). Labels and their thresholds are fixed in
+// and reported start by start against the 0.9 threshold. Labels and their thresholds are fixed in
 // classifyDynamics (code/measure/lab-measures).
 
 import { readFileSync } from 'node:fs'
@@ -131,7 +131,7 @@ const DAMAGE_ROUNDS = 40
 const DAMAGE_SITES = 8
 const ENTROPY_ROUNDS = 2048
 const ENTROPY_WINDOW = 512
-// entropy reported per start (item 0047): a start counts when its own ratio is at most ENTROPY_LOW_START (as in the
+// entropy reported per start: a start counts when its own ratio is at most ENTROPY_LOW_START (as in the
 // harness), the threshold is classifyDynamics' 0.9, and a verdict is clear only ENTROPY_MARGIN away from it; all three
 // fixed before the first run of the families
 const ENTROPY_THRESHOLD = 0.9
@@ -843,7 +843,7 @@ function measureRing(
   }
 }
 
-// ---- entropy start families, per start (item 0047) ----
+// ---- entropy start families, per start ----
 
 export type EntropyStartReading = {
   family: string
@@ -917,7 +917,7 @@ function entropyFamilies(
   return { starts, status }
 }
 
-// ---- entropy scaling near the threshold (item vibe-computation-models-0004) ----
+// ---- entropy scaling near the threshold ----
 //
 // A reading whose label entropy (the least late ratio of the three wall starts on the entropy ring) could mix by
 // periods and damage and lies within ENTROPY_MARGIN of 0.9 is read again on four ring sizes, from every wall start
@@ -1028,7 +1028,7 @@ type ClassRow = {
   // whether the class could mix by periods and damage (every reading), and what the entropy families then say
   mixingStatus: Record<ReadingKey, 'non-mixing' | 'mixing' | 'open'>
   // the readings whose label entropy sits within ENTROPY_MARGIN of 0.9 while periods and damage could mix, re-read
-  // on four rings from every wall start and phase (item 0004)
+  // on four rings from every wall start and phase
   entropyScaling: Partial<Record<ReadingKey, EntropyScaling>>
 }
 
@@ -1128,7 +1128,7 @@ export function pairRulesLine(): {
     }
   }
 
-  // translation control (item 0046): brick2's two orders are one schedule on every even ring it reads, brick3's are
+  // translation control: brick2's two orders are one schedule on every even ring it reads, brick3's are
   // not on any ring it reads
   const evenRings = [
     ...RINGS.brick2.cycles.filter(n => n % 2 === 0),

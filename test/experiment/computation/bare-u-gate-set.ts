@@ -1,4 +1,4 @@
-// The exact gate set of the bare beat U and its universality class (Q1, item vibe-computation-models-0030).
+// The exact gate set of the bare beat U and its universality class (Q1).
 //
 // W12 read three gates inside bare U in float64 and gave them no code: the role meeting M_meet and its Lie closure on
 // the 9-dim S = 1 sector of six like-sign excitations ("dim 80 = su(9)"), a lossless role-SWAP at probability 2/3
@@ -38,8 +38,8 @@
 // WHAT IT MEANS. The meetings, each applied to one chosen adjacent pair, generate a group dense in SU(9) (times
 // phases) on the S = 1 sector: universal on that sector, so on W12's 4-dim logical DFS, up to arbitrary precision,
 // with no exact finite word for a generic target. In the beat every doubly occupied line meets at once and streaming
-// decides which pairs meet, so choosing the pair is a programmer's layout (decision 004 point 2:
-// emerges_with_structure). The role-SWAP and the CZ are exact at the level of the Yang R-matrix at u*; that bare U's
+// decides which pairs meet, so choosing the pair is a programmer's layout
+// (emerges_with_structure). The role-SWAP and the CZ are exact at the level of the Yang R-matrix at u*; that bare U's
 // one-line scattering IS that R-matrix (W12's rapidity formula) is W12's float result and is not certified here
 // (item Q2 builds the exact scattering table). The role-SWAP needs three distinct roles, which universe.ts allows but
 // the Lean model (Bool roles, Vibe/Fock/Gates.lean) does not.
@@ -495,7 +495,7 @@ export default experiment({
         swapGroupOrder: first.numbers.swapGroupOrder ?? 0,
         lieDimensionOneTriple: first.numbers.lieDimensionOneTriple ?? 0,
       },
-      notes: `L1, exact over Q(zeta_9). Exact values (6 coordinates on 1..zeta^5 / denominator): meetKeep ${first.exact.meetKeep}, meetSwap ${first.exact.meetSwap}, 2cos ${first.exact.twoCos} (swap control ${first.exact.swapTwoCos}), a_el ${first.exact.elastic}, R_02 eigenvalue ${first.exact.r02Eigen}, z* ${first.exact.zStar}. Failed checks: ${failed.join(', ') || 'none'}. Not certified here: that bare U's one-line scattering is the Yang R-matrix at u* (W12 float, item Q2), and the wavepacket numbers 0.99943 pi and T = 0.98835. Universality needs each adjacent meeting applied alone, a chosen layout (emerges_with_structure, decision 004).`,
+      notes: `L1, exact over Q(zeta_9). Exact values (6 coordinates on 1..zeta^5 / denominator): meetKeep ${first.exact.meetKeep}, meetSwap ${first.exact.meetSwap}, 2cos ${first.exact.twoCos} (swap control ${first.exact.swapTwoCos}), a_el ${first.exact.elastic}, R_02 eigenvalue ${first.exact.r02Eigen}, z* ${first.exact.zStar}. Failed checks: ${failed.join(', ') || 'none'}. Not certified here: that bare U's one-line scattering is the Yang R-matrix at u* (W12 float, item Q2), and the wavepacket numbers 0.99943 pi and T = 0.98835. Universality needs each adjacent meeting applied alone, a chosen layout (emerges_with_structure).`,
     })
   },
 })

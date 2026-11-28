@@ -1,4 +1,4 @@
-// Intelligence level 6, slice 4 (item vibe-computation-intelligence-0033, level6.md of vibe/computation/intelligence):
+// Intelligence level 6, slice 4:
 // the carrier between selecting and steering, and an improve loop whose proposer adapts only through the mesh. In the
 // first reactive cell (census order) with a tie-holding three-level selector and a mux, one adaptive proposer step is
 // one metered solve: the selector's 32 runs pick the incumbent's or the child's content (genome word and tag), the read
@@ -8,7 +8,7 @@
 //
 // Algebra: spin-1 tones for the steps, puzzle labels for family A. Regime: pure. Schedule: the brick line.
 //
-// Gates, fixed in level6.md before the first run (slice 4), each able to fail:
+// Gates, fixed before the first run (slice 4), each able to fail:
 // - G1 a reactive cell is found; under lineBrickRun and meshLineRun (frame for frame, on the background) the selector
 //   reads the better content on every strictly ordered input and A on every tie, the mux copies P at B's tag and Q at A's.
 // - G2 every step of the adaptive and reactive-fixed arms is mesh-realized and keeps the chain; 0 carrier failures.
@@ -21,12 +21,12 @@
 //   no random or clock source.
 // - G8 the lead proposer with the lead pinned to none gives exactly the reactive-fixed arm's digest.
 //
-// Changed after audit 3 (items 0035 to 0040), each disclosed in level6.md:
-// - the scale is fitted on 'validation-overlap' (m8), the validation fit reported beside it;
-// - the lead proposer runs isolated and hears only the genome and the lead; the face hands the loop no grade (0040);
+// Changed after an audit, each disclosed:
+// - the scale is fitted on 'validation-overlap', the validation fit reported beside it;
+// - the lead proposer runs isolated and hears only the genome and the lead; the face hands the loop no grade;
 // - G5 also fails when the knockout changes no step's reads or adopts as many children as the adaptive arm, and a
-//   planted knockout under the cell's own rule must fail that gate (0038);
-// - the external arms (0035, 0039): the same loop decided outside the mesh by the face's levels under five tie patterns,
+//   planted knockout under the cell's own rule must fail that gate;
+// - the external arms: the same loop decided outside the mesh by the face's levels under five tie patterns,
 //   A/A/A the rule fixed before the first run and the layout's pattern the external win-stay arm, reported;
 // - the step-fitting forger (0037) is refused on every replay that a pre-0037 judge would have accepted.
 
@@ -95,7 +95,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const BASE = resolve(import.meta.dirname, '../../..')
 
-// ---- parameters, fixed before the first run (level6.md, slice 4) ----
+// ---- parameters, fixed before the first run ----
 
 const ROUNDS = 4
 const PROPOSALS = 3
@@ -108,11 +108,11 @@ const META = 'code/intelligence/improve/meta-learner'
 const STEPS = 'code/intelligence/improve/mesh/adaptive-step'
 const LOOP = 'code/intelligence/improve/mesh/adaptive-loop'
 const FORGER = 'code/intelligence/control/mesh-step-forger'
-// the step-fitting forger (item 0037) is replayed on the first this many adaptive steps; fixed with the control
+// the step-fitting forger is replayed on the first this many adaptive steps; fixed with the control
 const FORGED_STEP_REPLAYS = 8
 const T1_SELECTORS = 'code/intelligence/improve/mesh/select-solver'
 const CENSUS_PAD = 2 * CENSUS_ROUNDS + 2
-// the tie patterns the external arms run (items 0035, 0039; the audit's probe): ties at levels 0/1/2 to A or B
+// the tie patterns the external arms run (the audit's probe): ties at levels 0/1/2 to A or B
 const TIE_PATTERNS = ['A/B/A', 'A/A/A', 'B/B/B', 'A/A/B', 'B/A/A'] as const
 const PRE_FIXED_PATTERN = 'A/A/A'
 
@@ -295,7 +295,7 @@ function t1Problem(id: string, instance: SelectionInstance): Problem<SelectionIn
   }
 }
 
-// ---- provenance (decision 003, from the meter and the instance alone) ----
+// ---- provenance (from the meter and the instance alone) ----
 
 interface Provenance {
   realized: boolean
@@ -365,7 +365,7 @@ function stepProvenance(grade: Grade<StepInstance>, instance: StepInstance, rule
     steerRuns.push({ keyHash: hash, word, frameHash: run.frameHash, value: run.value })
   }
 
-  // item 0037: one request per stage, the chain seeded by the rule and whole layout, binding step, trit order and words
+  // one request per stage, the chain seeded by the rule and whole layout, binding step, trit order and words
   const digest1 = meshChain(rule, cell.select).fold(SELECT_STEP, select)
   const digest2 = m > 0 ? meshChain(rule, cell.steer).fold(STEER_STEP, steerRuns) : 0
 
@@ -465,9 +465,9 @@ interface Scale {
 }
 
 /**
- * The tertiles of Q over the seeds and their one-edit children (level6.md, slice 4), on `split`. As fixed before the
- * first run the split was 'validation', the one the loop grades, so the cut points sat on the children's own values
- * (audit 3, m8). Since item 0035 the scale is fitted on 'validation-overlap': the same genomes on the validation starts
+ * The tertiles of Q over the seeds and their one-edit children, on `split`. As fixed before the
+ * first run the split was 'validation', the one the loop grades, so the cut points sat on the children's own values.
+ * Now the scale is fitted on 'validation-overlap': the same genomes on the validation starts
  * inside the taught tables, problems the loop never grades. The validation-fitted scale is reported beside it.
  */
 function scaleOf(judge: GenomeJudge, split: 'validation' | 'validation-overlap'): Scale {
@@ -561,7 +561,7 @@ function stepFace(
 ): AdaptiveFace {
   return {
     evaluate(genome) {
-      // item 0040: the evaluator grades it; the loop is told nothing
+      // the evaluator grades it; the loop is told nothing
       asked.add(genomeKey(genome))
       judge.evaluate(genome, 'validation')
     },
@@ -602,7 +602,7 @@ function stepFace(
 interface TieRecord { levelA: number; levelB: number; chosenChild: boolean }
 
 /**
- * Item 0035/0039 (audit 3, C1 and M4; the probe tmp/audit-intelligence-3/tie-neutral.ts, now a control): the step decided
+ * The external arm (a control): the step decided
  * OUTSIDE the mesh, by the face's own levels on the same scale: the child wins on a strictly higher level, and on a tie
  * at level l iff `tieB[l]`. The lead is win-stay: the child's edit when it won, the old lead when not. No run, no
  * selector. With tieB the layout's pattern, this is the external win-stay arm the mesh arm is compared against.
@@ -706,7 +706,7 @@ function fixedAdapter(judge: GenomeJudge): LeadProposer & { close: () => void } 
   return { id: 'fixed-order-proposer', propose: genome => meta.propose(genome, judge.evaluate(genome, 'validation')), close: () => meta.close() }
 }
 
-/** The lead proposer, isolated (item 0040): it is told the parent genome and the lead, nothing else. */
+/** The lead proposer, isolated: it is told the parent genome and the lead, nothing else. */
 function leadAdapter(cell: Cell, pinNone: boolean): SandboxedLeadProposer {
   return sandboxedLeadProposer(candidate(LOOP, 'leadProposerCandidate', { proposals: PROPOSALS, ex: [...cell.ex], pinNone }))
 }
@@ -738,7 +738,7 @@ function summarize(name: string, judge: GenomeJudge, episodes: readonly Adaptive
   }
 }
 
-/** An external tie-pattern arm (items 0035, 0039): the lead or the pinned proposer, the step decided by `tieB`. */
+/** An external tie-pattern arm: the lead or the pinned proposer, the step decided by `tieB`. */
 function externalTieArm(name: string, judge: GenomeJudge, scale: Scale, cell: Cell, tieB: readonly boolean[], steer: boolean, log: TieRecord[]): ArmReport {
   const asked = new Set<string>()
   const proposer = leadAdapter(cell, !steer)
@@ -895,7 +895,7 @@ export default experiment({
       }
     }
 
-    // ---- the census of reactive cells and the choice (rule fixed in level6.md) ----
+    // ---- the census of reactive cells and the choice ----
     const census = pairRuleCensus()
     const found: string[] = []
 
@@ -1057,7 +1057,7 @@ export default experiment({
     // ---- the evaluator, the scales ----
     const judge = genomeJudge()
     const seedQ = judge.evaluate(SEED_GENOME, 'validation').meanQ
-    // item 0035 (audit 3, m8): fitted on problems the loop never grades; the validation fit of the first runs reported
+    // fitted on problems the loop never grades; the validation fit of the first runs reported
     const scale = scaleOf(judge, 'validation-overlap')
     const gradedFit = scaleOf(judge, 'validation')
 
@@ -1087,7 +1087,7 @@ export default experiment({
     const t1NewLog: T1Record[] = []
     const t1New = t1Arm('t1-new-scale', judge, e => newLevel(e, scale), t1NewLog)
 
-    // items 0035 and 0039 (audit 3, C1 and M4): the step decided outside the mesh by the face's levels under each tie
+    // the step decided outside the mesh by the face's levels under each tie
     // pattern, the lead arm (win-stay) against the pinned (fixed-order) one; A/A/A is the rule fixed before the first run
     const layoutPattern = tieB.map(b => (b ? 'B' : 'A')).join('/')
     const patterns = [layoutPattern, ...TIE_PATTERNS.filter(p => p !== layoutPattern)]
@@ -1223,7 +1223,7 @@ export default experiment({
       fail(`G5: knockout ${knockoutRealized} of ${knockoutLog.length} metered and recomputed (${knockoutLog.find(r => !r.provenance.realized)?.provenance.reason ?? ''})`)
     }
 
-    // item 0038 (audit 3, M3): the knockout must change behaviour (the item-0030 rule). The judge replays every adaptive
+    // the knockout must change behavior (the knockout rule). The judge replays every adaptive
     // step's instance under the knockout rule; the gate fails when no step's reads change, or when the knockout adopts
     // exactly as many children as the adaptive arm. The planted control runs the same gate on a knockout that is the
     // cell's own rule (the adaptive arm against itself), which must fail it.
@@ -1248,7 +1248,7 @@ export default experiment({
       fail('G5: the planted knockout (the cell\'s own rule) passes the behaviour gate, so the gate cannot fail')
     }
 
-    // ---- item 0037 (audit 3, M2): the step-fitting forger, replayed on the first adaptive steps ----
+    // ---- the step-fitting forger, replayed on the first adaptive steps ----
     // It asks for the select runs on wrong words with the step fitted so the pre-0037 sum equals the judge's target, the
     // steer runs as the honest step does, and writes the honest reads (decided in its own code). A pre-0037 judge would
     // have taken it as mesh-realized; the chain must refuse it.
@@ -1331,7 +1331,7 @@ export default experiment({
     control.forgedStepRefused = forging.refused
 
     if (forging.tried === 0 || forging.fitted !== forging.tried || forging.legacyAccepted !== forging.fitted || forging.refused !== forging.fitted) {
-      fail(`item 0037: step forger tried ${forging.tried}, fitted ${forging.fitted}, a pre-0037 judge accepts ${forging.legacyAccepted}, refused ${forging.refused}`)
+      fail(`step forger tried ${forging.tried}, fitted ${forging.fitted}, a pre-0037 judge accepts ${forging.legacyAccepted}, refused ${forging.refused}`)
     }
 
     // ---- G6 reproductions ----
@@ -1460,7 +1460,7 @@ export default experiment({
       lines.push(`${name}: frozen ${frozenValidation[e]!.toFixed(3)}/${frozenTest[e]!.toFixed(3)}; ${parts.join('; ')}`)
     })
 
-    // ---- items 0035 and 0039: the tie patterns, and the mesh against the external win-stay arm ----
+    // ---- the tie patterns, and the mesh against the external win-stay arm ----
     const rowsOf = (arms: typeof tieArms, prefix: string) =>
       arms.map(t => {
         const lead = testOf(t.lead)
@@ -1524,7 +1524,7 @@ export default experiment({
       claim: `the carrier between selecting and steering is built in the reactive cell ${cell.name} on ${cell.background} as an evaluator-metered handoff: in each of ${adaptiveLog.length} adaptive proposer steps the evaluator ran 32 selector runs and 5 mux runs on the background (${metrics.adaptiveMeteredRuns} runs, ${metrics.adaptivePairUpdates} pair updates), the judge recomputed every digest and checked the background on every entry and the chain, and the mux's lead reordered the proposals in ${adaptive.leadFirst} rounds; adaptation through the mesh is not shown: under the tie rule fixed before the first run (the incumbent keeps ties, ${PRE_FIXED_PATTERN}) no reactive cell has a selector (${withSelector} of ${reactiveCells}, Lemma T), and the same loop decided outside the mesh with ties held gains ${preFixed.gain.toFixed(4)} held-out Q over the fixed order; with the layout's ties (${layoutPattern}) the mesh loop's mean held-out Q ${adaptiveTest.toFixed(3)} is ${word(adaptiveTest, testOf(reactiveFixed))} the same cell with the fixed order (${testOf(reactiveFixed).toFixed(3)}), a difference of ${(adaptiveTest - testOf(reactiveFixed)).toFixed(4)} that belongs to the tie rule, not to adaptation: across ${tieRows.length} tie patterns the external win-stay gain runs from ${Math.min(...gains).toFixed(4)} to ${Math.max(...gains).toFixed(4)}; the selector computes the face's own level comparison under the ${layoutPattern} tie rule, and an external win-stay arm with that rule ${meshIsExternal ? 'reproduces both mesh arms decision for decision' : `differs from the mesh arm in ${meshDecisionsDiffering} decisions`} (mesh minus external ${(adaptiveTest - layoutRow.lead).toFixed(4)}), so the mesh's share is the tie pattern only (scale fitted on the validation starts inside the taught tables, ${adaptiveLevels.join('/')} children at levels 0/1/2, E-CMP-0078's failure mode ${scaleAvoided ? 'avoided' : 'not avoided'}); on the validation-fit scale of the first runs the same external arms give ${gradedPreFixed.gain.toFixed(4)} with ties held, ${gradedLayout.gain.toFixed(4)} with the layout's ties (the relaxed-tie run of the first report, a tie artefact) and ${Math.min(...gradedGains).toFixed(4)} to ${Math.max(...gradedGains).toFixed(4)} across the patterns; the adaptive loop is ${word(adaptiveTest, testOf(external))} the fixed-order loop with external selection (${testOf(external).toFixed(3)}), ${word(adaptiveTest, mean(frozenTest))} the frozen seeds (${mean(frozenTest).toFixed(3)}) and ${word(adaptiveTest, testOf(t1Old))} E-CMP-0078's T1 loop (${testOf(t1Old).toFixed(3)}); the no-dynamics knockout scores ${testOf(knockout).toFixed(3)} and changes the reads of ${knockoutBehaviour.differing} of ${adaptiveLog.length} steps (a planted knockout under the cell's own rule fails that gate); a step computing its outputs in its own code makes the same choices with 0 metered runs and is classified external, both forgers are refused wherever they differ, and a forger that fits the step to the pre-0037 digest with wrong words is refused ${forging.refused} of ${forging.fitted} (a pre-0037 judge accepts ${forging.legacyAccepted})`,
       metrics,
       control,
-      notes: `Cell census: ${reactiveCells} reactive cells, ${withSelector} with a tie-holding three-level selector (Lemma T), ${withWholesale} with a three-level selector whose ties read one candidate wholesale (widths ${SELECT_WIDTHS.join(' to ')}), ${withMux} with a mux (widths ${MUX_WIDTHS.join(' to ')}), both: ${found.join(', ') || 'none'}. Chosen: ${describe}. Scale (item 0035, audit 3 m8): tertiles of Q on the validation starts inside the taught tables (problems the loop never grades) over ${scale.nonViolating} non-violating of ${scale.graded} seeds and one-edit children, t1 ${scale.t1.toFixed(4)}, t2 ${scale.t2.toFixed(4)}; the validation fit of the first runs would be t1 ${gradedFit.t1.toFixed(4)}, t2 ${gradedFit.t2.toFixed(4)}; old scale seed Q ${seedQ.toFixed(4)}. Tie patterns, the step decided outside the mesh by the face's levels (held-out Q, lead proposer against the pinned fixed order): ${tieTable}. External win-stay arm with the layout's ties: same digest as the mesh adaptive arm ${winStay.lead.digest === adaptive.digest}, as reactive-fixed ${winStay.fixed.digest === reactiveFixed.digest}, ${meshDecisionsDiffering} decisions differ. Knockout behaviour gate: ${knockoutBehaviour.differing} of ${adaptiveLog.length} steps read differently under ${IDENTITY_RULE}, adoptions ${knockout.chosen} against ${adaptive.chosen}; the planted knockout (the cell's own rule) reads differently on ${plantedBehaviour.differing} and is refused by the gate. Step forger (item 0037): ${forging.fitted} of ${forging.tried} replays fitted to the pre-0037 digest in ${forging.tries} tries, accepted by every pre-0037 check ${forging.legacyAccepted}, refused by the chain ${forging.refused}. Children by level: adaptive ${adaptiveLevels.join('/')}, reactive-fixed ${reactiveLevels.join('/')}, t1-new-scale ${t1NewLevels.join('/')}, t1-mesh ${t1OldLevels.join('/')}; E-CMP-0078's failure mode ${scaleAvoided ? 'avoided' : 'not avoided'}. Adoptions: adaptive ${adaptive.chosen}/${adaptive.proposals}, reactive-fixed ${reactiveFixed.chosen}/${reactiveFixed.proposals}, t1-new-scale ${t1New.chosen}/${t1New.proposals}, t1-mesh ${t1Old.chosen}/${t1Old.proposals}, external ${external.chosen}/${external.proposals}, knockout ${knockout.chosen}/${knockout.proposals} (${knockout.carrierFailures} carrier failures). Lead: reordered ${adaptive.leadFirst} rounds, changed ${adaptive.leadChanges} times. Validation/test Q per episode: ${lines.join('. ')}. Costs beside Q (not folded in, as E-CMP-0031): scale ${scale.graded} genome evaluations; genomes evaluated adaptive ${adaptive.evaluated}, reactive-fixed ${reactiveFixed.evaluated}, external ${external.evaluated}; adaptive ${metrics.adaptiveMeteredRuns} runs, ${metrics.adaptiveMeteredRounds} rounds, ${metrics.adaptivePairUpdates} pair updates, ${metrics.adaptiveOperatorCalls} operator calls; reactive-fixed ${metrics.reactiveFixedMeteredRuns} runs, ${metrics.reactiveFixedMeteredRounds} rounds. Controls: smuggler ${smuggledRuns} runs, ${smuggledExternal}/${smuggledLog.length} external; forged carrier refused ${forged.carrierRefused} (${forged.carrierHonest} honest), forged scores refused ${forged.scoresRefused} (${forged.scoresHonest} honest) of ${adaptiveLog.length}; knockout ${knockoutRealized}/${knockoutLog.length} recomputed under ${IDENTITY_RULE}; lead-none equals the fixed order ${pinned.digest === reactiveFixed.digest}. Limits: the carrier is the metered handoff checked by the judge, not a wire inside one run; one score trit, three levels; the lead is one edit (win-stay); the proposer runs isolated (item 0040) and hears only the genome and the lead, and the face hands the loop no grade; a run may be requested and its answer ignored (decision 003), so 'mesh-realized' means the evaluator ran the decision's runs and the chain binds them to it, not that the solver's branch read them. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
+      notes: `Cell census: ${reactiveCells} reactive cells, ${withSelector} with a tie-holding three-level selector (Lemma T), ${withWholesale} with a three-level selector whose ties read one candidate wholesale (widths ${SELECT_WIDTHS.join(' to ')}), ${withMux} with a mux (widths ${MUX_WIDTHS.join(' to ')}), both: ${found.join(', ') || 'none'}. Chosen: ${describe}. Scale: tertiles of Q on the validation starts inside the taught tables (problems the loop never grades) over ${scale.nonViolating} non-violating of ${scale.graded} seeds and one-edit children, t1 ${scale.t1.toFixed(4)}, t2 ${scale.t2.toFixed(4)}; the validation fit of the first runs would be t1 ${gradedFit.t1.toFixed(4)}, t2 ${gradedFit.t2.toFixed(4)}; old scale seed Q ${seedQ.toFixed(4)}. Tie patterns, the step decided outside the mesh by the face's levels (held-out Q, lead proposer against the pinned fixed order): ${tieTable}. External win-stay arm with the layout's ties: same digest as the mesh adaptive arm ${winStay.lead.digest === adaptive.digest}, as reactive-fixed ${winStay.fixed.digest === reactiveFixed.digest}, ${meshDecisionsDiffering} decisions differ. Knockout behaviour gate: ${knockoutBehaviour.differing} of ${adaptiveLog.length} steps read differently under ${IDENTITY_RULE}, adoptions ${knockout.chosen} against ${adaptive.chosen}; the planted knockout (the cell's own rule) reads differently on ${plantedBehaviour.differing} and is refused by the gate. Step forger: ${forging.fitted} of ${forging.tried} replays fitted to the pre-0037 digest in ${forging.tries} tries, accepted by every pre-0037 check ${forging.legacyAccepted}, refused by the chain ${forging.refused}. Children by level: adaptive ${adaptiveLevels.join('/')}, reactive-fixed ${reactiveLevels.join('/')}, t1-new-scale ${t1NewLevels.join('/')}, t1-mesh ${t1OldLevels.join('/')}; E-CMP-0078's failure mode ${scaleAvoided ? 'avoided' : 'not avoided'}. Adoptions: adaptive ${adaptive.chosen}/${adaptive.proposals}, reactive-fixed ${reactiveFixed.chosen}/${reactiveFixed.proposals}, t1-new-scale ${t1New.chosen}/${t1New.proposals}, t1-mesh ${t1Old.chosen}/${t1Old.proposals}, external ${external.chosen}/${external.proposals}, knockout ${knockout.chosen}/${knockout.proposals} (${knockout.carrierFailures} carrier failures). Lead: reordered ${adaptive.leadFirst} rounds, changed ${adaptive.leadChanges} times. Validation/test Q per episode: ${lines.join('. ')}. Costs beside Q (not folded in, as E-CMP-0031): scale ${scale.graded} genome evaluations; genomes evaluated adaptive ${adaptive.evaluated}, reactive-fixed ${reactiveFixed.evaluated}, external ${external.evaluated}; adaptive ${metrics.adaptiveMeteredRuns} runs, ${metrics.adaptiveMeteredRounds} rounds, ${metrics.adaptivePairUpdates} pair updates, ${metrics.adaptiveOperatorCalls} operator calls; reactive-fixed ${metrics.reactiveFixedMeteredRuns} runs, ${metrics.reactiveFixedMeteredRounds} rounds. Controls: smuggler ${smuggledRuns} runs, ${smuggledExternal}/${smuggledLog.length} external; forged carrier refused ${forged.carrierRefused} (${forged.carrierHonest} honest), forged scores refused ${forged.scoresRefused} (${forged.scoresHonest} honest) of ${adaptiveLog.length}; knockout ${knockoutRealized}/${knockoutLog.length} recomputed under ${IDENTITY_RULE}; lead-none equals the fixed order ${pinned.digest === reactiveFixed.digest}. Limits: the carrier is the metered handoff checked by the judge, not a wire inside one run; one score trit, three levels; the lead is one edit (win-stay); the proposer runs isolated and hears only the genome and the lead, and the face hands the loop no grade; a run may be requested and its answer ignored, so 'mesh-realized' means the evaluator ran the decision's runs and the chain binds them to it, not that the solver's branch read them. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
     })
   },
 })

@@ -1,5 +1,5 @@
-// Intelligence level 6, slice 3 (item vibe-computation-intelligence-0028, level6.md of vibe/computation/intelligence):
-// E-CMP-0031's bounded improvement loop with its SELECTION made by the mesh and metered by the evaluator (decision 003).
+// Intelligence level 6, slice 3:
+// E-CMP-0031's bounded improvement loop with its SELECTION made by the mesh and metered by the evaluator.
 // The fixed-order proposer proposes one-field edits; the evaluator grades each candidate alone on validation and
 // quantizes the grade to three levels on a scale fixed in advance (violations or Q < 1, Q below the level-1 solver's,
 // at least the level-1 solver's); a tournament in proposal order runs one selection solve per child, in which the
@@ -9,7 +9,7 @@
 //
 // Algebra: spin-1 tones for the selection, puzzle labels for family A. Regime: pure. Schedule: the brick line.
 //
-// Gates, fixed in level6.md before the first run, each able to fail:
+// Gates, fixed before the first run, each able to fail:
 // - G1 the layout reads the better content on all 24 strictly ordered inputs under the evaluator's table, meshLineRun
 //   equals lineBrickRun frame for frame on all 36 inputs, ties read A at levels 0 and 2 and B at level 1.
 // - G2 every selection of the mesh arm is mesh-realized (meter: one entry, the rule, the layout, 31 runs, 93 rounds,
@@ -81,14 +81,14 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const BASE = resolve(import.meta.dirname, '../../..')
 
-// ---- parameters, fixed before the first run (level6.md, slice 3) ----
+// ---- parameters, fixed before the first run ----
 
 const ROUNDS = 4
 const PROPOSALS = 3
 const META = 'code/intelligence/improve/meta-learner'
 const SELECTORS = 'code/intelligence/improve/mesh/select-solver'
 const FORGER = 'code/intelligence/control/mesh-step-forger'
-// the step-fitting forger (item 0037) is replayed on the first this many mesh-arm selections; fixed with the control
+// the step-fitting forger is replayed on the first this many mesh-arm selections; fixed with the control
 const FORGED_STEP_REPLAYS = 8
 
 function variant(change: (genome: IntelligenceGenome) => void): IntelligenceGenome {
@@ -212,7 +212,7 @@ const sameLayout = (a: MeshLayoutSpec, b: MeshLayoutSpec): boolean =>
   a.window.join(',') === b.window.join(',') &&
   a.inputs.join(',') === b.inputs.join(',')
 
-/** Decision 003's provenance, from the meter and the instance alone; never from the candidate's report. */
+/** The provenance, from the meter and the instance alone; never from the candidate's report. */
 function provenance(grade: Grade<SelectionInstance>, instance: SelectionInstance, rule: string): Provenance {
   const hash = meshKeyHash(selectionKey(instance))
   const reads: number[] = []
@@ -226,7 +226,7 @@ function provenance(grade: Grade<SelectionInstance>, instance: SelectionInstance
     request.push({ keyHash: hash, word, frameHash: run.frameHash, value: run.value })
   }
 
-  // one request of the selector's runs in trit order, at SELECT_STEP, on the vacuum (item 0037: bound to each trit)
+  // one request of the selector's runs in trit order, at SELECT_STEP, on the vacuum (bound to each trit)
   const digest = meshChain(rule, { ...SELECT_LAYOUT, background: 0 }).fold(SELECT_STEP, request)
 
   const layouts = grade.mesh.layouts
@@ -244,7 +244,7 @@ function provenance(grade: Grade<SelectionInstance>, instance: SelectionInstance
   } else if (entry.rule !== rule || !sameLayout(entry.layout, SELECT_LAYOUT)) {
     reason = `metered ${entry.rule} on another layout`
   } else if (entry.layout.background !== 0) {
-    // the vacuum, checked on the entry (audit 3, m1)
+    // the vacuum, checked on the entry
     reason = `metered on background ${String(entry.layout.background)}, not the vacuum`
   } else if (entry.requests !== 1) {
     reason = `metered ${entry.requests} requests, not one`
@@ -603,7 +603,7 @@ export default experiment({
       fail(`G4: ${forgedWrong} forged selections misclassified`)
     }
 
-    // ---- item 0037 (audit 3, M2): the step-fitting forger, on the first mesh-arm instances ----
+    // ---- the step-fitting forger, on the first mesh-arm instances ----
     // It runs wrong words with the step fitted so the pre-0037 sum equals the judge's target, pays every round, and writes
     // the honest reads (decided in its own code). Every pre-0037 check accepts it; the chain must refuse it.
     const forging = { tried: 0, fitted: 0, legacyAccepted: 0, refused: 0, tries: 0 }
@@ -676,7 +676,7 @@ export default experiment({
     control.forgedStepRefused = forging.refused
 
     if (forging.tried === 0 || forging.fitted !== forging.tried || forging.legacyAccepted !== forging.fitted || forging.refused !== forging.fitted) {
-      fail(`item 0037: step forger tried ${forging.tried}, fitted ${forging.fitted}, a pre-0037 judge accepts ${forging.legacyAccepted}, refused ${forging.refused}`)
+      fail(`step forger tried ${forging.tried}, fitted ${forging.fitted}, a pre-0037 judge accepts ${forging.legacyAccepted}, refused ${forging.refused}`)
     }
 
     // ---- G5 the knockout ----
@@ -831,7 +831,7 @@ export default experiment({
       claim: `the selection step of the improve loop runs as metered mesh rounds: every one of ${meshLog.length} selections is made by E-CMP-0068's id.CBA.id selector run by the evaluator (${metrics.meshMeteredRuns} runs, ${metrics.meshPairUpdates} pair updates) and its read trits carry the winner's whole genome to the next generation; what the selector computes is the face's own comparison of the two levels it wrote, under a fixed tie rule (ties to the incumbent at levels 0 and 2, to the child at level 1), so the choice is the evaluator's comparison and the mesh's share is the tie pattern (it agrees with the external verdict on ${agreement} of ${meshLog.length}); with the fixed-order proposer and three levels per score, the mesh-selected loop's mean held-out Q ${meshTest.toFixed(3)} ${headline === 'ties' ? 'ties' : headline === 'beats' ? 'is above' : 'is below'} the fixed-order loop with external selection (${externalTest.toFixed(3)}), against ${frozenTestMean.toFixed(3)} frozen and ${knockoutTest.toFixed(3)} for the no-dynamics knockout; a selector deciding in its own code shows 0 metered runs and is classified external though its choices are identical, and one that runs wrong words with the step fitted to the pre-0037 digest is refused by the chain on ${forging.refused} of ${forging.fitted} replays (every pre-0037 check accepts ${forging.legacyAccepted})`,
       metrics,
       control,
-      notes: `Scale fixed before the run: level 0 for violations or Q < 1, level 1 for 1 <= Q < ${seedQ.toFixed(4)} (the level-1 solver's validation Q), level 2 above; codes A -1,-1,0 and B -1,0,0; layout [a b sA sB] at start parity 0, read at b's cell after 3 rounds; ties hold A at levels 0 and 2 and B at level 1. Validation/test Q of each episode's final genome: ${lines.join('. ')}. Mesh arm: ${mesh.chosen} of ${mesh.proposals} children adopted, ${ties.length} tie decisions (${metrics.meshTieChildAdopted} adopted the child), children by level ${levelCounts.join('/')}, agreement with the external verdict ${agreement} of ${meshLog.length} (${metrics.meshChildAdoptedAgainstVerdict} adopted against it, ${metrics.meshChildRefusedAgainstVerdict} refused against it); genomes evaluated mesh ${mesh.evaluated}, external ${external.evaluated}, knockout ${knockout.evaluated}; selection solves ${meshLog.length}, ${metrics.meshSelectionOperatorCalls} operator calls, ${metrics.meshMeteredRounds} metered rounds. External arm ${external.chosen}/${external.proposals} hits (E-CMP-0031's fixed-order control). Controls: the smuggler ${smuggledRuns} runs, ${smuggledExternal} of ${smuggledLog.length} external, same choices ${smuggledSameChoices}; the forger refused on ${forgedRefused} of ${meshLog.length} replays (${forgedHonest} had the forged tones already); the knockout under id.ABC.id adopts every child (${knockoutChild} of ${knockoutLog.length}); the step forger (item 0037) fitted ${forging.fitted} of ${forging.tried} replays to the pre-0037 digest in ${forging.tries} tries, every pre-0037 check accepts ${forging.legacyAccepted}, the chain refuses ${forging.refused}. Headline: ${headline}. Limits: one score trit (three levels, Lemma K); the selector copies the written tones into its run words and the digest checks the copy; the carrier decode and the proposer are outside the mesh; no harm rule in the mesh arm. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
+      notes: `Scale fixed before the run: level 0 for violations or Q < 1, level 1 for 1 <= Q < ${seedQ.toFixed(4)} (the level-1 solver's validation Q), level 2 above; codes A -1,-1,0 and B -1,0,0; layout [a b sA sB] at start parity 0, read at b's cell after 3 rounds; ties hold A at levels 0 and 2 and B at level 1. Validation/test Q of each episode's final genome: ${lines.join('. ')}. Mesh arm: ${mesh.chosen} of ${mesh.proposals} children adopted, ${ties.length} tie decisions (${metrics.meshTieChildAdopted} adopted the child), children by level ${levelCounts.join('/')}, agreement with the external verdict ${agreement} of ${meshLog.length} (${metrics.meshChildAdoptedAgainstVerdict} adopted against it, ${metrics.meshChildRefusedAgainstVerdict} refused against it); genomes evaluated mesh ${mesh.evaluated}, external ${external.evaluated}, knockout ${knockout.evaluated}; selection solves ${meshLog.length}, ${metrics.meshSelectionOperatorCalls} operator calls, ${metrics.meshMeteredRounds} metered rounds. External arm ${external.chosen}/${external.proposals} hits (E-CMP-0031's fixed-order control). Controls: the smuggler ${smuggledRuns} runs, ${smuggledExternal} of ${smuggledLog.length} external, same choices ${smuggledSameChoices}; the forger refused on ${forgedRefused} of ${meshLog.length} replays (${forgedHonest} had the forged tones already); the knockout under id.ABC.id adopts every child (${knockoutChild} of ${knockoutLog.length}); the step forger fitted ${forging.fitted} of ${forging.tried} replays to the pre-0037 digest in ${forging.tries} tries, every pre-0037 check accepts ${forging.legacyAccepted}, the chain refuses ${forging.refused}. Headline: ${headline}. Limits: one score trit (three levels, Lemma K); the selector copies the written tones into its run words and the digest checks the copy; the carrier decode and the proposer are outside the mesh; no harm rule in the mesh arm. ${ok ? '' : `Failures: ${failures.slice(0, 10).join('; ')}`}`.trim(),
     })
   },
 })

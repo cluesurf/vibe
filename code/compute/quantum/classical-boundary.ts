@@ -1,5 +1,5 @@
-// THE BOUNDARY BETWEEN THE BARE BEAT U AND THE CLASSICAL PAIR RULES (item vibe-computation-models-0033, Q6; decision 004
-// of vibe/computation/models). Four exact questions, each answered by enumeration over Q(zeta_9) (no floats, no random
+// THE BOUNDARY BETWEEN THE BARE BEAT U AND THE CLASSICAL PAIR RULES (Q6).
+// Four exact questions, each answered by enumeration over Q(zeta_9) (no floats, no random
 // numbers):
 //
 //   layerCensus           which of the 8 layers of U are monomial (a permutation of basis states times phases) on the
@@ -654,7 +654,7 @@ export type ToneMap = {
 
 const sign = (x: number): Tone => (x > 0 ? 1 : x < 0 ? -1 : 0)
 
-// DECLARED BEFORE THE FIRST RUN (item 0033). These four, and no other, are the coarse-grainings tested on U. Each sends
+// DECLARED BEFORE THE FIRST RUN. These four, and no other, are the coarse-grainings tested on U. Each sends
 // the empty dock to tone 0, so the vacuum goes to the all-0 tone configuration.
 export const DECLARED_TONE_MAPS: readonly ToneMap[] = [
   {

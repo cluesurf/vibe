@@ -91,7 +91,7 @@ export function inflated<S>(args: SearchArgs, host: CandidateHost<S>): Solver<S>
   return aStarSolver({ ...heuristic, id: 'inflated', estimate: state => 4 * heuristic.estimate(state) })
 }
 
-/** audit C2: A* with its table charged reports zero search expansions */
+/** A* with its table charged reports zero search expansions */
 export function hidingSearch<S>(args: SearchArgs, host: CandidateHost<S>): Solver<S> {
   const inner = aStarSolver(heuristicOf(args.heuristic, host))
 
@@ -123,7 +123,7 @@ export function hidingExpansions<S>(): Solver<S> {
   }
 }
 
-/** audit M1: breadth-first search reporting no memory at all */
+/** Breadth-first search reporting no memory at all */
 export function hidingMemory<S>(): Solver<S> {
   const inner = breadthFirstSolver<S>()
 
@@ -141,7 +141,7 @@ export function hidingMemory<S>(): Solver<S> {
   }
 }
 
-/** audit M2: A* on the problem's own distance, the same table the informed baselines pay for, declaring no charge */
+/** A* on the problem's own distance, the same table the informed baselines pay for, declaring no charge */
 export function freeDistance<S>(): Solver<S> {
   return {
     id: 'free-distance',

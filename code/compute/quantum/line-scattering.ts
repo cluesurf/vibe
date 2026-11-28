@@ -1,5 +1,5 @@
-// ONE-LINE SCATTERING OF BARE U: THE MOMENTUM-RESOLVED TWO-BODY S-MATRIX AND THREE-BODY FACTORIZATION (item
-// vibe-computation-models-0049, Q3b; decision 004 of vibe/computation/models). Built on code/compute/quantum/routing
+// ONE-LINE SCATTERING OF BARE U: THE MOMENTUM-RESOLVED TWO-BODY S-MATRIX AND THREE-BODY FACTORIZATION (Q3b).
+// Built on code/compute/quantum/routing
 // (lineFrame, lineVibe, coinElement) and code/rule/bare-beat (applyBeat), none edited. Every coefficient is read off
 // the beat; nothing is typed in.
 //

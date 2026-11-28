@@ -1,4 +1,4 @@
-// Item vibe-computation-models-0057: which invariant keeps the sum-0-fiber 3-cycle wire rules from computing Kleene
+// Which invariant keeps the sum-0-fiber 3-cycle wire rules from computing Kleene
 // neg, though M5 (E-CMP-0050) saw them reach 21 of 26 unary tables on the line? Library: code/compute/lab/wire-invariant.ts
 // on code/compute/lab/gates.ts. Lean: code/proof/Vibe/WireInvariant.lean.
 //
@@ -337,7 +337,7 @@ export default experiment({
         corruptedRejected: corruptedRejected ? 1 : 0,
       },
       notes:
-        `Item vibe-computation-models-0057. Closures: ${r.b.map(x => `${x.rule} first ${x.first} second ${x.second}${x.negFirst ? ' neg-first' : ''}${x.negSecond ? ' neg-second' : ''}`).join('; ')}. Layout tables (dense/sparse): ${r.c.map(l => `${l.rule}/${l.background} ${l.dense} | ${l.sparse}`).join('; ')}. Reach: ${d.reach.map(x => `${x.rule}/${x.background} unary ${x.unary} binary ${x.binary}`).join('; ')}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
+        `Closures: ${r.b.map(x => `${x.rule} first ${x.first} second ${x.second}${x.negFirst ? ' neg-first' : ''}${x.negSecond ? ' neg-second' : ''}`).join('; ')}. Layout tables (dense/sparse): ${r.c.map(l => `${l.rule}/${l.background} ${l.dense} | ${l.sparse}`).join('; ')}. Reach: ${d.reach.map(x => `${x.rule}/${x.background} unary ${x.unary} binary ${x.binary}`).join('; ')}. ${ok ? '' : `Failures: ${failures.join('; ')}`}`.trim(),
     })
   },
 })

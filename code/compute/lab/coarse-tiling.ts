@@ -1,6 +1,6 @@
-// Block coarse-graining of partitioned pair dynamics on the coset tilings (item vibe-computation-models-0065, plan.md
-// M11, note m11-coarse-graining.md, tilings section). The line slice is code/compute/lab/coarse-block.ts; this file
-// extends it to every {p,q} of decision 005 with blocks taken from the tile group's own subgroup structure.
+// Block coarse-graining of partitioned pair dynamics on the coset tilings (milestone
+// M11, the tilings slice). The line slice is code/compute/lab/coarse-block.ts; this file
+// extends it to every lab {p,q} with blocks taken from the tile group's own subgroup structure.
 //
 // FRAME. A tile is a coset w W_J of the cell subgroup W_J = <s_0, s_1> in the (2, p, q) triangle group
 // (coset-tiling.ts). The p colors are lifted from the finite quotient G = W / N, N the kernel of reducing the geometric

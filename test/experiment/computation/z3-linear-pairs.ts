@@ -1,6 +1,6 @@
-// M2-A, the different-algebra control (item vibe-computation-models-0010): the 48 Z3-linear reversible pair rules,
+// M2-A, the different-algebra control: the 48 Z3-linear reversible pair rules,
 // (x, y) -> (a x + b y, c x + d y) mod 3 for [a b; c d] in GL(2,3), against the 24 spin-one rules of M1. Algebra: Z3
-// cyclic (plan.md 3), the tones -1, 0, +1 read as residues 2, 0, 1. Rule module: code/rule/z3-linear-pair.
+// cyclic, the tones -1, 0, +1 read as residues 2, 0, 1. Rule module: code/rule/z3-linear-pair.
 //
 // Gates (any failure fails the experiment):
 //   - census: brute force over all 9! permutations of the nine pairs finds exactly 48 additive ones, and they are the
@@ -28,17 +28,17 @@
 //   - every gated (confined, surface_limited) reading re-derived from scratch, as E-CMP-0027 does
 //   - two runs give identical bytes on the closed slice, and no file of the lab draws a random number
 //
-// Laptop slice (a full run of every instance did not finish in 22 hours and was stopped): the open windows of the ten
+// Bounded slice (a full run of every instance did not finish in 22 hours and was stopped): the open windows of the ten
 // 2D tilings (base schedules, plus the variants of the three degree-matched 2D pairs), and closed only the ring and the
 // hyperbolic regular maps below 48 cells, under both colorings. The degree-24 windows, the flat tori, the {3,7} surface
-// and every larger quotient are an M3 item.
+// and every larger quotient are left to a larger run.
 //
 // The harness reads only 6 of the 48 rules. Its seeds sit on all three uniform backgrounds, and it runs a seed on a
 // background the rule does not fix only against a live vacuum on a closed instance; a Z3-linear rule always fixes the
 // vacuum, and it fixes the +1 and -1 backgrounds only when its row sums are 1. For the other 42 the dense path throws
 // (recorded as a refusal probe here) and the lazy path would treat the moving background as fixed and read a wrong run
 // silently (recorded as a probe: the uniform +1 state moves under one dense round while a lazy run on background +1
-// reports nothing). So the 42 are not read here; that needs a harness change (log.md escalation). Also measured for
+// reports nothing). So the 42 are not read here; that needs a harness change. Also measured for
 // all 26 classes, with no harness reading: the ring's exact period growth exponent (linePeriodExponent).
 //
 // A readable rule that is not a cell permutation spreads a lone excitation through the whole light cone. On a lazy
@@ -149,12 +149,12 @@ const LAB_FILES = [
 ]
 
 const RING_SIZES = [4, 6, 8] as const
-// the laptop slice: open windows not read, and open columns whose schedule variants are read
+// the bounded slice: open windows not read, and open columns whose schedule variants are read
 const SLICE_EXCLUDED_COLUMNS: ReadonlySet<string> = new Set(['{3,4,3,4}', '{3,4,3,3}'])
 const SLICE_VARIANT_COLUMNS: ReadonlySet<string> = new Set(['{4,4}', '{4,5}', '{6,3}', '{6,4}', '{3,6}', '{3,7}'])
 // the closed slice: the ring (line control) and the hyperbolic regular maps below this many cells ({7,3} 24, {5,4} 24,
 // {4,5} 30, {8,3} 42), each under both colorings; the {3,7} surface (56) and the flat tori of 30 and 56 cells took about
-// 9 minutes per reading under the harness's extended census and go to the M3 item with the larger instances
+// 9 minutes per reading under the harness's extended census and go to a larger run with the larger instances
 const CLOSED_SLICE_MAX_CELLS = 48
 
 let progressSink: ((line: string) => void) | null = null
@@ -570,7 +570,7 @@ function z3InstanceGates(rule: Z3LinearRule, hr: HarnessRule, inst: LabInstance)
   return out
 }
 
-// ---- gated labels, re-derived from scratch (decision 006, as E-CMP-0027) ----
+// ---- gated labels, re-derived from scratch (as E-CMP-0027) ----
 
 function replayPeriod(inst: LabInstance, order: ColorOrder, rule: HarnessRule, seedKey: string): { period: number; moved: boolean } | null {
   const ctx = lazyContext(inst, order)
@@ -746,9 +746,9 @@ export function z3LinearPairs(input: { rerunSubset: boolean }): Z3Run {
   const openVariants = openVariantInstances(open)
   const closedAll = closedInstances()
   const closedAllVariants = closedVariantInstances(closedAll)
-  // the laptop slice (item 0010, bounded on the coordinator's instruction after a 22-hour full run was stopped):
+  // the bounded slice (bounded on the coordinator's instruction after a 22-hour full run was stopped):
   // closed instances of at most 256 cells, open windows of the 2D tilings only (base schedules, plus the variants of the
-  // three degree-matched 2D pairs); the degree-24 windows and the 2048- and 16384-cell quotients are left to an M3 item
+  // three degree-matched 2D pairs); the degree-24 windows and the 2048- and 16384-cell quotients are left to a larger run
   const small = (i: LabInstance): boolean =>
     i.column === 'line' || (i.curvature === 'hyperbolic' && i.size < CLOSED_SLICE_MAX_CELLS)
   const catalog = [...closedAll, ...closedAllVariants]
@@ -1088,7 +1088,7 @@ export function z3LinearPairs(input: { rerunSubset: boolean }): Z3Run {
   return result
 }
 
-// ---- the tables of m1-classification.md (Z3 section) ----
+// ---- the classification tables (Z3 section) ----
 
 const SHORT: Record<string, string> = {
   frozen: 'F',
@@ -1257,7 +1257,7 @@ export default experiment({
     return verdict({
       status,
       claim:
-        'the 48 Z3-linear reversible pair rules are GL(2,3) by brute force (26 classes, C trivial, sum mod 3 conserved by 6, all three uniform backgrounds fixed by 6, Q only by the identity and the swap), every algebraic property is gated live on rings and lab instances, and the 6 rules the unchanged M1 harness can read get labels on a bounded laptop slice (2D open windows, the ring and the hyperbolic regular maps below 48 cells); the other 42 move the +-1 backgrounds, which the harness cannot read (dense refuses, lazy would silently freeze them)',
+        'the 48 Z3-linear reversible pair rules are GL(2,3) by brute force (26 classes, C trivial, sum mod 3 conserved by 6, all three uniform backgrounds fixed by 6, Q only by the identity and the swap), every algebraic property is gated live on rings and lab instances, and the 6 rules the unchanged M1 harness can read get labels on a bounded slice (2D open windows, the ring and the hyperbolic regular maps below 48 cells); the other 42 move the +-1 backgrounds, which the harness cannot read (dense refuses, lazy would silently freeze them)',
       metrics: {
         permutationsChecked: c.permutationsChecked,
         rules: c.invertible,
@@ -1308,7 +1308,7 @@ export default experiment({
         lazySilentFreeze: r.refusal.lazyFrozeMovingBackground ? 1 : 0,
       },
       notes:
-        `Laptop slice: open windows of the ten 2D tilings (base schedules, plus the schedule variants of {4,4}, {4,5}, {6,3}, {6,4}, {3,6}, {3,7}), closed: the ring and the hyperbolic regular maps below ${CLOSED_SLICE_MAX_CELLS} cells ({7,3} 24, {5,4} 24, {4,5} 30, {8,3} 42) under both colorings; not read: the {3,4,3,4} and {3,4,3,3} windows, every flat torus, the {3,7} surface, the {6,4} surface and larger quotients, the open variants of {5,4}, {7,3}, {8,3}. The identity and the swap are E-CMP-0027's tables and are read only on the ring. The identical-bytes rerun covers the closed slice. ` +
+        `Bounded slice: open windows of the ten 2D tilings (base schedules, plus the schedule variants of {4,4}, {4,5}, {6,3}, {6,4}, {3,6}, {3,7}), closed: the ring and the hyperbolic regular maps below ${CLOSED_SLICE_MAX_CELLS} cells ({7,3} 24, {5,4} 24, {4,5} 30, {8,3} 42) under both colorings; not read: the {3,4,3,4} and {3,4,3,3} windows, every flat torus, the {3,7} surface, the {6,4} surface and larger quotients, the open variants of {5,4}, {7,3}, {8,3}. The identity and the swap are E-CMP-0027's tables and are read only on the ring. The identical-bytes rerun covers the closed slice. ` +
         `Algebra Z3 cyclic. Readable by the harness: ${r.readableRules.join(', ')}. Classes: ${r.classes.map(x => `${x.representative} (exp ${x.periodExponent.toFixed(2)})`).join(', ')}. ` +
         `Schedules and boundaries as E-CMP-0027 (both color orders, every variant). Curvature verdicts over same-family schedules: ${verdictCount('null')} null, ${verdictCount('differs')} differ, ${verdictCount('schedule_dependent')} schedule-dependent, ${verdictCount('unmatched')} unmatched. ` +
         `The harness's collision test is integer superposition and its entropy ceiling the spin-one Q sector's; a Z3-linear rule superposes exactly mod 3 (gated), so its ${r.scatter.scattered} scattered collisions are mod-3 wraps read as interaction. ` +

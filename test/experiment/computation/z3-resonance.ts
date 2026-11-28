@@ -1,6 +1,6 @@
 // M8 slice 1: resonance and collective modes of the second-order Z3 wave, flat against degree-matched hyperbolic
-// (item vibe-computation-models-0019, plan.md M8, algebra Z3 cyclic). Re-plan, measures and criteria were fixed in
-// note/project/vibe/computation/models/m8-resonance.md before the first run.
+// (algebra Z3 cyclic). Re-plan, measures and criteria were fixed
+// before the first run.
 //
 // Part A re-checks E-CMP-0041's one credited curvature effect, the mean lit share of the wave front, over the COMMON
 // step range of each pair (t = 1 .. min(R_flat, R_hyperbolic)), with exact rationals: step mean and pooled share.
@@ -572,7 +572,7 @@ export function z3ResonanceRun(): Verdict {
     metrics,
     control: { negativesTripped: negatives.filter(c => c.ok).length, negatives: negatives.length },
     notes:
-      'L2, exact integers mod 3 and bigint rationals. The front tone is the geodesic count mod 3 (re-gated), so the front share is a property of the geometry read through the wave; bipartiteness cannot touch it (front tiles are all at distance t). Closed-quotient modes are read against flat size series of the same degree (traps.md: a closed quotient reads its arithmetic). No schedule exists, so audit-m1 F holds by construction.',
+      'L2, exact integers mod 3 and bigint rationals. The front tone is the geodesic count mod 3 (re-gated), so the front share is a property of the geometry read through the wave; bipartiteness cannot touch it (front tiles are all at distance t). Closed-quotient modes are read against flat size series of the same degree (a closed quotient reads its arithmetic). No schedule exists, so audit-m1 F holds by construction.',
   })
 }
 
