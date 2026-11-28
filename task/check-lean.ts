@@ -22,6 +22,7 @@ import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
+import { checkLeanLink } from './check-lean-link'
 
 const MIN_HEADLINE_THEOREM_COUNT = 383
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
@@ -451,9 +452,17 @@ const REQUIRED_THEOREMS = [
   'thm_pair_rule_classes',
   'thm_pair_rule_vacuum_iff',
   'thm_pair_rule_inverse',
+  // Vibe.Compute.PairRuleLink (2 headline: bridges of Generated/PairRuleTable, the code's pair index and 24 rule tables equal PairRules)
+  'gen_pair_tones_eq',
+  'gen_pair_rules_eq',
   // Vibe.PartitionedStep (2 headline: the partitioned global step is a charge-conserving bijection)
   'thm_cf_partitioned_block_global_invariants',
   'thm_cf_partitioned_rule_step_bijective',
+  // Vibe.Compute.Round (4 headline, L02: the round over any graph and schedule is an Equiv.Perm keeping Q, D and negation; decision 006 confined)
+  'thm_cmp_round_perm_charge_negation',
+  'thm_cmp_pair_rule_perm',
+  'thm_cmp_recurrence_is_periodic',
+  'thm_cmp_confined_period',
   // Vibe.QuantumGates (3 headline: the bare beat's meeting is unitary, the 2/3 role-SWAP, the Sym^3 CZ is exactly -1)
   'thm_q_meet_gates_unitary',
   'thm_q_role_swap_two_thirds',
@@ -488,6 +497,16 @@ const REQUIRED_THEOREMS = [
   'thm_cf_simulation_contract_rule_unique',
   'thm_cf_full_swap_brick2_contract',
   'thm_cf_full_swap_brick2_contract_two_rounds',
+  // Vibe.Compute.SecondOrderZ3 (9 headline, L18: second-order Z3 waves are bijective for every f, exactly time-reversible, superpose for linear laws, and the front tone is the geodesic count mod 3)
+  'thm_soz3_time_reversal',
+  'thm_soz3_step_bijective',
+  'thm_soz3_slice_pairs_permuted',
+  'thm_soz3_linear_superposition',
+  'thm_soz3_square_breaks_superposition',
+  'thm_soz3_light_cone',
+  'thm_soz3_front_geodesic_count',
+  'thm_soz3_front_all_laws',
+  'thm_soz3_front_simple_graph',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -971,6 +990,15 @@ function main(): void {
       `check:lean    ${s.label.padEnd(20)} headline=${String(s.headline).padStart(2)}  exportedHelpers=${String(s.exportedHelper).padStart(2)}  privateHelpers=${String(s.privateHelper).padStart(2)}`,
     )
   }
+
+  // the TypeScript-to-Lean link: every Generated/ file equals a fresh export and has its bridge theorems
+  const link = checkLeanLink({ requiredTheorems: REQUIRED_THEOREMS })
+
+  for (const line of link.lines) {
+    console.log(`check:lean  ${line}`)
+  }
+
+  failures.push(...link.failures)
 
   if (failures.length > 0) {
     for (const f of failures) {

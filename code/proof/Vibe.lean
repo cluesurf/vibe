@@ -29,13 +29,16 @@ import Vibe.StandardModelCore
 import Vibe.StandardModelMathlib
 import Vibe.NoContraction
 import Vibe.PairRules
+import Vibe.Compute.PairRuleLink
 import Vibe.PartitionedStep
+import Vibe.Compute.Round
 import Vibe.QuantumGates
 import Vibe.QuantumBoundary
 import Vibe.QuantumMemory
 import Vibe.LineScattering
 import Vibe.WireInvariant
 import Vibe.SimulationContract
+import Vibe.Compute.SecondOrderZ3
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
