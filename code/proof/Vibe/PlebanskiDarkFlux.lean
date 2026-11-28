@@ -1308,8 +1308,11 @@ theorem thm_q8_witten_z2_flux_parity :
       have hTerm : ∀ v : Fin 4 → ZMod 2,
           (if (2 * m * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 then (1 : ℤ) else -1) = 1 := by
         intro v
-        have hMod : (2 * m * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 := by omega
-        simp [hMod]
+        have hMod : (2 * m * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 := by
+          rw [mul_assoc]
+          exact Int.mul_emod_right 2 _
+        rw [hMod]
+        rfl
       simp only [hTerm, Finset.sum_const, Finset.card_univ, Fintype.card_pi, ZMod.card]
       decide
     · rw [← hGauss1]
@@ -1486,13 +1489,13 @@ private theorem isThreeSmooth_of_dvd_two_three_pow :
           refine ⟨a' + 1, b', ?_⟩
           calc
             d = p * (d / p) := hMulDiv.symm
-            _ = 2 * (2 ^ a' * 3 ^ b') := by rw [hpEq2, hEq]
+            _ = 2 * (2 ^ a' * 3 ^ b') := by rw [hEq, hpEq2]
             _ = 2 ^ (a' + 1) * 3 ^ b' := by ring
         · have hpEq3 : p = 3 := Nat.prime_eq_prime_of_dvd_pow hp Nat.prime_three hp3
           refine ⟨a', b' + 1, ?_⟩
           calc
             d = p * (d / p) := hMulDiv.symm
-            _ = 3 * (2 ^ a' * 3 ^ b') := by rw [hpEq3, hEq]
+            _ = 3 * (2 ^ a' * 3 ^ b') := by rw [hEq, hpEq3]
             _ = 2 ^ a' * 3 ^ (b' + 1) := by ring
 
 private theorem isThreeSmooth_no_prime_ge_five {d : ℕ} (hs : IsThreeSmooth d)
@@ -1562,6 +1565,7 @@ theorem thm_zero_veto_3smooth_closure :
     intro k
     refine ⟨k, k, ?_⟩
     rw [← mul_pow]
+    norm_num
   have hEquiv6 : ∀ m : ℕ, 0 < m → (IsThreeSmooth m ↔ ∃ k c : ℕ, m * c = 6 ^ k) := by
     intro m _
     constructor
@@ -1756,33 +1760,47 @@ private theorem spin2_quadForm_I5_factored (q : Fin 4 → ℚ) (h : Matrix (Fin 
       ∑ i : Fin 24,
         (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
         (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * h μ ν * (mlD4Root i ν : ℚ)) ^ 2 := by
-  unfold spin2QuadForm spin2I5
-  have hSwap :
-      (∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
+  have hStep1 :
+      spin2QuadForm spin2I5 q h =
+      ∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4, ∑ i : Fin 24,
         h μ ν *
-          (∑ i : Fin 24,
-            (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
-              (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
+          ((∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
+          h ρ σ := by
+    unfold spin2QuadForm spin2I5
+    refine Finset.sum_congr rfl fun μ _ => Finset.sum_congr rfl fun ν _ =>
+      Finset.sum_congr rfl fun ρ _ => Finset.sum_congr rfl fun σ _ => ?_
+    rw [Finset.mul_sum, Finset.sum_mul]
+  have hSwap :
+      (∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4, ∑ i : Fin 24,
+        h μ ν *
+          ((∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
           h ρ σ) =
       ∑ i : Fin 24, ∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
         h μ ν *
           ((∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
             (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
           h ρ σ := by
-    simp_rw [Finset.mul_sum, Finset.sum_mul]
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun μ _ => ?_
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun ν _ => ?_
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun ρ _ => ?_
-    rw [Finset.sum_comm]
-  rw [hSwap]
+    simp_rw [Finset.sum_comm (s := (Finset.univ : Finset (Fin 4)))
+      (t := (Finset.univ : Finset (Fin 24)))]
+  rw [hStep1, hSwap]
   refine Finset.sum_congr rfl fun i _ => ?_
-  rw [pow_two]
-  simp_rw [Finset.mul_sum, Finset.sum_mul]
-  refine Finset.sum_congr rfl fun μ _ => Finset.sum_congr rfl fun ν _ =>
-    Finset.sum_congr rfl fun ρ _ => Finset.sum_congr rfl fun σ _ => ?_
+  have hSq :
+      (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * h μ ν * (mlD4Root i ν : ℚ)) ^ 2 =
+      ∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
+        ((mlD4Root i μ : ℚ) * h μ ν * (mlD4Root i ν : ℚ)) *
+        ((mlD4Root i ρ : ℚ) * h ρ σ * (mlD4Root i σ : ℚ)) := by
+    rw [pow_two]
+    simp_rw [Finset.sum_mul, Finset.mul_sum]
+  rw [hSq, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun ν _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun ρ _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun σ _ => ?_
   ring
 
 /-- Headline 7: Exact `W(F_4)^+` Spin-2 Linearized Diffeomorphism Uniqueness Theorem.
@@ -1824,7 +1842,17 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
     fin_cases i <;> fin_cases j <;>
       simp [wf4HadamardMat, Matrix.mul_apply, Fin.sum_univ_four] <;> norm_num
   have hHadDet : wf4HadamardMat.det = 1 := by
-    simp [wf4HadamardMat, Matrix.det_succ_row_zero, Fin.sum_univ_succ]
+    have hIntDet : wf4HadamardInt2.det = 16 := by
+      simp [wf4HadamardInt2, Matrix.det_succ_row_zero, Fin.sum_univ_succ]
+      decide
+    have hEqMat : wf4HadamardMat =
+        (1 / 2 : ℚ) • wf4HadamardInt2.map (Int.castRingHom ℚ) := by
+      ext i j
+      fin_cases i <;> fin_cases j <;>
+        simp [wf4HadamardMat, wf4HadamardInt2]
+    rw [hEqMat, Matrix.det_smul, Fintype.card_fin]
+    change (1 / 2 : ℚ) ^ 4 * ((Int.castRingHom ℚ).mapMatrix wf4HadamardInt2).det = 1
+    rw [← RingHom.map_det, hIntDet]
     norm_num
   have hHadRoot : ∀ i : Fin 24, ∀ a : Fin 4,
       (∑ b : Fin 4, wf4HadamardInt2 b a * mlD4Root i b) =
@@ -1854,7 +1882,7 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
       have hEntry : ∀ b : Fin 4, wf4HadamardMat b a = (1 / 2 : ℚ) * (wf4HadamardInt2 b a : ℚ) := by
         intro b
         fin_cases b <;> fin_cases a <;>
-          simp [wf4HadamardMat, wf4HadamardInt2] <;> norm_num
+          simp [wf4HadamardMat, wf4HadamardInt2]
       simp_rw [hEntry]
       have hRew : (∑ b : Fin 4, (mlD4Root i b : ℚ) * ((1 / 2 : ℚ) * (wf4HadamardInt2 b a : ℚ))) =
           (1 / 2 : ℚ) * (∑ b : Fin 4, (wf4HadamardInt2 b a : ℚ) * (mlD4Root i b : ℚ)) := by
@@ -1916,6 +1944,7 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
          0, 0, 0, 0]
     refine ⟨q, hA, hB, ?_, ?_, ?_, ?_, ?_⟩
     · simp [q, hA, hB, spin2QuadForm, spin2I1, spin2QNormSq, spin2Delta, Fin.sum_univ_four]
+      norm_num
     · simp [q, hA, hB, spin2QuadForm, spin2I2, spin2Delta, Fin.sum_univ_four]
     · simp [q, hA, hB, spin2QuadForm, spin2I3, spin2Delta, Fin.sum_univ_four]
     · simp [q, hA, hB, spin2QuadForm, spin2I4, spin2QNormSq, spin2Delta, Fin.sum_univ_four]
@@ -1928,8 +1957,13 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
               (mlD4Root i 0) ^ 2 * ((mlD4Root i 1) ^ 2 - (mlD4Root i 2) ^ 2) ^ 2 : ℤ)) : ℚ) := by
         push_cast
         refine Finset.sum_congr rfl fun i _ => ?_
-        simp [q, hA, Fin.sum_univ_four]
-        ring
+        have h1 : (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) = (mlD4Root i 0 : ℚ) := by
+          simp [q, Fin.sum_univ_four]
+        have h2 : (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * hA μ ν * (mlD4Root i ν : ℚ)) =
+            (mlD4Root i 1 : ℚ) ^ 2 - (mlD4Root i 2 : ℚ) ^ 2 := by
+          simp [hA, Fin.sum_univ_four]
+          ring
+        rw [h1, h2]
       have hBVal :
           (∑ i : Fin 24,
             (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
@@ -1938,8 +1972,13 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
               (mlD4Root i 0) ^ 2 * (2 * mlD4Root i 1 * mlD4Root i 2) ^ 2 : ℤ)) : ℚ) := by
         push_cast
         refine Finset.sum_congr rfl fun i _ => ?_
-        simp [q, hB, Fin.sum_univ_four]
-        ring
+        have h1 : (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) = (mlD4Root i 0 : ℚ) := by
+          simp [q, Fin.sum_univ_four]
+        have h2 : (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * hB μ ν * (mlD4Root i ν : ℚ)) =
+            2 * (mlD4Root i 1 : ℚ) * (mlD4Root i 2 : ℚ) := by
+          simp [hB, Fin.sum_univ_four]
+          ring
+        rw [h1, h2]
       have hAZ : (∑ i : Fin 24,
           (mlD4Root i 0) ^ 2 * ((mlD4Root i 1) ^ 2 - (mlD4Root i 2) ^ 2) ^ 2 : ℤ) = 8 := by decide
       have hBZ : (∑ i : Fin 24,
@@ -2027,9 +2066,8 @@ theorem thm_wf4_spin2_diffeo_uniqueness :
       have hEq2 := hSplit ![1, 0, 0, 0] 0 1 1
       have hEq3 := hSplit ![1, 0, 0, 0] 1 0 1
       have hEq4 := hSplit ![1, 1, 0, 0] 0 1 1
-      simp only [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4,
-        spin2I5Hypercubic, spin2QNormSq, spin2Delta, Fin.sum_univ_four] at hEq1 hEq2 hEq3 hEq4
-      norm_num at hEq1 hEq2 hEq3 hEq4
+      rw [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4] at hEq1 hEq2 hEq3 hEq4
+      simp [spin2I5Hypercubic, spin2QNormSq, spin2Delta, Fin.sum_univ_four] at hEq1 hEq2 hEq3 hEq4
       refine ⟨by linarith, by linarith, by linarith, by linarith⟩
     · rintro ⟨rfl, rfl, rfl, rfl⟩ q ν ρ σ
       have hPull : ∀ f : Fin 4 → ℚ, ∀ c : ℚ,

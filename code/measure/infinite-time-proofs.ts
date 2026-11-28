@@ -29,7 +29,7 @@
 // NOTHING MOVES: pure deterministic exact BigInt algebra + Lean 4 source structural audit. Zero floats
 // enter any proof certificate. Zero random numbers.
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
@@ -968,40 +968,55 @@ function stripLeanComments(rawSrc: string): string {
 function auditLeanFile(): LeanAudit {
   const proofDir = fileURLToPath(new URL('../proof', import.meta.url))
   const leanFiles: string[] = [join(proofDir, 'Vibe.lean')]
+  const statementsPath = join(proofDir, 'Statements.lean')
+  const oleanRoot = join(proofDir, '.lake', 'build', 'lib', 'lean')
+  const expectedOleans: string[] = [join(oleanRoot, 'Vibe.olean')]
+  if (existsSync(statementsPath)) {
+    leanFiles.push(statementsPath)
+    expectedOleans.push(join(oleanRoot, 'Statements.olean'))
+  }
   const vibeSubdir = join(proofDir, 'Vibe')
-  const subModuleBases: string[] = []
-  if (existsSync(vibeSubdir)) {
-    for (const entry of readdirSync(vibeSubdir).sort()) {
-      if (entry.endsWith('.lean')) {
-        leanFiles.push(join(vibeSubdir, entry))
-        subModuleBases.push(entry.slice(0, -5))
+  const collectVibeLean = (dirPath: string, relParts: readonly string[]): void => {
+    for (const entry of readdirSync(dirPath).sort()) {
+      const fullPath = join(dirPath, entry)
+      if (statSync(fullPath).isDirectory()) {
+        collectVibeLean(fullPath, [...relParts, entry])
+      } else if (entry.endsWith('.lean')) {
+        leanFiles.push(fullPath)
+        expectedOleans.push(join(oleanRoot, ...relParts, `${entry.slice(0, -5)}.olean`))
       }
     }
+  }
+  if (existsSync(vibeSubdir)) {
+    collectVibeLean(vibeSubdir, ['Vibe'])
   }
   const src = leanFiles.map(p => readFileSync(p, 'utf8')).join('\n')
   const codeOnly = stripLeanComments(src)
   let substantiveCount = 0
   for (const p of leanFiles) {
-    const lines = readFileSync(p, 'utf8').split('\n')
+    const rawLines = readFileSync(p, 'utf8').split('\n')
+    const codeLines = stripLeanComments(readFileSync(p, 'utf8')).split('\n')
     let pendingHelper = false
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if (trimmed.includes('[helper]')) {
+    for (let idx = 0; idx < codeLines.length; idx++) {
+      const rawLine = (rawLines[idx] ?? '').trim()
+      const trimmed = (codeLines[idx] ?? '').trim()
+      if (/^--\s*\[helper\]/.test(rawLine)) {
         pendingHelper = true
         continue
       }
-      if (/^private\s+theorem\s+[A-Za-z0-9_']+/.test(trimmed)) {
+      if (trimmed.length === 0) {
+        continue
+      }
+      if (/^private\s+theorem\s+[A-Za-z0-9_'.?]+/.test(trimmed)) {
         pendingHelper = false
         continue
       }
-      if (/^theorem\s+[A-Za-z0-9_']+/.test(trimmed)) {
+      if (/^(?:(?:public|protected)\s+)?theorem\s+[A-Za-z0-9_'.?]+/.test(trimmed)) {
         if (!pendingHelper) substantiveCount++
         pendingHelper = false
         continue
       }
-      if (trimmed.length > 0 && !trimmed.startsWith('--') && !trimmed.startsWith('/--')) {
-        pendingHelper = false
-      }
+      pendingHelper = false
     }
   }
   const sorryMatches = codeOnly.match(/\bsorry\b/g) ?? []
@@ -1011,11 +1026,6 @@ function auditLeanFile(): LeanAudit {
   const implementedByMatches = codeOnly.match(/\bimplemented_by\b/g) ?? []
 
   // Verify compiled .olean artifacts exist in code/proof/.lake/build/lib/lean/ (pnpm check:lean runs live lake build)
-  const oleanRoot = join(proofDir, '.lake', 'build', 'lib', 'lean')
-  const expectedOleans: string[] = [join(oleanRoot, 'Vibe.olean')]
-  for (const base of subModuleBases) {
-    expectedOleans.push(join(oleanRoot, 'Vibe', `${base}.olean`))
-  }
   let oleanFileCount = 0
   for (const p of expectedOleans) {
     if (existsSync(p)) oleanFileCount++
@@ -1054,7 +1064,7 @@ function auditLeanFile(): LeanAudit {
     nativeDecideMatches.length === 0 &&
     unsafeMatches.length === 0 &&
     implementedByMatches.length === 0 &&
-    substantiveCount >= 35 &&
+    substantiveCount >= 400 &&
     oleanArtifactsPresent &&
     allSixFamiliesPresent
 
