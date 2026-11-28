@@ -395,6 +395,7 @@ const REQUIRED_THEOREMS = [
   'thm_ct_mpair_gap_margin',
   'thm_ct_hyperbolic_excision_pocket',
   'thm_ct_holographic_rate_depressed_cubic',
+<<<<<<< Updated upstream
   // Vibe.D4MassGapExt (11 headline: Alt-x0+planes forest RP/M88/Lambda_Alt < 4+4sqrt(7), SU(3) convex-hull/Cardano/K<=2 Pieri, SU(2) chordal & 2-link wedge contraction)
   'thm_mge_alt_x0_planes_forest_rp_and_acyclic',
   'thm_mge_alt_x0_planes_quotient_M88_structure',
@@ -442,6 +443,54 @@ const REQUIRED_THEOREMS = [
   'thm_ml_z6_sm_quotient_and_baryon_quantization',
   'thm_ml_steinberg_cubic_and_zeta18_gap_real',
   'thm_ml_d4_outer_triality_fprim_det',
+=======
+  // Vibe.NoContraction (3 headline: no bijection of a finite metric space is a strict contraction)
+  'thm_ms_no_strict_contraction_of_surjective',
+  'thm_ms_reversible_no_global_contraction',
+  'thm_ms_reversible_some_pair_not_shrunk',
+  // Vibe.PairRules (4 headline: the 24 conservative reversible pair rules, 12 classes, vacuum/D/swap coincidence, inverses)
+  'thm_pair_rules_card',
+  'thm_pair_rule_classes',
+  'thm_pair_rule_vacuum_iff',
+  'thm_pair_rule_inverse',
+  // Vibe.PartitionedStep (2 headline: the partitioned global step is a charge-conserving bijection)
+  'thm_cf_partitioned_block_global_invariants',
+  'thm_cf_partitioned_rule_step_bijective',
+  // Vibe.QuantumGates (3 headline: the bare beat's meeting is unitary, the 2/3 role-SWAP, the Sym^3 CZ is exactly -1)
+  'thm_q_meet_gates_unitary',
+  'thm_q_role_swap_two_thirds',
+  'thm_q_sym3_cz_minus_one',
+  // Vibe.QuantumBoundary (2 headline: the dephased unitary is doubly stochastic, the dephased line coins)
+  'thm_q_dephased_unitary_doubly_stochastic',
+  'thm_q_dephased_line_coin',
+  // Vibe.QuantumMemory (2 headline: the code spaces U's layers keep, and the layer that breaks the DFS)
+  'thm_q_code_space_invariant',
+  'thm_q_pair_mixer_breaks_dfs',
+  // Vibe.LineScattering (7 headline: the one-line S-matrix of bare U as an identity in the momenta)
+  'thm_line_mode_eigenvector',
+  'thm_line_s_is_yang',
+  'thm_line_opposite_reflects',
+  'thm_line_spectator_symmetric',
+  'thm_line_yang_baxter_one_tone',
+  'thm_line_mixed_tone_defect',
+  'thm_line_opposite_between_factorizes',
+  // Vibe.WireInvariant (6 headline: passenger laws of the 3-cycle wire rules and the Kleene no-go they give)
+  'thm_wire_bca_passengers',
+  'thm_wire_cab_id_backward',
+  'thm_wire_cab_id_no_forward',
+  'thm_wire_bca_rays',
+  'thm_wire_bca_no_neg',
+  'thm_wire_bca_no_min_max',
+  // Vibe.SimulationContract (8 headline: exact simulation contracts compose, powers, identity, invariant subset, unique coarse rule, full-swap instance)
+  'thm_cf_simulation_contract_composition',
+  'thm_cf_simulation_contract_commutes_composition',
+  'thm_cf_simulation_contract_power',
+  'thm_cf_simulation_contract_identity',
+  'thm_cf_simulation_contract_subset_invariant',
+  'thm_cf_simulation_contract_rule_unique',
+  'thm_cf_full_swap_brick2_contract',
+  'thm_cf_full_swap_brick2_contract_two_rounds',
+>>>>>>> Stashed changes
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

@@ -40,6 +40,8 @@
     "format": "bash task/format.sh",
     "check:perturbation": "npx tsx --no-warnings=ExperimentalWarning task/check-perturbation.ts",
     "check:lean": "npx tsx --no-warnings=ExperimentalWarning task/check-lean.ts",
+    "check:layers": "npx tsx --no-warnings=ExperimentalWarning task/check-layers.ts",
+    "check:model-table": "npx tsx --no-warnings=ExperimentalWarning task/check-model-table.ts",
     "kernel:parity": "npx tsx --no-warnings=ExperimentalWarning task/kernel/parity.ts",
     "burst": "npx tsx --no-warnings=ExperimentalWarning task/burst/index.ts",
     "droplet:run": "npx tsx --no-warnings=ExperimentalWarning task/kernel/droplet-run.ts",
