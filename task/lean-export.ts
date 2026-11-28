@@ -30,8 +30,10 @@ import {
   PAIR_COUNT,
   commutesWithNegation,
   commutesWithSwap,
+  conjugateTable,
   conservesExcitation,
   fixesVacuum,
+  negatePair,
   pairIndex,
   pairRuleCensus,
   pairRuleClasses,
@@ -49,6 +51,19 @@ import {
   inconsistentStepCount,
   withGeometry,
 } from '@/code/rule/bare-beat'
+import { q2rMove } from '@/code/rule/spin-one-q2r'
+import {
+  LINE_SCHEDULES,
+  LumpWitness,
+  blockMap,
+  blockOfCode,
+  blockOffsets,
+  checkWitness,
+  lumpability,
+  ringPartition,
+  windowRadius,
+} from '@/code/compute/lab/coarse-block'
+import { encodeState, globalPermutation } from '@/code/rule/partitioned-pair'
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 
@@ -373,6 +388,249 @@ export function exportBeatSlots(): string {
   })
 }
 
+// L07 (models-0083): q2rMove of spin-one-q2r.ts on its local finite family, every coupling J in 1..3, crystal field
+// Delta in -12..12 and neighbour field h in -12..12 (degree at most 12). Each (J, Delta, h) is one small Nat, the
+// base-3 code (move(-1) + 1) + 3 (move(0) + 1) + 9 (move(+1) + 1), in the nesting order J, Delta, h (h innermost):
+// a list of 1,875 tuple literals times out in Lean's elaborator, a list of small Nats does not.
+const Q2R_SOURCES = ['code/rule/spin-one-q2r.ts'] as const
+const Q2R_COUPLING_MAX = 3
+const Q2R_REACH = 12
+
+export function exportSpinOneQ2r(): string {
+  const lines: string[] = []
+
+  let count = 0
+
+  for (let coupling = 1; coupling <= Q2R_COUPLING_MAX; coupling++) {
+    for (let crystalField = -Q2R_REACH; crystalField <= Q2R_REACH; crystalField++) {
+      const row: number[] = []
+
+      for (let field = -Q2R_REACH; field <= Q2R_REACH; field++) {
+        const out = [-1, 0, 1].map(t => q2rMove(t, field, { coupling, crystalField }))
+
+        if (out.some(o => o !== -1 && o !== 0 && o !== 1)) {
+          throw new Error(`q2rMove left the tones at J ${coupling}, Delta ${crystalField}, h ${field}`)
+        }
+
+        row.push(out[0]! + 1 + 3 * (out[1]! + 1) + 9 * (out[2]! + 1))
+        count++
+      }
+
+      lines.push(row.join(', '))
+    }
+  }
+
+  const body = [
+    `/-- \`q2rMove(tone, field, { coupling, crystalField })\` of spin-one-q2r.ts for every coupling \`J\` in`,
+    `    \`1 .. ${Q2R_COUPLING_MAX}\`, crystal field \`Δ\` in \`-${Q2R_REACH} .. ${Q2R_REACH}\` and neighbour field \`h\` in`,
+    `    \`-${Q2R_REACH} .. ${Q2R_REACH}\`, in that nesting order (\`h\` innermost, one line per \`(J, Δ)\`): each entry is`,
+    '    `(move(-1) + 1) + 3 (move(0) + 1) + 9 (move(+1) + 1)`. -/',
+    `def q2rMoveCodes : List Nat :=\n  [ ${lines.join(',\n    ')} ]`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: Q2R_SOURCES,
+      lines: [
+        `Exports q2rMove on every tone, J in 1..${Q2R_COUPLING_MAX}, Delta and h in -${Q2R_REACH}..${Q2R_REACH} (${count} entries).`,
+        'Bridge: Vibe.Compute.SpinOneQ2R (gen_q2r_move_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
+// L11 (models-0090): the line lumpability witnesses of coarse-block.ts (E-CMP-0066) for every non-identity rule of
+// pairRuleCensus(), every line schedule, b 2 to 4 at every declared offset, tau 1 and 2, and the three reading maps
+// majority, netSign and netResidue. A row the capped search leaves open is decided by the C-conjugate rule's negated
+// witness, re-run by checkWitness on the rule's own table, as the experiment does; a row with no ring-checked witness
+// makes the export refuse. Each row is nine small Nats: rule index, schedule index, b, offset, tau, map index,
+// base + LUMP_BASE_SHIFT, and the left and right window codes (encodeState: base 3, cell 0 the lowest digit, digit
+// tone + 1). Also the three maps on every block of 2 to 4 cells.
+const LUMP_SOURCES = [
+  'code/compute/lab/coarse-block.ts',
+  'code/rule/partitioned-pair.ts',
+  'code/rule/pair-rule.ts',
+] as const
+const LUMP_MAPS = ['majority', 'netSign', 'netResidue'] as const
+const LUMP_BLOCKS = [2, 3, 4] as const
+const LUMP_TAUS = [1, 2] as const
+const LUMP_CAP = 3 ** 12
+const LUMP_BASE_SHIFT = 32
+
+function twoDigits(k: number): string {
+  return k < 10 ? `0${k}` : `${k}`
+}
+
+export function exportLumpability(): string {
+  const census = pairRuleCensus().rules
+
+  if (!census[0]!.table.every((v, i) => v === i)) {
+    throw new Error('pairRuleCensus() does not start with the identity')
+  }
+
+  const defs: string[] = []
+  const names: string[] = ['[]']
+
+  let rows = 0
+  let byNegation = 0
+
+  for (let k = 1; k < census.length; k++) {
+    const table = census[k]!.table
+    const mate = conjugateTable(table, negatePair)
+    const flat: number[] = []
+
+    LINE_SCHEDULES.forEach((schedule, s) => {
+      for (const b of LUMP_BLOCKS) {
+        for (const offset of blockOffsets(b, schedule)) {
+          for (const tau of LUMP_TAUS) {
+            LUMP_MAPS.forEach((name, m) => {
+              const map = blockMap(name)
+              const radius = windowRadius(b, tau, schedule)
+              const check = (w: LumpWitness): boolean =>
+                checkWitness({ table, schedule, b, tau, map, witness: w, radius })
+
+              let witness = lumpability({ table, schedule, b, offset, tau, map, cap: LUMP_CAP }).witness
+
+              if (!witness) {
+                const other = lumpability({ table: mate, schedule, b, offset, tau, map, cap: LUMP_CAP }).witness
+
+                if (other) {
+                  const negated = {
+                    ...other,
+                    left: other.left.map(v => -v),
+                    right: other.right.map(v => -v),
+                  }
+
+                  if (check(negated)) {
+                    witness = negated
+                    byNegation++
+                  }
+                }
+              }
+
+              if (!witness || !check(witness)) {
+                throw new Error(`no ring-checked witness: rule ${k}, ${schedule.name}, b ${b}, offset ${offset}, tau ${tau}, ${name}`)
+              }
+
+              if (witness.base + LUMP_BASE_SHIFT < 0) {
+                throw new Error(`witness base ${witness.base} below -${LUMP_BASE_SHIFT}`)
+              }
+
+              flat.push(
+                k,
+                s,
+                b,
+                offset,
+                tau,
+                m,
+                witness.base + LUMP_BASE_SHIFT,
+                encodeState(witness.left),
+                encodeState(witness.right),
+              )
+              rows++
+            })
+          }
+        }
+      }
+    })
+
+    const name = `lumpWitnessRule${twoDigits(k)}`
+
+    names.push(name)
+    defs.push(
+      `/-- The witness rows of rule ${k} (${census[k]!.name}), nine Nats each. -/`,
+      `def ${name} : List Nat :=\n  [${flat.join(', ')}]`,
+      '',
+    )
+  }
+
+  const maps: string[] = []
+
+  for (const name of LUMP_MAPS) {
+    const map = blockMap(name)
+
+    for (const b of LUMP_BLOCKS) {
+      const out: number[] = []
+
+      for (let code = 0; code < 3 ** b; code++) {
+        out.push(map.read(Int8Array.from(blockOfCode(code, b)), 0, b))
+      }
+
+      maps.push(`[${out.join(', ')}]`)
+    }
+  }
+
+  const body = [
+    ...defs,
+    '/-- The witness rows of every rule in census order (the identity has none). -/',
+    `def lumpWitnesses : List (List Nat) :=\n  ${leanList(names, '  ')}`,
+    '',
+    `/-- \`read\` of the block maps ${LUMP_MAPS.join(', ')} (in that order, the outer loop) of coarse-block.ts on`,
+    `    every block of b = ${LUMP_BLOCKS.join(', ')} cells (the inner loop), indexed by \`blockCode\`. -/`,
+    `def lumpBlockMapTables : List (List Int) :=\n  ${leanList(maps, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: LUMP_SOURCES,
+      lines: [
+        `Exports ${rows} ring-checked lumpability witnesses of coarse-block.ts (${byNegation} from the C-conjugate's`,
+        `negated witness), the cap ${LUMP_CAP} windows, base shift ${LUMP_BASE_SHIFT}, and the block maps on every block.`,
+        'Bridge: Vibe.Compute.Lumpability (gen_lump_block_maps_eq, thm_lump_line_conflict_witnesses).',
+      ],
+    }),
+    body,
+  })
+}
+
+// L11 (models-0090): the round of partitioned-pair.ts as a permutation of all 3^6 configurations of the 6-ring under
+// brick2 (ringPartition of coarse-block.ts, base 0), for every rule of pairRuleCensus(), by globalPermutation.
+const RING_SOURCES = [
+  'code/rule/partitioned-pair.ts',
+  'code/compute/lab/coarse-block.ts',
+  'code/rule/pair-rule.ts',
+] as const
+const RING_SIZE = 6
+
+export function exportPartitionedRing(): string {
+  const census = pairRuleCensus().rules
+  const partition = ringPartition({ schedule: LINE_SCHEDULES[0]!, n: RING_SIZE, base: 0 })
+  const defs: string[] = []
+  const names: string[] = []
+
+  census.forEach((rule, k) => {
+    const image = globalPermutation({ table: rule.table, schedule: partition })
+    const name = `ringImage${twoDigits(k)}`
+
+    names.push(name)
+    defs.push(
+      `/-- \`globalPermutation\` of rule ${k} (${rule.name}): entry \`x\` is the code of the round's image of`,
+      '    configuration code `x`. -/',
+      `def ${name} : List Nat :=\n  [${Array.from(image).join(', ')}]`,
+      '',
+    )
+  })
+
+  const body = [
+    ...defs,
+    '/-- The images of every rule in census order. -/',
+    `def partitionedRingImages : List (List Nat) :=\n  ${leanList(names, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: RING_SOURCES,
+      lines: [
+        `Exports globalPermutation on the ${RING_SIZE}-ring under brick2 (ringPartition, base 0) for every rule of`,
+        `pairRuleCensus(), ${census.length} rules, ${3 ** RING_SIZE} configurations each (code = encodeState).`,
+        'Bridge: Vibe.Compute.Lumpability (gen_partitioned_ring_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -404,6 +662,27 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
       'gen_beat_line_centers_eq',
     ],
     render: exportBeatSlots,
+  },
+  {
+    name: 'SpinOneQ2R',
+    sources: Q2R_SOURCES,
+    bridgeModule: 'Vibe.Compute.SpinOneQ2R',
+    bridges: ['gen_q2r_move_eq'],
+    render: exportSpinOneQ2r,
+  },
+  {
+    name: 'Lumpability',
+    sources: LUMP_SOURCES,
+    bridgeModule: 'Vibe.Compute.Lumpability',
+    bridges: ['gen_lump_block_maps_eq', 'thm_lump_line_conflict_witnesses'],
+    render: exportLumpability,
+  },
+  {
+    name: 'PartitionedRing',
+    sources: RING_SOURCES,
+    bridgeModule: 'Vibe.Compute.Lumpability',
+    bridges: ['gen_partitioned_ring_eq'],
+    render: exportPartitionedRing,
   },
 ]
 
