@@ -68,23 +68,27 @@ private theorem bl_zero_of_isZero (z : NinthLoc6) (h : NinthLoc6.isZero z) : z =
     rw [h]
     simp only [Ninth.scale, Ninth.zero, Int.mul_zero]
 
+private theorem bl_add_neg (a : NinthLoc6) : NinthLoc6.add a (NinthLoc6.neg a) = NinthLoc6.zero :=
+  StarCommRing.add_neg (R := NinthLoc6) a
+
 /-- `x = y` from the decidable zero test of `x - y`. -/
 theorem bl_eq_of_isZero {x y : NinthLoc6} (h : NinthLoc6.isZero (NinthLoc6.sub x y)) : x = y := by
   have h0 := bl_zero_of_isZero _ h
   have : NinthLoc6.add (NinthLoc6.sub x y) y = x := by
     unfold NinthLoc6.sub
-    rw [NinthLoc6.add_assoc, NinthLoc6.add_comm (NinthLoc6.neg y) y, NinthLoc6.add_neg,
-      NinthLoc6.add_zero]
+    rw [NinthLoc6.add_assoc, NinthLoc6.add_comm (NinthLoc6.neg y) y,
+      bl_add_neg y, NinthLoc6.add_zero]
   rw [← this, h0, NinthLoc6.zero_add]
 
 /-- `NinthLoc6` as a Mathlib commutative ring (the operations of `Vibe.Fock.Ring`), so `ring` applies. -/
+instance blZero : Zero NinthLoc6 := ⟨NinthLoc6.zero⟩
+instance blOne : One NinthLoc6 := ⟨NinthLoc6.one⟩
+instance blAdd : Add NinthLoc6 := ⟨NinthLoc6.add⟩
+instance blNeg : Neg NinthLoc6 := ⟨NinthLoc6.neg⟩
+instance blSub : Sub NinthLoc6 := ⟨NinthLoc6.sub⟩
+instance blMul : Mul NinthLoc6 := ⟨NinthLoc6.mul⟩
+
 instance blCommRing : CommRing NinthLoc6 where
-  add := NinthLoc6.add
-  zero := NinthLoc6.zero
-  neg := NinthLoc6.neg
-  sub := NinthLoc6.sub
-  mul := NinthLoc6.mul
-  one := NinthLoc6.one
   add_assoc := NinthLoc6.add_assoc
   zero_add := NinthLoc6.zero_add
   add_zero := NinthLoc6.add_zero
@@ -92,12 +96,14 @@ instance blCommRing : CommRing NinthLoc6 where
   mul_assoc := NinthLoc6.mul_assoc
   one_mul := NinthLoc6.one_mul
   mul_one := NinthLoc6.mul_one
-  zero_mul := NinthLoc6.zero_mul
+  zero_mul := StarCommRing.zero_mul (R := NinthLoc6)
   mul_zero := NinthLoc6.mul_zero
   left_distrib := NinthLoc6.mul_add
-  right_distrib := NinthLoc6.add_mul
+  right_distrib := StarCommRing.add_mul (R := NinthLoc6)
   mul_comm := NinthLoc6.mul_comm
-  neg_add_cancel := fun a => by rw [NinthLoc6.add_comm]; exact NinthLoc6.add_neg a
+  neg_add_cancel := fun a => by
+    show NinthLoc6.add (NinthLoc6.neg a) a = NinthLoc6.zero
+    rw [NinthLoc6.add_comm]; exact StarCommRing.add_neg (R := NinthLoc6) a
   sub_eq_add_neg := fun _ _ => rfl
   nsmul := nsmulRec
   zsmul := zsmulRec
@@ -207,6 +213,19 @@ private theorem bl_trNonneg_normSq (x : NinthLoc6) : blTrNonneg (NinthLoc6.conj 
   rw [bl_tr_normSq]
   positivity
 
+private theorem bl_sq6 (a b c d e f : Int)
+    (h : 3 * ((a - d) ^ 2 + (b - e) ^ 2 + (c - f) ^ 2) + 3 * (a ^ 2 + b ^ 2 + c ^ 2 + d ^ 2 + e ^ 2 + f ^ 2) = 0) :
+    a = 0 ∧ b = 0 ∧ c = 0 ∧ d = 0 ∧ e = 0 ∧ f = 0 := by
+  have ha : a ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  have hb : b ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  have hc : c ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  have hd : d ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  have he : e ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  have hf : f ^ 2 = 0 := by nlinarith [sq_nonneg (a - d), sq_nonneg (b - e), sq_nonneg (c - f), sq_nonneg a, sq_nonneg b, sq_nonneg c, sq_nonneg d, sq_nonneg e, sq_nonneg f]
+  exact ⟨pow_eq_zero_iff (n := 2) (by norm_num) |>.mp ha, pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hb,
+    pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hc, pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hd,
+    pow_eq_zero_iff (n := 2) (by norm_num) |>.mp he, pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hf⟩
+
 private theorem bl_eq_zero_of_trZero_normSq (x : NinthLoc6) (h : blTrZero (NinthLoc6.conj x * x)) :
     x = 0 := by
   induction x using Quot.ind with
@@ -215,20 +234,8 @@ private theorem bl_eq_zero_of_trZero_normSq (x : NinthLoc6) (h : blTrZero (Ninth
   rw [bl_tr_normSq] at h
   apply bl_zero_of_isZero
   change r.num = Ninth.zero
-  obtain ⟨n0, n1, n2, n3, n4, n5⟩ := r.num
-  simp only at h
-  have h0 : n0 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
-  have h1 : n1 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
-  have h2 : n2 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
-  have h3 : n3 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
-  have h4 : n4 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
-  have h5 : n5 = 0 := by nlinarith [sq_nonneg (n0 - n3), sq_nonneg (n1 - n4), sq_nonneg (n2 - n5),
-    sq_nonneg n0, sq_nonneg n1, sq_nonneg n2, sq_nonneg n3, sq_nonneg n4, sq_nonneg n5]
+  obtain ⟨⟨n0, n1, n2, n3, n4, n5⟩, e⟩ := r
+  obtain ⟨h0, h1, h2, h3, h4, h5⟩ := bl_sq6 n0 n1 n2 n3 n4 n5 h
   subst h0 h1 h2 h3 h4 h5
   rfl
 

@@ -148,7 +148,10 @@ theorem thm_res_lucas_count (n : ℕ) :
 theorem card_not_dvd_choose_lt (t : ℕ) :
     ((range t).filter (fun a => ¬ 3 ∣ t.choose a)).card = lucasCount 3 t - 1 := by
   have h := thm_res_lucas_count t
-  rw [range_add_one, filter_insert, if_pos (by simp), card_insert_of_notMem (by simp)] at h
+  have ht : ¬ 3 ∣ t.choose t := by simp
+  rw [range_add_one, filter_insert] at h
+  simp only [ht, not_false_eq_true, ↓reduceIte] at h
+  rw [card_insert_of_notMem (by simp)] at h
   omega
 
 /-! ### Flat tile graphs on `ℤ × ℤ` -/
@@ -262,7 +265,7 @@ theorem lit_of_front (dirs : Finset Cell) (N : Cell → ℕ) (hN0 : N 0 = 0)
     (hinj : Function.Injective σ) (hdirs : dirs.image σ = dirs) (k : ℕ)
     (hq : ∀ n x y : ℕ, x + y = n → walks (latticeNbr dirs) 0 n ((x : ℤ), (y : ℤ)) = n.choose x)
     (t : ℕ) (himg : sphere N t = ((univ : Finset (Fin k)) ×ˢ range t).image (front σ t))
-    (hinjOn : Set.InjOn (front σ t) ↑((univ : Finset (Fin k)) ×ˢ range t))
+    (hinjOn : Set.InjOn (front σ t) (((univ : Finset (Fin k)) ×ˢ range t : Finset (Fin k × ℕ)) : Set (Fin k × ℕ)))
     (h : ZMod 3 → ZMod 3) (h0 : h 0 = 0) :
     (∀ p ∈ (univ : Finset (Fin k)) ×ˢ range t, N (front σ t p) = t ∧
       walks (latticeNbr dirs) 0 t (front σ t p) = t.choose p.2 ∧
@@ -295,7 +298,8 @@ theorem lit_of_front (dirs : Finset Cell) (N : Cell → ℕ) (hN0 : N 0 = 0)
     rw [himg, filter_image, card_image_of_injOn (hinjOn.mono (coe_subset.2 (filter_subset _ _)))]
     rw [filter_congr (q := fun p : Fin k × ℕ => ¬ 3 ∣ t.choose p.2) (fun p hp => by
       rw [(hfront p hp).2.2, Ne, ZMod.natCast_eq_zero_iff])]
-    rw [filter_product_right, card_product, card_univ, Fintype.card_fin, card_not_dvd_choose_lt]
+    rw [filter_product_right (fun a => ¬ 3 ∣ t.choose a), card_product, card_univ, Fintype.card_fin,
+      card_not_dvd_choose_lt]
 
 /-! ### The square grid `{4,4}` -/
 
@@ -331,9 +335,9 @@ theorem square_quadrant : ∀ n x y : ℕ, x + y = n →
     have t2 : walks (latticeNbr squareDirs) 0 n (((x : ℤ), (y : ℤ)) + (-1, 0)) =
         if x = 0 then 0 else n.choose (x - 1) := by
       by_cases hx : x = 0
-      · rw [if_pos hx]
+      · simp only [hx, ↓reduceIte]
         exact hz _ (by simp only [squareDist, Prod.mk_add_mk]; omega)
-      · rw [if_neg hx]
+      · simp only [hx, ↓reduceIte]
         have e : ((x : ℤ), (y : ℤ)) + (-1, 0) = (((x - 1 : ℕ) : ℤ), (y : ℤ)) := by
           rw [Prod.mk_add_mk, Nat.cast_sub (by omega)]
           simp only [Nat.cast_one, add_zero]
@@ -342,9 +346,9 @@ theorem square_quadrant : ∀ n x y : ℕ, x + y = n →
     have t4 : walks (latticeNbr squareDirs) 0 n (((x : ℤ), (y : ℤ)) + (0, -1)) =
         if y = 0 then 0 else n.choose x := by
       by_cases hy : y = 0
-      · rw [if_pos hy]
+      · simp only [hy, ↓reduceIte]
         exact hz _ (by simp only [squareDist, Prod.mk_add_mk]; omega)
-      · rw [if_neg hy]
+      · simp only [hy, ↓reduceIte]
         have e : ((x : ℤ), (y : ℤ)) + (0, -1) = ((x : ℤ), ((y - 1 : ℕ) : ℤ)) := by
           rw [Prod.mk_add_mk, Nat.cast_sub (by omega)]
           simp only [Nat.cast_one, add_zero]
@@ -361,7 +365,7 @@ theorem square_quadrant : ∀ n x y : ℕ, x + y = n →
         obtain rfl : x = n + 1 := by omega
         simp
       · obtain ⟨x', rfl⟩ : ∃ x', x = x' + 1 := ⟨x - 1, by omega⟩
-        simp only [hy, hx, if_false, zero_add, add_zero, Nat.add_sub_cancel]
+        simp only [hy, hx, ↓reduceIte, zero_add, add_zero, Nat.add_sub_cancel]
         rw [Nat.choose_succ_succ']
 
 -- [helper]
@@ -382,50 +386,51 @@ theorem square_rot_add (a b : Cell) : squareRot (a + b) = squareRot a + squareRo
 -- [helper]
 theorem square_mem_sphere (t : ℕ) (v : Cell) : v ∈ sphere squareDist t ↔ squareDist v = t := by
   obtain ⟨x, y⟩ := v
-  simp only [sphere, mem_filter, mem_product, mem_Icc, squareDist]
+  rw [sphere, mem_filter, mem_product, mem_Icc, mem_Icc]
+  simp only [squareDist]
   omega
 
 -- [helper]
 theorem square_front_eq (t a : ℕ) :
-    front squareRot t ((0 : Fin 4), a) = ((t : ℤ) - a, (a : ℤ)) ∧
-    front squareRot t ((1 : Fin 4), a) = (-(a : ℤ), (t : ℤ) - a) ∧
-    front squareRot t ((2 : Fin 4), a) = ((a : ℤ) - t, -(a : ℤ)) ∧
-    front squareRot t ((3 : Fin 4), a) = ((a : ℤ), (a : ℤ) - t) := by
+    front squareRot t ((⟨0, by norm_num⟩ : Fin 4), a) = ((t : ℤ) - a, (a : ℤ)) ∧
+    front squareRot t ((⟨1, by norm_num⟩ : Fin 4), a) = (-(a : ℤ), (t : ℤ) - a) ∧
+    front squareRot t ((⟨2, by norm_num⟩ : Fin 4), a) = ((a : ℤ) - t, -(a : ℤ)) ∧
+    front squareRot t ((⟨3, by norm_num⟩ : Fin 4), a) = ((a : ℤ), (a : ℤ) - t) := by
   refine ⟨rfl, ?_, ?_, ?_⟩ <;>
-    simp only [front, squareRot, Function.iterate_succ_apply', Function.iterate_zero_apply,
-      Fin.isValue, Fin.val_one, Fin.val_two, Prod.mk.injEq] <;>
-    first
-    | (constructor <;> ring)
-    | (simp only [show ((3 : Fin 4) : ℕ) = 2 + 1 from rfl, Function.iterate_succ_apply',
-        Function.iterate_zero_apply]; constructor <;> ring)
+    simp only [front, squareRot, Function.iterate_succ_apply', Function.iterate_zero_apply, Prod.mk.injEq] <;>
+    constructor <;> first | trivial | ring
 
 -- [helper]
 theorem square_sphere_eq_image (t : ℕ) (ht : 0 < t) :
     sphere squareDist t = ((univ : Finset (Fin 4)) ×ˢ range t).image (front squareRot t) := by
-  obtain ⟨f0, f1, f2, f3⟩ := fun a => square_front_eq t a
+  have f0 := fun a => (square_front_eq t a).1
+  have f1 := fun a => (square_front_eq t a).2.1
+  have f2 := fun a => (square_front_eq t a).2.2.1
+  have f3 := fun a => (square_front_eq t a).2.2.2
   ext ⟨x, y⟩
   rw [square_mem_sphere, mem_image]
   simp only [squareDist]
   constructor
   · intro h
     by_cases c0 : 0 < x ∧ 0 ≤ y
-    · refine ⟨((0 : Fin 4), y.toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
+    · refine ⟨(⟨0, by norm_num⟩, y.toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
       rw [f0, Prod.mk.injEq]
       omega
     by_cases c1 : x ≤ 0 ∧ 0 < y
-    · refine ⟨((1 : Fin 4), (-x).toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
+    · refine ⟨(⟨1, by norm_num⟩, (-x).toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
       rw [f1, Prod.mk.injEq]
       omega
     by_cases c2 : x < 0 ∧ y ≤ 0
-    · refine ⟨((2 : Fin 4), (-y).toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
+    · refine ⟨(⟨2, by norm_num⟩, (-y).toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
       rw [f2, Prod.mk.injEq]
       omega
-    · refine ⟨((3 : Fin 4), x.toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
+    · refine ⟨(⟨3, by norm_num⟩, x.toNat), mem_product.2 ⟨mem_univ _, mem_range.2 (by omega)⟩, ?_⟩
       rw [f3, Prod.mk.injEq]
       omega
   · rintro ⟨⟨q, a⟩, hp, he⟩
     have ha : a < t := mem_range.1 (mem_product.1 hp).2
-    fin_cases q
+    obtain ⟨q, hq⟩ := q
+    interval_cases q
     · rw [f0, Prod.mk.injEq] at he
       omega
     · rw [f1, Prod.mk.injEq] at he
@@ -437,14 +442,17 @@ theorem square_sphere_eq_image (t : ℕ) (ht : 0 < t) :
 
 -- [helper]
 theorem square_front_injOn (t : ℕ) :
-    Set.InjOn (front squareRot t) ↑((univ : Finset (Fin 4)) ×ˢ range t) := by
-  obtain ⟨f0, f1, f2, f3⟩ := fun a => square_front_eq t a
-  rintro ⟨q, a⟩ hp ⟨q', a'⟩ hp' he
+    Set.InjOn (front squareRot t) (((univ : Finset (Fin 4)) ×ˢ range t : Finset (Fin 4 × ℕ)) : Set (Fin 4 × ℕ)) := by
+  have f0 := fun a => (square_front_eq t a).1
+  have f1 := fun a => (square_front_eq t a).2.1
+  have f2 := fun a => (square_front_eq t a).2.2.1
+  have f3 := fun a => (square_front_eq t a).2.2.2
+  rintro ⟨⟨q, hq⟩, a⟩ hp ⟨⟨q', hq'⟩, a'⟩ hp' he
   have ha : a < t := mem_range.1 (mem_product.1 hp).2
   have ha' : a' < t := mem_range.1 (mem_product.1 hp').2
-  fin_cases q <;> fin_cases q' <;>
+  interval_cases q <;> interval_cases q' <;>
     simp only [f0, f1, f2, f3, Prod.mk.injEq] at he <;>
-    simp only [Prod.mk.injEq, Fin.isValue, Fin.reduceEq, false_and, true_and] <;>
+    simp only [Prod.mk.injEq, Fin.mk.injEq, true_and] <;>
     omega
 
 /-- Walk distance on the square grid is the taxicab norm: no walk shorter than `squareDist v` reaches `v`, and at
@@ -462,10 +470,11 @@ theorem thm_res_square_distance (v : Cell) :
     simp [squareDist, walks]
   · have hm : v ∈ sphere squareDist (squareDist v) := (square_mem_sphere _ v).2 rfl
     rw [square_sphere_eq_image _ hpos, mem_image] at hm
-    obtain ⟨p, hp, rfl⟩ := hm
+    obtain ⟨p, hp, hpv⟩ := hm
     have hw := ((lit_of_front squareDirs squareDist (by simp [squareDist]) square_step squareRot square_rot_add
       square_rot_injective square_rot_dirs 4 square_quadrant _ (square_sphere_eq_image _ hpos)
       (square_front_injOn _) (fun _ => 0) rfl).1 p hp).2.1
+    rw [hpv] at hw
     rw [hw]
     exact Nat.choose_pos (mem_range.1 (mem_product.1 hp).2).le
 
@@ -519,9 +528,9 @@ theorem tri_quadrant : ∀ n x y : ℕ, x + y = n →
     have t2 : walks (latticeNbr triDirs) 0 n (((x : ℤ), (y : ℤ)) + (-1, 0)) =
         if x = 0 then 0 else n.choose (x - 1) := by
       by_cases hx : x = 0
-      · rw [if_pos hx]
+      · simp only [hx, ↓reduceIte]
         exact hz _ (by simp only [triDist, Prod.mk_add_mk]; omega)
-      · rw [if_neg hx]
+      · simp only [hx, ↓reduceIte]
         have e : ((x : ℤ), (y : ℤ)) + (-1, 0) = (((x - 1 : ℕ) : ℤ), (y : ℤ)) := by
           rw [Prod.mk_add_mk, Nat.cast_sub (by omega)]
           simp only [Nat.cast_one, add_zero]
@@ -530,9 +539,9 @@ theorem tri_quadrant : ∀ n x y : ℕ, x + y = n →
     have t4 : walks (latticeNbr triDirs) 0 n (((x : ℤ), (y : ℤ)) + (0, -1)) =
         if y = 0 then 0 else n.choose x := by
       by_cases hy : y = 0
-      · rw [if_pos hy]
+      · simp only [hy, ↓reduceIte]
         exact hz _ (by simp only [triDist, Prod.mk_add_mk]; omega)
-      · rw [if_neg hy]
+      · simp only [hy, ↓reduceIte]
         have e : ((x : ℤ), (y : ℤ)) + (0, -1) = ((x : ℤ), ((y - 1 : ℕ) : ℤ)) := by
           rw [Prod.mk_add_mk, Nat.cast_sub (by omega)]
           simp only [Nat.cast_one, add_zero]
@@ -549,7 +558,7 @@ theorem tri_quadrant : ∀ n x y : ℕ, x + y = n →
         obtain rfl : x = n + 1 := by omega
         simp
       · obtain ⟨x', rfl⟩ : ∃ x', x = x' + 1 := ⟨x - 1, by omega⟩
-        simp only [hy, hx, if_false, zero_add, add_zero, Nat.add_sub_cancel]
+        simp only [hy, hx, ↓reduceIte, zero_add, add_zero, Nat.add_sub_cancel]
         rw [Nat.choose_succ_succ']
 
 -- [helper]
@@ -571,7 +580,8 @@ theorem tri_rot_add (a b : Cell) : triRot (a + b) = triRot a + triRot b := by
 -- [helper]
 theorem tri_mem_sphere (t : ℕ) (v : Cell) : v ∈ sphere triDist t ↔ triDist v = t := by
   obtain ⟨x, y⟩ := v
-  simp only [sphere, mem_filter, mem_product, mem_Icc, triDist]
+  rw [sphere, mem_filter, mem_product, mem_Icc, mem_Icc]
+  simp only [triDist]
   omega
 
 -- [helper]
@@ -584,12 +594,17 @@ theorem tri_front_eq (t a : ℕ) :
     front triRot t ((⟨5, by norm_num⟩ : Fin 6), a) = ((t : ℤ), (a : ℤ) - t) := by
   refine ⟨rfl, ?_, ?_, ?_, ?_, ?_⟩ <;>
     simp only [front, triRot, Function.iterate_succ_apply', Function.iterate_zero_apply, Prod.mk.injEq] <;>
-    constructor <;> ring
+    constructor <;> first | trivial | ring
 
 -- [helper]
 theorem tri_sphere_eq_image (t : ℕ) (ht : 0 < t) :
     sphere triDist t = ((univ : Finset (Fin 6)) ×ˢ range t).image (front triRot t) := by
-  obtain ⟨f0, f1, f2, f3, f4, f5⟩ := fun a => tri_front_eq t a
+  have f0 := fun a => (tri_front_eq t a).1
+  have f1 := fun a => (tri_front_eq t a).2.1
+  have f2 := fun a => (tri_front_eq t a).2.2.1
+  have f3 := fun a => (tri_front_eq t a).2.2.2.1
+  have f4 := fun a => (tri_front_eq t a).2.2.2.2.1
+  have f5 := fun a => (tri_front_eq t a).2.2.2.2.2
   ext ⟨x, y⟩
   rw [tri_mem_sphere, mem_image]
   simp only [triDist]
@@ -637,14 +652,19 @@ theorem tri_sphere_eq_image (t : ℕ) (ht : 0 < t) :
 
 -- [helper]
 theorem tri_front_injOn (t : ℕ) :
-    Set.InjOn (front triRot t) ↑((univ : Finset (Fin 6)) ×ˢ range t) := by
-  obtain ⟨f0, f1, f2, f3, f4, f5⟩ := fun a => tri_front_eq t a
+    Set.InjOn (front triRot t) (((univ : Finset (Fin 6)) ×ˢ range t : Finset (Fin 6 × ℕ)) : Set (Fin 6 × ℕ)) := by
+  have f0 := fun a => (tri_front_eq t a).1
+  have f1 := fun a => (tri_front_eq t a).2.1
+  have f2 := fun a => (tri_front_eq t a).2.2.1
+  have f3 := fun a => (tri_front_eq t a).2.2.2.1
+  have f4 := fun a => (tri_front_eq t a).2.2.2.2.1
+  have f5 := fun a => (tri_front_eq t a).2.2.2.2.2
   rintro ⟨⟨q, hq⟩, a⟩ hp ⟨⟨q', hq'⟩, a'⟩ hp' he
   have ha : a < t := mem_range.1 (mem_product.1 hp).2
   have ha' : a' < t := mem_range.1 (mem_product.1 hp').2
   interval_cases q <;> interval_cases q' <;>
     simp only [f0, f1, f2, f3, f4, f5, Prod.mk.injEq] at he <;>
-    simp only [Prod.mk.injEq, Fin.mk.injEq] <;>
+    simp only [Prod.mk.injEq, Fin.mk.injEq, true_and] <;>
     omega
 
 /-- Walk distance on the triangular grid is the hexagonal norm `max(|x|, |y|, |x + y|)`. -/
@@ -661,10 +681,11 @@ theorem thm_res_tri_distance (v : Cell) :
     simp [triDist, walks]
   · have hm : v ∈ sphere triDist (triDist v) := (tri_mem_sphere _ v).2 rfl
     rw [tri_sphere_eq_image _ hpos, mem_image] at hm
-    obtain ⟨p, hp, rfl⟩ := hm
+    obtain ⟨p, hp, hpv⟩ := hm
     have hw := ((lit_of_front triDirs triDist (by simp [triDist]) tri_step triRot tri_rot_add
       tri_rot_injective tri_rot_dirs 6 tri_quadrant _ (tri_sphere_eq_image _ hpos)
       (tri_front_injOn _) (fun _ => 0) rfl).1 p hp).2.1
+    rw [hpv] at hw
     rw [hw]
     exact Nat.choose_pos (mem_range.1 (mem_product.1 hp).2).le
 

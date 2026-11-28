@@ -956,49 +956,76 @@ export function exportBareBeat(): string {
       throw new Error('the {3,4,3,4} mesh counted an inconsistent frame step')
     }
 
-    const z9 = (z: Z9): string => `(${z.join(', ')})`
-    const raw = 'List (Nat × (Int × Int × Int × Int × Int × Int) × Nat)'
+    const z9 = (z: Z9): string => `[${z.map(bareBeatZig).join(', ')}]`
+    // a long table in chunks of 100 rows (one def each, elaborated quickly) joined by `++`
+    const chunked = (name: string, doc: string, rows: readonly string[]): string[] => {
+      const parts: string[] = []
+      const names: string[] = []
+
+      for (let start = 0; start < rows.length; start += 100) {
+        const part = `${name}_${String(start / 100).padStart(2, '0')}`
+
+        names.push(part)
+        parts.push(`def ${part} : List (List Nat) :=\n  [${rows.slice(start, start + 100).join(',\n   ')}]`, '')
+      }
+
+      return [...parts, doc, `def ${name} : List (List Nat) :=\n  ${names.join(' ++ ')}`, '']
+    }
 
     return [
-      '/-- The `Z9` constants of bare-beat.ts (coefficients on `1, z, ..., z^5`, `z^6 + z^3 + 1 = 0`):',
-      '    `Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6, Z9_OMEGA`, in that order. -/',
-      `def bareBeatZ9 : List (Int × Int × Int × Int × Int × Int) :=\n  [${[Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6, Z9_OMEGA].map(z9).join(', ')}]`,
+      '/-! Every integer below is written as a natural number by zigzag (`2c` for `c ≥ 0`, `-2c - 1` for `c < 0`),',
+      'and every amplitude as seven naturals: the zigzag coefficients of `num` on `1, z, ..., z^5`',
+      '(`z^6 + z^3 + 1 = 0`) and `exp`, for `num / 6^exp`. -/',
       '',
-      '/-- Each layer coefficient as the layer itself produces it on its smallest witness state, as',
-      '    `(num, exp)` for `num / 6^exp`. -/',
-      `def bareBeatCoeffs : List (String × (Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${coeffs.map(([n, a]) => `("${n}", ${a})`).join(',\n   ')}]`,
+      '/-- The `Z9` constants of bare-beat.ts: `Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6,',
+      '    Z9_OMEGA`, in that order (zigzag). -/',
+      `def bareBeatZ9 : List (List Nat) :=\n  [${[Z9_COIN_DIAG, Z9_COIN_OFF, Z9_MEET_SWAP, Z9_ZETA18, Z9_ZETA6, Z9_OMEGA].map(z9).join(', ')}]`,
       '',
-      '/-- `BEAT_LAYER_NAMES` and the function names of `BEAT_LAYERS`, in execution order. -/',
-      `def bareBeatLayerNames : List (String × String) :=\n  [${BEAT_LAYER_NAMES.map((n, i) => `("${n}", "${BEAT_LAYERS[i]!.name}")`).join(', ')}]`,
+      '/-- The names of the measured coefficients, in the order of `bareBeatCoeffs`. -/',
+      `def bareBeatCoeffNames : List String :=\n  [${coeffs.map(([n]) => `"${n}"`).join(', ')}]`,
       '',
-      '/-- The declared family at dock 0: each state a list of `(slot, tone, role)` sorted by slot. -/',
-      `def bareBeatFamily : List (List (Nat × Int × Nat)) :=\n  [${family.map(v => `[${v.map(([s, t, r]) => `(${s}, ${t}, ${r})`).join(', ')}]`).join(',\n   ')}]`,
+      '/-- Each layer coefficient as the layer itself produces it on its smallest witness state (an amplitude). -/',
+      `def bareBeatCoeffs : List (List Nat) :=\n  [${coeffs.map(([, a]) => `[${a}]`).join(',\n   ')}]`,
       '',
-      ...layerTables.flatMap(([name, rows]) => [
-        `/-- Layer \`${name}\` on every family state: rows \`(output family index, num, exp)\`. -/`,
-        `def bareBeatLayer_${name} : List (${raw}) :=\n  [${rows.join(',\n   ')}]`,
-        '',
-      ]),
-      '/-- `applyBeat` on every family state: rows `(family index of the pre-stream configuration, num, exp)`;',
-      '    every output vibe sits on the dock its slot points to from dock 0. -/',
-      `def bareBeatBeat : List (${raw}) :=\n  [${beatRows.join(',\n   ')}]`,
+      '/-- `BEAT_LAYER_NAMES`, in execution order. -/',
+      `def bareBeatLayerNames : List String :=\n  [${BEAT_LAYER_NAMES.map(n => `"${n}"`).join(', ')}]`,
       '',
-      '/-- The center of `stepDock(0, s)` for every slot `s` (`dockCenterKey`, five `(a, b)` pairs of `a + b √2`). -/',
-      `def bareBeatNeighbourCenters : List (List (Int × Int)) :=\n  [${neighbourCenters.join(',\n   ')}]`,
+      '/-- The function names of `BEAT_LAYERS`, in execution order. -/',
+      `def bareBeatLayerFunctions : List String :=\n  [${BEAT_LAYERS.map(f => `"${f.name}"`).join(', ')}]`,
+      '',
+      ...chunked(
+        'bareBeatFamily',
+        '/-- The declared family at dock 0: each state its vibes `slot, tone (1 for +1, 0 for -1), role`, by slot. -/',
+        family.map(v => `[${v.map(([s, t, r]) => `${s}, ${t === 1 ? 1 : 0}, ${r}`).join(', ')}]`),
+      ),
+      ...layerTables.flatMap(([name, rows]) =>
+        chunked(
+          `bareBeatLayer_${name}`,
+          `/-- Layer \`${name}\` on every family state: rows \`output family index, amplitude\`, by index. -/`,
+          rows,
+        ),
+      ),
+      ...chunked(
+        'bareBeatBeat',
+        '/-- `applyBeat` on every family state: rows `family index of the pre-stream configuration, amplitude`; every\n    output vibe sits on the dock its slot points to from dock 0. -/',
+        beatRows,
+      ),
+      '/-- The center of `stepDock(0, s)` for every slot `s` (`dockCenterKey`: five `a + b √2`, zigzag `a, b`). -/',
+      `def bareBeatNeighbourCenters : List (List Nat) :=\n  [${neighbourCenters.join(',\n   ')}]`,
       '',
       `/-- The centers of the docks of \`lineChain(0, 0, ${BARE_BEAT_LINE_REACH})\` at coordinates -${BARE_BEAT_LINE_REACH} .. ${BARE_BEAT_LINE_REACH}. -/`,
-      `def bareBeatLineCenters : List (List (Int × Int)) :=\n  [${lineCenters.join(',\n   ')}]`,
+      `def bareBeatLineCenters : List (List Nat) :=\n  [${lineCenters.join(',\n   ')}]`,
       '',
       `/-- \`applyBeats\` of the lone vibe (dock 0, slot 0, +1, role 0) at beats 0 .. ${BARE_BEAT_LINE_REACH}: rows`,
-      '    `(line coordinate, slot, num, exp)`. -/',
-      `def bareBeatWalk : List (List (Int × Nat × (Int × Int × Int × Int × Int × Int) × Nat)) :=\n  [${walk.join(',\n   ')}]`,
+      '    `zigzag line coordinate, slot, amplitude`. -/',
+      `def bareBeatWalk : List (List Nat) :=\n  [${walk.join(',\n   ')}]`,
       '',
-      '/-- Per beat of the lone walk, the second moment `sum k^2 p` as `(num, exp)` (checked by the export against',
+      '/-- Per beat of the lone walk, the second moment `sum k^2 p` (an amplitude; checked by the export against',
       "    q-ladder Q5's printed table). -/",
-      `def bareBeatWalkMoments : List ((Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${moments.join(', ')}]`,
+      `def bareBeatWalkMoments : List (List Nat) :=\n  [${moments.map(m => `[${m}]`).join(', ')}]`,
       '',
-      '/-- Per beat of the lone walk, the return probability to dock 0 as `(num, exp)` (checked likewise). -/',
-      `def bareBeatWalkReturns : List ((Int × Int × Int × Int × Int × Int) × Nat) :=\n  [${returns.join(', ')}]`,
+      '/-- Per beat of the lone walk, the return probability to dock 0 (an amplitude; checked likewise). -/',
+      `def bareBeatWalkReturns : List (List Nat) :=\n  [${returns.map(m => `[${m}]`).join(', ')}]`,
     ].join('\n')
   })
 

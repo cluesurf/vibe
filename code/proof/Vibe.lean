@@ -51,6 +51,7 @@ import Vibe.Compute.Lumpability
 import Vibe.Compute.SpinOneQ2R
 import Vibe.Compute.CoverDistance
 import Vibe.Compute.SpeciesTransport
+import Vibe.Compute.BeatLink
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite

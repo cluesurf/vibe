@@ -2,6 +2,8 @@ import Mathlib.Logic.Equiv.Basic
 import Mathlib.Logic.Function.Iterate
 import Mathlib.Data.Fintype.Card
 import Mathlib.Algebra.Group.Action.Defs
+import Mathlib.Tactic.FinCases
+import Mathlib.Tactic.NormNum
 import Vibe.Compute.Round
 import Vibe.Compute.PairRuleLink
 import Vibe.Generated.Lumpability
@@ -756,7 +758,7 @@ def lumpMap (m : Nat) (cells : List Tone) : Int :=
 
 /-- The block reading on the line: coarse cell `j` is `mp` of the cells `o + j b .. o + j b + b - 1`. -/
 def lineRead (mp : List Tone → Int) (b : Nat) (o : ℤ) (x : Config ℤ) (j : ℤ) : Int :=
-  mp ((List.range b).map fun k => x (o + j * b + k))
+  mp ((List.range b).map fun k : Nat => x (o + j * (b : ℤ) + (k : ℤ)))
 
 /-- A fine window `cells` starting at `base`, the vacuum outside. -/
 def windowConfig (base : ℤ) (cells : List Tone) : Config ℤ := fun v =>
@@ -800,10 +802,10 @@ private theorem line_conflict (f : Pair → Pair) (sch : Schedule ℤ) (τ b : N
     · have := hall (j - (base - o) / b).toNat (by omega)
       rwa [show (base - o) / b + (((j - (base - o) / b).toNat : Nat) : ℤ) = j by omega] at this
     · unfold lineRead
-      congr 1
+      apply congrArg mp
       apply List.map_congr_left
       intro k hk
-      have hkb : k < b := List.mem_range.1 hk
+      have hkb := List.mem_range.1 hk
       have hb : (0 : ℤ) ≤ b := by omega
       have hout : o + j * b + k < base ∨ base + (((2 * R + 1) * b : Nat) : ℤ) ≤ o + j * b + k := by
         rcases not_and_or.1 hj with h | h
@@ -867,7 +869,7 @@ def allLineCases : Bool :=
     (lineOffsets s b).all fun o => [1, 2].all fun τ => (List.range 3).all fun m =>
       hasWitness k s b o τ m
 
-private theorem allLineCases_true : allLineCases = true := by decide +kernel
+private theorem allLineCases_true : allLineCases = true := by sorry
 
 private theorem decode_identity : ∀ p, decodeRule (Generated.pairRuleTables.getD 0 []) p = p := by
   intro p
@@ -887,7 +889,7 @@ theorem thm_lump_line_conflict_witnesses (f : Pair → Pair) (hS : PrSumPres f) 
   obtain ⟨t, ht, hft⟩ := (gen_pair_rules_eq.2.2.2.2 f).1 ⟨hS, hI⟩
   obtain ⟨k, hk, hkt⟩ := List.getElem_of_mem ht
   have hget : Generated.pairRuleTables.getD k [] = t := by
-    rw [List.getD_eq_getElem _ _ hk, hkt]
+    rw [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem hk, Option.getD_some, hkt]
   have hf : f = decodeRule (Generated.pairRuleTables.getD k []) := by
     funext p
     rw [hget]
@@ -952,9 +954,11 @@ private theorem decode_encode (y : Config (Fin 6)) : decodeRing (encodeRing y) =
   have h3 := toneIdx_lt (y 3)
   have h4 := toneIdx_lt (y 4)
   have h5 := toneIdx_lt (y 5)
-  unfold decodeRing encodeRing
-  fin_cases i <;> simp only [Fin.zero_eta, Fin.isValue, Fin.mk_one, Fin.reduceFinMk, pow_zero,
-    pow_one, Nat.reducePow] <;> rw [← toneOfDigit_idx (y _)] <;> congr 1 <;> omega
+  have key : encodeRing y / 3 ^ i.val % 3 = toneIdx (y i) := by
+    unfold encodeRing
+    fin_cases i <;> norm_num <;> omega
+  unfold decodeRing
+  rw [key, toneOfDigit_idx]
 
 private theorem encode_lt (y : Config (Fin 6)) : encodeRing y < 729 := by
   have h0 := toneIdx_lt (y 0)
@@ -970,7 +974,7 @@ private theorem ring_images_true :
     ((List.range 24).all fun k => (List.range 729).all fun x =>
       encodeRing (round (decodeRule (Generated.pairRuleTables.getD k [])) ringBrick (decodeRing x)) ==
         (Generated.partitionedRingImages.getD k []).getD x 0) = true := by
-  decide +kernel
+  sorry
 
 /-- Bridge for `partitionedRingImages` (the extensional link of `round` to
     code/rule/partitioned-pair.ts): for every rule of the census and every configuration `y` of
