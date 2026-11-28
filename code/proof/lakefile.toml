@@ -1,7 +1,7 @@
 name = "vibe-theorems"
 version = "0.1.0"
 keywords = ["math", "physics", "quantum"]
-defaultTargets = ["Vibe"]
+defaultTargets = ["Vibe", "Statements"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -19,3 +19,7 @@ name = "Vibe"
 roots = ["Vibe"]
 # Plain (non-`module`) Vibe files import Mathlib beside the core Vibe files (lean-track.md, Header form).
 allowNonModules = true
+
+[[lean_lib]]
+name = "Statements"
+roots = ["Statements"]

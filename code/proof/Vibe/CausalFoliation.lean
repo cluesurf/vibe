@@ -1,4 +1,8 @@
-import Vibe.FockBeat
+module
+
+public import Vibe.FockBeat
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Exact Asynchronous Local Causal-Set & Discrete Tomonaga-Schwinger Foliation Invariance (Milestone P6-B)
@@ -46,418 +50,32 @@ set_option autoImplicit false
 
 namespace Vibe
 
-/-! ## Section 0: Compact Ring, List, `Mat5`, & `HoneycombConfig` Helpers -/
+@[expose] public section
 
-private theorem cf_ite_bool_true {α : Type} (t e : α) : (if true = true then t else e) = t := rfl
-private theorem cf_ite_bool_false {α : Type} (t e : α) : (if false = true then t else e) = e := rfl
+/-! ## Section 0: Compact `Mat5` Order & `HoneycombConfig` Helpers (Reusing `Vibe.Fock.*`) -/
 
-private theorem cf_nloc_add_zero (x : NinthLoc6) : NinthLoc6.add x NinthLoc6.zero = x :=
-  StarCommRing.add_zero x
-private theorem cf_nloc_zero_add (x : NinthLoc6) : NinthLoc6.add NinthLoc6.zero x = x :=
-  StarCommRing.zero_add x
-private theorem cf_nloc_add_comm (x y : NinthLoc6) : NinthLoc6.add x y = NinthLoc6.add y x :=
-  StarCommRing.add_comm x y
-private theorem cf_nloc_add_assoc (x y z : NinthLoc6) :
-    NinthLoc6.add (NinthLoc6.add x y) z = NinthLoc6.add x (NinthLoc6.add y z) :=
-  StarCommRing.add_assoc x y z
-private theorem cf_nloc_one_mul (x : NinthLoc6) : NinthLoc6.mul NinthLoc6.one x = x :=
-  StarCommRing.one_mul x
-private theorem cf_nloc_mul_zero (x : NinthLoc6) : NinthLoc6.mul x NinthLoc6.zero = NinthLoc6.zero :=
-  StarCommRing.mul_zero x
-private theorem cf_nloc_mul_comm (x y : NinthLoc6) : NinthLoc6.mul x y = NinthLoc6.mul y x :=
-  StarCommRing.mul_comm x y
-private theorem cf_nloc_mul_assoc (x y z : NinthLoc6) :
-    NinthLoc6.mul (NinthLoc6.mul x y) z = NinthLoc6.mul x (NinthLoc6.mul y z) :=
-  StarCommRing.mul_assoc x y z
-private theorem cf_nloc_mul_add (x y z : NinthLoc6) :
-    NinthLoc6.mul x (NinthLoc6.add y z) = NinthLoc6.add (NinthLoc6.mul x y) (NinthLoc6.mul x z) :=
-  StarCommRing.mul_add x y z
-
-private theorem cf_z2_add_comm (x y : ZSqrt2) : ZSqrt2.add x y = ZSqrt2.add y x := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_add_assoc (x y z : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.add x y) z = ZSqrt2.add x (ZSqrt2.add y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_add_zero (x : ZSqrt2) : ZSqrt2.add x ZSqrt2.zero = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_zero_add (x : ZSqrt2) : ZSqrt2.add ZSqrt2.zero x = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_mul_one (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.one = x := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.one, ZSqrt2.mk.injEq, Int.mul_one, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_mul_zero (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.zero = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_mul_comm (x y : ZSqrt2) : ZSqrt2.mul x y = ZSqrt2.mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xa yb, Int.mul_comm xb ya,
-      Int.mul_assoc 2 xb yb, Int.mul_comm xb yb, ← Int.mul_assoc 2 yb xb]
-  exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_mul_add (x y z : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.add y z) = ZSqrt2.add (ZSqrt2.mul x y) (ZSqrt2.mul x z) := by
-  cases x; cases y; cases z
-  simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem cf_z2_add_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.add x y) z = ZSqrt2.add (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  rw [cf_z2_mul_comm, cf_z2_mul_add, cf_z2_mul_comm z x, cf_z2_mul_comm z y]
-
-private theorem cf_z2_mul_assoc (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.mul x y) z = ZSqrt2.mul x (ZSqrt2.mul y z) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  cases z with | mk za zb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
-  have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
-    rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
-    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
-  rw [h1, h2]
-  exact ⟨by omega, by omega⟩
-
-private theorem cf_sum5_add_aux (f0 f1 f2 f3 f4 g0 g1 g2 g3 g4 : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
-      (ZSqrt2.add f2 g2)) (ZSqrt2.add f3 g3)) (ZSqrt2.add f4 g4) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
-      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4) := by
-  have swap4 : ∀ a b c d : ZSqrt2,
-      ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) = ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-    intro a b c d
-    rw [cf_z2_add_assoc a b (ZSqrt2.add c d), ← cf_z2_add_assoc b c d, cf_z2_add_comm b c,
-        cf_z2_add_assoc c b d, ← cf_z2_add_assoc a c (ZSqrt2.add b d)]
-  rw [swap4 f0 g0 f1 g1,
-      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
-      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
-      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
-            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
-
-private theorem cf_sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) :=
-  cf_sum5_add_aux
-    (f ⟨0, by decide⟩) (f ⟨1, by decide⟩) (f ⟨2, by decide⟩) (f ⟨3, by decide⟩) (f ⟨4, by decide⟩)
-    (g ⟨0, by decide⟩) (g ⟨1, by decide⟩) (g ⟨2, by decide⟩) (g ⟨3, by decide⟩) (g ⟨4, by decide⟩)
-
-private theorem cf_sum5_mul_left (c : ZSqrt2) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul c (f k)) = ZSqrt2.mul c (sum5 f) := by
-  unfold sum5; rw [cf_z2_mul_add, cf_z2_mul_add, cf_z2_mul_add, cf_z2_mul_add]
-
-private theorem cf_sum5_mul_right (f : Fin 5 → ZSqrt2) (c : ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (f k) c) = ZSqrt2.mul (sum5 f) c := by
-  unfold sum5; rw [cf_z2_add_mul, cf_z2_add_mul, cf_z2_add_mul, cf_z2_add_mul]
-
-private theorem cf_sum5_comm (f : Fin 5 → Fin 5 → ZSqrt2) :
-    sum5 (fun i => sum5 (fun j => f i j)) = sum5 (fun j => sum5 (fun i => f i j)) := by
-  change sum5 (fun i => sum5 (fun j => f i j)) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add
-      (sum5 (fun i => f i ⟨0, by decide⟩)) (sum5 (fun i => f i ⟨1, by decide⟩)))
-      (sum5 (fun i => f i ⟨2, by decide⟩))) (sum5 (fun i => f i ⟨3, by decide⟩)))
-      (sum5 (fun i => f i ⟨4, by decide⟩))
-  rw [← cf_sum5_add, ← cf_sum5_add, ← cf_sum5_add, ← cf_sum5_add]
-  rfl
-
-private theorem cf_z2_one_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.one x = x :=
-  (cf_z2_mul_comm ZSqrt2.one x).trans (cf_z2_mul_one x)
-
-private theorem cf_z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero :=
-  (cf_z2_mul_comm ZSqrt2.zero x).trans (cf_z2_mul_zero x)
-
-private theorem cf_mat5Mul_id_left (A : Mat5) : mat5Mul mat5Id A = A := by
-  funext i j; unfold mat5Mul sum5
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [mat5Id, cf_z2_one_mul, cf_z2_zero_mul, cf_z2_add_zero, cf_z2_zero_add]
-
-private theorem cf_mat5Mul_id_right (A : Mat5) : mat5Mul A mat5Id = A := by
-  funext i j; unfold mat5Mul sum5
-  match j with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [mat5Id, cf_z2_mul_one, cf_z2_mul_zero, cf_z2_add_zero, cf_z2_zero_add]
-
-private theorem cf_mat5Mul_assoc (A B C : Mat5) :
-    mat5Mul (mat5Mul A B) C = mat5Mul A (mat5Mul B C) := by
-  funext i j; unfold mat5Mul
-  have hL : sum5 (fun k => ZSqrt2.mul (sum5 (fun m => ZSqrt2.mul (A i m) (B m k))) (C k j)) =
-      sum5 (fun k => sum5 (fun m => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (C k j)))) := by
-    apply congrArg sum5; funext k; rw [← cf_sum5_mul_right]
-    apply congrArg sum5; funext m; exact cf_z2_mul_assoc (A i m) (B m k) (C k j)
-  have hR : sum5 (fun m => ZSqrt2.mul (A i m) (sum5 (fun k => ZSqrt2.mul (B m k) (C k j)))) =
-      sum5 (fun m => sum5 (fun k => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (C k j)))) := by
-    apply congrArg sum5; funext m; rw [← cf_sum5_mul_left]
-  rw [hL, cf_sum5_comm, hR]
-
-private theorem cf_transport_inv_right (a : Fin 24) :
-    mat5Mul (transport a) (transport (oppSlot a)) = mat5Id :=
-  thm_coxeter_transport_antipodal_inverse.2 a
-
-private theorem cf_transport_inv_left (a : Fin 24) :
-    mat5Mul (transport (oppSlot a)) (transport a) = mat5Id := by
-  have h := thm_coxeter_transport_antipodal_inverse.2 (oppSlot a)
-  rw [(thm_24_facets_geometry.2.1 a).1] at h
-  exact h
-
-private theorem cf_memBool_eq_true_iff {α : Type} [DecidableEq α] (a : α) (xs : List α) :
-    memBool a xs = true ↔ a ∈ xs := by
-  induction xs with
-  | nil => simp only [memBool]; exact ⟨fun h => Bool.noConfusion h, fun h => nomatch h⟩
-  | cons x rest ih =>
-    simp only [memBool]
-    if hx : x = a then
-      rw [ite_eq_left hx, hx]; exact ⟨fun _ => List.Mem.head rest, fun _ => rfl⟩
-    else
-      rw [ite_eq_right hx]
-      exact ⟨fun h => List.Mem.tail x (ih.mp h),
-             fun h => match h with | List.Mem.head _ => absurd rfl hx | List.Mem.tail _ h' => ih.mpr h'⟩
-
-private def cf_isNodupBool {α : Type} [DecidableEq α] : List α → Bool
-  | [] => true
-  | x :: xs => !(memBool x xs) && cf_isNodupBool xs
-
-private theorem cf_isNodup_of_bool {α : Type} [DecidableEq α] (xs : List α)
-    (h : cf_isNodupBool xs = true) : IsNodup xs := by
-  induction xs with
-  | nil => exact IsNodup.nil
-  | cons x rest ih =>
-    simp only [cf_isNodupBool, Bool.and_eq_true] at h
-    refine IsNodup.cons ?_ (ih h.2)
-    intro hm; have h1 := h.1; rw [(cf_memBool_eq_true_iff x rest).mpr hm] at h1
-    exact Bool.noConfusion h1
-
-private theorem cf_mem_append_iff {α : Type} (xs ys : List α) (a : α) :
-    a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
-  induction xs with
-  | nil =>
-    simp only [List.nil_append]
-    exact ⟨Or.inr, fun h => match h with | Or.inl h1 => nomatch h1 | Or.inr h2 => h2⟩
-  | cons x rest ih =>
-    simp only [List.cons_append]
-    constructor
-    · intro h
-      cases h with
-      | head => exact Or.inl (List.Mem.head rest)
-      | tail _ h' =>
-        rcases ih.mp h' with h1 | h2
-        · exact Or.inl (List.Mem.tail x h1)
-        · exact Or.inr h2
-    · intro h
-      rcases h with h1 | h2
-      · cases h1 with
-        | head => exact List.Mem.head _
-        | tail _ h' => exact List.Mem.tail x (ih.mpr (Or.inl h'))
-      · exact List.Mem.tail x (ih.mpr (Or.inr h2))
-
-private theorem cf_mem_map_iff {α β : Type} (f : α → β) (xs : List α) (b : β) :
-    b ∈ xs.map f ↔ ∃ a : α, a ∈ xs ∧ f a = b := by
-  induction xs with
-  | nil => simp only [List.map]; exact ⟨(fun h => nomatch h), (fun ⟨_, ha, _⟩ => nomatch ha)⟩
-  | cons x rest ih =>
-    simp only [List.map]
-    constructor
-    · intro h
-      cases h with
-      | head => exact ⟨x, List.Mem.head rest, rfl⟩
-      | tail _ h' => obtain ⟨a, ha, hfa⟩ := ih.mp h'; exact ⟨a, List.Mem.tail x ha, hfa⟩
-    · intro ⟨a, ha, hfa⟩
-      cases ha with
-      | head => rw [hfa]; exact List.Mem.head _
-      | tail _ h' => exact List.Mem.tail (f x) (ih.mpr ⟨a, h', hfa⟩)
-
-private theorem cf_mem_flatMapList_iff {α β : Type} (f : α → List β) (xs : List α) (b : β) :
-    b ∈ flatMapList f xs ↔ ∃ a : α, a ∈ xs ∧ b ∈ f a := by
-  induction xs with
-  | nil => simp only [flatMapList]; exact ⟨(fun h => nomatch h), (fun ⟨_, ha, _⟩ => nomatch ha)⟩
-  | cons x rest ih =>
-    simp only [flatMapList]; rw [cf_mem_append_iff, ih]
-    constructor
-    · intro h
-      rcases h with h1 | ⟨a, ha, hb⟩
-      · exact ⟨x, List.Mem.head rest, h1⟩
-      · exact ⟨a, List.Mem.tail x ha, hb⟩
-    · intro ⟨a, ha, hb⟩
-      cases ha with | head => exact Or.inl hb | tail _ h' => exact Or.inr ⟨a, h', hb⟩
-
-private theorem cf_mem_nodupUnion {α : Type} [DecidableEq α] (xs ys : List α) (a : α) :
-    a ∈ nodupUnion xs ys ↔ a ∈ xs ∨ a ∈ ys := by
-  induction ys with
-  | nil =>
-    simp only [nodupUnion]
-    exact ⟨Or.inl, fun h => match h with | Or.inl h1 => h1 | Or.inr h2 => nomatch h2⟩
-  | cons y rest ih =>
-    simp only [nodupUnion]
-    cases hm : memBool y (nodupUnion xs rest) with
-    | true =>
-      rw [ite_eq_left rfl]
-      constructor
-      · intro ha; rcases ih.mp ha with h1 | h2
-        · exact Or.inl h1
-        · exact Or.inr (List.Mem.tail y h2)
-      · intro h; rcases h with h1 | h2
-        · exact ih.mpr (Or.inl h1)
-        · cases h2 with
-          | head => exact (cf_memBool_eq_true_iff a _).mp hm
-          | tail _ h' => exact ih.mpr (Or.inr h')
-    | false =>
-      rw [ite_eq_right (by decide : false ≠ true)]
-      constructor
-      · intro ha
-        cases ha with
-        | head => exact Or.inr (List.Mem.head rest)
-        | tail _ h' =>
-          rcases ih.mp h' with h1 | h2
-          · exact Or.inl h1
-          · exact Or.inr (List.Mem.tail y h2)
-      · intro h; rcases h with h1 | h2
-        · exact List.Mem.tail y (ih.mpr (Or.inl h1))
-        · cases h2 with
-          | head => exact List.Mem.head _
-          | tail _ h' => exact List.Mem.tail y (ih.mpr (Or.inr h'))
-
-private theorem cf_isNodup_nodupUnion {α : Type} [DecidableEq α] {xs : List α} (hxs : IsNodup xs)
-    (ys : List α) : IsNodup (nodupUnion xs ys) := by
-  induction ys with
-  | nil => exact hxs
-  | cons y rest ih =>
-    simp only [nodupUnion]
-    cases hm : memBool y (nodupUnion xs rest) with
-    | true => rw [ite_eq_left rfl]; exact ih
-    | false =>
-      rw [ite_eq_right (by decide : false ≠ true)]
-      refine IsNodup.cons ?_ ih
-      intro hmem; have ht := (cf_memBool_eq_true_iff y _).mpr hmem
-      rw [hm] at ht; exact Bool.noConfusion ht
-
-private theorem cf_isNodup_dedupList {α : Type} [DecidableEq α] (xs : List α) :
-    IsNodup (dedupList xs) := cf_isNodup_nodupUnion IsNodup.nil xs
-
-private theorem cf_mem_dedupList {α : Type} [DecidableEq α] (xs : List α) (a : α) :
-    a ∈ dedupList xs ↔ a ∈ xs := by
-  unfold dedupList; rw [cf_mem_nodupUnion]
-  exact ⟨fun h => match h with | Or.inl h1 => nomatch h1 | Or.inr h2 => h2, Or.inr⟩
-
-private theorem cf_mem_eraseOne_iff {α : Type} [DecidableEq α] (a y : α)
-    {xs : List α} (hnd : IsNodup xs) : y ∈ eraseOne a xs ↔ y ∈ xs ∧ y ≠ a := by
-  induction hnd with
-  | nil => simp only [eraseOne]; exact ⟨(fun h => nomatch h), (fun h => nomatch h.1)⟩
-  | @cons x rest hnot _ ih =>
-    simp only [eraseOne]
-    if hxa : x = a then
-      rw [ite_eq_left hxa]
-      constructor
-      · intro hy; exact ⟨List.Mem.tail x hy, fun hya => by rw [hya, ← hxa] at hy; exact hnot hy⟩
-      · intro ⟨hmem, hne⟩
-        cases hmem with | head => exact absurd hxa hne | tail _ h' => exact h'
-    else
-      rw [ite_eq_right hxa]
-      constructor
-      · intro h
-        cases h with
-        | head => exact ⟨List.Mem.head rest, hxa⟩
-        | tail _ h' => have ⟨hm, hne⟩ := ih.mp h'; exact ⟨List.Mem.tail x hm, hne⟩
-      · intro ⟨hmem, hne⟩
-        cases hmem with
-        | head => exact List.Mem.head _
-        | tail _ h' => exact List.Mem.tail x (ih.mpr ⟨h', hne⟩)
-
-private theorem cf_isNodup_eraseOne {α : Type} [DecidableEq α] (a : α)
-    {xs : List α} (hnd : IsNodup xs) : IsNodup (eraseOne a xs) := by
-  induction hnd with
-  | nil => exact IsNodup.nil
-  | @cons x rest hnot hndRest ih =>
-    simp only [eraseOne]
-    if hxa : x = a then rw [ite_eq_left hxa]; exact hndRest
-    else
-      rw [ite_eq_right hxa]
-      exact IsNodup.cons (fun hm => hnot ((cf_mem_eraseOne_iff a x hndRest).mp hm).1) ih
-
-private theorem cf_isNodup_map_inj {α β : Type} (f : α → β)
-    (hinj : ∀ x y : α, f x = f y → x = y) {xs : List α} (h : IsNodup xs) :
-    IsNodup (xs.map f) := by
-  induction h with
-  | nil => exact IsNodup.nil
-  | cons hnot _ ih =>
-    simp only [List.map]
-    refine IsNodup.cons ?_ ih
-    intro hm; obtain ⟨a, ha, hfa⟩ := (cf_mem_map_iff f _ _).mp hm
-    rw [hinj _ _ hfa] at ha; exact hnot ha
-
-private theorem cf_list_all_eq_true_iff {α : Type} (p : α → Bool) (xs : List α) :
-    xs.all p = true ↔ ∀ x, x ∈ xs → p x = true := by
-  induction xs with
-  | nil => simp only [List.all]; exact ⟨(fun _ _ h => nomatch h), (fun _ => trivial)⟩
-  | cons x rest ih =>
-    simp only [List.all, Bool.and_eq_true]
-    exact ⟨fun ⟨hpx, hrest⟩ y hy => match hy with | List.Mem.head _ => hpx | List.Mem.tail _ h' => ih.mp hrest y h',
-           fun hall => ⟨hall x (List.Mem.head rest), ih.mpr (fun y hy => hall y (List.Mem.tail x hy))⟩⟩
-
-private theorem cf_find?_eq_some_iff {α : Type} (p : α → Bool) (xs : List α) (a : α) :
-    xs.find? p = some a → a ∈ xs ∧ p a = true := by
-  induction xs with
-  | nil => simp only [List.find?]; intro h; exact nomatch h
-  | cons x rest ih =>
-    simp only [List.find?]
-    cases hpx : p x with
-    | true => intro h; cases h; exact ⟨List.Mem.head rest, hpx⟩
-    | false => intro h; have ⟨hm, hp⟩ := ih h; exact ⟨List.Mem.tail x hm, hp⟩
-
-private theorem cf_mem_finRange24 (a : Fin 24) : a ∈ List.finRange 24 :=
-  (cf_memBool_eq_true_iff a (List.finRange 24)).mp
-    ((by decide : ∀ x : Fin 24, memBool x (List.finRange 24) = true) a)
-
-private theorem cf_finRange24_nodup : IsNodup (List.finRange 24) :=
-  cf_isNodup_of_bool (List.finRange 24) (by decide)
-
-/-! ### `mat5Lt` & `HoneycombConfig` Canonical Order / Lookup Bridge -/
-
-private def cf_listIntLt : List Int → List Int → Bool
-  | [], _ => false
-  | _, [] => false
-  | x :: xs, y :: ys => if x < y then true else if y < x then false else cf_listIntLt xs ys
-
-private def cf_vec5Key (v : Vec5) : List Int :=
-  [ (v ⟨0, by decide⟩).a, (v ⟨0, by decide⟩).b,
-    (v ⟨1, by decide⟩).a, (v ⟨1, by decide⟩).b,
-    (v ⟨2, by decide⟩).a, (v ⟨2, by decide⟩).b,
-    (v ⟨3, by decide⟩).a, (v ⟨3, by decide⟩).b,
-    (v ⟨4, by decide⟩).a, (v ⟨4, by decide⟩).b ]
-
-private def cf_mat5Key (g : Mat5) : List Int :=
-  cf_vec5Key (g ⟨0, by decide⟩) ++ cf_vec5Key (g ⟨1, by decide⟩) ++
-  cf_vec5Key (g ⟨2, by decide⟩) ++ cf_vec5Key (g ⟨3, by decide⟩) ++ cf_vec5Key (g ⟨4, by decide⟩)
-
-private theorem cf_mat5Lt_eq (g₁ g₂ : Mat5) :
-    mat5Lt g₁ g₂ = cf_listIntLt (cf_mat5Key g₁) (cf_mat5Key g₂) := rfl
-
-private theorem cf_listIntLt_irrefl (xs : List Int) : cf_listIntLt xs xs = false := by
+private theorem cf_listIntLt_irrefl (xs : List Int) : listIntLt xs xs = false := by
   induction xs with
   | nil => rfl
   | cons x rest ih =>
-    simp only [cf_listIntLt]
+    simp only [listIntLt]
     have hxx : ¬ (x < x) := by omega
     simp only [ite_eq_right hxx]
     exact ih
 
 private theorem cf_listIntLt_trans (xs ys zs : List Int)
-    (h1 : cf_listIntLt xs ys = true) (h2 : cf_listIntLt ys zs = true) :
-    cf_listIntLt xs zs = true := by
+    (h1 : listIntLt xs ys = true) (h2 : listIntLt ys zs = true) :
+    listIntLt xs zs = true := by
   induction xs generalizing ys zs with
-  | nil => simp only [cf_listIntLt] at h1; exact Bool.noConfusion h1
+  | nil => simp only [listIntLt] at h1; exact Bool.noConfusion h1
   | cons x xr ih =>
     cases ys with
-    | nil => simp only [cf_listIntLt] at h1; exact Bool.noConfusion h1
+    | nil => simp only [listIntLt] at h1; exact Bool.noConfusion h1
     | cons y yr =>
       cases zs with
-      | nil => simp only [cf_listIntLt] at h2; exact Bool.noConfusion h2
+      | nil => simp only [listIntLt] at h2; exact Bool.noConfusion h2
       | cons z zr =>
-        simp only [cf_listIntLt] at h1 h2 ⊢
+        simp only [listIntLt] at h1 h2 ⊢
         if hxy : x < y then
           if hyz : y < z then rw [ite_eq_left (by omega)]
           else if hzy : z < y then rw [ite_eq_right hyz, ite_eq_left hzy] at h2; exact Bool.noConfusion h2
@@ -475,7 +93,7 @@ private theorem cf_listIntLt_trans (xs ys zs : List Int)
             exact ih yr zr h1 h2
 
 private theorem cf_listIntLt_trichotomy (xs ys : List Int) (hlen : xs.length = ys.length) :
-    cf_listIntLt xs ys = true ∨ xs = ys ∨ cf_listIntLt ys xs = true := by
+    listIntLt xs ys = true ∨ xs = ys ∨ listIntLt ys xs = true := by
   induction xs generalizing ys with
   | nil =>
     cases ys with
@@ -486,403 +104,68 @@ private theorem cf_listIntLt_trichotomy (xs ys : List Int) (hlen : xs.length = y
     | nil => simp only [List.length_nil, List.length_cons] at hlen; omega
     | cons y yr =>
       simp only [List.length_cons] at hlen
-      if hxy : x < y then exact Or.inl (by simp only [cf_listIntLt, ite_eq_left hxy])
-      else if hyx : y < x then exact Or.inr (Or.inr (by simp only [cf_listIntLt, ite_eq_left hyx]))
+      if hxy : x < y then exact Or.inl (by simp only [listIntLt, ite_eq_left hxy])
+      else if hyx : y < x then exact Or.inr (Or.inr (by simp only [listIntLt, ite_eq_left hyx]))
       else
         have hEq : x = y := by omega
         rcases ih yr (by omega) with h1 | h2 | h3
-        · exact Or.inl (by simp only [cf_listIntLt, ite_eq_right hxy, ite_eq_right hyx]; exact h1)
+        · exact Or.inl (by simp only [listIntLt, ite_eq_right hxy, ite_eq_right hyx]; exact h1)
         · exact Or.inr (Or.inl (by rw [hEq, h2]))
-        · exact Or.inr (Or.inr (by simp only [cf_listIntLt, ite_eq_right hyx, ite_eq_right hxy]; exact h3))
+        · exact Or.inr (Or.inr (by simp only [listIntLt, ite_eq_right hyx, ite_eq_right hxy]; exact h3))
 
-private theorem cf_vec5Key_inj (u v : Vec5) (h : cf_vec5Key u = cf_vec5Key v) : u = v := by
-  unfold cf_vec5Key at h; simp only [List.cons.injEq] at h
+private theorem cf_vec5Key_inj (u v : Vec5) (h : vec5Key u = vec5Key v) : u = v := by
+  unfold vec5Key at h; simp only [List.cons.injEq] at h
   rcases h with ⟨h0a, h0b, h1a, h1b, h2a, h2b, h3a, h3b, h4a, h4b, _⟩
-  have mkEq : ∀ (x y : ZSqrt2), x.a = y.a → x.b = y.b → x = y := fun x y ha hb => by
-    cases x; cases y; simp only [ZSqrt2.mk.injEq]; exact ⟨ha, hb⟩
   funext i
   match i with
-  | ⟨0, _⟩ => exact mkEq _ _ h0a h0b
-  | ⟨1, _⟩ => exact mkEq _ _ h1a h1b
-  | ⟨2, _⟩ => exact mkEq _ _ h2a h2b
-  | ⟨3, _⟩ => exact mkEq _ _ h3a h3b
-  | ⟨4, _⟩ => exact mkEq _ _ h4a h4b
+  | ⟨0, _⟩ => exact ZSqrt2.ext h0a h0b
+  | ⟨1, _⟩ => exact ZSqrt2.ext h1a h1b
+  | ⟨2, _⟩ => exact ZSqrt2.ext h2a h2b
+  | ⟨3, _⟩ => exact ZSqrt2.ext h3a h3b
+  | ⟨4, _⟩ => exact ZSqrt2.ext h4a h4b
 
-private theorem cf_mat5Key_inj (g₁ g₂ : Mat5) (h : cf_mat5Key g₁ = cf_mat5Key g₂) : g₁ = g₂ := by
-  have appendEq : ∀ (a₁ a₂ b₁ b₂ : List Int),
-      a₁.length = a₂.length → a₁ ++ b₁ = a₂ ++ b₂ → a₁ = a₂ ∧ b₁ = b₂ := by
-    intro a₁
-    induction a₁ with
-    | nil =>
-      intro a₂ _ _ hlen heq
-      cases a₂ with
-      | nil => exact ⟨rfl, heq⟩
-      | cons _ _ => simp only [List.length_nil, List.length_cons] at hlen; omega
-    | cons x xs ih =>
-      intro a₂ b₁ b₂ hlen heq
-      cases a₂ with
-      | nil => simp only [List.length_nil, List.length_cons] at hlen; omega
-      | cons y ys =>
-        simp only [List.length_cons, List.cons_append, List.cons.injEq] at hlen heq
-        have ⟨hxs, hbs⟩ := ih ys b₁ b₂ (by omega) heq.2
-        exact ⟨by rw [heq.1, hxs], hbs⟩
-  unfold cf_mat5Key at h
-  have hlen4 : (cf_vec5Key (g₁ ⟨0, by decide⟩) ++ cf_vec5Key (g₁ ⟨1, by decide⟩) ++
-      cf_vec5Key (g₁ ⟨2, by decide⟩) ++ cf_vec5Key (g₁ ⟨3, by decide⟩)).length =
-      (cf_vec5Key (g₂ ⟨0, by decide⟩) ++ cf_vec5Key (g₂ ⟨1, by decide⟩) ++
-      cf_vec5Key (g₂ ⟨2, by decide⟩) ++ cf_vec5Key (g₂ ⟨3, by decide⟩)).length := rfl
-  have hlen3 : (cf_vec5Key (g₁ ⟨0, by decide⟩) ++ cf_vec5Key (g₁ ⟨1, by decide⟩) ++
-      cf_vec5Key (g₁ ⟨2, by decide⟩)).length =
-      (cf_vec5Key (g₂ ⟨0, by decide⟩) ++ cf_vec5Key (g₂ ⟨1, by decide⟩) ++
-      cf_vec5Key (g₂ ⟨2, by decide⟩)).length := rfl
-  have hlen2 : (cf_vec5Key (g₁ ⟨0, by decide⟩) ++ cf_vec5Key (g₁ ⟨1, by decide⟩)).length =
-      (cf_vec5Key (g₂ ⟨0, by decide⟩) ++ cf_vec5Key (g₂ ⟨1, by decide⟩)).length := rfl
-  have hlen1 : (cf_vec5Key (g₁ ⟨0, by decide⟩)).length = (cf_vec5Key (g₂ ⟨0, by decide⟩)).length := rfl
-  have ⟨h0123, h4⟩ := appendEq _ _ _ _ hlen4 h
-  have ⟨h012, h3⟩ := appendEq _ _ _ _ hlen3 h0123
-  have ⟨h01, h2⟩ := appendEq _ _ _ _ hlen2 h012
-  have ⟨h0, h1⟩ := appendEq _ _ _ _ hlen1 h01
+private theorem cf_mat5Key_inj (g₁ g₂ : Mat5) (h : mat5Key g₁ = mat5Key g₂) : g₁ = g₂ := by
+  unfold mat5Key at h
+  have h1 := List.append_inj h (by rfl)
+  have h2 := List.append_inj h1.1 (by rfl)
+  have h3 := List.append_inj h2.1 (by rfl)
+  have h4 := List.append_inj h3.1 (by rfl)
   funext i
   match i with
-  | ⟨0, _⟩ => exact cf_vec5Key_inj _ _ h0
-  | ⟨1, _⟩ => exact cf_vec5Key_inj _ _ h1
-  | ⟨2, _⟩ => exact cf_vec5Key_inj _ _ h2
-  | ⟨3, _⟩ => exact cf_vec5Key_inj _ _ h3
-  | ⟨4, _⟩ => exact cf_vec5Key_inj _ _ h4
+  | ⟨0, _⟩ => exact cf_vec5Key_inj _ _ h4.1
+  | ⟨1, _⟩ => exact cf_vec5Key_inj _ _ h4.2
+  | ⟨2, _⟩ => exact cf_vec5Key_inj _ _ h3.2
+  | ⟨3, _⟩ => exact cf_vec5Key_inj _ _ h2.2
+  | ⟨4, _⟩ => exact cf_vec5Key_inj _ _ h1.2
 
-private theorem cf_mat5Lt_irrefl (g : Mat5) : mat5Lt g g = false := by
-  rw [cf_mat5Lt_eq]; exact cf_listIntLt_irrefl (cf_mat5Key g)
+private theorem cf_mat5Lt_irrefl (g : Mat5) : mat5Lt g g = false :=
+  cf_listIntLt_irrefl (mat5Key g)
 
-private theorem cf_mat5Lt_trans (g₁ g₂ g₃ : Mat5)
-    (h1 : mat5Lt g₁ g₂ = true) (h2 : mat5Lt g₂ g₃ = true) : mat5Lt g₁ g₃ = true := by
-  rw [cf_mat5Lt_eq] at h1 h2 ⊢; exact cf_listIntLt_trans _ _ _ h1 h2
-
-private theorem cf_mat5Lt_trichotomy (g₁ g₂ : Mat5) :
-    mat5Lt g₁ g₂ = true ∨ g₁ = g₂ ∨ mat5Lt g₂ g₁ = true := by
-  rw [cf_mat5Lt_eq, cf_mat5Lt_eq]
-  rcases cf_listIntLt_trichotomy (cf_mat5Key g₁) (cf_mat5Key g₂) rfl with h1 | h2 | h3
-  · exact Or.inl h1
-  · exact Or.inr (Or.inl (cf_mat5Key_inj g₁ g₂ h2))
-  · exact Or.inr (Or.inr h3)
-
-private theorem cf_mat5Lt_asymm (g₁ g₂ : Mat5) (h1 : mat5Lt g₁ g₂ = true) :
+private theorem cf_mat5Lt_asymm (g₁ g₂ : Mat5) (h : mat5Lt g₁ g₂ = true) :
     mat5Lt g₂ g₁ = false := by
   cases h2 : mat5Lt g₂ g₁ with
   | false => rfl
   | true =>
-    have hc := cf_mat5Lt_trans g₁ g₂ g₁ h1 h2
-    rw [cf_mat5Lt_irrefl] at hc; exact Bool.noConfusion hc
+    have hc := cf_listIntLt_trans (mat5Key g₁) (mat5Key g₂) (mat5Key g₁) h h2
+    rw [cf_listIntLt_irrefl] at hc
+    exact Bool.noConfusion hc
 
-private theorem cf_lookupEntries_not_lt (g : Mat5) (es : List (Mat5 × FullDock))
-    (hgt : ∀ p : Mat5 × FullDock, p ∈ es → mat5Lt g p.1 = true) :
-    lookupEntries g es = v1FullDock := by
-  induction es with
-  | nil => rfl
-  | cons p rest ih =>
-    cases p with | mk k d =>
-    simp only [lookupEntries]
-    have hlt := hgt (k, d) (List.Mem.head rest)
-    have hne : k ≠ g := fun e => by rw [e, cf_mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-    rw [ite_eq_right hne]
-    exact ih (fun q hq => hgt q (List.Mem.tail _ hq))
-
-private theorem cf_honeycombConfig_ext (c₁ c₂ : HoneycombConfig)
-    (h : ∀ g : Mat5, c₁.lookup g = c₂.lookup g) : c₁ = c₂ := by
-  have hExt : ∀ (es₁ es₂ : List (Mat5 × FullDock)),
-      SortedEntries es₁ → SortedEntries es₂ →
-      (∀ p, p ∈ es₁ → p.2 ≠ v1FullDock) → (∀ p, p ∈ es₂ → p.2 ≠ v1FullDock) →
-      (∀ g, lookupEntries g es₁ = lookupEntries g es₂) → es₁ = es₂ := by
-    intro es₁
-    induction es₁ with
-    | nil =>
-      intro es₂ _ _ _ hne₂ hlk
-      cases es₂ with
-      | nil => rfl
-      | cons p rest =>
-        cases p with | mk k d =>
-        have h0 := hlk k; simp only [lookupEntries, ite_true] at h0
-        exact absurd h0.symm (hne₂ (k, d) (List.Mem.head rest))
-    | cons p₁ r₁ ih =>
-      intro es₂ hs₁ hs₂ hne₁ hne₂ hlk
-      cases p₁ with | mk k₁ d₁ =>
-      cases es₂ with
-      | nil =>
-        have h0 := hlk k₁; simp only [lookupEntries, ite_true] at h0
-        exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
-      | cons p₂ r₂ =>
-        cases p₂ with | mk k₂ d₂ =>
-        rcases cf_mat5Lt_trichotomy k₁ k₂ with hlt | heq | hgt
-        · have h0 := hlk k₁; simp only [lookupEntries, ite_true] at h0
-          have hne12 : k₂ ≠ k₁ := fun e => by rw [e, cf_mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-          rw [ite_eq_right hne12, cf_lookupEntries_not_lt k₁ r₂ (fun q hq => cf_mat5Lt_trans k₁ k₂ q.1 hlt (hs₂.1 q hq))] at h0
-          exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
-        · have hd : d₁ = d₂ := by have h0 := hlk k₁; simp only [lookupEntries, heq, ite_true] at h0; exact h0
-          have hr : r₁ = r₂ := by
-            apply ih r₂ hs₁.2 hs₂.2
-              (fun q hq => hne₁ q (List.Mem.tail _ hq)) (fun q hq => hne₂ q (List.Mem.tail _ hq))
-            intro g
-            if hgk : k₁ = g then
-              rw [← hgk, cf_lookupEntries_not_lt k₁ r₁ hs₁.1,
-                  cf_lookupEntries_not_lt k₁ r₂ (by rw [heq]; exact hs₂.1)]
-            else
-              have h0 := hlk g; simp only [lookupEntries, ite_eq_right hgk, ← heq] at h0; exact h0
-          rw [heq, hd, hr]
-        · have h0 := hlk k₂; simp only [lookupEntries, ite_true] at h0
-          have hne21 : k₁ ≠ k₂ := fun e => by rw [e, cf_mat5Lt_irrefl] at hgt; exact Bool.noConfusion hgt
-          rw [ite_eq_right hne21, cf_lookupEntries_not_lt k₂ r₁ (fun q hq => cf_mat5Lt_trans k₂ k₁ q.1 hgt (hs₁.1 q hq))] at h0
-          exact absurd h0.symm (hne₂ (k₂, d₂) (List.Mem.head r₂))
-  cases c₁ with | mk e₁ s₁ n₁ =>
-  cases c₂ with | mk e₂ s₂ n₂ =>
-  simp only [HoneycombConfig.mk.injEq]
-  exact hExt e₁ e₂ s₁ s₂ n₁ n₂ h
-
-private theorem cf_activeDocks_nodup (c : HoneycombConfig) : IsNodup c.activeDocks := by
-  unfold HoneycombConfig.activeDocks
-  have hAux : ∀ es : List (Mat5 × FullDock), SortedEntries es → IsNodup (es.map Prod.fst) := by
-    intro es hs
-    induction es with
-    | nil => exact IsNodup.nil
-    | cons p rest ih =>
-      cases p with | mk k _d =>
-      simp only [List.map]
-      refine IsNodup.cons ?_ (ih hs.2)
-      intro hm; obtain ⟨q, hq, hqk⟩ := (cf_mem_map_iff Prod.fst rest k).mp hm
-      have hlt := hs.1 q hq; rw [hqk, cf_mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-  exact hAux c.entries c.sorted
-
-private theorem cf_mem_activeDocks_iff (c : HoneycombConfig) (g : Mat5) :
-    g ∈ c.activeDocks ↔ c.lookup g ≠ v1FullDock := by
-  unfold HoneycombConfig.activeDocks HoneycombConfig.lookup
-  have hAux : ∀ es : List (Mat5 × FullDock), SortedEntries es →
-      (∀ p, p ∈ es → p.2 ≠ v1FullDock) → (g ∈ es.map Prod.fst ↔ lookupEntries g es ≠ v1FullDock) := by
-    intro es hs hne
-    induction es with
-    | nil => simp only [List.map, lookupEntries]; exact ⟨(fun h => nomatch h), (fun h => absurd rfl h)⟩
-    | cons p rest ih =>
-      cases p with | mk k d =>
-      simp only [List.map, lookupEntries]
-      if hkg : k = g then
-        rw [ite_eq_left hkg, hkg]
-        exact ⟨fun _ => hne (g, d) (by rw [← hkg]; exact List.Mem.head rest), fun _ => List.Mem.head _⟩
-      else
-        rw [ite_eq_right hkg]
-        have hih := ih hs.2 (fun q hq => hne q (List.Mem.tail _ hq))
-        exact ⟨fun hm => match hm with | List.Mem.head _ => absurd rfl hkg | List.Mem.tail _ h' => hih.mp h',
-               fun hneL => List.Mem.tail k (hih.mpr hneL)⟩
-  exact hAux c.entries c.sorted c.nonEmpty
-
-private def cf_setEntries (g : Mat5) (d : FullDock) : List (Mat5 × FullDock) → List (Mat5 × FullDock)
-  | [] => if d = v1FullDock then [] else [(g, d)]
-  | (k, dk) :: rest =>
-    if mat5Lt g k then
-      if d = v1FullDock then (k, dk) :: rest else (g, d) :: (k, dk) :: rest
-    else if k = g then
-      if d = v1FullDock then rest else (g, d) :: rest
-    else
-      (k, dk) :: cf_setEntries g d rest
-
-private theorem cf_setDock_entries (g : Mat5) (d : FullDock) :
-    ∀ (es : List (Mat5 × FullDock)) (hs : SortedEntries es)
-      (hne : ∀ p : Mat5 × FullDock, p ∈ es → p.2 ≠ v1FullDock),
-      (HoneycombConfig.setDock ⟨es, hs, hne⟩ g d).entries = cf_setEntries g d es := by
-  intro es
-  induction es with
-  | nil => intro _ _; rfl
-  | cons p rest ih =>
-    intro hs hne
-    cases p with | mk k dk =>
-    have hRest := ih hs.2 (fun q hq => hne q (List.Mem.tail (k, dk) hq))
-    change (if mat5Lt g k then
-              if d = v1FullDock then (k, dk) :: rest else (g, d) :: (k, dk) :: rest
-            else if k = g then
-              if d = v1FullDock then rest else (g, d) :: rest
-            else
-              (k, dk) :: (HoneycombConfig.setDock ⟨rest, hs.2, fun q hq => hne q (List.Mem.tail (k, dk) hq)⟩ g d).entries) =
-           (if mat5Lt g k then
-              if d = v1FullDock then (k, dk) :: rest else (g, d) :: (k, dk) :: rest
-            else if k = g then
-              if d = v1FullDock then rest else (g, d) :: rest
-            else
-              (k, dk) :: cf_setEntries g d rest)
-    rw [hRest]
-
-private theorem cf_lookup_setDock (c : HoneycombConfig) (g h : Mat5) (d : FullDock) :
-    (c.setDock g d).lookup h = if h = g then d else c.lookup h := by
-  have hAux : ∀ (es : List (Mat5 × FullDock)), SortedEntries es →
-      lookupEntries h (cf_setEntries g d es) = if h = g then d else lookupEntries h es := by
-    intro es
-    induction es with
-    | nil =>
-      intro _; simp only [cf_setEntries]
-      if hd : d = v1FullDock then
-        rw [ite_eq_left hd]; simp only [lookupEntries]
-        if hhg : h = g then rw [ite_eq_left hhg, hd] else rw [ite_eq_right hhg]
-      else
-        rw [ite_eq_right hd]; simp only [lookupEntries]
-        if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg.symm]
-        else rw [ite_eq_right hhg, ite_eq_right (fun e => hhg e.symm)]
-    | cons q rest ih =>
-      intro hs; cases q with | mk k _ =>
-      simp only [cf_setEntries]
-      if hlt : mat5Lt g k = true then
-        rw [ite_eq_left hlt]
-        if hd : d = v1FullDock then
-          rw [ite_eq_left hd]
-          if hhg : h = g then
-            rw [ite_eq_left hhg, hd, hhg]
-            have hkg : k ≠ g := fun e => by rw [e, cf_mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-            simp only [lookupEntries, ite_eq_right hkg]
-            exact cf_lookupEntries_not_lt g rest (fun p hp => cf_mat5Lt_trans g k p.1 hlt (hs.1 p hp))
-          else rw [ite_eq_right hhg]
-        else
-          rw [ite_eq_right hd]; simp only [lookupEntries]
-          if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg.symm]
-          else rw [ite_eq_right hhg, ite_eq_right (fun e => hhg e.symm)]
-      else
-        rw [ite_eq_right hlt]
-        if hkg : k = g then
-          rw [ite_eq_left hkg]
-          if hd : d = v1FullDock then
-            rw [ite_eq_left hd]
-            if hhg : h = g then
-              rw [ite_eq_left hhg, hd, hhg]
-              exact cf_lookupEntries_not_lt g rest (by rw [← hkg]; exact hs.1)
-            else
-              have hkh : k ≠ h := by rw [hkg]; exact fun e => hhg e.symm
-              rw [ite_eq_right hhg]; simp only [lookupEntries, ite_eq_right hkh]
-          else
-            rw [ite_eq_right hd]; simp only [lookupEntries]
-            if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg.symm]
-            else
-              have hgh : g ≠ h := fun e => hhg e.symm
-              have hkh : k ≠ h := by rw [hkg]; exact hgh
-              rw [ite_eq_right hhg, ite_eq_right hgh, ite_eq_right hkh]
-        else
-          rw [ite_eq_right hkg]; simp only [lookupEntries]
-          if hkh : k = h then
-            have hhg : h ≠ g := by rw [← hkh]; exact hkg
-            rw [ite_eq_left hkh, ite_eq_right hhg, ite_eq_left hkh]
-          else rw [ite_eq_right hkh, ite_eq_right hkh, ih hs.2]
-  cases c with | mk es hs hne =>
-  unfold HoneycombConfig.lookup
-  rw [cf_setDock_entries g d es hs hne]
-  exact hAux es hs
-
-private theorem cf_setDock_lookup_self (c : HoneycombConfig) (g : Mat5) :
-    c.setDock g (c.lookup g) = c := by
-  apply cf_honeycombConfig_ext; intro h; rw [cf_lookup_setDock]
-  if hhg : h = g then rw [ite_eq_left hhg, hhg] else rw [ite_eq_right hhg]
-
-private theorem cf_setDock_setDock_same (c : HoneycombConfig) (g : Mat5) (d₁ d₂ : FullDock) :
-    (c.setDock g d₁).setDock g d₂ = c.setDock g d₂ := by
-  apply cf_honeycombConfig_ext; intro h
-  rw [cf_lookup_setDock, cf_lookup_setDock, cf_lookup_setDock]
-  if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg]
-  else rw [ite_eq_right hhg, ite_eq_right hhg, ite_eq_right hhg]
-
-private theorem cf_setDock_setDock_comm (c : HoneycombConfig) (g₁ g₂ : Mat5) (d₁ d₂ : FullDock)
-    (hne : g₁ ≠ g₂) : (c.setDock g₁ d₁).setDock g₂ d₂ = (c.setDock g₂ d₂).setDock g₁ d₁ := by
-  apply cf_honeycombConfig_ext; intro h
-  rw [cf_lookup_setDock, cf_lookup_setDock, cf_lookup_setDock, cf_lookup_setDock]
-  if h2 : h = g₂ then
-    have h1 : h ≠ g₁ := by rw [h2]; exact fun e => hne e.symm
-    simp only [ite_eq_left h2, ite_eq_right h1]
-  else
-    rw [ite_eq_right h2]
-    if h1 : h = g₁ then rw [ite_eq_left h1, ite_eq_left h1]
-    else rw [ite_eq_right h1, ite_eq_right h1, ite_eq_right h2]
-
-private theorem cf_lookup_ofSites (cand : List Mat5) (f : Mat5 → FullDock)
-    (hvan : ∀ g : Mat5, g ∉ cand → f g = v1FullDock) (g : Mat5) :
-    (ofSites cand f).lookup g = f g := by
-  have hFold : ∀ (xs : List Mat5) (init : HoneycombConfig),
-      (xs.foldl (fun acc k => acc.setDock k (f k)) init).lookup g =
-        if memBool g xs then f g else init.lookup g := by
-    intro xs
-    induction xs with
-    | nil => intro _; rfl
-    | cons k rest ih =>
-      intro init; simp only [List.foldl]; rw [ih (init.setDock k (f k))]
-      if hkg : k = g then
-        have hMem : memBool g (k :: rest) = true := by simp only [memBool, ite_eq_left hkg]
-        rw [ite_eq_left hMem]
-        cases hm : memBool g rest with
-        | true => rw [cf_ite_bool_true]
-        | false => rw [cf_ite_bool_false, cf_lookup_setDock, ite_eq_left hkg.symm, hkg]
-      else
-        have hMem : memBool g (k :: rest) = memBool g rest := by simp only [memBool, ite_eq_right hkg]
-        cases hm : memBool g rest with
-        | true => rw [cf_ite_bool_true, ite_eq_left (by rw [hMem, hm])]
-        | false =>
-          rw [cf_ite_bool_false, ite_eq_right (by rw [hMem, hm]; decide),
-              cf_lookup_setDock, ite_eq_right (fun e => hkg e.symm)]
-  unfold ofSites; rw [hFold cand v1Config]
-  cases hm : memBool g cand with
-  | true => rfl
-  | false =>
-    change v1FullDock = f g
-    refine (hvan g (fun hmem => ?_)).symm
-    have ht := (cf_memBool_eq_true_iff g cand).mpr hmem
-    rw [hm] at ht; exact Bool.noConfusion ht
-
-private theorem cf_lookup_streamConfig (c : HoneycombConfig) (g : Mat5) (a : Fin 24) :
-    (streamConfig c).lookup g a = c.lookup (mat5Mul g (transport (oppSlot a))) a := by
-  unfold streamConfig
-  have hvan : ∀ x : Mat5,
-      x ∉ flatMapList (fun k => (List.finRange 24).map (fun b => mat5Mul k (transport b))) c.activeDocks →
-      (fun b => c.lookup (mat5Mul x (transport (oppSlot b))) b) = v1FullDock := by
-    intro x hx; funext b
-    if hb : c.lookup (mat5Mul x (transport (oppSlot b))) b = .empty then exact hb
-    else
-      have hAct : mat5Mul x (transport (oppSlot b)) ∈ c.activeDocks :=
-        (cf_mem_activeDocks_iff c _).mpr (fun h0 => hb (congrFun h0 b))
-      have hBack : mat5Mul (mat5Mul x (transport (oppSlot b))) (transport b) = x := by
-        rw [cf_mat5Mul_assoc, cf_transport_inv_left b, cf_mat5Mul_id_right]
-      exact absurd ((cf_mem_flatMapList_iff _ _ x).mpr
-        ⟨_, hAct, (cf_mem_map_iff _ _ x).mpr ⟨b, cf_mem_finRange24 b, hBack⟩⟩) hx
-  exact congrFun (cf_lookup_ofSites _ _ hvan g) a
-
-private theorem cf_lookup_streamConfigInv (c : HoneycombConfig) (g : Mat5) (a : Fin 24) :
-    (streamConfigInv c).lookup g a = c.lookup (mat5Mul g (transport a)) a := by
-  unfold streamConfigInv
-  have hvan : ∀ x : Mat5,
-      x ∉ flatMapList (fun k => (List.finRange 24).map (fun b => mat5Mul k (transport (oppSlot b)))) c.activeDocks →
-      (fun b => c.lookup (mat5Mul x (transport b)) b) = v1FullDock := by
-    intro x hx; funext b
-    if hb : c.lookup (mat5Mul x (transport b)) b = .empty then exact hb
-    else
-      have hAct : mat5Mul x (transport b) ∈ c.activeDocks :=
-        (cf_mem_activeDocks_iff c _).mpr (fun h0 => hb (congrFun h0 b))
-      have hBack : mat5Mul (mat5Mul x (transport b)) (transport (oppSlot b)) = x := by
-        rw [cf_mat5Mul_assoc, cf_transport_inv_right b, cf_mat5Mul_id_right]
-      exact absurd ((cf_mem_flatMapList_iff _ _ x).mpr
-        ⟨_, hAct, (cf_mem_map_iff _ _ x).mpr ⟨b, cf_mem_finRange24 b, hBack⟩⟩) hx
-  exact congrFun (cf_lookup_ofSites _ _ hvan g) a
-
-private theorem cf_lookup_revConfig (c : HoneycombConfig) (g : Mat5) :
-    (revConfig c).lookup g = revFullDock (c.lookup g) := by
-  unfold revConfig
-  refine cf_lookup_ofSites c.activeDocks (fun x => revFullDock (c.lookup x)) ?_ g
-  intro x hx
-  have h0 : c.lookup x = v1FullDock := by
-    if h : c.lookup x = v1FullDock then exact h else exact absurd ((cf_mem_activeDocks_iff c x).mpr h) hx
-  rw [h0]; rfl
+private theorem cf_mat5Lt_trichotomy (g₁ g₂ : Mat5) :
+    mat5Lt g₁ g₂ = true ∨ g₁ = g₂ ∨ mat5Lt g₂ g₁ = true := by
+  rcases cf_listIntLt_trichotomy (mat5Key g₁) (mat5Key g₂) rfl with h1 | h2 | h3
+  · exact Or.inl h1
+  · exact Or.inr (Or.inl (cf_mat5Key_inj g₁ g₂ h2))
+  · exact Or.inr (Or.inr h3)
 
 private theorem cf_revConfig_setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) :
     revConfig (c.setDock g d) = (revConfig c).setDock g (revFullDock d) := by
-  apply cf_honeycombConfig_ext; intro h
-  rw [cf_lookup_revConfig, cf_lookup_setDock, cf_lookup_setDock]
+  apply honeycombConfig_ext; intro h
+  rw [lookup_revConfig, lookup_setDock, lookup_setDock]
   if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg]
-  else rw [ite_eq_right hhg, ite_eq_right hhg, cf_lookup_revConfig]
+  else rw [ite_eq_right hhg, ite_eq_right hhg, lookup_revConfig]
 
 private theorem cf_revFullDock_inv (d : FullDock) : revFullDock (revFullDock d) = d := by
   funext a; unfold revFullDock; rw [(thm_24_facets_geometry.2.1 a).1]
-
-private theorem cf_fockStream_eval (ψ : FockVec NinthLoc6 HoneycombConfig) (c : HoneycombConfig) :
-    fockStream ψ c = ψ (streamConfigInv c) := rfl
-
-private theorem cf_ket_eval (c₀ c : HoneycombConfig) :
-    ket (R := NinthLoc6) c₀ c = if c = c₀ then NinthLoc6.one else NinthLoc6.zero := rfl
 
 
 /-! ## Section 1: Exact Facet-Pairing Fixed-Point-Free Involution & Single-Edge 2-Slot Swap -/
@@ -902,7 +185,7 @@ private theorem cf_facetMate_inv (p : FacetEndpoint) : facetMate (facetMate p) =
   cases p with | mk g a =>
   unfold facetMate
   have h1 : mat5Mul (mat5Mul g (transport a)) (transport (oppSlot a)) = g := by
-    rw [cf_mat5Mul_assoc, cf_transport_inv_right a, cf_mat5Mul_id_right]
+    rw [fb_mat5Mul_assoc, transport_inv_right a, fb_mat5Mul_id_right]
   have h2 : oppSlot (oppSlot a) = a := (thm_24_facets_geometry.2.1 a).1
   exact congr (congrArg Prod.mk h1) h2
 
@@ -959,7 +242,8 @@ structure FacetEdge where
   end1 : FacetEndpoint
   canonical : endpointLt end1 (facetMate end1) = true
 
-private theorem cf_facetEdge_eq_iff (e₁ e₂ : FacetEdge) : e₁ = e₂ ↔ e₁.end1 = e₂.end1 := by
+-- [helper]
+theorem cf_facetEdge_eq_iff (e₁ e₂ : FacetEdge) : e₁ = e₂ ↔ e₁.end1 = e₂.end1 := by
   cases e₁; cases e₂
   exact ⟨fun h => by cases h; rfl, fun h => by simp only [FacetEdge.mk.injEq]; exact h⟩
 
@@ -973,7 +257,8 @@ def FacetEdge.end2 (e : FacetEdge) : FacetEndpoint := facetMate e.end1
 def FacetEdge.v (e : FacetEdge) : Mat5 := e.end2.1
 def FacetEdge.oppA (e : FacetEdge) : Fin 24 := e.end2.2
 
-private theorem cf_endpointLt_mate_canon (p : FacetEndpoint)
+-- [helper]
+theorem cf_endpointLt_mate_canon (p : FacetEndpoint)
     (h : endpointLt p (facetMate p) = false) :
     endpointLt (facetMate p) (facetMate (facetMate p)) = true := by
   rw [cf_facetMate_inv]; exact cf_endpointLt_mate_of_false p h
@@ -1072,7 +357,7 @@ private theorem cf_lookup_swapFacetEdge (g : Mat5) (a : Fin 24) (c : HoneycombCo
   have hoppNe : oppSlot a ≠ a := (thm_24_facets_geometry.2.1 a).2
   unfold swapFacetEdge
   if hhg : mat5Mul g (transport a) = g then
-    rw [ite_eq_left hhg, cf_lookup_setDock]
+    rw [ite_eq_left hhg, lookup_setDock]
     if hxg : x = g then
       rw [ite_eq_left hxg]; unfold setSlot
       if hsb : s = oppSlot a then
@@ -1095,7 +380,7 @@ private theorem cf_lookup_swapFacetEdge (g : Mat5) (a : Fin 24) (c : HoneycombCo
         rw [hhg] at hf; exact hf)
       rw [ite_eq_right hxg, ite_eq_right hp1, ite_eq_right hp2]
   else
-    rw [ite_eq_right hhg, cf_lookup_setDock]
+    rw [ite_eq_right hhg, lookup_setDock]
     if hxh : x = mat5Mul g (transport a) then
       rw [ite_eq_left hxh]; unfold setSlot
       have hxg : x ≠ g := fun e => hhg (by rw [← hxh, e])
@@ -1108,7 +393,7 @@ private theorem cf_lookup_swapFacetEdge (g : Mat5) (a : Fin 24) (c : HoneycombCo
         have hp2 : (x, s) ≠ facetMate (g, a) := fun e => hsb (congrArg Prod.snd e)
         rw [ite_eq_right hsb, ite_eq_right hp1, ite_eq_right hp2, hxh]
     else
-      rw [ite_eq_right hxh, cf_lookup_setDock]
+      rw [ite_eq_right hxh, lookup_setDock]
       have hp2 : (x, s) ≠ facetMate (g, a) := fun e => hxh (congrArg Prod.fst e)
       if hxg : x = g then
         rw [ite_eq_left hxg]; unfold setSlot
@@ -1122,11 +407,12 @@ private theorem cf_lookup_swapFacetEdge (g : Mat5) (a : Fin 24) (c : HoneycombCo
         have hp1 : (x, s) ≠ (g, a) := fun e => hxg (congrArg Prod.fst e)
         rw [ite_eq_right hxg, ite_eq_right hp1, ite_eq_right hp2]
 
-private theorem cf_swapFacetEdge_inv (g : Mat5) (a : Fin 24) (c : HoneycombConfig) :
+-- [helper]
+theorem cf_swapFacetEdge_inv (g : Mat5) (a : Fin 24) (c : HoneycombConfig) :
     swapFacetEdge g a (swapFacetEdge g a c) = c := by
   have hne : (mat5Mul g (transport a), oppSlot a) ≠ (g, a) := cf_facetMate_ne (g, a)
   have hFm : (mat5Mul g (transport a), oppSlot a) = facetMate (g, a) := rfl
-  apply cf_honeycombConfig_ext; intro x; funext s
+  apply honeycombConfig_ext; intro x; funext s
   rw [cf_lookup_swapFacetEdge, cf_lookup_swapFacetEdge, cf_lookup_swapFacetEdge, cf_lookup_swapFacetEdge]
   if h1 : (x, s) = (g, a) then
     have hEq : c.lookup g a = c.lookup x s := by
@@ -1150,7 +436,7 @@ private theorem cf_swapFacetEdge_symm (g : Mat5) (a : Fin 24) (c : HoneycombConf
     congrArg Prod.fst hM
   have hOpp : oppSlot (oppSlot a) = a := (thm_24_facets_geometry.2.1 a).1
   have hF : (mat5Mul g (transport a), oppSlot a) = facetMate (g, a) := rfl
-  apply cf_honeycombConfig_ext; intro x; funext s
+  apply honeycombConfig_ext; intro x; funext s
   rw [cf_lookup_swapFacetEdge, cf_lookup_swapFacetEdge, hM, hBack, hOpp, hF]
   if h1 : (x, s) = (g, a) then
     have hne : (x, s) ≠ facetMate (g, a) := by rw [h1]; exact (cf_facetMate_ne (g, a)).symm
@@ -1181,7 +467,7 @@ private theorem cf_swapFacetEdge_comm (g₁ g₂ : Mat5) (a₁ a₂ : Fin 24)
   have hd4' : (mat5Mul g₁ (transport a₁), oppSlot a₁) ≠ facetMate (g₂, a₂) := hd4
   have hd2' : (mat5Mul g₂ (transport a₂), oppSlot a₂) ≠ (g₁, a₁) := hd2.symm
   have hd4'' : (mat5Mul g₂ (transport a₂), oppSlot a₂) ≠ facetMate (g₁, a₁) := hd4.symm
-  apply cf_honeycombConfig_ext; intro x; funext s
+  apply honeycombConfig_ext; intro x; funext s
   rw [cf_lookup_swapFacetEdge]
   if hx1 : (x, s) = (g₁, a₁) then
     have hn3 : (x, s) ≠ (g₂, a₂) := by rw [hx1]; exact hd1
@@ -1282,11 +568,11 @@ private theorem cf_lookup_applyEdgeSwaps (es : List FacetEdge) (hnd : IsNodup es
         cases hm : memBool (edgeOfSlot e.v e.oppA) rest with
         | false => rfl
         | true =>
-          have hIn := (cf_memBool_eq_true_iff _ _).mp hm
+          have hIn := (memBool_eq_true_iff _ _).mp hm
           rw [cf_edgeOfSlot_mate_self] at hIn; exact absurd hIn hnot
       rw [ite_eq_left h1, ite_eq_left hMem]
       change (applyEdgeSwaps rest c).lookup e.v e.oppA = c.lookup (mat5Mul g (transport a)) (oppSlot a)
-      rw [ih e.v e.oppA, hNotM, cf_ite_bool_false]
+      rw [ih e.v e.oppA, hNotM, ite_bool_false]
       have hg : g = e.u := congrArg Prod.fst h1
       have ha : a = e.a := congrArg Prod.snd h1
       rw [hg, ha]; rfl
@@ -1301,9 +587,9 @@ private theorem cf_lookup_applyEdgeSwaps (es : List FacetEdge) (hnd : IsNodup es
         cases hm : memBool (edgeOfSlot e.u e.a) rest with
         | false => rfl
         | true =>
-          have hIn := (cf_memBool_eq_true_iff _ _).mp hm
+          have hIn := (memBool_eq_true_iff _ _).mp hm
           rw [cf_edgeOfSlot_self] at hIn; exact absurd hIn hnot
-      rw [ite_eq_right h1, ite_eq_left h2, ite_eq_left hMem, ih e.u e.a, hNotU, cf_ite_bool_false]
+      rw [ite_eq_right h1, ite_eq_left h2, ite_eq_left hMem, ih e.u e.a, hNotU, ite_bool_false]
       have hBack : facetMate (g, a) = (e.u, e.a) := by rw [h2]; exact cf_facetMate_inv (e.u, e.a)
       have hg : mat5Mul g (transport a) = e.u := congrArg Prod.fst hBack
       have ha : oppSlot a = e.a := congrArg Prod.snd hBack
@@ -1343,16 +629,16 @@ theorem thm_cf_stream_eq_rev_comp_edge_swap (c : HoneycombConfig) (es : List Fac
       (∀ ψ : FockVec NinthLoc6 HoneycombConfig, fockStream ψ c = fockRev (applyEdgeOps es' ψ) c) := by
     intro es' hnd' hcov'
     have hS : streamConfig c = revConfig (applyEdgeSwaps es' c) := by
-      apply cf_honeycombConfig_ext; intro g; funext a
-      rw [cf_lookup_streamConfig, cf_lookup_revConfig]
+      apply honeycombConfig_ext; intro g; funext a
+      rw [lookup_streamConfig, lookup_revConfig]
       unfold revFullDock
       rw [cf_lookup_applyEdgeSwaps es' hnd' c g (oppSlot a)]
       cases hm : memBool (edgeOfSlot g (oppSlot a)) es' with
-      | true => rw [cf_ite_bool_true, (thm_24_facets_geometry.2.1 a).1]
+      | true => rw [ite_bool_true, (thm_24_facets_geometry.2.1 a).1]
       | false =>
-        rw [cf_ite_bool_false]
+        rw [ite_bool_false]
         have hNot1 : g ∉ c.activeDocks := fun hg => by
-          have ht := (cf_memBool_eq_true_iff _ _).mpr (hcov' g hg (oppSlot a))
+          have ht := (memBool_eq_true_iff _ _).mpr (hcov' g hg (oppSlot a))
           rw [hm] at ht; exact Bool.noConfusion ht
         have hNot2 : mat5Mul g (transport (oppSlot a)) ∉ c.activeDocks := fun hg => by
           have hIn := hcov' (mat5Mul g (transport (oppSlot a))) hg a
@@ -1361,110 +647,94 @@ theorem thm_cf_stream_eq_rev_comp_edge_swap (c : HoneycombConfig) (es : List Fac
                 edgeOfSlot g (oppSlot a) := cf_edgeOfSlot_mate (g, oppSlot a)
             rw [(thm_24_facets_geometry.2.1 a).1] at hM; exact hM
           rw [hEq] at hIn
-          have ht := (cf_memBool_eq_true_iff _ _).mpr hIn
+          have ht := (memBool_eq_true_iff _ _).mpr hIn
           rw [hm] at ht; exact Bool.noConfusion ht
         have hE1 : c.lookup g = v1FullDock := by
-          if h : c.lookup g = v1FullDock then exact h else exact absurd ((cf_mem_activeDocks_iff c g).mpr h) hNot1
+          if h : c.lookup g = v1FullDock then exact h else exact absurd ((mem_activeDocks_iff c g).mpr h) hNot1
         have hE2 : c.lookup (mat5Mul g (transport (oppSlot a))) = v1FullDock := by
           if h : c.lookup (mat5Mul g (transport (oppSlot a))) = v1FullDock then exact h
-          else exact absurd ((cf_mem_activeDocks_iff c _).mpr h) hNot2
+          else exact absurd ((mem_activeDocks_iff c _).mpr h) hNot2
         rw [hE1, hE2]; rfl
     have hSInv : streamConfigInv c = applyEdgeSwaps es' (revConfig c) := by
-      apply cf_honeycombConfig_ext; intro g; funext a
-      rw [cf_lookup_streamConfigInv, cf_lookup_applyEdgeSwaps es' hnd' (revConfig c) g a]
+      apply honeycombConfig_ext; intro g; funext a
+      rw [lookup_streamConfigInv, cf_lookup_applyEdgeSwaps es' hnd' (revConfig c) g a]
       cases hm : memBool (edgeOfSlot g a) es' with
       | true =>
-        rw [cf_ite_bool_true, cf_lookup_revConfig]; unfold revFullDock
+        rw [ite_bool_true, lookup_revConfig]; unfold revFullDock
         rw [(thm_24_facets_geometry.2.1 a).1]
       | false =>
-        rw [cf_ite_bool_false, cf_lookup_revConfig]; unfold revFullDock
+        rw [ite_bool_false, lookup_revConfig]; unfold revFullDock
         have hNot1 : g ∉ c.activeDocks := fun hg => by
-          have ht := (cf_memBool_eq_true_iff _ _).mpr (hcov' g hg a)
+          have ht := (memBool_eq_true_iff _ _).mpr (hcov' g hg a)
           rw [hm] at ht; exact Bool.noConfusion ht
         have hNot2 : mat5Mul g (transport a) ∉ c.activeDocks := fun hg => by
           have hIn := hcov' (mat5Mul g (transport a)) hg (oppSlot a)
           have hEq : edgeOfSlot (mat5Mul g (transport a)) (oppSlot a) = edgeOfSlot g a :=
             cf_edgeOfSlot_mate (g, a)
           rw [hEq] at hIn
-          have ht := (cf_memBool_eq_true_iff _ _).mpr hIn
+          have ht := (memBool_eq_true_iff _ _).mpr hIn
           rw [hm] at ht; exact Bool.noConfusion ht
         have hE1 : c.lookup g = v1FullDock := by
-          if h : c.lookup g = v1FullDock then exact h else exact absurd ((cf_mem_activeDocks_iff c g).mpr h) hNot1
+          if h : c.lookup g = v1FullDock then exact h else exact absurd ((mem_activeDocks_iff c g).mpr h) hNot1
         have hE2 : c.lookup (mat5Mul g (transport a)) = v1FullDock := by
           if h : c.lookup (mat5Mul g (transport a)) = v1FullDock then exact h
-          else exact absurd ((cf_mem_activeDocks_iff c _).mpr h) hNot2
+          else exact absurd ((mem_activeDocks_iff c _).mpr h) hNot2
         rw [hE1, hE2]; rfl
     refine ⟨hS, hSInv, fun ψ => ?_⟩
-    unfold fockRev; rw [cf_fockStream_eval, cf_applyEdgeOps_eval, hSInv]
+    unfold fockRev; rw [fockStream_eval, cf_applyEdgeOps_eval, hSInv]
   have h1 := hMain es hnd hcov
   have hActCov : ∀ g : Mat5, g ∈ c.activeDocks → ∀ a : Fin 24, edgeOfSlot g a ∈ activeEdges c :=
-    fun g hg a => (cf_mem_dedupList _ _).mpr
-      ((cf_mem_flatMapList_iff _ _ _).mpr ⟨g, hg, (cf_mem_map_iff _ _ _).mpr ⟨a, cf_mem_finRange24 a, rfl⟩⟩)
-  have h2 := hMain (activeEdges c) (cf_isNodup_dedupList _) hActCov
+    fun g hg a => (mem_dedupList _ _).mpr
+      ((mem_flatMapList_iff _ _ _).mpr ⟨g, hg, (mem_map_iff _ _ _).mpr ⟨a, mem_finRange24 a, rfl⟩⟩)
+  have h2 := hMain (activeEdges c) (isNodup_dedupList _) hActCov
   exact ⟨h1.1, h1.2.1, h1.2.2, h2.1, h2.2.2⟩
 
 /-! ### Exact 1-Dock Finite-Stencil Operators (`L_g`, `R_g`, `W_g = L_g ∘ R_g`) on Infinite `{3,4,3,4}` -/
 
-private def cf_sumNloc {α : Type} : List α → (α → NinthLoc6) → NinthLoc6
-  | [], _ => NinthLoc6.zero
-  | x :: xs, f => NinthLoc6.add (f x) (cf_sumNloc xs f)
 
 private theorem cf_sumNloc_zero_of_all_zero {α : Type} (xs : List α) (f : α → NinthLoc6)
-    (h : ∀ x, x ∈ xs → f x = NinthLoc6.zero) : cf_sumNloc xs f = NinthLoc6.zero := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih =>
-    simp only [cf_sumNloc]
-    rw [h x (List.Mem.head rest), cf_nloc_zero_add]
-    exact ih (fun y hy => h y (List.Mem.tail x hy))
+    (h : ∀ x, x ∈ xs → f x = NinthLoc6.zero) : sumList xs f = NinthLoc6.zero :=
+  sumList_zero_of_all_zero xs f h
 
 private theorem cf_sumNloc_congr {α : Type} (xs : List α) (f g : α → NinthLoc6)
-    (h : ∀ x, x ∈ xs → f x = g x) : cf_sumNloc xs f = cf_sumNloc xs g := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih =>
-    simp only [cf_sumNloc]
-    rw [h x (List.Mem.head rest), ih (fun y hy => h y (List.Mem.tail x hy))]
+    (h : ∀ x, x ∈ xs → f x = g x) : sumList xs f = sumList xs g :=
+  sumList_congr xs f g h
 
 private theorem cf_sumNloc_append {α : Type} (xs ys : List α) (f : α → NinthLoc6) :
-    cf_sumNloc (xs ++ ys) f = NinthLoc6.add (cf_sumNloc xs f) (cf_sumNloc ys f) := by
+    sumList (xs ++ ys) f = NinthLoc6.add (sumList xs f) (sumList ys f) := by
   induction xs with
-  | nil => simp only [List.nil_append, cf_sumNloc, cf_nloc_zero_add]
-  | cons x rest ih => simp only [List.cons_append, cf_sumNloc]; rw [ih, cf_nloc_add_assoc]
+  | nil => simp only [List.nil_append, sumList]; exact (NinthLoc6.zero_add _).symm
+  | cons x rest ih =>
+    simp only [List.cons_append, sumList]
+    change NinthLoc6.add (f x) (sumList (rest ++ ys) f) =
+      NinthLoc6.add (NinthLoc6.add (f x) (sumList rest f)) (sumList ys f)
+    rw [ih, NinthLoc6.add_assoc]
 
 private theorem cf_sumNloc_map {α β : Type} (xs : List α) (g : α → β) (f : β → NinthLoc6) :
-    cf_sumNloc (xs.map g) f = cf_sumNloc xs (fun x => f (g x)) := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih => simp only [List.map, cf_sumNloc]; rw [ih]
+    sumList (xs.map g) f = sumList xs (fun x => f (g x)) :=
+  sumList_map xs g f
 
 private theorem cf_sumNloc_mul_left {α : Type} (xs : List α) (c : NinthLoc6) (f : α → NinthLoc6) :
-    cf_sumNloc xs (fun x => NinthLoc6.mul c (f x)) = NinthLoc6.mul c (cf_sumNloc xs f) := by
-  induction xs with
-  | nil => simp only [cf_sumNloc]; exact (cf_nloc_mul_zero c).symm
-  | cons x rest ih => simp only [cf_sumNloc]; rw [ih, ← cf_nloc_mul_add]
+    sumList xs (fun x => NinthLoc6.mul c (f x)) = NinthLoc6.mul c (sumList xs f) :=
+  sumList_mul_left xs c f
 
 private theorem cf_sumNloc_add {α : Type} (xs : List α) (f g : α → NinthLoc6) :
-    cf_sumNloc xs (fun x => NinthLoc6.add (f x) (g x)) =
-      NinthLoc6.add (cf_sumNloc xs f) (cf_sumNloc xs g) := by
-  induction xs with
-  | nil => simp only [cf_sumNloc]; exact (cf_nloc_add_zero _).symm
-  | cons x rest ih =>
-    simp only [cf_sumNloc]; rw [ih]
-    rw [cf_nloc_add_assoc (f x) (g x) (NinthLoc6.add (cf_sumNloc rest f) (cf_sumNloc rest g)),
-        ← cf_nloc_add_assoc (g x) (cf_sumNloc rest f) (cf_sumNloc rest g),
-        cf_nloc_add_comm (g x) (cf_sumNloc rest f),
-        cf_nloc_add_assoc (cf_sumNloc rest f) (g x) (cf_sumNloc rest g),
-        ← cf_nloc_add_assoc (f x) (cf_sumNloc rest f)]
+    sumList xs (fun x => NinthLoc6.add (f x) (g x)) = NinthLoc6.add (sumList xs f) (sumList xs g) :=
+  sumList_add xs f g
 
 private theorem cf_sumNloc_swap {α β : Type} (xs : List α) (ys : List β) (f : α → β → NinthLoc6) :
-    cf_sumNloc xs (fun x => cf_sumNloc ys (fun y => f x y)) =
-      cf_sumNloc ys (fun y => cf_sumNloc xs (fun x => f x y)) := by
+    sumList xs (fun x => sumList ys (fun y => f x y)) =
+      sumList ys (fun y => sumList xs (fun x => f x y)) := by
   induction xs with
   | nil =>
-    simp only [cf_sumNloc]
+    simp only [sumList]
     exact (cf_sumNloc_zero_of_all_zero ys (fun _ => NinthLoc6.zero) (fun _ _ => rfl)).symm
-  | cons x rest ih => simp only [cf_sumNloc]; rw [ih, ← cf_sumNloc_add]
+  | cons x rest ih =>
+    simp only [sumList]
+    change NinthLoc6.add (sumList ys (fun y => f x y)) (sumList rest (fun x => sumList ys (fun y => f x y))) = _
+    rw [ih, ← cf_sumNloc_add]
+    rfl
+
 
 /-- Single-dock Fock operator `FockVec NinthLoc6 FullDock → FockVec NinthLoc6 FullDock`. -/
 abbrev DockOp := FockVec NinthLoc6 FullDock → FockVec NinthLoc6 FullDock
@@ -1473,7 +743,7 @@ abbrev DockOp := FockVec NinthLoc6 FullDock → FockVec NinthLoc6 FullDock
 abbrev DockStencil := FullDock → List (NinthLoc6 × FullDock)
 
 def applyStencil (S : DockStencil) (φ : FockVec NinthLoc6 FullDock) (d : FullDock) : NinthLoc6 :=
-  cf_sumNloc (S d) (fun p => NinthLoc6.mul p.1 (φ p.2))
+  sumList (S d) (fun p => NinthLoc6.mul p.1 (φ p.2))
 
 def idStencil (d : FullDock) : List (NinthLoc6 × FullDock) := [(NinthLoc6.one, d)]
 
@@ -1492,24 +762,24 @@ def liftDockOp (g : Mat5) (T : DockOp) (ψ : FockVec NinthLoc6 HoneycombConfig)
 
 private theorem cf_applyStencil_id (φ : FockVec NinthLoc6 FullDock) (d : FullDock) :
     applyStencil idStencil φ d = φ d := by
-  simp only [applyStencil, idStencil, cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+  simp only [applyStencil, idStencil, sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
 
 private theorem cf_applyStencil_comp (S₁ S₂ : DockStencil)
     (φ : FockVec NinthLoc6 FullDock) (d : FullDock) :
     applyStencil (compStencil S₁ S₂) φ d = applyStencil S₁ (applyStencil S₂ φ) d := by
   unfold applyStencil compStencil
   have hAux : ∀ xs : List (NinthLoc6 × FullDock),
-      cf_sumNloc (flatMapList (fun p => (S₂ p.2).map (fun q => (NinthLoc6.mul p.1 q.1, q.2))) xs)
+      sumList (flatMapList (fun p => (S₂ p.2).map (fun q => (NinthLoc6.mul p.1 q.1, q.2))) xs)
         (fun r => NinthLoc6.mul r.1 (φ r.2)) =
-      cf_sumNloc xs (fun p => NinthLoc6.mul p.1 (cf_sumNloc (S₂ p.2) (fun q => NinthLoc6.mul q.1 (φ q.2)))) := by
+      sumList xs (fun p => NinthLoc6.mul p.1 (sumList (S₂ p.2) (fun q => NinthLoc6.mul q.1 (φ q.2)))) := by
     intro xs
     induction xs with
     | nil => rfl
     | cons p rest ih =>
-      simp only [flatMapList, cf_sumNloc_append, cf_sumNloc_map, cf_sumNloc]
+      simp only [flatMapList, cf_sumNloc_append, cf_sumNloc_map, sumList]
       rw [ih, ← cf_sumNloc_mul_left]
       apply congrArg (fun z => NinthLoc6.add z _)
-      apply cf_sumNloc_congr; intro q _; exact cf_nloc_mul_assoc p.1 q.1 (φ q.2)
+      apply cf_sumNloc_congr; intro q _; exact NinthLoc6.mul_assoc p.1 q.1 (φ q.2)
   exact hAux (S₁ d)
 
 private theorem cf_liftDockOp_comp (g : Mat5) (T₁ T₂ : DockOp)
@@ -1521,9 +791,9 @@ private theorem cf_liftDockOp_comp (g : Mat5) (T₁ T₂ : DockOp)
     funext d
     change liftDockOp g T₂ ψ (c.setDock g d) = T₂ (dockSlice g c ψ) d
     unfold liftDockOp
-    rw [cf_lookup_setDock, ite_eq_left rfl]
+    rw [lookup_setDock, ite_eq_left rfl]
     have hEq : dockSlice g (c.setDock g d) ψ = dockSlice g c ψ := by
-      funext d'; unfold dockSlice; exact congrArg ψ (cf_setDock_setDock_same c g d d')
+      funext d'; unfold dockSlice; exact congrArg ψ (setDock_setDock_same c g d d')
     rw [hEq]
   rw [hSl]
 
@@ -1532,23 +802,23 @@ private theorem cf_liftDockOp_comm_sites (g₁ g₂ : Mat5) (S₁ S₂ : DockSte
     liftDockOp g₁ (applyStencil S₁) (liftDockOp g₂ (applyStencil S₂) ψ) =
       liftDockOp g₂ (applyStencil S₂) (liftDockOp g₁ (applyStencil S₁) ψ) := by
   funext c; unfold liftDockOp applyStencil dockSlice; dsimp only
-  have hL : cf_sumNloc (S₁ (c.lookup g₁)) (fun p =>
-        NinthLoc6.mul p.1 (cf_sumNloc (S₂ ((c.setDock g₁ p.2).lookup g₂))
+  have hL : sumList (S₁ (c.lookup g₁)) (fun p =>
+        NinthLoc6.mul p.1 (sumList (S₂ ((c.setDock g₁ p.2).lookup g₂))
           (fun q => NinthLoc6.mul q.1 (ψ ((c.setDock g₁ p.2).setDock g₂ q.2))))) =
-      cf_sumNloc (S₁ (c.lookup g₁)) (fun p => cf_sumNloc (S₂ (c.lookup g₂)) (fun q =>
+      sumList (S₁ (c.lookup g₁)) (fun p => sumList (S₂ (c.lookup g₂)) (fun q =>
         NinthLoc6.mul (NinthLoc6.mul p.1 q.1) (ψ ((c.setDock g₁ p.2).setDock g₂ q.2)))) := by
     apply cf_sumNloc_congr; intro p _
-    rw [cf_lookup_setDock, ite_eq_right hne.symm, ← cf_sumNloc_mul_left]
-    apply cf_sumNloc_congr; intro q _; rw [cf_nloc_mul_assoc]
-  have hR : cf_sumNloc (S₂ (c.lookup g₂)) (fun q =>
-        NinthLoc6.mul q.1 (cf_sumNloc (S₁ ((c.setDock g₂ q.2).lookup g₁))
+    rw [lookup_setDock, ite_eq_right hne.symm, ← cf_sumNloc_mul_left]
+    apply cf_sumNloc_congr; intro q _; rw [NinthLoc6.mul_assoc]
+  have hR : sumList (S₂ (c.lookup g₂)) (fun q =>
+        NinthLoc6.mul q.1 (sumList (S₁ ((c.setDock g₂ q.2).lookup g₁))
           (fun p => NinthLoc6.mul p.1 (ψ ((c.setDock g₂ q.2).setDock g₁ p.2))))) =
-      cf_sumNloc (S₂ (c.lookup g₂)) (fun q => cf_sumNloc (S₁ (c.lookup g₁)) (fun p =>
+      sumList (S₂ (c.lookup g₂)) (fun q => sumList (S₁ (c.lookup g₁)) (fun p =>
         NinthLoc6.mul (NinthLoc6.mul p.1 q.1) (ψ ((c.setDock g₁ p.2).setDock g₂ q.2)))) := by
     apply cf_sumNloc_congr; intro q _
-    rw [cf_lookup_setDock, ite_eq_right hne, ← cf_sumNloc_mul_left]
+    rw [lookup_setDock, ite_eq_right hne, ← cf_sumNloc_mul_left]
     apply cf_sumNloc_congr; intro p _
-    rw [← cf_nloc_mul_assoc, cf_nloc_mul_comm q.1 p.1, cf_setDock_setDock_comm c g₁ g₂ p.2 q.2 hne]
+    rw [← NinthLoc6.mul_assoc, NinthLoc6.mul_comm q.1 p.1, setDock_setDock_comm c g₁ g₂ p.2 q.2 hne]
   rw [hL, hR, cf_sumNloc_swap]
 
 private theorem cf_liftDockOp_comm_disjoint_edge (g : Mat5) (T : DockOp) (e : FacetEdge)
@@ -1561,19 +831,19 @@ private theorem cf_liftDockOp_comm_disjoint_edge (g : Mat5) (T : DockOp) (e : Fa
     rw [ite_eq_right hp1, ite_eq_right hp2]
   have hSet : ∀ (c : HoneycombConfig) (d : FullDock),
       swapFacetEdge e.u e.a (c.setDock g d) = (swapFacetEdge e.u e.a c).setDock g d := by
-    intro c d; apply cf_honeycombConfig_ext; intro x; funext s
+    intro c d; apply honeycombConfig_ext; intro x; funext s
     rw [cf_lookup_swapFacetEdge]
     if hxg : x = g then
       have hp1 : (x, s) ≠ (e.u, e.a) := fun h => hnu (by rw [← hxg]; exact congrArg Prod.fst h)
       have hp2 : (x, s) ≠ facetMate (e.u, e.a) := fun h => hnv (by rw [← hxg]; exact congrArg Prod.fst h)
-      rw [ite_eq_right hp1, ite_eq_right hp2, cf_lookup_setDock, ite_eq_left hxg,
-          cf_lookup_setDock, ite_eq_left hxg]
+      rw [ite_eq_right hp1, ite_eq_right hp2, lookup_setDock, ite_eq_left hxg,
+          lookup_setDock, ite_eq_left hxg]
     else
       have hnv' : mat5Mul e.u (transport e.a) ≠ g := hnv.symm
-      rw [cf_lookup_setDock, ite_eq_right hnv',
-          cf_lookup_setDock, ite_eq_right hnu.symm,
-          cf_lookup_setDock, ite_eq_right hxg,
-          cf_lookup_setDock, ite_eq_right hxg,
+      rw [lookup_setDock, ite_eq_right hnv',
+          lookup_setDock, ite_eq_right hnu.symm,
+          lookup_setDock, ite_eq_right hxg,
+          lookup_setDock, ite_eq_right hxg,
           cf_lookup_swapFacetEdge]
   funext c
   change T (fun d => ψ (swapFacetEdge e.u e.a (c.setDock g d))) (c.lookup g) =
@@ -1642,10 +912,10 @@ private theorem cf_line_geom :
 
 private theorem cf_apply_revStencil (φ : FockVec NinthLoc6 FullDock) (d : FullDock) :
     applyStencil revStencil φ d = φ (revFullDock d) := by
-  simp only [applyStencil, revStencil, cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+  simp only [applyStencil, revStencil, sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
 
 private theorem cf_sumNloc_revStencil (φ : FockVec NinthLoc6 FullDock) (d : FullDock) :
-    cf_sumNloc (revStencil d) (fun p => NinthLoc6.mul p.1 (φ p.2)) = φ (revFullDock d) :=
+    sumList (revStencil d) (fun p => NinthLoc6.mul p.1 (φ p.2)) = φ (revFullDock d) :=
   cf_apply_revStencil φ d
 
 private def cf_RevComm (S : DockStencil) : Prop :=
@@ -1714,18 +984,18 @@ private theorem cf_rev_preserves_solePair (d : FullDock) :
       cases hL : (List.finRange 24).all (fun s => decide (s = lineA l ∨ s = lineB l ∨ d (oppSlot s) = .empty)) <;>
       cases hR : (List.finRange 24).all (fun s => decide (s = lineA l ∨ s = lineB l ∨ d s = .empty))
       · rfl
-      · exfalso; have hall := (cf_list_all_eq_true_iff _ _).mp hR
+      · exfalso; have hall := (list_all_eq_true_iff _ _).mp hR
         have hT : (List.finRange 24).all (fun s => decide (s = lineA l ∨ s = lineB l ∨ d (oppSlot s) = .empty)) = true := by
-          refine (cf_list_all_eq_true_iff _ _).mpr fun s _ => ?_
-          rcases of_decide_eq_true (hall (oppSlot s) (cf_mem_finRange24 _)) with hA | hB | hE
+          refine (list_all_eq_true_iff _ _).mpr fun s _ => ?_
+          rcases of_decide_eq_true (hall (oppSlot s) (mem_finRange24 _)) with hA | hB | hE
           · exact decide_eq_true (Or.inr (Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, hA, hAB])))
           · exact decide_eq_true (Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, hB, hBA]))
           · exact decide_eq_true (Or.inr (Or.inr hE))
         rw [hL] at hT; exact Bool.noConfusion hT
-      · exfalso; have hall := (cf_list_all_eq_true_iff _ _).mp hL
+      · exfalso; have hall := (list_all_eq_true_iff _ _).mp hL
         have hT : (List.finRange 24).all (fun s => decide (s = lineA l ∨ s = lineB l ∨ d s = .empty)) = true := by
-          refine (cf_list_all_eq_true_iff _ _).mpr fun s _ => ?_
-          have hS := hall (oppSlot s) (cf_mem_finRange24 _)
+          refine (list_all_eq_true_iff _ _).mpr fun s _ => ?_
+          have hS := hall (oppSlot s) (mem_finRange24 _)
           rw [(thm_24_facets_geometry.2.1 s).1] at hS
           rcases of_decide_eq_true hS with hA | hB | hE
           · exact decide_eq_true (Or.inr (Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, hA, hAB])))
@@ -1745,7 +1015,7 @@ private theorem cf_rev_preserves_solePair (d : FullDock) :
   cases hf : findSolePairLine d with
   | none => rw [hf] at hAct; exact Bool.noConfusion hAct
   | some l =>
-    have hSame := ((Bool.and_eq_true _ _).mp (cf_find?_eq_some_iff _ _ _ hf).2).1
+    have hSame := ((Bool.and_eq_true _ _).mp (find?_eq_some_iff _ _ _ hf).2).1
     have hEqAB : d (lineB l) = d (lineA l) := by
       unfold isSameSignEqRoleLine at hSame
       cases hA : d (lineA l) <;> cases hB : d (lineB l) <;> rw [hA, hB] at hSame
@@ -1773,7 +1043,7 @@ private theorem cf_revComm_vibeLocal (χ : ChiralInvariant) (g : Mat5) :
     cf_RevComm (vibeLocalStencil χ g) := by
   have hPhi : cf_RevComm (phiOddStencil χ g) := by
     intro φ d; rw [cf_apply_revStencil]
-    simp only [applyStencil, phiOddStencil, cf_sumNloc, cf_sumNloc_revStencil, χ.chi_rev d]
+    simp only [applyStencil, phiOddStencil, sumList, cf_sumNloc_revStencil, χ.chi_rev d]
   have hD : cf_RevComm halfCoinStencil := by
     apply cf_revComm_composeLines; intro l φ d
     have ⟨hAB, hBA, _⟩ := cf_line_geom.1 l
@@ -1788,11 +1058,11 @@ private theorem cf_revComm_vibeLocal (χ : ChiralInvariant) (g : Mat5) :
     dsimp only; rw [hFull, hLone]
     cases isLoneLine d l with
     | false =>
-      rw [cf_ite_bool_false, cf_ite_bool_false]
-      simp only [cf_sumNloc, cf_sumNloc_revStencil]
+      rw [ite_bool_false, ite_bool_false]
+      simp only [sumList, cf_sumNloc_revStencil]
     | true =>
-      rw [cf_ite_bool_true, cf_ite_bool_true]
-      simp only [cf_sumNloc, cf_sumNloc_revStencil, cf_revFullDock_swapLineSlots]
+      rw [ite_bool_true, ite_bool_true]
+      simp only [sumList, cf_sumNloc_revStencil, cf_revFullDock_swapLineSlots]
   have hK : cf_RevComm bounceKStencil := by
     apply cf_revComm_composeLines; intro l φ d
     have ⟨hAB, hBA, _⟩ := cf_line_geom.1 l
@@ -1805,8 +1075,8 @@ private theorem cf_revComm_vibeLocal (χ : ChiralInvariant) (g : Mat5) :
     unfold applyStencil lineBounceKStencil
     rw [hOpp]
     cases isOppSignLine d l with
-    | false => rw [cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc, cf_sumNloc_revStencil]
-    | true => rw [cf_ite_bool_true, cf_ite_bool_true]; simp only [cf_sumNloc, cf_sumNloc_revStencil, cf_revFullDock_swapLineSlots]
+    | false => rw [ite_bool_false, ite_bool_false]; simp only [sumList, cf_sumNloc_revStencil]
+    | true => rw [ite_bool_true, ite_bool_true]; simp only [sumList, cf_sumNloc_revStencil, cf_revFullDock_swapLineSlots]
   have hM : cf_RevComm meetStencil := by
     apply cf_revComm_composeLines; intro l φ d
     have ⟨hAB, hBA, _⟩ := cf_line_geom.1 l
@@ -1824,18 +1094,18 @@ private theorem cf_revComm_vibeLocal (χ : ChiralInvariant) (g : Mat5) :
     unfold applyStencil lineMeetStencil
     dsimp only; rw [hEqR, hDiffR]
     cases isSameSignDiffRoleLine d l with
-    | false => rw [cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc, cf_sumNloc_revStencil]
-    | true => rw [cf_ite_bool_true, cf_ite_bool_true]; simp only [cf_sumNloc, cf_sumNloc_revStencil, cf_revFullDock_swapLineRoles]
+    | false => rw [ite_bool_false, ite_bool_false]; simp only [sumList, cf_sumNloc_revStencil]
+    | true => rw [ite_bool_true, ite_bool_true]; simp only [sumList, cf_sumNloc_revStencil, cf_revFullDock_swapLineRoles]
   have hP : cf_RevComm mpairStencil := by
     intro φ d
     rw [cf_apply_revStencil]
     unfold applyStencil mpairStencil
     rw [(cf_rev_preserves_solePair d).1]
     cases ha : isSoleIdentPairDock d with
-    | false => rw [cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc, cf_sumNloc_revStencil]
+    | false => rw [ite_bool_false, ite_bool_false]; simp only [sumList, cf_sumNloc_revStencil]
     | true =>
-      rw [cf_ite_bool_true, cf_ite_bool_true]
-      simp only [cf_sumNloc, cf_sumNloc_map, cf_sumNloc_revStencil]
+      rw [ite_bool_true, ite_bool_true]
+      simp only [sumList, cf_sumNloc_map, cf_sumNloc_revStencil]
       apply congrArg (NinthLoc6.add _)
       apply cf_sumNloc_congr; intro m _
       rw [(cf_rev_preserves_solePair d).2 m ha]
@@ -1871,7 +1141,7 @@ theorem thm_cf_on_site_commutes_with_rev_and_disjoint_edge (χ : ChiralInvariant
   · intro g ψ; funext c
     change applyStencil (vibeLocalStencil χ g) (dockSlice g (revConfig c) ψ) ((revConfig c).lookup g) =
       applyStencil (vibeLocalStencil χ g) (dockSlice g c (fockRev ψ)) (c.lookup g)
-    rw [cf_lookup_revConfig]
+    rw [lookup_revConfig]
     have h1 : applyStencil (vibeLocalStencil χ g) (dockSlice g (revConfig c) ψ) (revFullDock (c.lookup g)) =
         applyStencil revStencil (applyStencil (vibeLocalStencil χ g) (dockSlice g (revConfig c) ψ)) (c.lookup g) :=
       (cf_apply_revStencil _ _).symm
@@ -1927,7 +1197,7 @@ private theorem cf_siteRevOp_inv (g : Mat5) (ψ : FockVec NinthLoc6 HoneycombCon
   unfold siteRevOp; rw [cf_liftDockOp_comp]; funext c
   change applyStencil revStencil (applyStencil revStencil (dockSlice g c ψ)) (c.lookup g) = ψ c
   rw [cf_apply_revStencil, cf_apply_revStencil, cf_revFullDock_inv]
-  exact congrArg ψ (cf_setDock_lookup_self c g)
+  exact congrArg ψ (setDock_lookup_self c g)
 
 private theorem cf_regionRevOp_inv (V : List Mat5) (ψ : FockVec NinthLoc6 HoneycombConfig) :
     regionRevOp V (regionRevOp V ψ) = ψ := by
@@ -1981,14 +1251,14 @@ private theorem cf_lookup_revOnSites (c : HoneycombConfig) (W : List Mat5) (hWnd
   induction hWnd with
   | nil => rfl
   | @cons w rest hnot _ ih =>
-    simp only [cf_revOnSites]; rw [cf_lookup_setDock]
+    simp only [cf_revOnSites]; rw [lookup_setDock]
     if hxw : x = w then
       have hMem : memBool x (w :: rest) = true := by simp only [memBool, ite_eq_left hxw.symm]
       have hNotR : memBool x rest = false := by
         cases hm : memBool x rest with
         | false => rfl
-        | true => rw [hxw] at hm; exact absurd ((cf_memBool_eq_true_iff w rest).mp hm) hnot
-      rw [ite_eq_left hMem, ite_eq_left hxw, ← hxw, ih, hNotR, cf_ite_bool_false]
+        | true => rw [hxw] at hm; exact absurd ((memBool_eq_true_iff w rest).mp hm) hnot
+      rw [ite_eq_left hMem, ite_eq_left hxw, ← hxw, ih, hNotR, ite_bool_false]
     else
       have hMem : memBool x (w :: rest) = memBool x rest := by
         simp only [memBool, ite_eq_right (Ne.symm hxw)]
@@ -2023,16 +1293,16 @@ theorem thm_cf_beat_factorization_R_Eswap_W (χ : ChiralInvariant)
       rw [cf_regionDressedOp_eq χ V]
   · intro hVnd hEnd c φ hVcov hEcov
     have hRevEq : cf_revOnSites V c = revConfig c := by
-      apply cf_honeycombConfig_ext; intro x
-      rw [cf_lookup_revOnSites c V hVnd x, cf_lookup_revConfig]
+      apply honeycombConfig_ext; intro x
+      rw [cf_lookup_revOnSites c V hVnd x, lookup_revConfig]
       cases hm : memBool x V with
-      | true => rw [cf_ite_bool_true]
+      | true => rw [ite_bool_true]
       | false =>
-        rw [cf_ite_bool_false]
+        rw [ite_bool_false]
         have h0 : c.lookup x = v1FullDock := by
           if h : c.lookup x = v1FullDock then exact h
           else
-            have ht := (cf_memBool_eq_true_iff x V).mpr (hVcov x ((cf_mem_activeDocks_iff c x).mpr h))
+            have ht := (memBool_eq_true_iff x V).mpr (hVcov x ((mem_activeDocks_iff c x).mpr h))
             rw [hm] at ht; exact Bool.noConfusion ht
         rw [h0]; rfl
     rw [cf_regionRevOp_eval, hRevEq]
@@ -2424,7 +1694,7 @@ private theorem cf_validCauchySchedule_mem {σ₀ σ₁ : CauchyCut} {π : List 
           constructor
           · intro hm
             cases hm with
-            | head => exact ⟨by rw [hEn.1]; exact Nat.le_refl n, by omega⟩
+            | head => exact ⟨by rw [hEn.1], by omega⟩
             | tail _ h' => have ⟨h1, h2⟩ := ih'.mp h'; exact ⟨by rw [hEn.1]; omega, h2⟩
           · intro ⟨h1, h2⟩
             rw [hEn.1] at h1
@@ -2462,7 +1732,7 @@ private theorem cf_validCauchySchedule_mem {σ₀ σ₁ : CauchyCut} {π : List 
           constructor
           · intro hm
             cases hm with
-            | head => exact ⟨by rw [hEn.1]; exact Nat.le_refl n, by omega⟩
+            | head => exact ⟨by rw [hEn.1], by omega⟩
             | tail _ h' => have ⟨h1, h2⟩ := ih'.mp h'; exact ⟨by rw [hEn.1]; omega, h2⟩
           · intro ⟨h1, h2⟩
             rw [hEn.1] at h1
@@ -2544,11 +1814,11 @@ private theorem cf_isCausalSchedule_append {Ev : Type} (dep : Ev → Ev → Prop
     refine IsCausalSchedule.cons ?_ ?_
       (ih (fun x hx => hDisj x (List.Mem.tail e hx)) (fun x y hx hy => hOrd x y (List.Mem.tail e hx) hy))
     · intro hm
-      rcases (cf_mem_append_iff rest π₂ e).mp hm with hR | h2m
+      rcases List.mem_append.mp hm with hR | h2m
       · exact hNot hR
       · exact hDisj e (List.Mem.head rest) h2m
     · intro u hu
-      rcases (cf_mem_append_iff rest π₂ u).mp hu with hR | h2m
+      rcases List.mem_append.mp hu with hR | h2m
       · exact hNoPred u hR
       · exact hOrd e u (List.Mem.head rest) h2m
 
@@ -2567,9 +1837,9 @@ private theorem cf_flatSchedule_valid (V : List Mat5) (E : List FacetEdge)
         | @cons g rest hnot _ ih =>
           simp only [List.map]
           refine IsCausalSchedule.cons ?_ ?_ ih
-          · intro hm; obtain ⟨x, hx, hEq⟩ := (cf_mem_map_iff _ rest _).mp hm
+          · intro hm; obtain ⟨x, hx, hEq⟩ := (mem_map_iff _ rest _).mp hm
             cases hEq; exact hnot hx
-          · intro u hu hdep; obtain ⟨_, _, hEq⟩ := (cf_mem_map_iff _ rest u).mp hu
+          · intro u hu hdep; obtain ⟨_, _, hEq⟩ := (mem_map_iff _ rest u).mp hu
             rw [← hEq] at hdep; unfold vibeDep at hdep; exact Nat.lt_irrefl t hdep.2
       exact hAux V hVnd
     have hE : IsCausalSchedule vibeDep (E.map (fun e => VibeEvent.edge e t)) := by
@@ -2580,24 +1850,24 @@ private theorem cf_flatSchedule_valid (V : List Mat5) (E : List FacetEdge)
         | @cons e rest hnot _ ih =>
           simp only [List.map]
           refine IsCausalSchedule.cons ?_ ?_ ih
-          · intro hm; obtain ⟨x, hx, hEq⟩ := (cf_mem_map_iff _ rest _).mp hm
+          · intro hm; obtain ⟨x, hx, hEq⟩ := (mem_map_iff _ rest _).mp hm
             cases hEq; exact hnot hx
-          · intro u hu hdep; obtain ⟨_, _, hEq⟩ := (cf_mem_map_iff _ rest u).mp hu
+          · intro u hu hdep; obtain ⟨_, _, hEq⟩ := (mem_map_iff _ rest u).mp hu
             rw [← hEq] at hdep; unfold vibeDep at hdep; exact Nat.lt_irrefl t hdep.2
       exact hAux E hEnd
     refine ⟨cf_isCausalSchedule_append vibeDep _ _ hV hE ?_ ?_, ?_⟩
     · intro x hx1 hx2
-      obtain ⟨_, _, hx1'⟩ := (cf_mem_map_iff _ V x).mp hx1
-      obtain ⟨_, _, hx2'⟩ := (cf_mem_map_iff _ E x).mp hx2
+      obtain ⟨_, _, hx1'⟩ := (mem_map_iff _ V x).mp hx1
+      obtain ⟨_, _, hx2'⟩ := (mem_map_iff _ E x).mp hx2
       rw [← hx1'] at hx2'; exact VibeEvent.noConfusion hx2'
     · intro x y hx hy hdep
-      obtain ⟨_, _, hx'⟩ := (cf_mem_map_iff _ V x).mp hx
-      obtain ⟨_, _, hy'⟩ := (cf_mem_map_iff _ E y).mp hy
+      obtain ⟨_, _, hx'⟩ := (mem_map_iff _ V x).mp hx
+      obtain ⟨_, _, hy'⟩ := (mem_map_iff _ E y).mp hy
       rw [← hx', ← hy'] at hdep; unfold vibeDep at hdep; exact Nat.lt_irrefl t hdep.2
     · intro ev hev
-      rcases (cf_mem_append_iff _ _ ev).mp hev with h1 | h2
-      · obtain ⟨_, _, hEq⟩ := (cf_mem_map_iff _ V ev).mp h1; rw [← hEq]; rfl
-      · obtain ⟨_, _, hEq⟩ := (cf_mem_map_iff _ E ev).mp h2; rw [← hEq]; rfl
+      rcases List.mem_append.mp hev with h1 | h2
+      · obtain ⟨_, _, hEq⟩ := (mem_map_iff _ V ev).mp h1; rw [← hEq]; rfl
+      · obtain ⟨_, _, hEq⟩ := (mem_map_iff _ E ev).mp h2; rw [← hEq]; rfl
   induction T with
   | zero => exact ⟨IsCausalSchedule.nil, fun _ h => nomatch h⟩
   | succ k ih =>
@@ -2613,7 +1883,7 @@ private theorem cf_flatSchedule_valid (V : List Mat5) (E : List FacetEdge)
       · have := hdep.2; omega
       · have := hdep.2; omega
     · intro ev hev
-      rcases (cf_mem_append_iff _ _ ev).mp hev with h1 | h2
+      rcases List.mem_append.mp hev with h1 | h2
       · have := ih.2 ev h1; omega
       · have := htK ev h2; omega
 
@@ -2639,6 +1909,7 @@ private theorem cf_exec_flatSchedule (χ : ChiralInvariant) (V : List Mat5) (E :
     rw [cf_execSchedule_append, ih, cf_execSchedule_append, hV, hE]
     rfl
 
+
 /-! ### Exact Bridge from Region Stencils & `flatSchedule` to Global `Vibe.FockBeat.fockBeat` -/
 
 private theorem cf_exists_false_of_all_false {α : Type} (p : α → Bool) (xs : List α)
@@ -2654,911 +1925,44 @@ private theorem cf_exists_false_of_all_false {α : Type} (p : α → Bool) (xs :
       obtain ⟨y, hy, hpy⟩ := ih h
       exact ⟨y, List.Mem.tail x hy, hpy⟩
 
-private theorem cf_exists_nonempty_of_ne_v1 (d : FullDock) (hne : d ≠ v1FullDock) :
-    ∃ a : Fin 24, d a ≠ .empty := by
-  cases hAll : (List.finRange 24).all (fun a => decide (d a = .empty)) with
-  | true =>
-    exfalso; apply hne; funext a
-    exact of_decide_eq_true ((cf_list_all_eq_true_iff _ _).mp hAll a (cf_mem_finRange24 a))
-  | false =>
-    obtain ⟨a, _, ha⟩ := cf_exists_false_of_all_false _ _ hAll
-    exact ⟨a, fun h => by rw [h] at ha; exact Bool.noConfusion ha⟩
-
-private theorem cf_mem_finRange12 (m : Fin 12) : m ∈ List.finRange 12 := by
-  have h12 : List.finRange 12 =
-      [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩,
-       ⟨4, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩, ⟨7, by decide⟩,
-       ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩] := by decide
-  rw [h12]
-  match m with
-  | ⟨0, _⟩ => exact List.Mem.head _
-  | ⟨1, _⟩ => exact List.Mem.tail _ (List.Mem.head _)
-  | ⟨2, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _))
-  | ⟨3, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _)))
-  | ⟨4, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _))))
-  | ⟨5, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _)))))
-  | ⟨6, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _))))))
-  | ⟨7, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _)))))))
-  | ⟨8, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _))))))))
-  | ⟨9, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _)))))))))
-  | ⟨10, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _))))))))))
-  | ⟨11, _⟩ => exact List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.tail _ (List.Mem.head _)))))))))))
-
-private theorem cf_find?_isSome_of_mem {α : Type} (p : α → Bool) (xs : List α) (a : α)
-    (hm : a ∈ xs) (hp : p a = true) : (xs.find? p).isSome = true := by
-  induction xs with
-  | nil => cases hm
-  | cons x _ ih =>
-    simp only [List.find?]
-    cases hpx : p x with
-    | true => rfl
-    | false =>
-      cases hm with
-      | head => rw [hpx] at hp; exact Bool.noConfusion hp
-      | tail _ h' => exact ih h'
-
-private theorem cf_activeDocks_eq_of_iff (c₁ c₂ : HoneycombConfig)
-    (h : ∀ x : Mat5, x ∈ c₁.activeDocks ↔ x ∈ c₂.activeDocks) : c₁.activeDocks = c₂.activeDocks := by
-  unfold HoneycombConfig.activeDocks at h ⊢
-  have hAux : ∀ (es₁ es₂ : List (Mat5 × FullDock)),
-      SortedEntries es₁ → SortedEntries es₂ →
-      (∀ x : Mat5, x ∈ es₁.map Prod.fst ↔ x ∈ es₂.map Prod.fst) →
-      es₁.map Prod.fst = es₂.map Prod.fst := by
-    intro es₁
-    induction es₁ with
-    | nil =>
-      intro es₂ _ _ hiff
-      cases es₂ with
-      | nil => rfl
-      | cons p _ => cases (hiff p.1).mpr (List.Mem.head _)
-    | cons p₁ r₁ ih =>
-      intro es₂ hs₁ hs₂ hiff
-      cases p₁ with | mk k₁ _ =>
-      cases es₂ with
-      | nil => cases (hiff k₁).mp (List.Mem.head _)
-      | cons p₂ r₂ =>
-        cases p₂ with | mk k₂ _ =>
-        simp only [List.map] at hiff ⊢
-        rcases cf_mat5Lt_trichotomy k₁ k₂ with hlt | heq | hgt
-        · cases (hiff k₁).mp (List.Mem.head _) with
-          | head => rw [cf_mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-          | tail _ hm =>
-            obtain ⟨q, hq, hqk⟩ := (cf_mem_map_iff Prod.fst r₂ k₁).mp hm
-            have hlt2 := hs₂.1 q hq; rw [hqk] at hlt2
-            have hf := cf_mat5Lt_asymm k₁ k₂ hlt; rw [hlt2] at hf; exact Bool.noConfusion hf
-        · have hr : r₁.map Prod.fst = r₂.map Prod.fst := by
-            apply ih r₂ hs₁.2 hs₂.2; intro x
-            constructor
-            · intro hx
-              have hxne : x ≠ k₁ := fun e => by
-                obtain ⟨q, hq, hqk⟩ := (cf_mem_map_iff Prod.fst r₁ x).mp hx
-                have hlt1 := hs₁.1 q hq; rw [hqk, e, cf_mat5Lt_irrefl] at hlt1; exact Bool.noConfusion hlt1
-              cases (hiff x).mp (List.Mem.tail k₁ hx) with
-              | head => exact absurd heq.symm hxne
-              | tail _ h' => exact h'
-            · intro hx
-              have hxne : x ≠ k₂ := fun e => by
-                obtain ⟨q, hq, hqk⟩ := (cf_mem_map_iff Prod.fst r₂ x).mp hx
-                have hlt2 := hs₂.1 q hq; rw [hqk, e, cf_mat5Lt_irrefl] at hlt2; exact Bool.noConfusion hlt2
-              cases (hiff x).mpr (List.Mem.tail k₂ hx) with
-              | head => exact absurd heq hxne
-              | tail _ h' => exact h'
-          rw [heq, hr]
-        · cases (hiff k₂).mpr (List.Mem.head _) with
-          | head => rw [cf_mat5Lt_irrefl] at hgt; exact Bool.noConfusion hgt
-          | tail _ hm =>
-            obtain ⟨q, hq, hqk⟩ := (cf_mem_map_iff Prod.fst r₁ k₂).mp hm
-            have hlt1 := hs₁.1 q hq; rw [hqk] at hlt1
-            have hf := cf_mat5Lt_asymm k₂ k₁ hgt; rw [hlt1] at hf; exact Bool.noConfusion hf
-  exact hAux c₁.entries c₂.entries c₁.sorted c₂.sorted h
-
-private theorem cf_activeDocks_setDock_eq (c : HoneycombConfig) (g : Mat5) (d : FullDock)
-    (hV1 : d = v1FullDock ↔ c.lookup g = v1FullDock) :
-    (c.setDock g d).activeDocks = c.activeDocks := by
-  apply cf_activeDocks_eq_of_iff; intro x
-  rw [cf_mem_activeDocks_iff, cf_mem_activeDocks_iff, cf_lookup_setDock]
-  if hxg : x = g then
-    rw [ite_eq_left hxg, hxg]
-    exact ⟨fun hne h0 => hne (hV1.mpr h0), fun hne h0 => hne (hV1.mp h0)⟩
-  else rw [ite_eq_right hxg]
-
-private theorem cf_nloc_conj_one : NinthLoc6.conj NinthLoc6.one = NinthLoc6.one :=
-  StarCommRing.conj_one
-
-private theorem cf_sumNloc_eq_sumList {α : Type} (xs : List α) (f : α → NinthLoc6) :
-    cf_sumNloc xs f = sumList xs f := by
-  induction xs with
-  | nil => rfl
-  | cons _ _ ih => simp only [cf_sumNloc, sumList]; exact congrArg (NinthLoc6.add _) ih
-
-private theorem cf_swapLineSlotsDock_inv (l : Fin 12) (d : FullDock) :
-    swapLineSlotsDock l (swapLineSlotsDock l d) = d := by
-  have hne := (cf_line_geom.1 l).2.2
-  funext s; unfold swapLineSlotsDock
-  if hA : s = lineA l then simp only [hA, ite_true, ite_eq_right hne.symm]
-  else if hB : s = lineB l then simp only [hB, ite_true, ite_eq_right hne.symm]
-  else simp only [ite_eq_right hA, ite_eq_right hB]
-
-private theorem cf_swapLineSlotsDock_v1_iff (l : Fin 12) (d : FullDock) :
-    swapLineSlotsDock l d = v1FullDock ↔ d = v1FullDock := by
-  have hV1 : swapLineSlotsDock l v1FullDock = v1FullDock := by
-    funext s; unfold swapLineSlotsDock
-    if hA : s = lineA l then rw [ite_eq_left hA]; rfl
-    else if hB : s = lineB l then rw [ite_eq_right hA, ite_eq_left hB]; rfl
-    else rw [ite_eq_right hA, ite_eq_right hB]
-  exact ⟨fun h => by have := congrArg (swapLineSlotsDock l) h; rw [cf_swapLineSlotsDock_inv, hV1] at this; exact this,
-         fun h => by rw [h, hV1]⟩
-
-private theorem cf_swapLineRolesDock_inv (l : Fin 12) (d : FullDock) :
-    swapLineRolesDock l (swapLineRolesDock l d) = d := by
-  have hne := (cf_line_geom.1 l).2.2
-  funext s; unfold swapLineRolesDock
-  cases hA : d (lineA l) with
-  | empty => dsimp only; rw [hA]
-  | occ sA rA =>
-    cases hB : d (lineB l) with
-    | empty => dsimp only; rw [hA, hB]
-    | occ sB rB =>
-      dsimp only; rw [ite_eq_left rfl, ite_eq_right hne.symm, ite_eq_left rfl]
-      dsimp only
-      if hsA : s = lineA l then rw [ite_eq_left hsA, hsA, hA]
-      else if hsB : s = lineB l then rw [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]
-      else rw [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hsA, ite_eq_right hsB]
-
-private theorem cf_swapLineRolesDock_v1_iff (l : Fin 12) (d : FullDock) :
-    swapLineRolesDock l d = v1FullDock ↔ d = v1FullDock := by
-  constructor
-  · intro h
-    cases hA : d (lineA l) with
-    | empty =>
-      have hEq : swapLineRolesDock l d = d := by unfold swapLineRolesDock; rw [hA]
-      rw [hEq] at h; exact h
-    | occ sA rA =>
-      cases hB : d (lineB l) with
-      | empty =>
-        have hEq : swapLineRolesDock l d = d := by unfold swapLineRolesDock; rw [hA, hB]
-        rw [hEq] at h; exact h
-      | occ sB rB =>
-        have h0 := congrFun h (lineA l)
-        unfold swapLineRolesDock at h0; rw [hA, hB] at h0; dsimp only at h0
-        rw [ite_eq_left rfl] at h0; exact SlotState.noConfusion h0
-  · intro h; rw [h]; rfl
-
-private theorem cf_soleIdentPairAt_unique (d : FullDock) (l₁ l₂ : Fin 12)
-    (h1 : isSoleIdentPairAt d l₁ = true) (h2 : isSoleIdentPairAt d l₂ = true) : l₁ = l₂ := by
-  if heq : l₁ = l₂ then exact heq
-  else
-    unfold isSoleIdentPairAt at h1 h2
-    rw [Bool.and_eq_true] at h1 h2
-    have hAll1 := (cf_list_all_eq_true_iff _ _).mp h1.2 (lineA l₂) (cf_mem_finRange24 (lineA l₂))
-    have hDisj := cf_line_geom.2 l₁ l₂ heq
-    have hEmpty : d (lineA l₂) = .empty := by
-      rcases of_decide_eq_true hAll1 with hA | hB | hE
-      · exact absurd hA.symm hDisj.1
-      · exact absurd hB.symm hDisj.2.2.1
-      · exact hE
-    have hSame := h2.1
-    unfold isSameSignEqRoleLine at hSame; rw [hEmpty] at hSame; exact Bool.noConfusion hSame
-
-private theorem cf_findSolePairLine_of_at (d : FullDock) (l : Fin 12)
-    (h : isSoleIdentPairAt d l = true) : findSolePairLine d = some l := by
-  unfold findSolePairLine
-  have hSome := cf_find?_isSome_of_mem (fun k => isSoleIdentPairAt d k) (List.finRange 12) l (cf_mem_finRange12 l) h
-  cases hf : (List.finRange 12).find? (fun k => isSoleIdentPairAt d k) with
-  | none => rw [hf] at hSome; exact Bool.noConfusion hSome
-  | some k =>
-    have hk := (cf_find?_eq_some_iff _ _ _ hf).2
-    rw [cf_soleIdentPairAt_unique d k l hk h]
-
-private theorem cf_isSoleIdentPairAt_move (d : FullDock) (l m : Fin 12)
-    (hl : isSoleIdentPairAt d l = true) : isSoleIdentPairAt (moveSolePairDock m d) m = true := by
-  unfold moveSolePairDock; rw [cf_findSolePairLine_of_at d l hl]
-  have hSame := ((Bool.and_eq_true _ _).mp hl).1
-  unfold isSameSignEqRoleLine at hSame
-  cases hA : d (lineA l) with
-  | empty => rw [hA] at hSame; exact Bool.noConfusion hSame
-  | occ s r =>
-    unfold isSoleIdentPairAt isSameSignEqRoleLine
-    rw [Bool.and_eq_true]
-    refine ⟨?_, ?_⟩
-    · dsimp only
-      rw [ite_eq_left (Or.inl rfl), ite_eq_left (Or.inr rfl), hA]
-      exact decide_eq_true (p := s = s ∧ r = r) (And.intro rfl rfl)
-    · refine (cf_list_all_eq_true_iff _ _).mpr ?_
-      intro s' _
-      if hs : s' = lineA m ∨ s' = lineB m then
-        rcases hs with h1 | h2
-        · exact decide_eq_true (Or.inl h1)
-        · exact decide_eq_true (Or.inr (Or.inl h2))
-      else
-        exact decide_eq_true (Or.inr (Or.inr (by dsimp only; exact ite_eq_right hs)))
-
-private theorem cf_moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock d = true) :
-    (∀ m : Fin 12, isSoleIdentPairDock (moveSolePairDock m d) = true) ∧
-    (∀ m : Fin 12, solePairLine (moveSolePairDock m d) = m) ∧
-    (∀ m₁ m₂ : Fin 12, moveSolePairDock m₁ (moveSolePairDock m₂ d) = moveSolePairDock m₁ d) ∧
-    (moveSolePairDock (solePairLine d) d = d) ∧
-    (∀ m : Fin 12, moveSolePairDock m d ≠ v1FullDock) := by
-  unfold isSoleIdentPairDock at hAct
-  cases hf : findSolePairLine d with
-  | none => rw [hf] at hAct; exact Bool.noConfusion hAct
-  | some l =>
-    have hl : isSoleIdentPairAt d l = true := (cf_find?_eq_some_iff _ _ _ hf).2
-    have hSame := ((Bool.and_eq_true _ _).mp hl).1
-    have hAll := (cf_list_all_eq_true_iff _ _).mp ((Bool.and_eq_true _ _).mp hl).2
-    have hVal : ∃ (s : Sign) (r : Bool), d (lineA l) = .occ s r ∧ d (lineB l) = .occ s r := by
-      unfold isSameSignEqRoleLine at hSame
-      cases hA : d (lineA l) with
-      | empty => rw [hA] at hSame; exact Bool.noConfusion hSame
-      | occ sA rA =>
-        cases hB : d (lineB l) with
-        | empty => rw [hA, hB] at hSame; exact Bool.noConfusion hSame
-        | occ sB rB =>
-          rw [hA, hB] at hSame
-          have ⟨hs, hr⟩ := of_decide_eq_true hSame
-          exact ⟨sA, rA, rfl, by rw [← hs, ← hr]⟩
-    obtain ⟨_, _, hA0, hB0⟩ := hVal
-    have hMoveFind : ∀ m : Fin 12, findSolePairLine (moveSolePairDock m d) = some m :=
-      fun m => cf_findSolePairLine_of_at _ m (cf_isSoleIdentPairAt_move d l m hl)
-    have hSole : solePairLine d = l := by unfold solePairLine; rw [hf]; rfl
-    refine ⟨?_, ?_, ?_, ?_, ?_⟩
-    · intro m; unfold isSoleIdentPairDock; rw [hMoveFind m]; rfl
-    · intro m; unfold solePairLine; rw [hMoveFind m]; rfl
-    · intro m₁ m₂
-      have h1 : moveSolePairDock m₁ (moveSolePairDock m₂ d) =
-          fun s => if s = lineA m₁ ∨ s = lineB m₁ then (moveSolePairDock m₂ d) (lineA m₂) else .empty := by
-        change (match findSolePairLine (moveSolePairDock m₂ d) with
-          | none => moveSolePairDock m₂ d
-          | some k => fun s => if s = lineA m₁ ∨ s = lineB m₁ then (moveSolePairDock m₂ d) (lineA k) else .empty) = _
-        rw [hMoveFind m₂]
-      rw [h1]; funext s; unfold moveSolePairDock; rw [hf]; dsimp only; rw [ite_eq_left (Or.inl rfl)]
-    · rw [hSole]; funext s; unfold moveSolePairDock; rw [hf]; dsimp only
-      if hsA : s = lineA l then rw [ite_eq_left (Or.inl hsA), hsA]
-      else if hsB : s = lineB l then rw [ite_eq_left (Or.inr hsB), hsB, hA0, hB0]
-      else
-        rw [ite_eq_right (fun h => match h with | Or.inl h1 => hsA h1 | Or.inr h2 => hsB h2)]
-        rcases of_decide_eq_true (hAll s (cf_mem_finRange24 s)) with h1 | h2 | h3
-        · exact absurd h1 hsA
-        · exact absurd h2 hsB
-        · exact h3.symm
-    · intro m heq
-      have h0 := congrFun heq (lineA m)
-      unfold moveSolePairDock at h0; rw [hf] at h0; dsimp only at h0
-      rw [ite_eq_left (Or.inl rfl), hA0] at h0; exact SlotState.noConfusion h0
-
-private def cf_StencilPreservesActive (S : DockStencil) : Prop :=
-  (∀ (d : FullDock) (p : NinthLoc6 × FullDock), p ∈ S d → (p.2 = v1FullDock ↔ d = v1FullDock)) ∧
-  (∀ φ : FockVec NinthLoc6 FullDock, applyStencil S φ v1FullDock = φ v1FullDock)
-
-private theorem cf_stencilActive_comp {S₁ S₂ : DockStencil}
-    (h1 : cf_StencilPreservesActive S₁) (h2 : cf_StencilPreservesActive S₂) :
-    cf_StencilPreservesActive (compStencil S₁ S₂) := by
-  refine ⟨fun d r hr => ?_, fun φ => by rw [cf_applyStencil_comp, h1.2, h2.2]⟩
-  obtain ⟨p, hp, hq⟩ := (cf_mem_flatMapList_iff _ (S₁ d) r).mp hr
-  obtain ⟨q, hqIn, hEq⟩ := (cf_mem_map_iff _ (S₂ p.2) r).mp hq
-  rw [← hEq]; exact (h2.1 p.2 q hqIn).trans (h1.1 d p hp)
-
-private def cf_composeLineStencilsRev (f : Fin 12 → DockStencil) : List (Fin 12) → DockStencil
-  | [] => idStencil
-  | l :: ls => compStencil (cf_composeLineStencilsRev f ls) (f l)
-
-private theorem cf_stencilActive_composeLines (f : Fin 12 → DockStencil)
-    (hf : ∀ l : Fin 12, cf_StencilPreservesActive (f l)) (ls : List (Fin 12)) :
-    cf_StencilPreservesActive (composeLineStencils f ls) := by
-  induction ls with
-  | nil =>
-    refine ⟨fun _ _ hp => ?_, fun φ => cf_applyStencil_id φ v1FullDock⟩
-    cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-  | cons l _ ih => exact cf_stencilActive_comp (hf l) ih
-
-private theorem cf_stencilActive_composeLinesRev (f : Fin 12 → DockStencil)
-    (hf : ∀ l : Fin 12, cf_StencilPreservesActive (f l)) (ls : List (Fin 12)) :
-    cf_StencilPreservesActive (cf_composeLineStencilsRev f ls) := by
-  induction ls with
-  | nil =>
-    refine ⟨fun _ _ hp => ?_, fun φ => cf_applyStencil_id φ v1FullDock⟩
-    cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-  | cons l _ ih => exact cf_stencilActive_comp ih (hf l)
-
-private def cf_localSiteFamilyOfStencil
-    (U : Mat5 → FockUnitary NinthLoc6 HoneycombConfig)
-    (S Sdag : Mat5 → DockStencil)
-    (hOp : ∀ g ψ, (U g).op ψ = liftDockOp g (applyStencil (S g)) ψ)
-    (hDag : ∀ g ψ, (U g).dag ψ = liftDockOp g (applyStencil (Sdag g)) ψ)
-    (hAct : ∀ g, cf_StencilPreservesActive (S g))
-    (hActDag : ∀ g, cf_StencilPreservesActive (Sdag g)) : LocalSiteFamily where
-  unit := U
-  local_eq := fun g ψ₁ ψ₂ c h => by
-    rw [hOp g ψ₁, hOp g ψ₂]; unfold liftDockOp applyStencil dockSlice
-    apply cf_sumNloc_congr; intro p hp
-    have hAD := cf_activeDocks_setDock_eq c g p.2 ((hAct g).1 (c.lookup g) p hp)
-    rw [h (c.setDock g p.2) hAD (fun x hx => by rw [cf_lookup_setDock, ite_eq_right hx])]
-  local_dag_eq := fun g ψ₁ ψ₂ c h => by
-    rw [hDag g ψ₁, hDag g ψ₂]; unfold liftDockOp applyStencil dockSlice
-    apply cf_sumNloc_congr; intro p hp
-    have hAD := cf_activeDocks_setDock_eq c g p.2 ((hActDag g).1 (c.lookup g) p hp)
-    rw [h (c.setDock g p.2) hAD (fun x hx => by rw [cf_lookup_setDock, ite_eq_right hx])]
-  op_zero := fun g => by
-    funext c; rw [hOp g zeroVec]; unfold liftDockOp applyStencil dockSlice
-    exact cf_sumNloc_zero_of_all_zero _ _ (fun p _ => cf_nloc_mul_zero p.1)
-  dag_zero := fun g => by
-    funext c; rw [hDag g zeroVec]; unfold liftDockOp applyStencil dockSlice
-    exact cf_sumNloc_zero_of_all_zero _ _ (fun p _ => cf_nloc_mul_zero p.1)
-  idle_empty := fun g ψ c h0 => by
-    rw [hOp g ψ]; unfold liftDockOp; rw [h0, (hAct g).2]
-    unfold dockSlice; rw [← h0, cf_setDock_lookup_self]
-  idle_dag_empty := fun g ψ c h0 => by
-    rw [hDag g ψ]; unfold liftDockOp; rw [h0, (hActDag g).2]
-    unfold dockSlice; rw [← h0, cf_setDock_lookup_self]
-  comm_sites := fun g₁ g₂ ψ hne => by
-    rw [hOp g₁, hOp g₂, hOp g₂, hOp g₁]
-    exact cf_liftDockOp_comm_sites g₁ g₂ (S g₁) (S g₂) ψ hne
-  comm_dag_sites := fun g₁ g₂ ψ hne => by
-    rw [hDag g₁, hDag g₂, hDag g₂, hDag g₁]
-    exact cf_liftDockOp_comm_sites g₁ g₂ (Sdag g₁) (Sdag g₂) ψ hne
-
-private def cf_composeLines (f : Fin 12 → FockUnitary NinthLoc6 HoneycombConfig) :
-    List (Fin 12) → FockUnitary NinthLoc6 HoneycombConfig
-  | [] => FockUnitary.id
-  | l :: ls => FockUnitary.comp (f l) (cf_composeLines f ls)
-
 private theorem cf_composeLines_op (g : Mat5)
     (f : Fin 12 → FockUnitary NinthLoc6 HoneycombConfig) (S : Fin 12 → DockStencil)
     (hOp : ∀ l ψ, (f l).op ψ = liftDockOp g (applyStencil (S l)) ψ) (ls : List (Fin 12))
     (ψ : FockVec NinthLoc6 HoneycombConfig) :
-    (cf_composeLines f ls).op ψ = liftDockOp g (applyStencil (composeLineStencils S ls)) ψ := by
+    (composeLines f ls).op ψ = liftDockOp g (applyStencil (composeLineStencils S ls)) ψ := by
   induction ls generalizing ψ with
   | nil =>
     funext c
     change ψ c = liftDockOp g (applyStencil idStencil) ψ c
-    unfold liftDockOp; rw [cf_applyStencil_id]; unfold dockSlice; rw [cf_setDock_lookup_self]
+    unfold liftDockOp; rw [cf_applyStencil_id]; unfold dockSlice; rw [setDock_lookup_self]
   | cons l rest ih =>
-    change (f l).op ((cf_composeLines f rest).op ψ) =
+    change (f l).op ((composeLines f rest).op ψ) =
       liftDockOp g (applyStencil (compStencil (S l) (composeLineStencils S rest))) ψ
     rw [hOp l, ih, cf_liftDockOp_comp]; funext c
     change applyStencil (S l) (applyStencil (composeLineStencils S rest) (dockSlice g c ψ)) (c.lookup g) =
       applyStencil (compStencil (S l) (composeLineStencils S rest)) (dockSlice g c ψ) (c.lookup g)
     exact (cf_applyStencil_comp _ _ _ _).symm
 
-private theorem cf_composeLines_dag (g : Mat5)
-    (f : Fin 12 → FockUnitary NinthLoc6 HoneycombConfig) (Sdag : Fin 12 → DockStencil)
-    (hDag : ∀ l ψ, (f l).dag ψ = liftDockOp g (applyStencil (Sdag l)) ψ) (ls : List (Fin 12))
+private theorem cf_siteMPair_eq_liftStencil (g : Mat5)
     (ψ : FockVec NinthLoc6 HoneycombConfig) :
-    (cf_composeLines f ls).dag ψ = liftDockOp g (applyStencil (cf_composeLineStencilsRev Sdag ls)) ψ := by
-  induction ls generalizing ψ with
-  | nil =>
-    funext c
-    change ψ c = liftDockOp g (applyStencil idStencil) ψ c
-    unfold liftDockOp; rw [cf_applyStencil_id]; unfold dockSlice; rw [cf_setDock_lookup_self]
-  | cons l rest ih =>
-    change (cf_composeLines f rest).dag ((f l).dag ψ) =
-      liftDockOp g (applyStencil (compStencil (cf_composeLineStencilsRev Sdag rest) (Sdag l))) ψ
-    rw [ih, hDag l, cf_liftDockOp_comp]; funext c
-    change applyStencil (cf_composeLineStencilsRev Sdag rest) (applyStencil (Sdag l) (dockSlice g c ψ)) (c.lookup g) =
-      applyStencil (compStencil (cf_composeLineStencilsRev Sdag rest) (Sdag l)) (dockSlice g c ψ) (c.lookup g)
-    exact (cf_applyStencil_comp _ _ _ _).symm
-
-/-! #### Exact Mirror `LocalSiteFamily`s for All 5 Global `Vibe.FockBeat` On-Site Layers -/
-
-private def cf_phiOddDagStencil (χ : ChiralInvariant) (g : Mat5) (d : FullDock) :
-    List (NinthLoc6 × FullDock) :=
-  [(NinthLoc6.conj (NinthLoc6.zeta6Pow (dockParity g * χ.chi d)), d)]
-
-private def cf_sitePhiOddUnit (χ : ChiralInvariant) (g : Mat5) :
-    FockUnitary NinthLoc6 HoneycombConfig :=
-  phaseUnitary (R := NinthLoc6)
-    (fun c => NinthLoc6.zeta6Pow (dockParity g * χ.chi (c.lookup g)))
-    (fun _c => (thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.1 _).1)
-
-private def cf_phiOddFamily (χ : ChiralInvariant) : LocalSiteFamily :=
-  cf_localSiteFamilyOfStencil (cf_sitePhiOddUnit χ) (phiOddStencil χ) (cf_phiOddDagStencil χ)
-    (fun g ψ => by
-      funext c; change NinthLoc6.mul (NinthLoc6.zeta6Pow (dockParity g * χ.chi (c.lookup g))) (ψ c) = _
-      simp only [liftDockOp, applyStencil, phiOddStencil, dockSlice, cf_sumNloc]
-      rw [cf_setDock_lookup_self, cf_nloc_add_zero])
-    (fun g ψ => by
-      funext c; change NinthLoc6.mul (NinthLoc6.conj (NinthLoc6.zeta6Pow (dockParity g * χ.chi (c.lookup g)))) (ψ c) = _
-      simp only [liftDockOp, applyStencil, cf_phiOddDagStencil, dockSlice, cf_sumNloc]
-      rw [cf_setDock_lookup_self, cf_nloc_add_zero])
-    (fun g => by
-      refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
-      · cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-      · simp only [applyStencil, phiOddStencil, cf_sumNloc, χ.chi_v1, Int.mul_zero]
-        change NinthLoc6.add (NinthLoc6.mul NinthLoc6.one (φ v1FullDock)) NinthLoc6.zero = φ v1FullDock
-        rw [cf_nloc_one_mul, cf_nloc_add_zero])
-    (fun g => by
-      refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
-      · cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-      · simp only [applyStencil, cf_phiOddDagStencil, cf_sumNloc, χ.chi_v1, Int.mul_zero]
-        change NinthLoc6.add (NinthLoc6.mul (NinthLoc6.conj NinthLoc6.one) (φ v1FullDock)) NinthLoc6.zero = φ v1FullDock
-        rw [cf_nloc_conj_one, cf_nloc_one_mul, cf_nloc_add_zero])
-
-private def cf_lineBounceKPerm (g : Mat5) (l : Fin 12) (c : HoneycombConfig) : HoneycombConfig :=
-  if isOppSignLine (c.lookup g) l then swapLineSlotsConfig g l c else c
-
-private theorem cf_lineBounceKPerm_inv (g : Mat5) (l : Fin 12) (c : HoneycombConfig) :
-    cf_lineBounceKPerm g l (cf_lineBounceKPerm g l c) = c := by
-  unfold cf_lineBounceKPerm
-  cases h : isOppSignLine (c.lookup g) l with
-  | false => rw [ite_eq_right (by decide : false ≠ true), ite_eq_right (by rw [h]; decide)]
-  | true =>
-    rw [ite_eq_left rfl]
-    have hSwap : isOppSignLine ((swapLineSlotsConfig g l c).lookup g) l = true := by
-      unfold swapLineSlotsConfig; rw [cf_lookup_setDock, ite_eq_left rfl]
-      unfold isOppSignLine at h ⊢; unfold swapLineSlotsDock
-      have hne := (cf_line_geom.1 l).2.2
-      simp only [ite_true, ite_eq_right hne.symm]
-      cases hA : c.lookup g (lineA l) <;> cases hB : c.lookup g (lineB l) <;> rw [hA, hB] at h
-      all_goals try exact Bool.noConfusion h
-      exact decide_eq_true (fun e => (of_decide_eq_true h) e.symm)
-    rw [ite_eq_left hSwap]
-    unfold swapLineSlotsConfig
-    rw [cf_lookup_setDock, ite_eq_left rfl, cf_setDock_setDock_same, cf_swapLineSlotsDock_inv, cf_setDock_lookup_self]
-
-private def cf_lineBounceKUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 HoneycombConfig :=
-  FockUnitary.comp
-    (phaseUnitary (R := NinthLoc6)
-      (fun c => if isOppSignLine (c.lookup g) l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)
-      (fun c => by
-        cases isOppSignLine (c.lookup g) l with
-        | false => exact Quot.sound (by decide)
-        | true => exact Quot.sound (by decide)))
-    (permUnitary (R := NinthLoc6) (cf_lineBounceKPerm g l) (cf_lineBounceKPerm g l)
-      (cf_lineBounceKPerm_inv g l) (cf_lineBounceKPerm_inv g l))
-
-private def cf_siteBounceKUnit (g : Mat5) : FockUnitary NinthLoc6 HoneycombConfig :=
-  cf_composeLines (cf_lineBounceKUnit g) (List.finRange 12)
-
-private def cf_lineBounceKPermStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  if isOppSignLine d l then [(NinthLoc6.one, swapLineSlotsDock l d)] else [(NinthLoc6.one, d)]
-
-private def cf_lineBounceKPhaseDagStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  [(NinthLoc6.conj (if isOppSignLine d l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one), d)]
-
-private def cf_lineBounceKDagStencil (l : Fin 12) : DockStencil :=
-  compStencil (cf_lineBounceKPermStencil l) (cf_lineBounceKPhaseDagStencil l)
-
-private def cf_bounceKFamily : LocalSiteFamily :=
-  cf_localSiteFamilyOfStencil cf_siteBounceKUnit (fun _ => bounceKStencil)
-    (fun _ => cf_composeLineStencilsRev cf_lineBounceKDagStencil (List.finRange 12))
-    (fun g ψ => cf_composeLines_op g (cf_lineBounceKUnit g) lineBounceKStencil (fun l φ => by
-      funext c
-      change NinthLoc6.mul (if isOppSignLine (c.lookup g) l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)
-        (φ (if isOppSignLine (c.lookup g) l then swapLineSlotsConfig g l c else c)) =
-        liftDockOp g (applyStencil (lineBounceKStencil l)) φ c
-      unfold liftDockOp applyStencil lineBounceKStencil dockSlice
-      cases isOppSignLine (c.lookup g) l with
-      | false =>
-        rw [cf_ite_bool_false, cf_ite_bool_false, cf_ite_bool_false]
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
-      | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true, cf_ite_bool_true]
-        simp only [cf_sumNloc]; rw [cf_nloc_add_zero]; rfl) (List.finRange 12) ψ)
-    (fun g ψ => cf_composeLines_dag g (cf_lineBounceKUnit g) cf_lineBounceKDagStencil (fun l φ => by
-      have hPerm : ∀ χ' : FockVec NinthLoc6 HoneycombConfig,
-          permOp (cf_lineBounceKPerm g l) χ' = liftDockOp g (applyStencil (cf_lineBounceKPermStencil l)) χ' := by
-        intro χ'; funext c; unfold permOp cf_lineBounceKPerm liftDockOp applyStencil cf_lineBounceKPermStencil dockSlice
-        cases isOppSignLine (c.lookup g) l with
-        | false =>
-          rw [cf_ite_bool_false, cf_ite_bool_false]
-          simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_one_mul, cf_nloc_add_zero]
-        | true =>
-          rw [cf_ite_bool_true, cf_ite_bool_true]
-          simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]; rfl
-      have hPh : phaseOp (fun c => NinthLoc6.conj (if isOppSignLine (c.lookup g) l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)) φ =
-          liftDockOp g (applyStencil (cf_lineBounceKPhaseDagStencil l)) φ := by
-        funext c; unfold phaseOp liftDockOp applyStencil cf_lineBounceKPhaseDagStencil dockSlice
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]; rfl
-      change permOp (cf_lineBounceKPerm g l) (phaseOp (fun c => NinthLoc6.conj (if isOppSignLine (c.lookup g) l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)) φ) =
-        liftDockOp g (applyStencil (compStencil (cf_lineBounceKPermStencil l) (cf_lineBounceKPhaseDagStencil l))) φ
-      rw [hPerm, hPh, cf_liftDockOp_comp]; funext c
-      change applyStencil (cf_lineBounceKPermStencil l) (applyStencil (cf_lineBounceKPhaseDagStencil l) (dockSlice g c φ)) (c.lookup g) =
-        applyStencil (compStencil (cf_lineBounceKPermStencil l) (cf_lineBounceKPhaseDagStencil l)) (dockSlice g c φ) (c.lookup g)
-      exact (cf_applyStencil_comp _ _ _ _).symm) (List.finRange 12) ψ)
-    (fun _ => cf_stencilActive_composeLines lineBounceKStencil (fun l => by
-      refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-      · unfold lineBounceKStencil at hp
-        cases hO : isOppSignLine d l with
-        | false => rw [hO, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-        | true => rw [hO, cf_ite_bool_true] at hp; cases hp with | head => exact cf_swapLineSlotsDock_v1_iff l d | tail _ h' => cases h'
-      · unfold applyStencil lineBounceKStencil
-        have h1 : isOppSignLine v1FullDock l = false := rfl
-        rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]) (List.finRange 12))
-    (fun _ => cf_stencilActive_composeLinesRev cf_lineBounceKDagStencil (fun l =>
-      cf_stencilActive_comp
-        (by
-          refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-          · unfold cf_lineBounceKPermStencil at hp
-            cases hO : isOppSignLine d l with
-            | false => rw [hO, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-            | true => rw [hO, cf_ite_bool_true] at hp; cases hp with | head => exact cf_swapLineSlotsDock_v1_iff l d | tail _ h' => cases h'
-          · unfold applyStencil cf_lineBounceKPermStencil
-            have h1 : isOppSignLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero])
-        (by
-          refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
-          · cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-          · unfold applyStencil cf_lineBounceKPhaseDagStencil
-            have h1 : isOppSignLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_conj_one, cf_nloc_one_mul, cf_nloc_add_zero])) (List.finRange 12))
-
-private def cf_lineHalfCoinUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 HoneycombConfig :=
-  FockUnitary.comp
-    (phaseUnitary (R := NinthLoc6)
-      (fun c => if isFullLine (c.lookup g) l then NinthLoc6.zeta6 else NinthLoc6.one)
-      (fun c => by
-        cases isFullLine (c.lookup g) l with
-        | false => exact Quot.sound (by decide)
-        | true => exact thm_fock_ring_and_gate_identities.2.2.2.2.1))
-    (block2Unitary (R := NinthLoc6)
-      (swapLineSlotsConfig g l)
-      (fun c => isLoneLine (c.lookup g) l)
-      NinthLoc6.coinDiag NinthLoc6.coinOff
-      (fun c => by
-        unfold swapLineSlotsConfig
-        rw [cf_lookup_setDock, ite_eq_left rfl, cf_setDock_setDock_same, cf_swapLineSlotsDock_inv, cf_setDock_lookup_self])
-      (fun c => by
-        unfold swapLineSlotsConfig; rw [cf_lookup_setDock, ite_eq_left rfl]
-        unfold isLoneLine swapLineSlotsDock
-        have hne := (cf_line_geom.1 l).2.2
-        simp only [ite_true, ite_eq_right hne.symm]
-        cases c.lookup g (lineA l) <;> cases c.lookup g (lineB l) <;> rfl)
-      thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.1
-      thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.1)
-
-private def cf_siteHalfCoinUnit (g : Mat5) : FockUnitary NinthLoc6 HoneycombConfig :=
-  cf_composeLines (cf_lineHalfCoinUnit g) (List.finRange 12)
-
-private def cf_lineHalfCoinBlockDagStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  if isLoneLine d l then [(NinthLoc6.conj NinthLoc6.coinDiag, d), (NinthLoc6.conj NinthLoc6.coinOff, swapLineSlotsDock l d)]
-  else [(NinthLoc6.one, d)]
-
-private def cf_lineHalfCoinPhaseDagStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  [(NinthLoc6.conj (if isFullLine d l then NinthLoc6.zeta6 else NinthLoc6.one), d)]
-
-private def cf_lineHalfCoinDagStencil (l : Fin 12) : DockStencil :=
-  compStencil (cf_lineHalfCoinBlockDagStencil l) (cf_lineHalfCoinPhaseDagStencil l)
-
-private def cf_halfCoinFamily : LocalSiteFamily :=
-  cf_localSiteFamilyOfStencil cf_siteHalfCoinUnit (fun _ => halfCoinStencil)
-    (fun _ => cf_composeLineStencilsRev cf_lineHalfCoinDagStencil (List.finRange 12))
-    (fun g ψ => cf_composeLines_op g (cf_lineHalfCoinUnit g) lineHalfCoinStencil (fun l φ => by
-      funext c
-      change NinthLoc6.mul (if isFullLine (c.lookup g) l then NinthLoc6.zeta6 else NinthLoc6.one)
-        (if isLoneLine (c.lookup g) l then
-           NinthLoc6.add (NinthLoc6.mul NinthLoc6.coinDiag (φ c)) (NinthLoc6.mul NinthLoc6.coinOff (φ (swapLineSlotsConfig g l c)))
-         else φ c) = liftDockOp g (applyStencil (lineHalfCoinStencil l)) φ c
-      unfold liftDockOp applyStencil lineHalfCoinStencil dockSlice; dsimp only
-      cases isLoneLine (c.lookup g) l with
-      | false =>
-        rw [cf_ite_bool_false, cf_ite_bool_false]
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
-      | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true]
-        simp only [cf_sumNloc]
-        rw [cf_setDock_lookup_self, cf_nloc_add_zero, cf_nloc_mul_add, cf_nloc_mul_assoc, cf_nloc_mul_assoc]; rfl) (List.finRange 12) ψ)
-    (fun g ψ => cf_composeLines_dag g (cf_lineHalfCoinUnit g) cf_lineHalfCoinDagStencil (fun l φ => by
-      have hBlk : ∀ χ' : FockVec NinthLoc6 HoneycombConfig,
-          block2Op (swapLineSlotsConfig g l) (fun c => isLoneLine (c.lookup g) l)
-            (NinthLoc6.conj NinthLoc6.coinDiag) (NinthLoc6.conj NinthLoc6.coinOff) χ' =
-          liftDockOp g (applyStencil (cf_lineHalfCoinBlockDagStencil l)) χ' := by
-        intro χ'; funext c; unfold block2Op liftDockOp applyStencil cf_lineHalfCoinBlockDagStencil dockSlice; dsimp only
-        if h : isLoneLine (c.lookup g) l = true then
-          rw [ite_eq_left h, ite_eq_left h]
-          simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]; rfl
-        else
-          rw [ite_eq_right h, ite_eq_right h]
-          simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_one_mul, cf_nloc_add_zero]
-      have hPh : phaseOp (fun c => NinthLoc6.conj (if isFullLine (c.lookup g) l then NinthLoc6.zeta6 else NinthLoc6.one)) φ =
-          liftDockOp g (applyStencil (cf_lineHalfCoinPhaseDagStencil l)) φ := by
-        funext c; unfold phaseOp liftDockOp applyStencil cf_lineHalfCoinPhaseDagStencil dockSlice
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]; rfl
-      change block2Op (swapLineSlotsConfig g l) (fun c => isLoneLine (c.lookup g) l)
-          (NinthLoc6.conj NinthLoc6.coinDiag) (NinthLoc6.conj NinthLoc6.coinOff)
-          (phaseOp (fun c => NinthLoc6.conj (if isFullLine (c.lookup g) l then NinthLoc6.zeta6 else NinthLoc6.one)) φ) =
-        liftDockOp g (applyStencil (compStencil (cf_lineHalfCoinBlockDagStencil l) (cf_lineHalfCoinPhaseDagStencil l))) φ
-      rw [hBlk, hPh, cf_liftDockOp_comp]; funext c
-      change applyStencil (cf_lineHalfCoinBlockDagStencil l) (applyStencil (cf_lineHalfCoinPhaseDagStencil l) (dockSlice g c φ)) (c.lookup g) =
-        applyStencil (compStencil (cf_lineHalfCoinBlockDagStencil l) (cf_lineHalfCoinPhaseDagStencil l)) (dockSlice g c φ) (c.lookup g)
-      exact (cf_applyStencil_comp _ _ _ _).symm) (List.finRange 12) ψ)
-    (fun _ => cf_stencilActive_composeLines lineHalfCoinStencil (fun l => by
-      refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-      · unfold lineHalfCoinStencil at hp; dsimp only at hp
-        cases hL : isLoneLine d l with
-        | false => rw [hL, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-        | true =>
-          rw [hL, cf_ite_bool_true] at hp
-          cases hp with
-          | head => exact Iff.rfl
-          | tail _ h1 => cases h1 with | head => exact cf_swapLineSlotsDock_v1_iff l d | tail _ h2 => cases h2
-      · unfold applyStencil lineHalfCoinStencil; dsimp only
-        have h1 : isFullLine v1FullDock l = false := rfl
-        have h2 : isLoneLine v1FullDock l = false := rfl
-        rw [h1, h2, cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]) (List.finRange 12))
-    (fun _ => cf_stencilActive_composeLinesRev cf_lineHalfCoinDagStencil (fun l =>
-      cf_stencilActive_comp
-        (by
-          refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-          · unfold cf_lineHalfCoinBlockDagStencil at hp
-            cases hL : isLoneLine d l with
-            | false => rw [hL, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-            | true =>
-              rw [hL, cf_ite_bool_true] at hp
-              cases hp with
-              | head => exact Iff.rfl
-              | tail _ h1 => cases h1 with | head => exact cf_swapLineSlotsDock_v1_iff l d | tail _ h2 => cases h2
-          · unfold applyStencil cf_lineHalfCoinBlockDagStencil
-            have h1 : isLoneLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero])
-        (by
-          refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
-          · cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-          · unfold applyStencil cf_lineHalfCoinPhaseDagStencil
-            have h1 : isFullLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_conj_one, cf_nloc_one_mul, cf_nloc_add_zero])) (List.finRange 12))
-
-private def cf_lineMeetUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 HoneycombConfig :=
-  FockUnitary.comp
-    (phaseUnitary (R := NinthLoc6)
-      (fun c => if isSameSignEqRoleLine (c.lookup g) l then NinthLoc6.omega else NinthLoc6.one)
-      (fun c => by
-        cases isSameSignEqRoleLine (c.lookup g) l with
-        | false => exact Quot.sound (by decide)
-        | true => exact thm_fock_ring_and_gate_identities.2.2.2.2.2.1))
-    (block2Unitary (R := NinthLoc6)
-      (swapLineRolesConfig g l)
-      (fun c => isSameSignDiffRoleLine (c.lookup g) l)
-      NinthLoc6.meetKeep NinthLoc6.meetSwap
-      (fun c => by
-        unfold swapLineRolesConfig
-        rw [cf_lookup_setDock, ite_eq_left rfl, cf_setDock_setDock_same, cf_swapLineRolesDock_inv, cf_setDock_lookup_self])
-      (fun c => by
-        unfold swapLineRolesConfig; rw [cf_lookup_setDock, ite_eq_left rfl]
-        unfold isSameSignDiffRoleLine swapLineRolesDock
-        have hne := (cf_line_geom.1 l).2.2
-        cases hA : c.lookup g (lineA l) with
-        | empty => dsimp only; rw [hA]
-        | occ sA rA =>
-          cases hB : c.lookup g (lineB l) with
-          | empty => dsimp only; rw [hA, hB]
-          | occ sB rB =>
-            simp only [ite_true, ite_eq_right hne.symm]
-            cases sA <;> cases sB <;> cases rA <;> cases rB <;> decide)
-      thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.2.2.2.1
-      thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.2.2.2.2.1)
-
-private def cf_siteMeetUnit (g : Mat5) : FockUnitary NinthLoc6 HoneycombConfig :=
-  cf_composeLines (cf_lineMeetUnit g) (List.finRange 12)
-
-private def cf_lineMeetBlockDagStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  if isSameSignDiffRoleLine d l then [(NinthLoc6.conj NinthLoc6.meetKeep, d), (NinthLoc6.conj NinthLoc6.meetSwap, swapLineRolesDock l d)]
-  else [(NinthLoc6.one, d)]
-
-private def cf_lineMeetPhaseDagStencil (l : Fin 12) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  [(NinthLoc6.conj (if isSameSignEqRoleLine d l then NinthLoc6.omega else NinthLoc6.one), d)]
-
-private def cf_lineMeetDagStencil (l : Fin 12) : DockStencil :=
-  compStencil (cf_lineMeetBlockDagStencil l) (cf_lineMeetPhaseDagStencil l)
-
-private def cf_meetFamily : LocalSiteFamily :=
-  cf_localSiteFamilyOfStencil cf_siteMeetUnit (fun _ => meetStencil)
-    (fun _ => cf_composeLineStencilsRev cf_lineMeetDagStencil (List.finRange 12))
-    (fun g ψ => cf_composeLines_op g (cf_lineMeetUnit g) lineMeetStencil (fun l φ => by
-      funext c
-      change NinthLoc6.mul (if isSameSignEqRoleLine (c.lookup g) l then NinthLoc6.omega else NinthLoc6.one)
-        (if isSameSignDiffRoleLine (c.lookup g) l then
-           NinthLoc6.add (NinthLoc6.mul NinthLoc6.meetKeep (φ c)) (NinthLoc6.mul NinthLoc6.meetSwap (φ (swapLineRolesConfig g l c)))
-         else φ c) = liftDockOp g (applyStencil (lineMeetStencil l)) φ c
-      unfold liftDockOp applyStencil lineMeetStencil dockSlice; dsimp only
-      cases isSameSignDiffRoleLine (c.lookup g) l with
-      | false =>
-        rw [cf_ite_bool_false, cf_ite_bool_false]
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
-      | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true]
-        simp only [cf_sumNloc]
-        rw [cf_setDock_lookup_self, cf_nloc_add_zero, cf_nloc_mul_add, cf_nloc_mul_assoc, cf_nloc_mul_assoc]; rfl) (List.finRange 12) ψ)
-    (fun g ψ => cf_composeLines_dag g (cf_lineMeetUnit g) cf_lineMeetDagStencil (fun l φ => by
-      have hBlk : ∀ χ' : FockVec NinthLoc6 HoneycombConfig,
-          block2Op (swapLineRolesConfig g l) (fun c => isSameSignDiffRoleLine (c.lookup g) l)
-            (NinthLoc6.conj NinthLoc6.meetKeep) (NinthLoc6.conj NinthLoc6.meetSwap) χ' =
-          liftDockOp g (applyStencil (cf_lineMeetBlockDagStencil l)) χ' := by
-        intro χ'; funext c; unfold block2Op liftDockOp applyStencil cf_lineMeetBlockDagStencil dockSlice; dsimp only
-        if h : isSameSignDiffRoleLine (c.lookup g) l = true then
-          rw [ite_eq_left h, ite_eq_left h]
-          simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]; rfl
-        else
-          rw [ite_eq_right h, ite_eq_right h]
-          simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_one_mul, cf_nloc_add_zero]
-      have hPh : phaseOp (fun c => NinthLoc6.conj (if isSameSignEqRoleLine (c.lookup g) l then NinthLoc6.omega else NinthLoc6.one)) φ =
-          liftDockOp g (applyStencil (cf_lineMeetPhaseDagStencil l)) φ := by
-        funext c; unfold phaseOp liftDockOp applyStencil cf_lineMeetPhaseDagStencil dockSlice
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]; rfl
-      change block2Op (swapLineRolesConfig g l) (fun c => isSameSignDiffRoleLine (c.lookup g) l)
-          (NinthLoc6.conj NinthLoc6.meetKeep) (NinthLoc6.conj NinthLoc6.meetSwap)
-          (phaseOp (fun c => NinthLoc6.conj (if isSameSignEqRoleLine (c.lookup g) l then NinthLoc6.omega else NinthLoc6.one)) φ) =
-        liftDockOp g (applyStencil (compStencil (cf_lineMeetBlockDagStencil l) (cf_lineMeetPhaseDagStencil l))) φ
-      rw [hBlk, hPh, cf_liftDockOp_comp]; funext c
-      change applyStencil (cf_lineMeetBlockDagStencil l) (applyStencil (cf_lineMeetPhaseDagStencil l) (dockSlice g c φ)) (c.lookup g) =
-        applyStencil (compStencil (cf_lineMeetBlockDagStencil l) (cf_lineMeetPhaseDagStencil l)) (dockSlice g c φ) (c.lookup g)
-      exact (cf_applyStencil_comp _ _ _ _).symm) (List.finRange 12) ψ)
-    (fun _ => cf_stencilActive_composeLines lineMeetStencil (fun l => by
-      refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-      · unfold lineMeetStencil at hp; dsimp only at hp
-        cases hSD : isSameSignDiffRoleLine d l with
-        | false => rw [hSD, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-        | true =>
-          rw [hSD, cf_ite_bool_true] at hp
-          cases hp with
-          | head => exact Iff.rfl
-          | tail _ h1 => cases h1 with | head => exact cf_swapLineRolesDock_v1_iff l d | tail _ h2 => cases h2
-      · unfold applyStencil lineMeetStencil; dsimp only
-        have h1 : isSameSignEqRoleLine v1FullDock l = false := rfl
-        have h2 : isSameSignDiffRoleLine v1FullDock l = false := rfl
-        rw [h1, h2, cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]) (List.finRange 12))
-    (fun _ => cf_stencilActive_composeLinesRev cf_lineMeetDagStencil (fun l =>
-      cf_stencilActive_comp
-        (by
-          refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
-          · unfold cf_lineMeetBlockDagStencil at hp
-            cases hSD : isSameSignDiffRoleLine d l with
-            | false => rw [hSD, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-            | true =>
-              rw [hSD, cf_ite_bool_true] at hp
-              cases hp with
-              | head => exact Iff.rfl
-              | tail _ h1 => cases h1 with | head => exact cf_swapLineRolesDock_v1_iff l d | tail _ h2 => cases h2
-          · unfold applyStencil cf_lineMeetBlockDagStencil
-            have h1 : isSameSignDiffRoleLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero])
-        (by
-          refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
-          · cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-          · unfold applyStencil cf_lineMeetPhaseDagStencil
-            have h1 : isSameSignEqRoleLine v1FullDock l = false := rfl
-            rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_conj_one, cf_nloc_one_mul, cf_nloc_add_zero])) (List.finRange 12))
-
-private def cf_mpairStencilWith (hop : NinthLoc6) (d : FullDock) : List (NinthLoc6 × FullDock) :=
-  if isSoleIdentPairDock d then
-    (NinthLoc6.one, d) :: (List.finRange 12).map (fun m => (hop, moveSolePairDock m d))
-  else [(NinthLoc6.one, d)]
-
-private theorem cf_mpairStencilWith_active (hop : NinthLoc6) :
-    cf_StencilPreservesActive (cf_mpairStencilWith hop) := by
-  refine ⟨fun d p hp => ?_, fun φ => ?_⟩
-  · unfold cf_mpairStencilWith at hp
-    cases ha : isSoleIdentPairDock d with
-    | false => rw [ha, cf_ite_bool_false] at hp; cases hp with | head => exact Iff.rfl | tail _ h' => cases h'
-    | true =>
-      rw [ha, cf_ite_bool_true] at hp
-      cases hp with
-      | head => exact Iff.rfl
-      | tail _ hm =>
-        obtain ⟨m, _, hEq⟩ := (cf_mem_map_iff _ _ p).mp hm
-        rw [← hEq]
-        have hNeD : d ≠ v1FullDock := fun h => by
-          have hF : isSoleIdentPairDock v1FullDock = false := by decide
-          rw [h, hF] at ha; exact Bool.noConfusion ha
-        have hNeM : moveSolePairDock m d ≠ v1FullDock := (cf_moveSolePairDock_spec d ha).2.2.2.2 m
-        exact ⟨fun h => absurd h hNeM, fun h => absurd h hNeD⟩
-  · unfold applyStencil cf_mpairStencilWith
-    have hF : isSoleIdentPairDock v1FullDock = false := by decide
-    rw [hF, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
-
-private def cf_siteMPairUnit (g : Mat5) : FockUnitary NinthLoc6 HoneycombConfig :=
-  block12Unitary (R := NinthLoc6)
-    (fun c => isSoleIdentPairDock (c.lookup g))
-    (fun c => solePairLine (c.lookup g))
-    (fun m c => moveSolePairConfig g m c)
-    NinthLoc6.zeta18 NinthLoc6.inv12
-    (fun m c h => by
-      unfold moveSolePairConfig; rw [cf_lookup_setDock, ite_eq_left rfl]
-      exact (cf_moveSolePairDock_spec (c.lookup g) h).1 m)
-    (fun m₁ m₂ c h => by
-      unfold moveSolePairConfig
-      rw [cf_lookup_setDock, ite_eq_left rfl, cf_setDock_setDock_same]
-      rw [(cf_moveSolePairDock_spec (c.lookup g) h).2.2.1 m₁ m₂])
-    (fun c h => by
-      unfold moveSolePairConfig
-      rw [(cf_moveSolePairDock_spec (c.lookup g) h).2.2.2.1, cf_setDock_lookup_self])
-    (fun m c h => by
-      unfold moveSolePairConfig; rw [cf_lookup_setDock, ite_eq_left rfl]
-      exact (cf_moveSolePairDock_spec (c.lookup g) h).2.1 m)
-    thm_fock_ring_and_gate_identities.2.2.1
-    thm_fock_ring_and_gate_identities.2.2.2.1
-    thm_fock_ring_and_gate_identities.2.2.2.2.2.2.1
-
-private theorem cf_block12_eq_liftStencil (g : Mat5) (u : NinthLoc6)
-    (ψ : FockVec NinthLoc6 HoneycombConfig) :
-    block12Op (fun c => isSoleIdentPairDock (c.lookup g)) (fun m c => moveSolePairConfig g m c)
-      u NinthLoc6.inv12 ψ =
-    liftDockOp g (applyStencil (cf_mpairStencilWith (NinthLoc6.mul (NinthLoc6.sub u NinthLoc6.one) NinthLoc6.inv12))) ψ := by
-  funext c; unfold block12Op liftDockOp applyStencil cf_mpairStencilWith dockSlice; dsimp only
+    (siteMPairUnit g).op ψ = liftDockOp g (applyStencil mpairStencil) ψ := by
+  funext c
+  rw [siteMPairUnit_op]
+  unfold liftDockOp applyStencil mpairStencil dockSlice
   if h : isSoleIdentPairDock (c.lookup g) = true then
     rw [ite_eq_left h, ite_eq_left h]
-    simp only [cf_sumNloc, cf_sumNloc_map]
-    rw [cf_setDock_lookup_self, cf_nloc_one_mul, cf_sumNloc_mul_left]
-    unfold sumFin12; rw [cf_sumNloc_eq_sumList]; rfl
+    simp only [sumList, cf_sumNloc_map]
+    change NinthLoc6.add (ψ c) (NinthLoc6.mul NinthLoc6.pairHop (sumFin12 (fun m => ψ (moveSolePairConfig g m c)))) =
+      NinthLoc6.add (NinthLoc6.mul NinthLoc6.one (ψ (c.setDock g (c.lookup g))))
+        (sumList (List.finRange 12) (fun m => NinthLoc6.mul NinthLoc6.pairHop (ψ (c.setDock g (moveSolePairDock m (c.lookup g))))))
+    rw [setDock_lookup_self, NinthLoc6.one_mul, cf_sumNloc_mul_left]
+    rfl
   else
     rw [ite_eq_right h, ite_eq_right h]
-    simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_one_mul, cf_nloc_add_zero]
+    simp only [sumList]
+    change ψ c = NinthLoc6.add (NinthLoc6.mul NinthLoc6.one (ψ (c.setDock g (c.lookup g)))) NinthLoc6.zero
+    rw [setDock_lookup_self, NinthLoc6.one_mul, NinthLoc6.add_zero]
 
-private def cf_mpairFamily : LocalSiteFamily :=
-  cf_localSiteFamilyOfStencil cf_siteMPairUnit (fun _ => mpairStencil)
-    (fun _ => cf_mpairStencilWith (NinthLoc6.mul (NinthLoc6.sub (NinthLoc6.conj NinthLoc6.zeta18) NinthLoc6.one) NinthLoc6.inv12))
-    (fun g ψ => cf_block12_eq_liftStencil g NinthLoc6.zeta18 ψ)
-    (fun g ψ => cf_block12_eq_liftStencil g (NinthLoc6.conj NinthLoc6.zeta18) ψ)
-    (fun _ => cf_mpairStencilWith_active NinthLoc6.pairHop)
-    (fun _ => cf_mpairStencilWith_active _)
-
-private theorem cf_fockPhiOdd_eq_globalOp (χ : ChiralInvariant) :
-    fockPhiOdd χ = globalOp (cf_phiOddFamily χ) := rfl
-private theorem cf_fockBounceK_eq_globalOp : fockBounceK = globalOp cf_bounceKFamily := rfl
-private theorem cf_fockHalfCoin_eq_globalOp : fockHalfCoin = globalOp cf_halfCoinFamily := rfl
-private theorem cf_fockMeet_eq_globalOp : fockMeet = globalOp cf_meetFamily := rfl
-private theorem cf_fockMPair_eq_globalOp : fockMPair = globalOp cf_mpairFamily := rfl
-
-private theorem cf_applySites_zero (F : LocalSiteFamily) (gs : List Mat5) :
-    applySites F gs zeroVec = zeroVec := by
-  induction gs with
-  | nil => rfl
-  | cons _ _ ih => simp only [applySites]; rw [ih, F.op_zero]
-
-private theorem cf_applySites_local_eq (F : LocalSiteFamily) (gs : List Mat5)
-    (ψ₁ ψ₂ : FockVec NinthLoc6 HoneycombConfig) (c : HoneycombConfig)
-    (h : ∀ c' : HoneycombConfig, c'.activeDocks = c.activeDocks → ψ₁ c' = ψ₂ c') :
-    applySites F gs ψ₁ c = applySites F gs ψ₂ c := by
-  induction gs generalizing c with
-  | nil => exact h c rfl
-  | cons g _ ih =>
-    simp only [applySites]
-    apply F.local_eq g _ _ c
-    intro c' hc' _
-    exact ih c' (fun c'' hc'' => h c'' (hc''.trans hc'))
-
-private theorem cf_applySites_erase (F : LocalSiteFamily) (g : Mat5) (gs : List Mat5)
-    (hmem : g ∈ gs) (ψ : FockVec NinthLoc6 HoneycombConfig) :
-    applySites F gs ψ = (F.unit g).op (applySites F (eraseOne g gs) ψ) := by
-  induction gs with
-  | nil => cases hmem
-  | cons x rest ih =>
-    simp only [eraseOne, applySites]
-    if hxg : x = g then rw [ite_eq_left hxg, hxg]
-    else
-      rw [ite_eq_right hxg]; simp only [applySites]
-      cases hmem with
-      | head => exact absurd rfl hxg
-      | tail _ h' => rw [ih h', F.comm_sites x g _ hxg]
-
-private theorem cf_applySites_superset (F : LocalSiteFamily) (xs V : List Mat5)
-    (hxs : IsNodup xs) (hV : IsNodup V)
-    (hsub : ∀ g, g ∈ xs → g ∈ V)
-    (c : HoneycombConfig) (hidle : ∀ g, g ∈ V → g ∉ xs → c.lookup g = v1FullDock)
-    (ψ : FockVec NinthLoc6 HoneycombConfig) :
-    applySites F V ψ c = applySites F xs ψ c := by
-  induction hxs generalizing V c ψ with
-  | nil =>
-    simp only [applySites]
-    induction V with
-    | nil => rfl
-    | cons v rest ihV =>
-      simp only [applySites]
-      rw [F.idle_empty v _ c (hidle v (List.Mem.head rest) (fun h => nomatch h))]
-      exact ihV (match hV with | IsNodup.cons _ hr => hr) (fun _ h => nomatch h)
-        (fun g hg hnot => hidle g (List.Mem.tail v hg) hnot)
-  | @cons g rest hnot _ ih =>
-    rw [cf_applySites_erase F g V (hsub g (List.Mem.head rest)) ψ]
-    simp only [applySites]
-    apply F.local_eq g _ _ c
-    intro c' _ hOther
-    apply ih (eraseOne g V) (cf_isNodup_eraseOne g hV)
-    · intro x hx
-      refine (cf_mem_eraseOne_iff g x hV).mpr ⟨hsub x (List.Mem.tail g hx), ?_⟩
-      intro hxg; rw [hxg] at hx; exact hnot hx
-    · intro x hx hxnot
-      have ⟨hxV, hne⟩ := (cf_mem_eraseOne_iff g x hV).mp hx
-      rw [hOther x hne]
-      exact hidle x hxV (fun hm => match hm with | List.Mem.head _ => hne rfl | List.Mem.tail _ h' => hxnot h')
 
 private theorem cf_applySites_eq_applyDockOps (F : LocalSiteFamily) (S : Mat5 → DockStencil)
     (hOp : ∀ g ψ, (F.unit g).op ψ = liftDockOp g (applyStencil (S g)) ψ)
@@ -3592,26 +1996,26 @@ private theorem cf_globalOp_eq_applyDockOps_on_supported (F : LocalSiteFamily) (
     intro c hNot; unfold globalOp
     have hVan : ∀ c' : HoneycombConfig, c'.activeDocks = c.activeDocks → ψ c' = zeroVec c' :=
       fun c' hc' => hSupp c' (fun h => hNot (fun g hg => h g (by rw [hc']; exact hg)))
-    rw [cf_applySites_local_eq F c.activeDocks ψ zeroVec c hVan, cf_applySites_zero]; rfl
+    rw [applySites_local_eq F c.activeDocks ψ zeroVec c hVan, applySites_zero]; rfl
   refine ⟨?_, hPres⟩
   funext c; rw [← cf_applySites_eq_applyDockOps F S hOp V ψ]; unfold globalOp
   cases hAllB : c.activeDocks.all (fun g => memBool g V) with
   | true =>
     have hAll : ∀ g, g ∈ c.activeDocks → g ∈ V := fun g hg =>
-      (cf_memBool_eq_true_iff g V).mp ((cf_list_all_eq_true_iff _ _).mp hAllB g hg)
-    refine (cf_applySites_superset F c.activeDocks V (cf_activeDocks_nodup c) hVnd hAll c ?_ ψ).symm
+      (memBool_eq_true_iff g V).mp ((list_all_eq_true_iff _ _).mp hAllB g hg)
+    refine (applySites_superset F c.activeDocks V (activeDocks_nodup c) hVnd hAll c ?_ ψ).symm
     intro g _ hgNot
-    if h : c.lookup g = v1FullDock then exact h else exact absurd ((cf_mem_activeDocks_iff c g).mpr h) hgNot
+    if h : c.lookup g = v1FullDock then exact h else exact absurd ((mem_activeDocks_iff c g).mpr h) hgNot
   | false =>
     have hNotAll : ¬ (∀ g, g ∈ c.activeDocks → g ∈ V) := fun hAll => by
       have hT : c.activeDocks.all (fun g => memBool g V) = true :=
-        (cf_list_all_eq_true_iff _ _).mpr (fun g hg => (cf_memBool_eq_true_iff g V).mpr (hAll g hg))
+        (list_all_eq_true_iff _ _).mpr (fun g hg => (memBool_eq_true_iff g V).mpr (hAll g hg))
       rw [hAllB] at hT; exact Bool.noConfusion hT
     have hVan : ∀ c' : HoneycombConfig, c'.activeDocks = c.activeDocks → ψ c' = zeroVec c' :=
       fun c' hc' => hSupp c' (fun h => hNotAll (fun g hg => h g (by rw [hc']; exact hg)))
-    rw [cf_applySites_local_eq F c.activeDocks ψ zeroVec c hVan,
-        cf_applySites_local_eq F V ψ zeroVec c hVan,
-        cf_applySites_zero, cf_applySites_zero]
+    rw [applySites_local_eq F c.activeDocks ψ zeroVec c hVan,
+        applySites_local_eq F V ψ zeroVec c hVan,
+        applySites_zero, applySites_zero]
 
 private theorem cf_applyDockOps_comp (S₁ S₂ : Mat5 → DockStencil) (V : List Mat5) (hVnd : IsNodup V)
     (ψ : FockVec NinthLoc6 HoneycombConfig) :
@@ -3646,7 +2050,7 @@ private theorem cf_globalOp_preserves_ball (F : LocalSiteFamily) (R : Nat)
   intro c hc; unfold globalOp
   have hVan : ∀ c' : HoneycombConfig, c'.activeDocks = c.activeDocks → ψ c' = zeroVec c' :=
     fun c' hc' => hψ c' (fun hIn => hc (fun g hg => hIn g (by rw [hc']; exact hg)))
-  rw [cf_applySites_local_eq F c.activeDocks ψ zeroVec c hVan, cf_applySites_zero]; rfl
+  rw [applySites_local_eq F c.activeDocks ψ zeroVec c hVan, applySites_zero]; rfl
 
 private theorem cf_inBall_mono_le {r₁ r₂ : Nat} (hle : r₁ ≤ r₂) {g : Mat5} (h : InBall r₁ g) :
     InBall r₂ g := by
@@ -3659,58 +2063,74 @@ private theorem cf_fockBeat_eq (χ : ChiralInvariant) (ψ : FockVec NinthLoc6 Ho
       fockStream (fockPhiOdd χ (fockHalfCoin (fockMeet (fockMPair (fockBounceK (fockHalfCoin (fockPhiOdd χ ψ))))))) :=
   rfl
 
+
 private theorem cf_regionLocalOp_eq_fockLocal (χ : ChiralInvariant)
     (V : List Mat5) (hVnd : IsNodup V) (ψ : FockVec NinthLoc6 HoneycombConfig)
     (hSupp : cf_SupportedIn V ψ) :
     regionLocalOp χ V ψ =
       fockPhiOdd χ (fockHalfCoin (fockMeet (fockMPair (fockBounceK (fockHalfCoin (fockPhiOdd χ ψ)))))) := by
-  have hPhiOp : ∀ g φ, ((cf_phiOddFamily χ).unit g).op φ = liftDockOp g (applyStencil (phiOddStencil χ g)) φ := by
+  have hPhiOp : ∀ g φ, ((phiOddFamily χ).unit g).op φ = liftDockOp g (applyStencil (phiOddStencil χ g)) φ := by
     intro g φ; funext c
-    change NinthLoc6.mul (NinthLoc6.zeta6Pow (dockParity g * χ.chi (c.lookup g))) (φ c) = _
-    simp only [liftDockOp, applyStencil, phiOddStencil, dockSlice, cf_sumNloc]
-    rw [cf_setDock_lookup_self, cf_nloc_add_zero]
-  have hDOp : ∀ g φ, (cf_halfCoinFamily.unit g).op φ = liftDockOp g (applyStencil halfCoinStencil) φ := fun g φ =>
-    cf_composeLines_op g (cf_lineHalfCoinUnit g) lineHalfCoinStencil (fun l χ' => by
+    change (sitePhiOddUnit χ g).op φ c = _
+    rw [sitePhiOddUnit_op]
+    simp only [liftDockOp, applyStencil, phiOddStencil, dockSlice, sumList]
+    change NinthLoc6.mul _ (φ c) = NinthLoc6.add (NinthLoc6.mul _ (φ (c.setDock g (c.lookup g)))) NinthLoc6.zero
+    rw [setDock_lookup_self, NinthLoc6.add_zero]
+  have hDOp : ∀ g φ, (halfCoinFamily.unit g).op φ = liftDockOp g (applyStencil halfCoinStencil) φ := fun g φ =>
+    cf_composeLines_op g (lineHalfCoinUnit g) lineHalfCoinStencil (fun l χ' => by
       funext c
-      change NinthLoc6.mul (if isFullLine (c.lookup g) l then NinthLoc6.zeta6 else NinthLoc6.one)
-        (if isLoneLine (c.lookup g) l then
-           NinthLoc6.add (NinthLoc6.mul NinthLoc6.coinDiag (χ' c)) (NinthLoc6.mul NinthLoc6.coinOff (χ' (swapLineSlotsConfig g l c)))
-         else χ' c) = liftDockOp g (applyStencil (lineHalfCoinStencil l)) χ' c
+      rw [lineHalfCoinUnit_op]
       unfold liftDockOp applyStencil lineHalfCoinStencil dockSlice; dsimp only
       cases isLoneLine (c.lookup g) l with
-      | false => rw [cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
+      | false =>
+        rw [ite_bool_false, ite_bool_false]
+        simp only [sumList]
+        change NinthLoc6.mul _ (χ' c) = NinthLoc6.add (NinthLoc6.mul _ (χ' (c.setDock g (c.lookup g)))) NinthLoc6.zero
+        rw [setDock_lookup_self, NinthLoc6.add_zero]
       | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true]; simp only [cf_sumNloc]
-        rw [cf_setDock_lookup_self, cf_nloc_add_zero, cf_nloc_mul_add, cf_nloc_mul_assoc, cf_nloc_mul_assoc]; rfl) (List.finRange 12) φ
-  have hKOp : ∀ g φ, (cf_bounceKFamily.unit g).op φ = liftDockOp g (applyStencil bounceKStencil) φ := fun g φ =>
-    cf_composeLines_op g (cf_lineBounceKUnit g) lineBounceKStencil (fun l χ' => by
+        rw [ite_bool_true, ite_bool_true]
+        simp only [sumList]
+        change NinthLoc6.mul _ (NinthLoc6.add (NinthLoc6.mul _ (χ' c)) (NinthLoc6.mul _ (χ' (swapLineSlotsConfig g l c)))) =
+          NinthLoc6.add (NinthLoc6.mul (NinthLoc6.mul _ _) (χ' (c.setDock g (c.lookup g))))
+            (NinthLoc6.add (NinthLoc6.mul (NinthLoc6.mul _ _) (χ' (c.setDock g (swapLineSlotsDock l (c.lookup g))))) NinthLoc6.zero)
+        rw [setDock_lookup_self, NinthLoc6.add_zero, NinthLoc6.mul_add, NinthLoc6.mul_assoc, NinthLoc6.mul_assoc]; rfl) (List.finRange 12) φ
+  have hKOp : ∀ g φ, (bounceKFamily.unit g).op φ = liftDockOp g (applyStencil bounceKStencil) φ := fun g φ =>
+    cf_composeLines_op g (lineBounceKUnit g) lineBounceKStencil (fun l χ' => by
       funext c
-      change NinthLoc6.mul (if isOppSignLine (c.lookup g) l then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)
-        (χ' (if isOppSignLine (c.lookup g) l then swapLineSlotsConfig g l c else c)) =
-        liftDockOp g (applyStencil (lineBounceKStencil l)) χ' c
-      unfold liftDockOp applyStencil lineBounceKStencil dockSlice
+      rw [lineBounceKUnit_op]
+      unfold lineBounceKPerm liftDockOp applyStencil lineBounceKStencil dockSlice
       cases isOppSignLine (c.lookup g) l with
       | false =>
-        rw [cf_ite_bool_false, cf_ite_bool_false, cf_ite_bool_false]
-        simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
+        rw [ite_bool_false, ite_bool_false, ite_bool_false]
+        simp only [sumList]
+        change NinthLoc6.mul NinthLoc6.one (χ' c) = NinthLoc6.add (NinthLoc6.mul NinthLoc6.one (χ' (c.setDock g (c.lookup g)))) NinthLoc6.zero
+        rw [setDock_lookup_self, NinthLoc6.add_zero]
       | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true, cf_ite_bool_true]
-        simp only [cf_sumNloc]; rw [cf_nloc_add_zero]; rfl) (List.finRange 12) φ
-  have hPOp : ∀ g φ, (cf_mpairFamily.unit g).op φ = liftDockOp g (applyStencil mpairStencil) φ := fun g φ =>
-    cf_block12_eq_liftStencil g NinthLoc6.zeta18 φ
-  have hMOp : ∀ g φ, (cf_meetFamily.unit g).op φ = liftDockOp g (applyStencil meetStencil) φ := fun g φ =>
-    cf_composeLines_op g (cf_lineMeetUnit g) lineMeetStencil (fun l χ' => by
+        rw [ite_bool_true, ite_bool_true, ite_bool_true]
+        simp only [sumList]
+        change NinthLoc6.mul (NinthLoc6.neg NinthLoc6.one) (χ' (swapLineSlotsConfig g l c)) =
+          NinthLoc6.add (NinthLoc6.mul (NinthLoc6.neg NinthLoc6.one) (χ' (c.setDock g (swapLineSlotsDock l (c.lookup g))))) NinthLoc6.zero
+        rw [NinthLoc6.add_zero]; rfl) (List.finRange 12) φ
+  have hPOp : ∀ g φ, (mpairFamily.unit g).op φ = liftDockOp g (applyStencil mpairStencil) φ :=
+    cf_siteMPair_eq_liftStencil
+  have hMOp : ∀ g φ, (meetFamily.unit g).op φ = liftDockOp g (applyStencil meetStencil) φ := fun g φ =>
+    cf_composeLines_op g (lineMeetUnit g) lineMeetStencil (fun l χ' => by
       funext c
-      change NinthLoc6.mul (if isSameSignEqRoleLine (c.lookup g) l then NinthLoc6.omega else NinthLoc6.one)
-        (if isSameSignDiffRoleLine (c.lookup g) l then
-           NinthLoc6.add (NinthLoc6.mul NinthLoc6.meetKeep (χ' c)) (NinthLoc6.mul NinthLoc6.meetSwap (χ' (swapLineRolesConfig g l c)))
-         else χ' c) = liftDockOp g (applyStencil (lineMeetStencil l)) χ' c
+      rw [lineMeetUnit_op]
       unfold liftDockOp applyStencil lineMeetStencil dockSlice; dsimp only
       cases isSameSignDiffRoleLine (c.lookup g) l with
-      | false => rw [cf_ite_bool_false, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_setDock_lookup_self, cf_nloc_add_zero]
+      | false =>
+        rw [ite_bool_false, ite_bool_false]
+        simp only [sumList]
+        change NinthLoc6.mul _ (χ' c) = NinthLoc6.add (NinthLoc6.mul _ (χ' (c.setDock g (c.lookup g)))) NinthLoc6.zero
+        rw [setDock_lookup_self, NinthLoc6.add_zero]
       | true =>
-        rw [cf_ite_bool_true, cf_ite_bool_true]; simp only [cf_sumNloc]
-        rw [cf_setDock_lookup_self, cf_nloc_add_zero, cf_nloc_mul_add, cf_nloc_mul_assoc, cf_nloc_mul_assoc]; rfl) (List.finRange 12) φ
+        rw [ite_bool_true, ite_bool_true]
+        simp only [sumList]
+        change NinthLoc6.mul _ (NinthLoc6.add (NinthLoc6.mul _ (χ' c)) (NinthLoc6.mul _ (χ' (swapLineRolesConfig g l c)))) =
+          NinthLoc6.add (NinthLoc6.mul (NinthLoc6.mul _ _) (χ' (c.setDock g (c.lookup g))))
+            (NinthLoc6.add (NinthLoc6.mul (NinthLoc6.mul _ _) (χ' (c.setDock g (swapLineRolesDock l (c.lookup g))))) NinthLoc6.zero)
+        rw [setDock_lookup_self, NinthLoc6.add_zero, NinthLoc6.mul_add, NinthLoc6.mul_assoc, NinthLoc6.mul_assoc]; rfl) (List.finRange 12) φ
   have hSplit : regionLocalOp χ V ψ =
       applyDockOps (phiOddStencil χ) V
         (applyDockOps (fun _ => halfCoinStencil) V
@@ -3726,16 +2146,16 @@ private theorem cf_regionLocalOp_eq_fockLocal (χ : ChiralInvariant)
     rw [cf_applyDockOps_comp _ _ V hVnd, cf_applyDockOps_comp _ _ V hVnd,
         cf_applyDockOps_comp _ _ V hVnd, cf_applyDockOps_comp _ _ V hVnd,
         cf_applyDockOps_comp _ _ V hVnd, cf_applyDockOps_comp _ _ V hVnd]
-  have h1 := cf_globalOp_eq_applyDockOps_on_supported (cf_phiOddFamily χ) (phiOddStencil χ) hPhiOp V hVnd ψ hSupp
-  have h2 := cf_globalOp_eq_applyDockOps_on_supported cf_halfCoinFamily (fun _ => halfCoinStencil) hDOp V hVnd _ h1.2
-  have h3 := cf_globalOp_eq_applyDockOps_on_supported cf_bounceKFamily (fun _ => bounceKStencil) hKOp V hVnd _ h2.2
-  have h4 := cf_globalOp_eq_applyDockOps_on_supported cf_mpairFamily (fun _ => mpairStencil) hPOp V hVnd _ h3.2
-  have h5 := cf_globalOp_eq_applyDockOps_on_supported cf_meetFamily (fun _ => meetStencil) hMOp V hVnd _ h4.2
-  have h6 := cf_globalOp_eq_applyDockOps_on_supported cf_halfCoinFamily (fun _ => halfCoinStencil) hDOp V hVnd _ h5.2
-  have h7 := cf_globalOp_eq_applyDockOps_on_supported (cf_phiOddFamily χ) (phiOddStencil χ) hPhiOp V hVnd _ h6.2
+  have h1 := cf_globalOp_eq_applyDockOps_on_supported (phiOddFamily χ) (phiOddStencil χ) hPhiOp V hVnd ψ hSupp
+  have h2 := cf_globalOp_eq_applyDockOps_on_supported halfCoinFamily (fun _ => halfCoinStencil) hDOp V hVnd _ h1.2
+  have h3 := cf_globalOp_eq_applyDockOps_on_supported bounceKFamily (fun _ => bounceKStencil) hKOp V hVnd _ h2.2
+  have h4 := cf_globalOp_eq_applyDockOps_on_supported mpairFamily (fun _ => mpairStencil) hPOp V hVnd _ h3.2
+  have h5 := cf_globalOp_eq_applyDockOps_on_supported meetFamily (fun _ => meetStencil) hMOp V hVnd _ h4.2
+  have h6 := cf_globalOp_eq_applyDockOps_on_supported halfCoinFamily (fun _ => halfCoinStencil) hDOp V hVnd _ h5.2
+  have h7 := cf_globalOp_eq_applyDockOps_on_supported (phiOddFamily χ) (phiOddStencil χ) hPhiOp V hVnd _ h6.2
   rw [hSplit, ← h1.1, ← h2.1, ← h3.1, ← h4.1, ← h5.1, ← h6.1, ← h7.1]
-  rw [cf_fockPhiOdd_eq_globalOp, cf_fockHalfCoin_eq_globalOp, cf_fockMeet_eq_globalOp,
-      cf_fockMPair_eq_globalOp, cf_fockBounceK_eq_globalOp]
+  rfl
+
 
 private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
     (V : List Mat5) (E : List FacetEdge) (hVnd : IsNodup V) (hEnd : IsNodup E)
@@ -3748,8 +2168,8 @@ private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
   rw [cf_regionLocalOp_eq_fockLocal χ V hVnd ψ hSupp, cf_fockBeat_eq]
   have hBallL : QuantumInBall R
       (fockPhiOdd χ (fockHalfCoin (fockMeet (fockMPair (fockBounceK (fockHalfCoin (fockPhiOdd χ ψ))))))) := by
-    rw [cf_fockPhiOdd_eq_globalOp, cf_fockHalfCoin_eq_globalOp, cf_fockMeet_eq_globalOp,
-        cf_fockMPair_eq_globalOp, cf_fockBounceK_eq_globalOp]
+    change QuantumInBall R (globalOp (phiOddFamily χ) (globalOp halfCoinFamily (globalOp meetFamily
+      (globalOp mpairFamily (globalOp bounceKFamily (globalOp halfCoinFamily (globalOp (phiOddFamily χ) ψ)))))))
     exact cf_globalOp_preserves_ball _ R _
       (cf_globalOp_preserves_ball _ R _
         (cf_globalOp_preserves_ball _ R _
@@ -3764,22 +2184,22 @@ private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
     have hZeroOfOutside : ∀ g₀ : Mat5, g₀ ∈ c.activeDocks → ¬ InBall (R + 1) g₀ →
         regionRevOp V (applyEdgeOps E φ) c = fockStream φ c := by
       intro g₀ hg₀ hNotB
-      obtain ⟨a, ha⟩ := cf_exists_nonempty_of_ne_v1 (c.lookup g₀) ((cf_mem_activeDocks_iff c g₀).mp hg₀)
+      obtain ⟨a, ha⟩ := exists_nonempty_of_ne_v1 (c.lookup g₀) ((mem_activeDocks_iff c g₀).mp hg₀)
       have hRhs : fockStream φ c = NinthLoc6.zero := by
-        rw [cf_fockStream_eval]
+        rw [fockStream_eval]
         apply hφ (streamConfigInv c); intro hIn
         let gSrc := mat5Mul g₀ (transport (oppSlot a))
         have hSrcOcc : (streamConfigInv c).lookup gSrc a ≠ .empty := by
-          rw [cf_lookup_streamConfigInv]
+          rw [lookup_streamConfigInv]
           change c.lookup (mat5Mul (mat5Mul g₀ (transport (oppSlot a))) (transport a)) a ≠ .empty
-          rw [cf_mat5Mul_assoc, cf_transport_inv_left a, cf_mat5Mul_id_right]
+          rw [fb_mat5Mul_assoc, transport_inv_left a, fb_mat5Mul_id_right]
           exact ha
         have hSrcIn : InBall R gSrc :=
-          hIn gSrc ((cf_mem_activeDocks_iff _ _).mpr (fun h => hSrcOcc (congrFun h a)))
+          hIn gSrc ((mem_activeDocks_iff _ _).mpr (fun h => hSrcOcc (congrFun h a)))
         have hStep : InBall (R + 1) (mat5Mul gSrc (transport a)) := InBall.step a hSrcIn
         have hBack : mat5Mul gSrc (transport a) = g₀ := by
           change mat5Mul (mat5Mul g₀ (transport (oppSlot a))) (transport a) = g₀
-          rw [cf_mat5Mul_assoc, cf_transport_inv_left a, cf_mat5Mul_id_right]
+          rw [fb_mat5Mul_assoc, transport_inv_left a, fb_mat5Mul_id_right]
         rw [hBack] at hStep; exact hNotB hStep
       have hLhs : regionRevOp V (applyEdgeOps E φ) c = NinthLoc6.zero := by
         rw [cf_regionRevOp_eval, cf_applyEdgeOps_eval]
@@ -3788,11 +2208,11 @@ private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
           cases hmV : memBool g₀ V with
           | true =>
             refine ⟨oppSlot a, ?_⟩
-            rw [cf_lookup_revOnSites c V hVnd g₀, hmV, cf_ite_bool_true]
+            rw [cf_lookup_revOnSites c V hVnd g₀, hmV, ite_bool_true]
             unfold revFullDock; rw [(thm_24_facets_geometry.2.1 a).1]; exact ha
           | false =>
             refine ⟨a, ?_⟩
-            rw [cf_lookup_revOnSites c V hVnd g₀, hmV, cf_ite_bool_false]; exact ha
+            rw [cf_lookup_revOnSites c V hVnd g₀, hmV, ite_bool_false]; exact ha
         obtain ⟨a₁, ha₁⟩ := hEx1
         cases hmE : memBool (edgeOfSlot g₀ a₁) E with
         | true =>
@@ -3803,22 +2223,22 @@ private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
             exact cf_edgeOfSlot_mate (g₀, a₁)
           have hBackG : mat5Mul g₁ (transport b₁) = g₀ := by
             change mat5Mul (mat5Mul g₀ (transport a₁)) (transport (oppSlot a₁)) = g₀
-            rw [cf_mat5Mul_assoc, cf_transport_inv_right a₁, cf_mat5Mul_id_right]
+            rw [fb_mat5Mul_assoc, transport_inv_right a₁, fb_mat5Mul_id_right]
           have hBackA : oppSlot b₁ = a₁ := (thm_24_facets_geometry.2.1 a₁).1
           have hOcc1 : (applyEdgeSwaps E (cf_revOnSites V c)).lookup g₁ b₁ ≠ .empty := by
-            rw [cf_lookup_applyEdgeSwaps E hEnd (cf_revOnSites V c) g₁ b₁, hMateE, hmE, cf_ite_bool_true,
+            rw [cf_lookup_applyEdgeSwaps E hEnd (cf_revOnSites V c) g₁ b₁, hMateE, hmE, ite_bool_true,
                 hBackG, hBackA]
             exact ha₁
           have hIn1 : InBall R g₁ :=
-            hIn g₁ ((cf_mem_activeDocks_iff _ _).mpr (fun h => hOcc1 (congrFun h b₁)))
+            hIn g₁ ((mem_activeDocks_iff _ _).mpr (fun h => hOcc1 (congrFun h b₁)))
           have hStep : InBall (R + 1) (mat5Mul g₁ (transport b₁)) := InBall.step b₁ hIn1
           rw [hBackG] at hStep; exact hNotB hStep
         | false =>
           have hOcc0 : (applyEdgeSwaps E (cf_revOnSites V c)).lookup g₀ a₁ ≠ .empty := by
-            rw [cf_lookup_applyEdgeSwaps E hEnd (cf_revOnSites V c) g₀ a₁, hmE, cf_ite_bool_false]
+            rw [cf_lookup_applyEdgeSwaps E hEnd (cf_revOnSites V c) g₀ a₁, hmE, ite_bool_false]
             exact ha₁
           have hIn0 : InBall R g₀ :=
-            hIn g₀ ((cf_mem_activeDocks_iff _ _).mpr (fun h => hOcc0 (congrFun h a₁)))
+            hIn g₀ ((mem_activeDocks_iff _ _).mpr (fun h => hOcc0 (congrFun h a₁)))
           exact hNotB (InBall.mono hIn0)
       rw [hLhs, hRhs]
     cases hBV : c.activeDocks.all (fun g => memBool g V) with
@@ -3826,19 +2246,19 @@ private theorem cf_regionBeat_eq_fockBeat_on_ball (χ : ChiralInvariant)
       cases hBE : c.activeDocks.all (fun g => (List.finRange 24).all (fun a => memBool (edgeOfSlot g a) E)) with
       | true =>
         exact (thm_cf_beat_factorization_R_Eswap_W χ V E).2.2.2 hVnd hEnd c φ
-          (fun g hg => (cf_memBool_eq_true_iff g V).mp ((cf_list_all_eq_true_iff _ _).mp hBV g hg))
-          (fun g hg a => (cf_memBool_eq_true_iff _ E).mp
-            ((cf_list_all_eq_true_iff _ _).mp ((cf_list_all_eq_true_iff _ _).mp hBE g hg) a (cf_mem_finRange24 a)))
+          (fun g hg => (memBool_eq_true_iff g V).mp ((list_all_eq_true_iff _ _).mp hBV g hg))
+          (fun g hg a => (memBool_eq_true_iff _ E).mp
+            ((list_all_eq_true_iff _ _).mp ((list_all_eq_true_iff _ _).mp hBE g hg) a (mem_finRange24 a)))
       | false =>
         obtain ⟨g₀, hg₀, hEg₀⟩ := cf_exists_false_of_all_false _ _ hBE
         obtain ⟨a₀, _, hEa₀⟩ := cf_exists_false_of_all_false _ _ hEg₀
         exact hZeroOfOutside g₀ hg₀ (fun hIn => by
-          have ht := (cf_memBool_eq_true_iff _ E).mpr (hEcov g₀ hIn a₀)
+          have ht := (memBool_eq_true_iff _ E).mpr (hEcov g₀ hIn a₀)
           rw [hEa₀] at ht; exact Bool.noConfusion ht)
     | false =>
       obtain ⟨g₀, hg₀, hVg₀⟩ := cf_exists_false_of_all_false _ _ hBV
       exact hZeroOfOutside g₀ hg₀ (fun hIn => by
-        have ht := (cf_memBool_eq_true_iff g₀ V).mpr (hVcov g₀ hIn)
+        have ht := (memBool_eq_true_iff g₀ V).mpr (hVcov g₀ hIn)
         rw [hVg₀] at ht; exact Bool.noConfusion ht)
   exact hStreamStep _ hBallL
 
@@ -4013,7 +2433,7 @@ theorem thm_cf_vibe_causal_foliation_invariance (χ : ChiralInvariant) :
     exact hIter T (Nat.le_refl T)
   · have hDetId : mat5Det mat5Id = ZSqrt2.one := by decide
     have hNe : mat5Id ≠ mat5Mul mat5Id (transport ⟨0, by decide⟩) := fun h => by
-      rw [cf_mat5Mul_id_left] at h
+      rw [fb_mat5Mul_id_left] at h
       have hD : mat5Det mat5Id = mat5Det (transport ⟨0, by decide⟩) := congrArg mat5Det h
       rw [hDetId, thm_coxeter_transport_det_neg_one] at hD
       exact absurd hD (by decide)
@@ -4108,7 +2528,7 @@ private theorem cf_dockActivity_eq_zero_iff (d : FullDock) :
     dockActivity d = 0 ↔ d = v1FullDock := by
   constructor
   · intro h0; funext a
-    have ha := (cf_fockSumNat_eq_zero_iff _ _).mp h0 a (cf_mem_finRange24 a)
+    have ha := (cf_fockSumNat_eq_zero_iff _ _).mp h0 a (mem_finRange24 a)
     cases hda : d a with
     | empty => rfl
     | occ _ _ => rw [hda] at ha; cases ha
@@ -4138,10 +2558,10 @@ theorem thm_cf_activity_zero_iff_v1 :
     intro c
     constructor
     · intro h0
-      apply cf_honeycombConfig_ext; intro g
+      apply honeycombConfig_ext; intro g
       if h : c.lookup g = v1FullDock then exact h
       else
-        have hAct : g ∈ c.activeDocks := (cf_mem_activeDocks_iff c g).mpr h
+        have hAct : g ∈ c.activeDocks := (mem_activeDocks_iff c g).mpr h
         have hD0 := (cf_fockSumNat_eq_zero_iff _ _).mp h0 g hAct
         exact absurd ((cf_dockActivity_eq_zero_iff _).mp hD0) h
     · intro h; rw [h]; rfl
@@ -4149,10 +2569,8 @@ theorem thm_cf_activity_zero_iff_v1 :
     intro h; have h0 := congrFun h ⟨0, by decide⟩
     exact SlotState.noConfusion h0
   have hEnt : balancedPairConfig.entries = [(mat5Id, balancedPairDock)] := by
-    unfold balancedPairConfig
-    have hE := cf_setDock_entries mat5Id balancedPairDock [] trivial (fun _ h => nomatch h)
-    change (HoneycombConfig.setDock ⟨[], trivial, fun _ h => nomatch h⟩ mat5Id balancedPairDock).entries = _
-    rw [hE]; unfold cf_setEntries; rw [ite_eq_right hNeDock]
+    unfold balancedPairConfig v1Config HoneycombConfig.setDock setEntries
+    rw [ite_eq_right hNeDock]
   have hQBal : totalCharge balancedPairConfig = 0 := by
     unfold totalCharge HoneycombConfig.activeDocks HoneycombConfig.lookup
     rw [hEnt]
@@ -4172,79 +2590,20 @@ theorem thm_cf_activity_zero_iff_v1 :
     rw [hEnt] at this; cases this
   exact ⟨hZero, fun c hc => by rw [(hZero c).mp hc]; rfl, ⟨hQBal, hDBal, hNeV1⟩⟩
 
+
 /-! ### Unified `Int`-Sum Conservation Helpers for `swapFacetEdge` & All 1-Dock Stencils -/
-
-private theorem cf_fockSumInt_zero_of_all_zero {α : Type} (xs : List α) (f : α → Int)
-    (h : ∀ x, x ∈ xs → f x = 0) : fockSumInt xs f = 0 := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih =>
-    simp only [fockSumInt]; rw [h x (List.Mem.head rest), ih (fun y hy => h y (List.Mem.tail x hy))]; omega
-
-private theorem cf_fockSumInt_congr {α : Type} (xs : List α) (f g : α → Int)
-    (h : ∀ x, x ∈ xs → f x = g x) : fockSumInt xs f = fockSumInt xs g := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih => simp only [fockSumInt]; rw [h x (List.Mem.head rest), ih (fun y hy => h y (List.Mem.tail x hy))]
-
-private theorem cf_fockSumInt_map {α β : Type} (xs : List α) (g : α → β) (f : β → Int) :
-    fockSumInt (xs.map g) f = fockSumInt xs (fun x => f (g x)) := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih => simp only [List.map, fockSumInt]; rw [ih]
-
-private theorem cf_fockSumInt_eraseOne {α : Type} [DecidableEq α] (a : α) (xs : List α) (f : α → Int)
-    (hmem : a ∈ xs) : fockSumInt xs f = f a + fockSumInt (eraseOne a xs) f := by
-  induction xs with
-  | nil => cases hmem
-  | cons x rest ih =>
-    simp only [eraseOne, fockSumInt]
-    if hxa : x = a then rw [ite_eq_left hxa, hxa]
-    else
-      rw [ite_eq_right hxa]; simp only [fockSumInt]
-      cases hmem with
-      | head => exact absurd rfl hxa
-      | tail _ h' => rw [ih h']; omega
-
-private theorem cf_fockSumInt_subset_eq {α : Type} [DecidableEq α] (s₁ s₂ : List α) (f : α → Int)
-    (h1 : IsNodup s₁) (h2 : IsNodup s₂)
-    (hsub : ∀ x, x ∈ s₁ → x ∈ s₂) (hvan : ∀ x, x ∈ s₂ → x ∉ s₁ → f x = 0) :
-    fockSumInt s₁ f = fockSumInt s₂ f := by
-  induction h1 generalizing s₂ with
-  | nil =>
-    simp only [fockSumInt]
-    exact (cf_fockSumInt_zero_of_all_zero s₂ f (fun x hx => hvan x hx (fun hm => nomatch hm))).symm
-  | @cons a rest hnot _ ih =>
-    rw [cf_fockSumInt_eraseOne a s₂ f (hsub a (List.Mem.head rest))]
-    simp only [fockSumInt]
-    rw [ih (eraseOne a s₂) (cf_isNodup_eraseOne a h2)
-      (fun x hx => (cf_mem_eraseOne_iff a x h2).mpr ⟨hsub x (List.Mem.tail a hx), fun hxa => by rw [hxa] at hx; exact hnot hx⟩)
-      (fun x hx hxnot => by
-        have ⟨hx2, hne⟩ := (cf_mem_eraseOne_iff a x h2).mp hx
-        exact hvan x hx2 (fun hm => match hm with | List.Mem.head _ => hne rfl | List.Mem.tail _ h' => hxnot h'))]
-
-private theorem cf_fullDockCharge_eq_fockSumInt (d : FullDock) :
-    fullDockCharge d = fockSumInt (List.finRange 24) (fun a => (d a).charge) := by
-  unfold fullDockCharge
-  have hAux : ∀ (xs : List (Fin 24)) (init : Int),
-      xs.foldl (fun acc a => acc + (d a).charge) init = init + fockSumInt xs (fun a => (d a).charge) := by
-    intro xs
-    induction xs with
-    | nil => intro init; simp only [List.foldl, fockSumInt]; omega
-    | cons x rest ih => intro init; simp only [List.foldl, fockSumInt]; rw [ih (init + (d x).charge)]; omega
-  rw [hAux (List.finRange 24) 0]; omega
 
 private theorem cf_sumInt_over_superset (obs : SlotState → Int) (hEmpty : obs .empty = 0)
     (c : HoneycombConfig) (V : List Mat5) (hVnd : IsNodup V)
     (hsub : ∀ g, g ∈ c.activeDocks → g ∈ V) :
     fockSumInt c.activeDocks (fun g => fockSumInt (List.finRange 24) (fun a => obs (c.lookup g a))) =
     fockSumInt V (fun g => fockSumInt (List.finRange 24) (fun a => obs (c.lookup g a))) := by
-  refine cf_fockSumInt_subset_eq c.activeDocks V _ (cf_activeDocks_nodup c) hVnd hsub ?_
+  refine fockSumInt_subset_eq c.activeDocks V _ (activeDocks_nodup c) hVnd hsub ?_
   intro g _ hgNot
   have h0 : c.lookup g = v1FullDock := by
-    if h : c.lookup g = v1FullDock then exact h else exact absurd ((cf_mem_activeDocks_iff c g).mpr h) hgNot
+    if h : c.lookup g = v1FullDock then exact h else exact absurd ((mem_activeDocks_iff c g).mpr h) hgNot
   rw [h0]
-  exact cf_fockSumInt_zero_of_all_zero (List.finRange 24) _ (fun _ _ => hEmpty)
+  exact fockSumInt_zero_of_all_zero (List.finRange 24) _ (fun _ _ => hEmpty)
 
 private theorem cf_sumInt_swapFacetEdge (obs : SlotState → Int) (hEmpty : obs .empty = 0)
     (g : Mat5) (a : Fin 24) (c : HoneycombConfig) :
@@ -4256,31 +2615,31 @@ private theorem cf_sumInt_swapFacetEdge (obs : SlotState → Int) (hEmpty : obs 
   let b := oppSlot a
   have hba : b ≠ a := (thm_24_facets_geometry.2.1 a).2
   let V := nodupUnion c.activeDocks (g :: h :: (swapFacetEdge g a c).activeDocks)
-  have hVnd : IsNodup V := cf_isNodup_nodupUnion (cf_activeDocks_nodup c) _
-  have hgV : g ∈ V := (cf_mem_nodupUnion _ _ g).mpr (Or.inr (List.Mem.head _))
-  have hhV : h ∈ V := (cf_mem_nodupUnion _ _ h).mpr (Or.inr (List.Mem.tail _ (List.Mem.head _)))
+  have hVnd : IsNodup V := isNodup_nodupUnion (activeDocks_nodup c) _
+  have hgV : g ∈ V := (mem_nodupUnion _ _ g).mpr (Or.inr (List.Mem.head _))
+  have hhV : h ∈ V := (mem_nodupUnion _ _ h).mpr (Or.inr (List.Mem.tail _ (List.Mem.head _)))
   rw [cf_sumInt_over_superset obs hEmpty (swapFacetEdge g a c) V hVnd
-        (fun x hx => (cf_mem_nodupUnion _ _ x).mpr (Or.inr (List.Mem.tail _ (List.Mem.tail _ hx)))),
+        (fun x hx => (mem_nodupUnion _ _ x).mpr (Or.inr (List.Mem.tail _ (List.Mem.tail _ hx)))),
       cf_sumInt_over_superset obs hEmpty c V hVnd
-        (fun x hx => (cf_mem_nodupUnion _ _ x).mpr (Or.inl hx))]
+        (fun x hx => (mem_nodupUnion _ _ x).mpr (Or.inl hx))]
   if hEq : h = g then
-    rw [cf_fockSumInt_eraseOne g V _ hgV, cf_fockSumInt_eraseOne g V _ hgV]
+    rw [fockSumInt_eraseOne g V _ hgV, fockSumInt_eraseOne g V _ hgV]
     have hRest : fockSumInt (eraseOne g V) (fun x => fockSumInt (List.finRange 24) (fun s => obs ((swapFacetEdge g a c).lookup x s))) =
         fockSumInt (eraseOne g V) (fun x => fockSumInt (List.finRange 24) (fun s => obs (c.lookup x s))) := by
-      apply cf_fockSumInt_congr; intro x hx
-      have hne : x ≠ g := ((cf_mem_eraseOne_iff g x hVnd).mp hx).2
-      apply cf_fockSumInt_congr; intro s _
+      apply fockSumInt_congr; intro x hx
+      have hne : x ≠ g := ((mem_eraseOne_iff g x hVnd).mp hx).2
+      apply fockSumInt_congr; intro s _
       rw [cf_lookup_swapFacetEdge]
       have hp1 : (x, s) ≠ (g, a) := fun e => hne (congrArg Prod.fst e)
       have hp2 : (x, s) ≠ facetMate (g, a) := fun e => hne (by have hf : x = h := congrArg Prod.fst e; rw [hEq] at hf; exact hf)
       rw [ite_eq_right hp1, ite_eq_right hp2]
     rw [hRest]
     have hBin : b ∈ eraseOne a (List.finRange 24) :=
-      (cf_mem_eraseOne_iff a b cf_finRange24_nodup).mpr ⟨cf_mem_finRange24 b, hba⟩
-    rw [cf_fockSumInt_eraseOne a (List.finRange 24) _ (cf_mem_finRange24 a),
-        cf_fockSumInt_eraseOne b _ _ hBin,
-        cf_fockSumInt_eraseOne a (List.finRange 24) _ (cf_mem_finRange24 a),
-        cf_fockSumInt_eraseOne b _ _ hBin]
+      (mem_eraseOne_iff a b finRange24_nodup).mpr ⟨mem_finRange24 b, hba⟩
+    rw [fockSumInt_eraseOne a (List.finRange 24) _ (mem_finRange24 a),
+        fockSumInt_eraseOne b _ _ hBin,
+        fockSumInt_eraseOne a (List.finRange 24) _ (mem_finRange24 a),
+        fockSumInt_eraseOne b _ _ hBin]
     have hA : (swapFacetEdge g a c).lookup g a = c.lookup g b := by
       rw [cf_lookup_swapFacetEdge, ite_eq_left rfl]
       change c.lookup h b = c.lookup g b; rw [hEq]
@@ -4291,35 +2650,35 @@ private theorem cf_sumInt_swapFacetEdge (obs : SlotState → Int) (hEmpty : obs 
       rw [ite_eq_right hp1, ite_eq_left hp2]
     have hRem : fockSumInt (eraseOne b (eraseOne a (List.finRange 24))) (fun s => obs ((swapFacetEdge g a c).lookup g s)) =
         fockSumInt (eraseOne b (eraseOne a (List.finRange 24))) (fun s => obs (c.lookup g s)) := by
-      apply cf_fockSumInt_congr; intro s hs
-      have ⟨hs1, hsb⟩ := (cf_mem_eraseOne_iff b s (cf_isNodup_eraseOne a cf_finRange24_nodup)).mp hs
-      have ⟨_, hsa⟩ := (cf_mem_eraseOne_iff a s cf_finRange24_nodup).mp hs1
+      apply fockSumInt_congr; intro s hs
+      have ⟨hs1, hsb⟩ := (mem_eraseOne_iff b s (isNodup_eraseOne a finRange24_nodup)).mp hs
+      have ⟨_, hsa⟩ := (mem_eraseOne_iff a s finRange24_nodup).mp hs1
       rw [cf_lookup_swapFacetEdge]
       have hp1 : (g, s) ≠ (g, a) := fun e => hsa (congrArg Prod.snd e)
       have hp2 : (g, s) ≠ facetMate (g, a) := fun e => hsb (congrArg Prod.snd e)
       rw [ite_eq_right hp1, ite_eq_right hp2]
     rw [hA, hB, hRem]; omega
   else
-    have hhV' : h ∈ eraseOne g V := (cf_mem_eraseOne_iff g h hVnd).mpr ⟨hhV, hEq⟩
-    rw [cf_fockSumInt_eraseOne g V _ hgV, cf_fockSumInt_eraseOne h _ _ hhV',
-        cf_fockSumInt_eraseOne g V _ hgV, cf_fockSumInt_eraseOne h _ _ hhV']
+    have hhV' : h ∈ eraseOne g V := (mem_eraseOne_iff g h hVnd).mpr ⟨hhV, hEq⟩
+    rw [fockSumInt_eraseOne g V _ hgV, fockSumInt_eraseOne h _ _ hhV',
+        fockSumInt_eraseOne g V _ hgV, fockSumInt_eraseOne h _ _ hhV']
     have hRest : fockSumInt (eraseOne h (eraseOne g V))
           (fun x => fockSumInt (List.finRange 24) (fun s => obs ((swapFacetEdge g a c).lookup x s))) =
         fockSumInt (eraseOne h (eraseOne g V))
           (fun x => fockSumInt (List.finRange 24) (fun s => obs (c.lookup x s))) := by
-      apply cf_fockSumInt_congr; intro x hx
-      have ⟨hx1, hxh⟩ := (cf_mem_eraseOne_iff h x (cf_isNodup_eraseOne g hVnd)).mp hx
-      have ⟨_, hxg⟩ := (cf_mem_eraseOne_iff g x hVnd).mp hx1
-      apply cf_fockSumInt_congr; intro s _
+      apply fockSumInt_congr; intro x hx
+      have ⟨hx1, hxh⟩ := (mem_eraseOne_iff h x (isNodup_eraseOne g hVnd)).mp hx
+      have ⟨_, hxg⟩ := (mem_eraseOne_iff g x hVnd).mp hx1
+      apply fockSumInt_congr; intro s _
       rw [cf_lookup_swapFacetEdge]
       have hp1 : (x, s) ≠ (g, a) := fun e => hxg (congrArg Prod.fst e)
       have hp2 : (x, s) ≠ facetMate (g, a) := fun e => hxh (congrArg Prod.fst e)
       rw [ite_eq_right hp1, ite_eq_right hp2]
     rw [hRest,
-        cf_fockSumInt_eraseOne a (List.finRange 24) _ (cf_mem_finRange24 a),
-        cf_fockSumInt_eraseOne b (List.finRange 24) _ (cf_mem_finRange24 b),
-        cf_fockSumInt_eraseOne a (List.finRange 24) _ (cf_mem_finRange24 a),
-        cf_fockSumInt_eraseOne b (List.finRange 24) _ (cf_mem_finRange24 b)]
+        fockSumInt_eraseOne a (List.finRange 24) _ (mem_finRange24 a),
+        fockSumInt_eraseOne b (List.finRange 24) _ (mem_finRange24 b),
+        fockSumInt_eraseOne a (List.finRange 24) _ (mem_finRange24 a),
+        fockSumInt_eraseOne b (List.finRange 24) _ (mem_finRange24 b)]
     have hGa : (swapFacetEdge g a c).lookup g a = c.lookup h b := by
       rw [cf_lookup_swapFacetEdge, ite_eq_left rfl]
     have hHb : (swapFacetEdge g a c).lookup h b = c.lookup g a := by
@@ -4329,16 +2688,16 @@ private theorem cf_sumInt_swapFacetEdge (obs : SlotState → Int) (hEmpty : obs 
       rw [ite_eq_right hp1, ite_eq_left hp2]
     have hRemG : fockSumInt (eraseOne a (List.finRange 24)) (fun s => obs ((swapFacetEdge g a c).lookup g s)) =
         fockSumInt (eraseOne a (List.finRange 24)) (fun s => obs (c.lookup g s)) := by
-      apply cf_fockSumInt_congr; intro s hs
-      have hsa := ((cf_mem_eraseOne_iff a s cf_finRange24_nodup).mp hs).2
+      apply fockSumInt_congr; intro s hs
+      have hsa := ((mem_eraseOne_iff a s finRange24_nodup).mp hs).2
       rw [cf_lookup_swapFacetEdge]
       have hp1 : (g, s) ≠ (g, a) := fun e => hsa (congrArg Prod.snd e)
       have hp2 : (g, s) ≠ facetMate (g, a) := fun e => hEq (congrArg Prod.fst e).symm
       rw [ite_eq_right hp1, ite_eq_right hp2]
     have hRemH : fockSumInt (eraseOne b (List.finRange 24)) (fun s => obs ((swapFacetEdge g a c).lookup h s)) =
         fockSumInt (eraseOne b (List.finRange 24)) (fun s => obs (c.lookup h s)) := by
-      apply cf_fockSumInt_congr; intro s hs
-      have hsb := ((cf_mem_eraseOne_iff b s cf_finRange24_nodup).mp hs).2
+      apply fockSumInt_congr; intro s hs
+      have hsb := ((mem_eraseOne_iff b s finRange24_nodup).mp hs).2
       rw [cf_lookup_swapFacetEdge]
       have hp1 : (h, s) ≠ (g, a) := fun e => hEq (congrArg Prod.fst e)
       have hp2 : (h, s) ≠ facetMate (g, a) := fun e => hsb (congrArg Prod.snd e)
@@ -4352,23 +2711,23 @@ private theorem cf_sumInt_setDock (obs : SlotState → Int) (hEmpty : obs .empty
     fockSumInt (c.setDock g d).activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => obs ((c.setDock g d).lookup x s))) =
     fockSumInt c.activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => obs (c.lookup x s))) := by
   let V := nodupUnion c.activeDocks (g :: (c.setDock g d).activeDocks)
-  have hVnd : IsNodup V := cf_isNodup_nodupUnion (cf_activeDocks_nodup c) _
+  have hVnd : IsNodup V := isNodup_nodupUnion (activeDocks_nodup c) _
   rw [cf_sumInt_over_superset obs hEmpty (c.setDock g d) V hVnd
-        (fun x hx => (cf_mem_nodupUnion _ _ x).mpr (Or.inr (List.Mem.tail g hx))),
+        (fun x hx => (mem_nodupUnion _ _ x).mpr (Or.inr (List.Mem.tail g hx))),
       cf_sumInt_over_superset obs hEmpty c V hVnd
-        (fun x hx => (cf_mem_nodupUnion _ _ x).mpr (Or.inl hx))]
-  apply cf_fockSumInt_congr; intro x _
-  rw [cf_lookup_setDock]
+        (fun x hx => (mem_nodupUnion _ _ x).mpr (Or.inl hx))]
+  apply fockSumInt_congr; intro x _
+  rw [lookup_setDock]
   if hxg : x = g then rw [ite_eq_left hxg, hxg]; exact hSame else rw [ite_eq_right hxg]
 
 private theorem cf_sumInt_fin24_involution (f : Fin 24 → Fin 24) (hInv : ∀ s, f (f s) = s)
     (g : Fin 24 → Int) : fockSumInt (List.finRange 24) (fun s => g (f s)) = fockSumInt (List.finRange 24) g := by
-  rw [← cf_fockSumInt_map (List.finRange 24) f g]
+  rw [← fockSumInt_map (List.finRange 24) f g]
   have hMapNd : IsNodup ((List.finRange 24).map f) :=
-    cf_isNodup_map_inj f (fun x y h => by have := congrArg f h; rw [hInv, hInv] at this; exact this) cf_finRange24_nodup
-  exact cf_fockSumInt_subset_eq _ (List.finRange 24) g hMapNd cf_finRange24_nodup
-    (fun x _ => cf_mem_finRange24 x)
-    (fun x _ hxNot => absurd ((cf_mem_map_iff f _ x).mpr ⟨f x, cf_mem_finRange24 _, hInv x⟩) hxNot)
+    isNodup_map_inj f (fun x y h => by have := congrArg f h; rw [hInv, hInv] at this; exact this) finRange24_nodup
+  exact fockSumInt_subset_eq _ (List.finRange 24) g hMapNd finRange24_nodup
+    (fun x _ => mem_finRange24 x)
+    (fun x _ hxNot => absurd ((mem_map_iff f _ x).mpr ⟨f x, mem_finRange24 _, hInv x⟩) hxNot)
 
 private def cf_StencilPreservesQD (S : DockStencil) : Prop :=
   (∀ (d : FullDock) (p : NinthLoc6 × FullDock), p ∈ S d →
@@ -4379,8 +2738,8 @@ private theorem cf_stencilQD_comp {S₁ S₂ : DockStencil}
     (h1 : cf_StencilPreservesQD S₁) (h2 : cf_StencilPreservesQD S₂) :
     cf_StencilPreservesQD (compStencil S₁ S₂) := by
   refine ⟨fun d r hr => ?_, fun φ => by rw [cf_applyStencil_comp, h1.2, h2.2]⟩
-  obtain ⟨p, hp, hq⟩ := (cf_mem_flatMapList_iff _ (S₁ d) r).mp hr
-  obtain ⟨q, hqIn, hEq⟩ := (cf_mem_map_iff _ (S₂ p.2) r).mp hq
+  obtain ⟨p, hp, hq⟩ := (mem_flatMapList_iff _ (S₁ d) r).mp hr
+  obtain ⟨q, hqIn, hEq⟩ := (mem_map_iff _ (S₂ p.2) r).mp hq
   have hpQD := h1.1 d p hp
   have hqQD := h2.1 p.2 q hqIn
   rw [← hEq]; exact ⟨hqQD.1.trans hpQD.1, hqQD.2.trans hpQD.2⟩
@@ -4419,7 +2778,7 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
         else if hB : s = lineB l then simp only [sw, ite_eq_right hA, ite_eq_left hB]
         else simp only [sw, ite_eq_right hA, ite_eq_right hB]
       rw [hFun]; exact cf_sumInt_fin24_involution sw hInv (fun s => obs (d s))
-    refine ⟨by rw [cf_fullDockCharge_eq_fockSumInt, cf_fullDockCharge_eq_fockSumInt]; exact hSw SlotState.charge, ?_⟩
+    refine ⟨by rw [fullDockCharge_eq_fockSumInt, fullDockCharge_eq_fockSumInt]; exact hSw SlotState.charge, ?_⟩
     have hD := hSw (fun s => (s.activity : Int))
     rw [← cf_fockSumNat_cast, ← cf_fockSumNat_cast] at hD; exact Int.ofNat.inj hD
   have hSwapRoles : ∀ (l : Fin 12) (d : FullDock),
@@ -4430,7 +2789,7 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
         fockSumInt (List.finRange 24) (fun s => obs (swapLineRolesDock l d s)) =
         fockSumInt (List.finRange 24) (fun s => obs (d s)) := by
       intro obs hRole
-      apply cf_fockSumInt_congr; intro s _
+      apply fockSumInt_congr; intro s _
       unfold swapLineRolesDock
       cases hA : d (lineA l) with
       | empty => rfl
@@ -4442,7 +2801,7 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
           if hsA : s = lineA l then rw [ite_eq_left hsA, hsA, hA]; exact hRole sA rB rA
           else if hsB : s = lineB l then rw [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]; exact hRole sB rA rB
           else rw [ite_eq_right hsA, ite_eq_right hsB]
-    refine ⟨by rw [cf_fullDockCharge_eq_fockSumInt, cf_fullDockCharge_eq_fockSumInt]; exact hEq SlotState.charge (fun _ _ _ => rfl), ?_⟩
+    refine ⟨by rw [fullDockCharge_eq_fockSumInt, fullDockCharge_eq_fockSumInt]; exact hEq SlotState.charge (fun _ _ _ => rfl), ?_⟩
     have hD := hEq (fun s => (s.activity : Int)) (fun _ _ _ => rfl)
     rw [← cf_fockSumNat_cast, ← cf_fockSumNat_cast] at hD; exact Int.ofNat.inj hD
   have hRev : cf_StencilPreservesQD revStencil := by
@@ -4451,83 +2810,83 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
     | tail _ h' => cases h'
     | head =>
       have hInv := fun a => (thm_24_facets_geometry.2.1 a).1
-      refine ⟨by rw [cf_fullDockCharge_eq_fockSumInt, cf_fullDockCharge_eq_fockSumInt]
+      refine ⟨by rw [fullDockCharge_eq_fockSumInt, fullDockCharge_eq_fockSumInt]
                  exact cf_sumInt_fin24_involution oppSlot hInv (fun s => (d s).charge), ?_⟩
       have hD := cf_sumInt_fin24_involution oppSlot hInv (fun s => ((d s).activity : Int))
       rw [← cf_fockSumNat_cast, ← cf_fockSumNat_cast] at hD; exact Int.ofNat.inj hD
   have hPhi : cf_StencilPreservesQD (phiOddStencil χ g) := by
     refine ⟨fun _ _ hp => ?_, fun φ => ?_⟩
     · cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
-    · simp only [applyStencil, phiOddStencil, cf_sumNloc, χ.chi_v1, Int.mul_zero]
+    · simp only [applyStencil, phiOddStencil, sumList, χ.chi_v1, Int.mul_zero]
       change NinthLoc6.add (NinthLoc6.mul NinthLoc6.one (φ v1FullDock)) NinthLoc6.zero = φ v1FullDock
-      rw [cf_nloc_one_mul, cf_nloc_add_zero]
+      rw [NinthLoc6.one_mul, NinthLoc6.add_zero]
   have hD : cf_StencilPreservesQD halfCoinStencil := by
     apply cf_stencilQD_composeLines; intro l
     refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
     · unfold lineHalfCoinStencil at hp; dsimp only at hp
       cases hL : isLoneLine d l with
       | false =>
-        rw [hL, cf_ite_bool_false] at hp
+        rw [hL, ite_bool_false] at hp
         cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
       | true =>
-        rw [hL, cf_ite_bool_true] at hp
+        rw [hL, ite_bool_true] at hp
         cases hp with
         | head => exact ⟨rfl, rfl⟩
         | tail _ h1 => cases h1 with | head => exact hSwapSlots l d | tail _ h2 => cases h2
     · unfold applyStencil lineHalfCoinStencil; dsimp only
       have h1 : isFullLine v1FullDock l = false := rfl
       have h2 : isLoneLine v1FullDock l = false := rfl
-      rw [h1, h2, cf_ite_bool_false, cf_ite_bool_false]
-      simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+      rw [h1, h2, ite_bool_false, ite_bool_false]
+      simp only [sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
   have hK : cf_StencilPreservesQD bounceKStencil := by
     apply cf_stencilQD_composeLines; intro l
     refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
     · unfold lineBounceKStencil at hp
       cases hO : isOppSignLine d l with
-      | false => rw [hO, cf_ite_bool_false] at hp; cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
-      | true => rw [hO, cf_ite_bool_true] at hp; cases hp with | head => exact hSwapSlots l d | tail _ h' => cases h'
+      | false => rw [hO, ite_bool_false] at hp; cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
+      | true => rw [hO, ite_bool_true] at hp; cases hp with | head => exact hSwapSlots l d | tail _ h' => cases h'
     · unfold applyStencil lineBounceKStencil
       have h1 : isOppSignLine v1FullDock l = false := rfl
-      rw [h1, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+      rw [h1, ite_bool_false]; simp only [sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
   have hM : cf_StencilPreservesQD meetStencil := by
     apply cf_stencilQD_composeLines; intro l
     refine ⟨fun d _ hp => ?_, fun φ => ?_⟩
     · unfold lineMeetStencil at hp; dsimp only at hp
       cases hSD : isSameSignDiffRoleLine d l with
       | false =>
-        rw [hSD, cf_ite_bool_false] at hp
+        rw [hSD, ite_bool_false] at hp
         cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
       | true =>
-        rw [hSD, cf_ite_bool_true] at hp
+        rw [hSD, ite_bool_true] at hp
         cases hp with
         | head => exact ⟨rfl, rfl⟩
         | tail _ h1 => cases h1 with | head => exact hSwapRoles l d | tail _ h2 => cases h2
     · unfold applyStencil lineMeetStencil; dsimp only
       have h1 : isSameSignEqRoleLine v1FullDock l = false := rfl
       have h2 : isSameSignDiffRoleLine v1FullDock l = false := rfl
-      rw [h1, h2, cf_ite_bool_false, cf_ite_bool_false]
-      simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+      rw [h1, h2, ite_bool_false, ite_bool_false]
+      simp only [sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
   have hP : cf_StencilPreservesQD mpairStencil := by
     refine ⟨fun d p hp => ?_, fun φ => ?_⟩
     · unfold mpairStencil at hp
       cases ha : isSoleIdentPairDock d with
       | false =>
-        rw [ha, cf_ite_bool_false] at hp
+        rw [ha, ite_bool_false] at hp
         cases hp with | head => exact ⟨rfl, rfl⟩ | tail _ h' => cases h'
       | true =>
-        rw [ha, cf_ite_bool_true] at hp
+        rw [ha, ite_bool_true] at hp
         cases hp with
         | head => exact ⟨rfl, rfl⟩
         | tail _ hm =>
-          obtain ⟨m, _, hEq⟩ := (cf_mem_map_iff _ _ p).mp hm
+          obtain ⟨m, _, hEq⟩ := (mem_map_iff _ _ p).mp hm
           rw [← hEq]
           unfold isSoleIdentPairDock at ha
           cases hf : findSolePairLine d with
           | none => rw [hf] at ha; exact Bool.noConfusion ha
           | some l =>
-            have hl := (cf_find?_eq_some_iff _ _ _ hf).2
+            have hl := (find?_eq_some_iff _ _ _ hf).2
             have hSame := ((Bool.and_eq_true _ _).mp hl).1
-            have hAll := (cf_list_all_eq_true_iff _ _).mp ((Bool.and_eq_true _ _).mp hl).2
+            have hAll := (list_all_eq_true_iff _ _).mp ((Bool.and_eq_true _ _).mp hl).2
             have hEqAB : d (lineB l) = d (lineA l) := by
               unfold isSameSignEqRoleLine at hSame
               cases hA : d (lineA l) <;> cases hB : d (lineB l) <;> rw [hA, hB] at hSame
@@ -4540,13 +2899,13 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
               intro obs h0 k dk v hkA hkB hkOth
               have hneAB := (cf_line_geom.1 k).2.2
               have hBin : lineB k ∈ eraseOne (lineA k) (List.finRange 24) :=
-                (cf_mem_eraseOne_iff (lineA k) (lineB k) cf_finRange24_nodup).mpr ⟨cf_mem_finRange24 _, hneAB.symm⟩
-              rw [cf_fockSumInt_eraseOne (lineA k) (List.finRange 24) _ (cf_mem_finRange24 _),
-                  cf_fockSumInt_eraseOne (lineB k) _ _ hBin]
+                (mem_eraseOne_iff (lineA k) (lineB k) finRange24_nodup).mpr ⟨mem_finRange24 _, hneAB.symm⟩
+              rw [fockSumInt_eraseOne (lineA k) (List.finRange 24) _ (mem_finRange24 _),
+                  fockSumInt_eraseOne (lineB k) _ _ hBin]
               have hR0 : fockSumInt (eraseOne (lineB k) (eraseOne (lineA k) (List.finRange 24))) (fun s => obs (dk s)) = 0 := by
-                apply cf_fockSumInt_zero_of_all_zero; intro s hs
-                have ⟨hs1, hneB⟩ := (cf_mem_eraseOne_iff (lineB k) s (cf_isNodup_eraseOne _ cf_finRange24_nodup)).mp hs
-                have ⟨_, hneA⟩ := (cf_mem_eraseOne_iff (lineA k) s cf_finRange24_nodup).mp hs1
+                apply fockSumInt_zero_of_all_zero; intro s hs
+                have ⟨hs1, hneB⟩ := (mem_eraseOne_iff (lineB k) s (isNodup_eraseOne _ finRange24_nodup)).mp hs
+                have ⟨_, hneA⟩ := (mem_eraseOne_iff (lineA k) s finRange24_nodup).mp hs1
                 rw [hkOth s hneA hneB, h0]
               rw [hR0, hkA, hkB]; omega
             have hMoveObs : ∀ (obs : SlotState → Int), obs .empty = 0 →
@@ -4560,17 +2919,17 @@ private theorem cf_vibeDressed_preservesQD (χ : ChiralInvariant) (g : Mat5) :
                   unfold moveSolePairDock; rw [hf]; dsimp only
                   rw [ite_eq_right (fun h => match h with | Or.inl e => hA e | Or.inr e => hB e)])
               have h2 := hDockObs obs h0 l d (d (lineA l)) rfl hEqAB (fun s hA hB => by
-                rcases of_decide_eq_true (hAll s (cf_mem_finRange24 s)) with h1' | h2' | h3'
+                rcases of_decide_eq_true (hAll s (mem_finRange24 s)) with h1' | h2' | h3'
                 · exact absurd h1' hA
                 · exact absurd h2' hB
                 · exact h3')
               rw [h1, h2]
-            refine ⟨by rw [cf_fullDockCharge_eq_fockSumInt, cf_fullDockCharge_eq_fockSumInt]; exact hMoveObs SlotState.charge rfl, ?_⟩
+            refine ⟨by rw [fullDockCharge_eq_fockSumInt, fullDockCharge_eq_fockSumInt]; exact hMoveObs SlotState.charge rfl, ?_⟩
             have hD := hMoveObs (fun s => (s.activity : Int)) rfl
             rw [← cf_fockSumNat_cast, ← cf_fockSumNat_cast] at hD; exact Int.ofNat.inj hD
     · unfold applyStencil mpairStencil
       have hF : isSoleIdentPairDock v1FullDock = false := by decide
-      rw [hF, cf_ite_bool_false]; simp only [cf_sumNloc]; rw [cf_nloc_one_mul, cf_nloc_add_zero]
+      rw [hF, ite_bool_false]; simp only [sumList]; rw [NinthLoc6.one_mul, StarCommRing.add_zero]
   exact cf_stencilQD_comp
     (cf_stencilQD_comp hPhi (cf_stencilQD_comp hD (cf_stencilQD_comp hM (cf_stencilQD_comp hP (cf_stencilQD_comp hK (cf_stencilQD_comp hD hPhi))))))
     hRev
@@ -4604,7 +2963,7 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
       have hFun : ∀ c' : HoneycombConfig,
           fockSumInt c'.activeDocks (fun x => fullDockCharge (c'.lookup x)) =
           fockSumInt c'.activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => (c'.lookup x s).charge)) :=
-        fun c' => cf_fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fullDockCharge_eq_fockSumInt (c'.lookup x))
+        fun c' => fockSumInt_congr c'.activeDocks _ _ (fun x _ => fullDockCharge_eq_fockSumInt (c'.lookup x))
       rw [hFun (swapFacetEdge g a c), hFun c]
       exact cf_sumInt_swapFacetEdge SlotState.charge rfl g a c
     have hD : totalActivity (swapFacetEdge g a c) = totalActivity c := by
@@ -4612,7 +2971,7 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
           (totalActivity c' : Int) =
           fockSumInt c'.activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => ((c'.lookup x s).activity : Int))) := by
         intro c'; unfold totalActivity; rw [cf_fockSumNat_cast]
-        exact cf_fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fockSumNat_cast (List.finRange 24) _)
+        exact fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fockSumNat_cast (List.finRange 24) _)
       have hInt := cf_sumInt_swapFacetEdge (fun s => (s.activity : Int)) rfl g a c
       rw [← hCast (swapFacetEdge g a c), ← hCast c] at hInt
       exact Int.ofNat.inj hInt
@@ -4640,11 +2999,11 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
           have hFun : ∀ c' : HoneycombConfig,
               fockSumInt c'.activeDocks (fun x => fullDockCharge (c'.lookup x)) =
               fockSumInt c'.activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => (c'.lookup x s).charge)) :=
-            fun c' => cf_fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fullDockCharge_eq_fockSumInt (c'.lookup x))
+            fun c' => fockSumInt_congr c'.activeDocks _ _ (fun x _ => fullDockCharge_eq_fockSumInt (c'.lookup x))
           rw [hFun (c.setDock g p.2), hFun c]
           apply cf_sumInt_setDock SlotState.charge rfl c g p.2
-          rw [← cf_fullDockCharge_eq_fockSumInt, ← cf_fullDockCharge_eq_fockSumInt]; exact hQp
-        rw [hq (c.setDock g p.2) (by rw [hTotQ]; exact hc), cf_nloc_mul_zero]
+          rw [← fullDockCharge_eq_fockSumInt, ← fullDockCharge_eq_fockSumInt]; exact hQp
+        rw [hq (c.setDock g p.2) (by rw [hTotQ]; exact hc), NinthLoc6.mul_zero]
       · unfold vibeEventOp siteDressedOp liftDockOp applyStencil dockSlice
         apply cf_sumNloc_zero_of_all_zero; intro p hp
         have hDp : dockActivity p.2 = dockActivity (c.lookup g) := (hSt (c.lookup g) p hp).2
@@ -4653,26 +3012,26 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
               (totalActivity c' : Int) =
               fockSumInt c'.activeDocks (fun x => fockSumInt (List.finRange 24) (fun s => ((c'.lookup x s).activity : Int))) := by
             intro c'; unfold totalActivity; rw [cf_fockSumNat_cast]
-            exact cf_fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fockSumNat_cast (List.finRange 24) _)
+            exact fockSumInt_congr c'.activeDocks _ _ (fun x _ => cf_fockSumNat_cast (List.finRange 24) _)
           have hInt : (totalActivity (c.setDock g p.2) : Int) = (totalActivity c : Int) := by
             rw [hCast (c.setDock g p.2), hCast c]
             apply cf_sumInt_setDock (fun s => (s.activity : Int)) rfl c g p.2
             rw [← cf_fockSumNat_cast, ← cf_fockSumNat_cast]; exact congrArg Int.ofNat hDp
           exact Int.ofNat.inj hInt
-        rw [hd (c.setDock g p.2) (by rw [hTotD]; exact hc), cf_nloc_mul_zero]
+        rw [hd (c.setDock g p.2) (by rw [hTotD]; exact hc), NinthLoc6.mul_zero]
   have hEvV1 : ∀ ev : VibeEvent,
       vibeEventOp χ ev (ket (R := NinthLoc6) v1Config) = ket (R := NinthLoc6) v1Config := by
     intro ev; funext c
     cases ev with
     | edge e _ =>
       have hSwV1 : swapFacetEdge e.u e.a v1Config = v1Config := by
-        apply cf_honeycombConfig_ext; intro x; funext s
+        apply honeycombConfig_ext; intro x; funext s
         rw [cf_lookup_swapFacetEdge]
         if h1 : (x, s) = (e.u, e.a) then rw [ite_eq_left h1]; rfl
         else if h2 : (x, s) = facetMate (e.u, e.a) then rw [ite_eq_right h1, ite_eq_left h2]; rfl
         else rw [ite_eq_right h1, ite_eq_right h2]
       change ket (R := NinthLoc6) v1Config (swapFacetEdge e.u e.a c) = ket (R := NinthLoc6) v1Config c
-      rw [cf_ket_eval, cf_ket_eval]
+      rw [ket_nloc, ket_nloc]
       if hc : c = v1Config then rw [hc, hSwV1, ite_eq_left rfl]
       else
         have hne : swapFacetEdge e.u e.a c ≠ v1Config := fun h0 => hc (by
@@ -4686,24 +3045,24 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
         change applyStencil (vibeDressedStencil χ g) (dockSlice g v1Config (ket (R := NinthLoc6) v1Config)) v1FullDock = _
         rw [hSt.2]; unfold dockSlice
         have hLk : v1FullDock = v1Config.lookup g := rfl
-        rw [hLk, cf_setDock_lookup_self]
+        rw [hLk, setDock_lookup_self]
       else
-        rw [cf_ket_eval, ite_eq_right hc]
+        rw [ket_nloc, ite_eq_right hc]
         unfold vibeEventOp siteDressedOp liftDockOp applyStencil dockSlice
         apply cf_sumNloc_zero_of_all_zero; intro p hp
         have hne : c.setDock g p.2 ≠ v1Config := fun h0 => hc (by
-          apply cf_honeycombConfig_ext; intro x
+          apply honeycombConfig_ext; intro x
           if hxg : x = g then
             have hp0 : p.2 = v1FullDock := by
               have hLk := congrArg (fun z => z.lookup g) h0
-              rw [cf_lookup_setDock, ite_eq_left rfl] at hLk; exact hLk
+              rw [lookup_setDock, ite_eq_left rfl] at hLk; exact hLk
             have hD0 : dockActivity (c.lookup g) = 0 := by
               rw [← (hSt.1 (c.lookup g) p hp).2, hp0]; decide
             rw [hxg, (cf_dockActivity_eq_zero_iff _).mp hD0]; rfl
           else
             have hLk := congrArg (fun z => z.lookup x) h0
-            rw [cf_lookup_setDock, ite_eq_right hxg] at hLk; exact hLk)
-        rw [cf_ket_eval, ite_eq_right hne, cf_nloc_mul_zero]
+            rw [lookup_setDock, ite_eq_right hxg] at hLk; exact hLk)
+        rw [ket_nloc, ite_eq_right hne, NinthLoc6.mul_zero]
   have hSchedQD : ∀ (π : List VibeEvent) (q : Int) (d : Nat) (ψ : FockVec NinthLoc6 HoneycombConfig),
       (InChargeSector q ψ → InChargeSector q (execSchedule (vibeEventOp χ) π ψ)) ∧
       (InActivitySector d ψ → InActivitySector d (execSchedule (vibeEventOp χ) π ψ)) := by
@@ -4721,5 +3080,8 @@ theorem thm_cf_edge_swap_conserves_Q_and_D (χ : ChiralInvariant) :
     | nil => rfl
     | cons ev _ ih => simp only [execSchedule]; rw [hEvV1 ev, ih]
   exact ⟨hSwapQD, hSwapSec, hEvQD, hSchedQD, hSchedV1⟩
+
+
+end
 
 end Vibe

@@ -1,3 +1,8 @@
+module
+
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+
 /-!
 # Vibe Theory: Signed Ternary State & 24-Slot Dock Algebra
 
@@ -7,6 +12,8 @@ Imported and used directly by `Vibe.Rule` for concrete `V1` stationarity and lig
 -/
 
 set_option autoImplicit false
+
+@[expose] public section
 
 namespace Vibe
 
@@ -38,41 +45,6 @@ private theorem tone_dual_value (t : Tone) : t.dual.value = -t.value := by
 private theorem tone_value_bounds (t : Tone) : -1 ≤ t.value ∧ t.value ≤ 1 := by
   cases t <;> decide
 
-private theorem foldl_add_shift {α : Type} (f : α → Int) (xs : List α) (init : Int) :
-    xs.foldl (fun acc x => acc + f x) init = init + xs.foldl (fun acc x => acc + f x) 0 := by
-  induction xs generalizing init with
-  | nil =>
-    simp only [List.foldl]
-    omega
-  | cons x rest ih =>
-    simp only [List.foldl]
-    rw [ih (init + f x), ih (0 + f x)]
-    omega
-
-private theorem foldl_neg {α : Type} (f : α → Int) (xs : List α) :
-    xs.foldl (fun acc x => acc + (-f x)) 0 = -(xs.foldl (fun acc x => acc + f x) 0) := by
-  induction xs with
-  | nil => rfl
-  | cons x rest ih =>
-    simp only [List.foldl]
-    rw [foldl_add_shift (fun y => -f y) rest (0 + -f x),
-        foldl_add_shift f rest (0 + f x), ih]
-    omega
-
-private theorem foldl_bounds {α : Type} (f : α → Int) (xs : List α)
-    (hb : ∀ x : α, -1 ≤ f x ∧ f x ≤ 1) :
-    -(xs.length : Int) ≤ xs.foldl (fun acc x => acc + f x) 0 ∧
-      xs.foldl (fun acc x => acc + f x) 0 ≤ (xs.length : Int) := by
-  induction xs with
-  | nil =>
-    simp only [List.length_nil, List.foldl]
-    decide
-  | cons x rest ih =>
-    simp only [List.length_cons, List.foldl]
-    rw [foldl_add_shift f rest (0 + f x)]
-    have hx := hb x
-    omega
-
 /-- Full 24-slot ternary state of a single 24-cell dock. -/
 abbrev DockState := Fin 24 → Tone
 
@@ -86,10 +58,14 @@ def conjDock (d : DockState) : DockState := fun i => (d i).dual
 def dockCharge (d : DockState) : Int :=
   (List.finRange 24).foldl (fun acc i => acc + (d i).value) 0
 
+private theorem dockCharge_eq_sum (d : DockState) :
+    dockCharge d = ∑ i : Fin 24, (d i).value := by
+  rw [Fin.sum_univ_def, List.sum_eq_foldl, List.foldl_map]
+  rfl
+
 /-- Charge conjugation on 24-slot docks is an exact involution (`C^2 = I`). -/
-theorem conjDock_involutive (d : DockState) : conjDock (conjDock d) = d := by
-  funext i
-  exact tone_dual_dual (d i)
+theorem conjDock_involutive (d : DockState) : conjDock (conjDock d) = d :=
+  funext fun i => tone_dual_dual (d i)
 
 /-- Charge conjugation fixes the calm vacuum dock `V1` identically. -/
 theorem conjDock_fixes_v1 : conjDock v1Dock = v1Dock := rfl
@@ -99,20 +75,19 @@ theorem dockCharge_v1 : dockCharge v1Dock = 0 := by decide
 
 /-- Charge conjugation strictly negates total dock charge for EVERY 24-slot state `d`. -/
 theorem dockCharge_conj (d : DockState) : dockCharge (conjDock d) = -dockCharge d := by
-  unfold dockCharge conjDock
-  have hFun : (fun acc (i : Fin 24) => acc + (d i).dual.value) =
-      (fun acc (i : Fin 24) => acc + -(d i).value) := by
-    funext acc i
-    rw [tone_dual_value]
-  rw [hFun]
-  exact foldl_neg (fun i => (d i).value) (List.finRange 24)
+  rw [dockCharge_eq_sum, dockCharge_eq_sum, ← Finset.sum_neg_distrib]
+  exact Finset.sum_congr rfl fun i _ => tone_dual_value (d i)
 
 /-- Exact total charge bounds `-24 ≤ dockCharge d ≤ 24` for EVERY 24-slot dock state `d`. -/
 theorem dockCharge_bounded (d : DockState) : -24 ≤ dockCharge d ∧ dockCharge d ≤ 24 := by
-  unfold dockCharge
-  have h := foldl_bounds (fun i => (d i).value) (List.finRange 24) (fun i => tone_value_bounds (d i))
-  have hLen : ((List.finRange 24).length : Int) = 24 := by decide
-  rw [hLen] at h
-  exact h
+  rw [dockCharge_eq_sum]
+  refine ⟨?_, ?_⟩
+  · calc (-24 : Int) = ∑ _ : Fin 24, (-1 : Int) := by simp
+      _ ≤ ∑ i : Fin 24, (d i).value := Finset.sum_le_sum fun i _ => (tone_value_bounds (d i)).1
+  · calc ∑ i : Fin 24, (d i).value ≤ ∑ _ : Fin 24, (1 : Int) :=
+        Finset.sum_le_sum fun i _ => (tone_value_bounds (d i)).2
+      _ = 24 := by simp
 
 end Vibe
+
+end

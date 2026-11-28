@@ -1,13 +1,17 @@
-import Vibe.Tone
-import Vibe.Algebra
-import Vibe.Geometry
-import Vibe.Uniqueness4D
-import Vibe.Chirality
+module
+
+public import Vibe.Tone
+public import Vibe.Algebra
+public import Vibe.Geometry
+public import Vibe.Uniqueness4D
+public import Vibe.Chirality
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Foundational Obstructions, Octonion Non-Associativity & 12-Countermodel Separation
 
-Zero-dependency Lean 4.35.0 formalization of Milestone P6-C (`03-vibe-doors-and-proof-bridge.md`
+Lean 4.35.0 + Mathlib formalization of Milestone P6-C (`03-vibe-doors-and-proof-bridge.md`
 Door 6, `04-asynchronous-causal-beat-and-p6-blueprint.md` Section 3.4, Notes 1–6):
 1. General Stabilizer Theorem (`Stab_G(x) ⊆ Stab_G(B x)`, equality for bijective `B`), two-site
    reflection-equivariant vacuum lock, and Symmetric Totality orbit invariance (`Ω = G · x`).
@@ -20,7 +24,24 @@ Door 6, `04-asynchronous-causal-beat-and-p6-blueprint.md` Section 3.4, Notes 1�
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
+
+/-! ## Section 0: Fast `Bool` Nodup Helper -/
+
+private def cmNodupBool {α : Type} [DecidableEq α] : List α → Bool
+  | [] => true
+  | x :: xs => !(xs.any (fun y => decide (y = x))) && cmNodupBool xs
+
+private theorem cm_nodup_of_nodupBool {α : Type} [DecidableEq α] :
+    ∀ l : List α, cmNodupBool l = true → l.Nodup
+  | [], _ => List.nodup_nil
+  | x :: xs, h => by
+    simp only [cmNodupBool, Bool.and_eq_true, Bool.not_eq_true', List.any_eq_false] at h
+    refine List.nodup_cons.mpr ⟨fun hx => ?_, cm_nodup_of_nodupBool xs h.2⟩
+    have hne := h.1 x hx
+    simp at hne
 
 /-! ## Section 1: General Stabilizer Obstruction & Symmetric Totality -/
 
@@ -117,16 +138,7 @@ def cmBalancedPairs : Nat → List Int
 private theorem cm_listSumSq_nonneg (xs : List Int) : 0 ≤ cmListSumSq xs := by
   induction xs with
   | nil => decide
-  | cons x _ ih => simp only [cmListSumSq]; have hx := int_sq_nonneg x; omega
-
-private theorem cm_int_sq_eq_zero (x : Int) (h : x * x = 0) : x = 0 := by
-  if hx0 : x = 0 then exact hx0
-  else if hpos : x ≥ 1 then
-    have h1 := Int.mul_nonneg (show 0 ≤ x - 1 by omega) (show 0 ≤ x by omega)
-    rw [Int.sub_mul, Int.one_mul] at h1; omega
-  else
-    have h1 := Int.mul_nonneg (show 0 ≤ (-x) - 1 by omega) (show 0 ≤ -x by omega)
-    rw [Int.sub_mul, Int.one_mul, Int.neg_mul, Int.mul_neg, Int.neg_neg] at h1; omega
+  | cons x _ ih => simp only [cmListSumSq]; nlinarith
 
 private theorem cm_balancedPairs_spec (k : Nat) :
     cmListSum (cmBalancedPairs k) = 0 ∧ cmListSumSq (cmBalancedPairs k) = 2 * (k : Int) ∧
@@ -151,8 +163,9 @@ theorem thm_cm_two_zeros_separation :
     | nil => intro _; exact ⟨(fun _ h => nomatch h), rfl⟩
     | cons x rest ih =>
       intro hSq; simp only [cmListSumSq] at hSq
-      have hx0 : x * x = 0 := by have h1 := int_sq_nonneg x; have h2 := cm_listSumSq_nonneg rest; omega
-      have hx : x = 0 := cm_int_sq_eq_zero x hx0
+      have hRest := cm_listSumSq_nonneg rest
+      have hx0 : x * x = 0 := by nlinarith
+      have hx : x = 0 := mul_self_eq_zero.mp hx0
       obtain ⟨ihMem, ihSum⟩ := ih (by omega)
       refine ⟨fun y hy => ?_, by simp only [cmListSum]; omega⟩
       cases hy with
@@ -302,7 +315,14 @@ theorem thm_cm_two_site_rule_census :
   obtain ⟨pZero, hz1, hz2, hz3⟩ := cm_fiber_zero_match B hQ hInj
   obtain ⟨pPos, hp1, hp2⟩ := cm_pair_match B (.zero, .pos) (.pos, .zero) (by decide)
     (cm_charge_pos1 _ (hQ _)) (cm_charge_pos1 _ (hQ _)) hInj
-  have hMem : ∀ (b1 : Bool) (k : Fin 6) (b2 : Bool), (b1, k, b2) ∈ cmAll24TwoSiteRules := by decide
+  have hMem : ∀ (b1 : Bool) (k : Fin 6) (b2 : Bool), (b1, k, b2) ∈ cmAll24TwoSiteRules := by
+    intro b1 k b2
+    have hAny : cmAll24TwoSiteRules.any (fun r => decide (r = (b1, k, b2))) = true :=
+      (by decide : ∀ (x1 : Bool) (x2 : Fin 6) (x3 : Bool),
+        cmAll24TwoSiteRules.any (fun r => decide (r = (x1, x2, x3))) = true) b1 k b2
+    rcases List.any_eq_true.mp hAny with ⟨r, hr, heq⟩
+    rw [of_decide_eq_true heq] at hr
+    exact hr
   refine ⟨(pNeg, pZero, pPos), hMem pNeg pZero pPos, fun p => ?_⟩
   cases p with | mk a b => cases a <;> cases b <;> first
     | exact hnn | exact hn1 | exact hz1 | exact hn2 | exact hz2
@@ -366,61 +386,17 @@ structure GaussInt where
 def cmGMul (x y : GaussInt) : GaussInt := ⟨x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re⟩
 def cmGNorm (x : GaussInt) : Int := x.re * x.re + x.im * x.im
 
-private theorem cm_sq_add (x y : Int) : (x + y) * (x + y) = x * x + y * y + 2 * (x * y) := by
-  rw [Int.add_mul, Int.mul_add, Int.mul_add, Int.mul_comm y x]; omega
-private theorem cm_sq_sub (x y : Int) : (x - y) * (x - y) = x * x + y * y - 2 * (x * y) := by
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.mul_comm y x]; omega
-private theorem cm_mul4 (a b c d : Int) : (a * c) * (b * d) = (a * b) * (c * d) := by
-  rw [Int.mul_assoc a c (b * d), ← Int.mul_assoc c b d, Int.mul_comm c b,
-      Int.mul_assoc b c d, ← Int.mul_assoc a b (c * d)]
-
 private theorem cm_gauss_mul_comm (x y : GaussInt) : cmGMul x y = cmGMul y x := by
-  cases x with | mk xa xb => cases y with | mk ya yb =>
-  simp only [cmGMul, GaussInt.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xb yb, Int.mul_comm xa yb, Int.mul_comm xb ya]; exact ⟨rfl, by omega⟩
+  cases x; cases y; simp only [cmGMul, GaussInt.mk.injEq]; constructor <;> ring
 
 private theorem cm_gauss_mul_assoc (x y z : GaussInt) : cmGMul (cmGMul x y) z = cmGMul x (cmGMul y z) := by
-  cases x; cases y; cases z
-  simp only [cmGMul, GaussInt.mk.injEq, Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_assoc]
-  exact ⟨by omega, by omega⟩
+  cases x; cases y; cases z; simp only [cmGMul, GaussInt.mk.injEq]; constructor <;> ring
 
 private theorem cm_gauss_norm_mul (x y : GaussInt) : cmGNorm (cmGMul x y) = cmGNorm x * cmGNorm y := by
-  cases x with | mk a b => cases y with | mk c d =>
-  simp only [cmGNorm, cmGMul]
-  rw [cm_sq_sub, cm_sq_add, Int.add_mul, Int.mul_add, Int.mul_add,
-      cm_mul4 a a c c, cm_mul4 b b d d, cm_mul4 a a d d, cm_mul4 b b c c,
-      cm_mul4 a b c d, cm_mul4 a b d c, Int.mul_comm d c]
-  omega
-
-private theorem cm_eis_mul_comm (x y : Eis) : Eis.mul x y = Eis.mul y x := by
-  cases x with | mk xa xb => cases y with | mk ya yb =>
-  simp only [Eis.mul, Eis.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xb yb, Int.mul_comm xa yb, Int.mul_comm xb ya]; exact ⟨rfl, by omega⟩
-
-private theorem cm_eis_mul_assoc (x y z : Eis) : Eis.mul (Eis.mul x y) z = Eis.mul x (Eis.mul y z) := by
-  cases x; cases y; cases z
-  simp only [Eis.mul, Eis.mk.injEq, Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_assoc]
-  exact ⟨by omega, by omega⟩
-
-private theorem cm_eis_conj_mul (x y : Eis) : Eis.conj (Eis.mul x y) = Eis.mul (Eis.conj x) (Eis.conj y) := by
-  cases x; cases y
-  simp only [Eis.conj, Eis.mul, Eis.mk.injEq, Int.mul_sub, Int.sub_mul, Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  exact ⟨by omega, by omega⟩
-
-private theorem cm_eis_mul_conj_self (x : Eis) : Eis.mul (Eis.conj x) x = ⟨Eis.normSq x, 0⟩ := by
-  cases x with | mk xa xb =>
-  simp only [Eis.mul, Eis.conj, Eis.normSq, Eis.mk.injEq, Int.sub_mul, Int.neg_mul]
-  rw [Int.mul_comm xb xa]; exact ⟨by omega, by omega⟩
+  cases x; cases y; simp only [cmGNorm, cmGMul]; ring
 
 private theorem cm_eis_norm_mul (x y : Eis) : Eis.normSq (Eis.mul x y) = Eis.normSq x * Eis.normSq y := by
-  have hEq : Eis.mul (Eis.conj (Eis.mul x y)) (Eis.mul x y) =
-      Eis.mul (Eis.mul (Eis.conj x) x) (Eis.mul (Eis.conj y) y) := by
-    rw [cm_eis_conj_mul, cm_eis_mul_assoc (Eis.conj x) (Eis.conj y) (Eis.mul x y),
-        ← cm_eis_mul_assoc (Eis.conj y) x y, cm_eis_mul_comm (Eis.conj y) x,
-        cm_eis_mul_assoc x (Eis.conj y) y, ← cm_eis_mul_assoc (Eis.conj x) x (Eis.mul (Eis.conj y) y)]
-  rw [cm_eis_mul_conj_self (Eis.mul x y), cm_eis_mul_conj_self x, cm_eis_mul_conj_self y] at hEq
-  have hA : Eis.normSq (Eis.mul x y) = Eis.normSq x * Eis.normSq y - 0 * 0 := congrArg Eis.a hEq
-  omega
+  cases x; cases y; simp only [Eis.normSq, Eis.mul]; ring
 
 /-- CM-3 (`T^n`/`ℤ^n`), CM-4 (`O(3)` on `S^2`), CM-5 (1D `ℤ` & 2D `ℤ[i]`/`ℤ[ω]`): arbitrary `n ≥ 1`
     admits orthogonal reflection without selecting `n = 4`, `O(3)` has nontrivial point stabilizers,
@@ -442,30 +418,17 @@ theorem thm_cm_countermodel_free_tn_and_on :
      (∀ a b : Eis, Eis.mul a b = Eis.mul b a ∧ Eis.normSq (Eis.mul a b) = Eis.normSq a * Eis.normSq b)) := by
   refine ⟨fun _ v => funext fun i => cm_tone_dual_dual (v i), ?_, ?_, ?_⟩
   · intro n hn; refine ⟨?_, ?_, ?_⟩
-    · intro v; funext i
-      if h0 : i.val = 0 then
-        have h1 : cmZnRefl0 n v i = -v i := ite_eq_left h0
-        have h2 : cmZnRefl0 n (cmZnRefl0 n v) i = -cmZnRefl0 n v i := ite_eq_left h0
-        rw [h2, h1, Int.neg_neg]
-      else
-        have h1 : cmZnRefl0 n v i = v i := ite_eq_right h0
-        have h2 : cmZnRefl0 n (cmZnRefl0 n v) i = cmZnRefl0 n v i := ite_eq_right h0
-        rw [h2, h1]
+    · intro v; funext i; unfold cmZnRefl0
+      split <;> simp
     · intro v i; unfold cmZnRefl0
-      if h0 : i.val = 0 then rw [ite_eq_left h0, Int.neg_mul, Int.mul_neg, Int.neg_neg]
-      else rw [ite_eq_right h0]
+      split <;> ring
     · refine ⟨fun i => if i.val = 0 then 1 else 0, fun hEq => ?_⟩
-      let z : Fin n := ⟨0, by omega⟩
-      have hz : z.val = 0 := rfl
-      have h0 : (if z.val = 0 then -(if z.val = 0 then (1 : Int) else 0) else if z.val = 0 then 1 else 0) =
-          (if z.val = 0 then 1 else 0) := congrFun hEq z
-      rw [ite_eq_left hz, ite_eq_left hz] at h0
-      omega
+      have h0 := congrFun hEq ⟨0, by omega⟩
+      simp [cmZnRefl0] at h0
   · refine ⟨fun v => ?_, rfl, by decide⟩
-    cases v with | mk x yz => cases yz with | mk y z =>
-    simp only [cmRotZ3, Int.neg_mul, Int.mul_neg, Int.neg_neg]; omega
+    rcases v with ⟨x, y, z⟩; simp only [cmRotZ3]; ring
   · exact ⟨Int.mul_comm, cm_gauss_mul_assoc, fun a b => ⟨cm_gauss_mul_comm a b, cm_gauss_norm_mul a b⟩,
-      cm_eis_mul_assoc, fun a b => ⟨cm_eis_mul_comm a b, cm_eis_norm_mul a b⟩⟩
+      fun a b c => mul_assoc a b c, fun a b => ⟨mul_comm a b, cm_eis_norm_mul a b⟩⟩
 
 /-! ## Section 4: Exact Quaternions (`ℍ`) & Cayley-Dickson Fano Octonions (`𝕆`, CM-6) -/
 
@@ -512,48 +475,21 @@ def cmFanoTriples : List (Fin 8 × Fin 8 × Fin 8) :=
     (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨5, by decide⟩) ]
 
 private theorem cm_qNorm_conj (x : QuatInt) : cmQNorm (cmQConj x) = cmQNorm x := by
-  cases x; simp only [cmQNorm, cmQDot, cmQConj, Int.neg_mul, Int.mul_neg, Int.neg_neg]
+  cases x; simp only [cmQNorm, cmQDot, cmQConj]; ring
 private theorem cm_qNorm_add (u v : QuatInt) : cmQNorm (cmQAdd u v) = cmQNorm u + cmQNorm v + 2 * cmQDot u v := by
-  cases u; cases v; simp only [cmQNorm, cmQDot, cmQAdd, cm_sq_add]; omega
+  cases u; cases v; simp only [cmQNorm, cmQDot, cmQAdd]; ring
 private theorem cm_qNorm_sub (u v : QuatInt) : cmQNorm (cmQSub u v) = cmQNorm u + cmQNorm v - 2 * cmQDot u v := by
-  cases u; cases v; simp only [cmQNorm, cmQDot, cmQSub, cm_sq_sub]; omega
+  cases u; cases v; simp only [cmQNorm, cmQDot, cmQSub]; ring
 private theorem cm_qDot_eq_real_conj (u v : QuatInt) : cmQDot u v = (cmQMul (cmQConj u) v).a := by
-  cases u; cases v; simp only [cmQDot, cmQMul, cmQConj, Int.neg_mul]; omega
+  cases u; cases v; simp only [cmQDot, cmQMul, cmQConj]; ring
 private theorem cm_qReal_mul_comm (u v : QuatInt) : (cmQMul u v).a = (cmQMul v u).a := by
-  cases u with | mk ua ub uc ud => cases v with | mk va vb vc vd =>
-  simp only [cmQMul]; rw [Int.mul_comm ua va, Int.mul_comm ub vb, Int.mul_comm uc vc, Int.mul_comm ud vd]
+  cases u; cases v; simp only [cmQMul]; ring
 private theorem cm_qMul_assoc (x y z : QuatInt) : cmQMul (cmQMul x y) z = cmQMul x (cmQMul y z) := by
-  cases x; cases y; cases z
-  simp only [cmQMul, QuatInt.mk.injEq, Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_assoc]
-  exact ⟨by omega, by omega, by omega, by omega⟩
+  cases x; cases y; cases z; simp only [cmQMul, QuatInt.mk.injEq]; refine ⟨?_, ?_, ?_, ?_⟩ <;> ring
 private theorem cm_qConj_mul (x y : QuatInt) : cmQConj (cmQMul x y) = cmQMul (cmQConj y) (cmQConj x) := by
-  cases x with | mk xa xb xc xd => cases y with | mk ya yb yc yd =>
-  simp only [cmQConj, cmQMul, QuatInt.mk.injEq, Int.neg_mul, Int.mul_neg, Int.neg_neg]
-  rw [Int.mul_comm ya xa, Int.mul_comm ya xb, Int.mul_comm ya xc, Int.mul_comm ya xd,
-      Int.mul_comm yb xa, Int.mul_comm yb xb, Int.mul_comm yb xc, Int.mul_comm yb xd,
-      Int.mul_comm yc xa, Int.mul_comm yc xb, Int.mul_comm yc xc, Int.mul_comm yc xd,
-      Int.mul_comm yd xa, Int.mul_comm yd xb, Int.mul_comm yd xc, Int.mul_comm yd xd]
-  exact ⟨by omega, by omega, by omega, by omega⟩
-private theorem cm_qMul_conj_self (x : QuatInt) : cmQMul (cmQConj x) x = ⟨cmQNorm x, 0, 0, 0⟩ := by
-  cases x with | mk xa xb xc xd =>
-  simp only [cmQMul, cmQConj, cmQNorm, cmQDot, QuatInt.mk.injEq, Int.neg_mul]
-  rw [Int.mul_comm xb xa, Int.mul_comm xc xa, Int.mul_comm xd xa,
-      Int.mul_comm xc xb, Int.mul_comm xd xb, Int.mul_comm xd xc]
-  exact ⟨by omega, by omega, by omega, by omega⟩
-private theorem cm_qMul_scalar_left (k : Int) (y : QuatInt) :
-    cmQMul ⟨k, 0, 0, 0⟩ y = ⟨k * y.a, k * y.b, k * y.c, k * y.d⟩ := by
-  cases y; simp only [cmQMul, QuatInt.mk.injEq, Int.zero_mul]; exact ⟨by omega, by omega, by omega, by omega⟩
-private theorem cm_qMul_conj_scale_real (k : Int) (y : QuatInt) :
-    (cmQMul (cmQConj y) ⟨k * y.a, k * y.b, k * y.c, k * y.d⟩).a = k * cmQNorm y := by
-  cases y with | mk ya yb yc yd =>
-  simp only [cmQMul, cmQConj, cmQNorm, cmQDot, Int.neg_mul, Int.mul_add]
-  have hm : ∀ u v : Int, u * (k * v) = k * (u * v) := fun u v => by
-    rw [← Int.mul_assoc, Int.mul_comm u k, Int.mul_assoc]
-  rw [hm ya ya, hm yb yb, hm yc yc, hm yd yd]; omega
+  cases x; cases y; simp only [cmQConj, cmQMul, QuatInt.mk.injEq]; refine ⟨?_, ?_, ?_, ?_⟩ <;> ring
 private theorem cm_qNorm_mul (x y : QuatInt) : cmQNorm (cmQMul x y) = cmQNorm x * cmQNorm y := by
-  change cmQDot (cmQMul x y) (cmQMul x y) = cmQNorm x * cmQNorm y
-  rw [cm_qDot_eq_real_conj, cm_qConj_mul, cm_qMul_assoc, ← cm_qMul_assoc (cmQConj x) x y,
-      cm_qMul_conj_self, cm_qMul_scalar_left, cm_qMul_conj_scale_real]
+  cases x; cases y; simp only [cmQNorm, cmQDot, cmQMul]; ring
 private theorem cm_oct_cross_eq (p q r s : QuatInt) :
     cmQDot (cmQMul p r) (cmQMul (cmQConj s) q) = cmQDot (cmQMul s p) (cmQMul q (cmQConj r)) := by
   rw [cm_qDot_eq_real_conj, cm_qDot_eq_real_conj, cm_qConj_mul, cm_qConj_mul,
@@ -566,9 +502,8 @@ private theorem cm_octNorm_mul (x y : OctInt) : octNorm (octMul x y) = octNorm x
   dsimp only
   rw [cm_qNorm_sub, cm_qNorm_add, cm_oct_cross_eq p q r s,
       cm_qNorm_mul p r, cm_qNorm_mul (cmQConj s) q, cm_qNorm_mul s p, cm_qNorm_mul q (cmQConj r),
-      cm_qNorm_conj s, cm_qNorm_conj r, Int.add_mul, Int.mul_add, Int.mul_add,
-      Int.mul_comm (cmQNorm s) (cmQNorm q), Int.mul_comm (cmQNorm s) (cmQNorm p)]
-  omega
+      cm_qNorm_conj s, cm_qNorm_conj r]
+  ring
 
 /-- CM-6 (Fano Octonions `OctInt`): full symbolic 8-square Degen identity (`∀ x y`), exact 7 Fano
     triples, strict non-associativity `(e_1 * e_2) * e_4 ≠ e_1 * (e_2 * e_4)`, vs associative `QuatInt`. -/
@@ -623,9 +558,16 @@ theorem thm_cm_countermodel_a4_and_b4_roots :
      b4Roots.all (fun a => b4Roots.all (fun b =>
        ((2 * dot4 a b) / dot4 a a) * dot4 a a == 2 * dot4 a b && b4Roots.contains (cmRefl4 a b))) = true) ∧
     (d4Roots.length = 24 ∧ d4Roots.Nodup ∧ d4Roots.all (fun r => dot4 r r == 2) = true) := by
-  refine ⟨by decide, ⟨by decide, by decide, by decide, by decide, by decide, ?_, by decide⟩,
-    thm_d4_root_system⟩
-  exact ⟨(1, 0, 0, 0), by decide, (1, 1, 0, 0), by decide, by decide⟩
+  refine ⟨⟨by decide, by decide, cm_nodup_of_nodupBool a4Roots (by decide), by decide, by decide⟩,
+          ⟨by decide, by decide, cm_nodup_of_nodupBool b4Roots (by decide), by decide, by decide, ?_, by decide⟩,
+          thm_d4_root_system⟩
+  have hu : ((1, 0, 0, 0) : Vec4) ∈ b4Roots := by
+    rcases List.any_eq_true.mp (by decide : b4Roots.any (fun r => decide (r = (1, 0, 0, 0))) = true) with ⟨r, hr, heq⟩
+    rwa [of_decide_eq_true heq] at hr
+  have hv : ((1, 1, 0, 0) : Vec4) ∈ b4Roots := by
+    rcases List.any_eq_true.mp (by decide : b4Roots.any (fun r => decide (r = (1, 1, 0, 0))) = true) with ⟨r, hr, heq⟩
+    rwa [of_decide_eq_true heq] at hr
+  exact ⟨(1, 0, 0, 0), hu, (1, 1, 0, 0), hv, by decide⟩
 
 def cmHoneycomb3433 : Schlafli4D := ⟨3, 4, 3, 3⟩
 def cmNegOnePow : Nat → Int
@@ -637,12 +579,7 @@ private theorem cm_negOnePow_spec (p : Nat) : cmNegOnePow p = if p % 2 = 0 then 
   | zero => decide
   | succ p ih =>
     simp only [cmNegOnePow]; rw [ih]
-    if h : p % 2 = 0 then
-      have h1 : ¬ ((p + 1) % 2 = 0) := by omega
-      rw [ite_eq_left h, ite_eq_right h1]
-    else
-      have h1 : (p + 1) % 2 = 0 := by omega
-      rw [ite_eq_right h, ite_eq_left h1]; decide
+    split <;> (split <;> omega)
 
 /-- CM-9 / Universe C (Euclidean `{3,4,3,3}`): `det G = 0` fails odd ridge parity `(-1)^3 = -1 ≠ 1`
     and hyperbolic cusp criteria; unfrustrated parity across Euclidean/finite-covolume `{3,4,3,p}` forces `p = 4`. -/
@@ -658,20 +595,21 @@ theorem thm_cm_countermodel_euclidean_3433 :
       cmNegOnePow p = 1) ↔ p = 4) := by
   refine ⟨by decide, by decide, ?_, ?_⟩
   · intro p; rw [cm_negOnePow_spec p]
-    if h : p % 2 = 0 then rw [ite_eq_left h]; exact ⟨fun _ => h, fun _ => rfl⟩
-    else rw [ite_eq_right h]; exact ⟨fun h1 => absurd h1 (by decide), fun h2 => absurd h2 h⟩
+    split <;> constructor <;> intro h <;> omega
   · intro p; constructor
     · intro ⟨hGeom, hPar⟩
       cases hGeom with
       | inl hEuc =>
         have hMem := (thm_coxeter_classify_euclidean_4d ⟨3, 4, 3, p⟩).mp hEuc
-        have hCheck : ∀ h ∈ euclidean4DList, h.p = 3 → h.q = 4 → h.r = 3 → h.s = 3 := by decide
-        have hp3 : p = 3 := hCheck ⟨3, 4, 3, p⟩ hMem rfl rfl rfl
+        have hAll : euclidean4DList.all (fun h => !(h.p == 3 && h.q == 4 && h.r == 3) || h.s == 3) = true := by decide
+        have hRow := List.all_eq_true.mp hAll ⟨3, 4, 3, p⟩ hMem
+        have hp3 : p = 3 := by simpa using hRow
         rw [hp3] at hPar; exact absurd hPar (by decide)
       | inr hHyp =>
         have hMem := (thm_coxeter_complete_finite_covolume_4d ⟨3, 4, 3, p⟩).mp hHyp
-        have hCheck : ∀ h ∈ allFiniteCovolumeHyp4DList, h.p = 3 → h.q = 4 → h.r = 3 → h.s = 4 := by decide
-        exact hCheck ⟨3, 4, 3, p⟩ hMem rfl rfl rfl
+        have hAll : allFiniteCovolumeHyp4DList.all (fun h => !(h.p == 3 && h.q == 4 && h.r == 3) || h.s == 4) = true := by decide
+        have hRow := List.all_eq_true.mp hAll ⟨3, 4, 3, p⟩ hMem
+        simpa using hRow
     · intro hp4; rw [hp4]; exact ⟨Or.inr (by decide), by decide⟩
 
 private theorem cm_conjDock_eq_self (d : DockState) (h : conjDock d = d) : d = v1Dock := by
@@ -804,6 +742,8 @@ theorem thm_cm_five_competing_universes_separation :
      ¬ cmUnfrustratedParity (cmUniverseModel .univD_higherDOct) ∧
      ¬ cmFiniteCovolumeFlatCusp (cmUniverseModel .univD_higherDOct)) ∧
     cmPassesAllFive (cmUniverseModel .univE_vibe3434) := by
+  have hD4Norm : ∀ r ∈ d4Roots, dot4 r r = 2 := fun r hr =>
+    beq_iff_eq.mp (List.all_eq_true.mp thm_d4_root_system.2.2 r hr)
   have hAFail : ¬ cmHasDistinction (cmUniverseModel .univA_singular) :=
     thm_cm_countermodel_singleton.2.2.2.2
   have hBDist : cmHasDistinction (cmUniverseModel .univB_1dC2) :=
@@ -815,7 +755,7 @@ theorem thm_cm_five_competing_universes_separation :
   have hCNC : cmNoncommAssoc (cmUniverseModel .univC_euclidean3433) :=
     ⟨⟨cmQI, cmQJ, show cmQMul cmQI cmQJ ≠ cmQMul cmQJ cmQI by decide⟩, cm_qMul_assoc⟩
   have hCCell : cmD4SelfDualCell (cmUniverseModel .univC_euclidean3433) :=
-    ⟨by decide, show ∀ r ∈ d4Roots, dot4 r r = 2 by decide, cmHoneycomb3433, rfl, by decide⟩
+    ⟨thm_d4_root_system.1, hD4Norm, cmHoneycomb3433, rfl, by decide⟩
   have hCNoPar : ¬ cmUnfrustratedParity (cmUniverseModel .univC_euclidean3433) := by
     intro ⟨_, hh, hPar⟩; cases hh; exact absurd hPar (by decide)
   have hCNoCusp : ¬ cmFiniteCovolumeFlatCusp (cmUniverseModel .univC_euclidean3433) := by
@@ -842,7 +782,7 @@ theorem thm_cm_five_competing_universes_separation :
   have hEPass : cmPassesAllFive (cmUniverseModel .univE_vibe3434) :=
     ⟨⟨(1, 0, 0, 0), (0, 0, 0, 0), show ((1, 0, 0, 0) : Vec4) ≠ (0, 0, 0, 0) by decide⟩,
      ⟨⟨cmQI, cmQJ, show cmQMul cmQI cmQJ ≠ cmQMul cmQJ cmQI by decide⟩, cm_qMul_assoc⟩,
-     ⟨by decide, show ∀ r ∈ d4Roots, dot4 r r = 2 by decide, honeycomb3434, rfl, by decide⟩,
+     ⟨thm_d4_root_system.1, hD4Norm, honeycomb3434, rfl, by decide⟩,
      ⟨honeycomb3434, rfl, by decide⟩,
      ⟨honeycomb3434, rfl, by decide, by decide⟩⟩
   have hEquiv : ∀ u : CompetingUniverse, cmPassesAllFive (cmUniverseModel u) ↔ u = .univE_vibe3434 := by
@@ -859,3 +799,5 @@ theorem thm_cm_five_competing_universes_separation :
     hEPass⟩
 
 end Vibe
+
+end

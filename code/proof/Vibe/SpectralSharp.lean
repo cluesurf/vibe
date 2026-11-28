@@ -1,11 +1,20 @@
-import Vibe.Algebra
-import Vibe.CuspGrowth
-import Vibe.SchurGap
+module
+
+public import Vibe.Algebra
+public import Vibe.CuspGrowth
+public import Vibe.SchurGap
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.FinCases
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Data.Fintype.BigOperators
 
 /-!
 # Vibe Theory: Sharp `{3,4,3,4}` Spectral Radius Bracket `11 < ρ ≤ 335/28 < 12` (`λ_gap > 1/2`)
 
-Zero-dependency Lean 4.35.0 formalization of Wave-2 Track W1 (`01-spectral-radius-sharpening.md`,
+Lean 4.35.0 + Mathlib formalization of Wave-2 Track W1 (`01-spectral-radius-sharpening.md`,
 Milestone P7-A), sharpening the Depth-1 Cartier-Foata spectral radius upper bound from
 `Vibe.SchurGap`'s `104/7 = 14.857143` (`ρ/24 ≤ 13/21`, `λ_gap ≥ 8/21`) down to
 **`335/28 = 11.964286 < 12`** (`ρ/24 ≤ 335/672 < 1/2`, **`λ_gap ≥ 337/672 > 1/2`**) and
@@ -43,70 +52,11 @@ vectors in `ℓ^2(W(Γ_24))`.
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
-/-! ## Section 0: Private `Int`, `QPos`, and `Fin n` Summation Helpers -/
-
-private theorem ss_ite_pos {α : Type} {c : Prop} [h : Decidable c] (hc : c) (a b : α) :
-    (if c then a else b) = a :=
-  match h with
-  | isTrue _ => rfl
-  | isFalse hnc => absurd hc hnc
-
-private theorem ss_ite_neg {α : Type} {c : Prop} [h : Decidable c] (hnc : ¬ c) (a b : α) :
-    (if c then a else b) = b :=
-  match h with
-  | isTrue hc => absurd hc hnc
-  | isFalse _ => rfl
-
-private theorem ss_dite_pos {α : Type} {c : Prop} [h : Decidable c] (hc : c)
-    (a : c → α) (b : ¬ c → α) : (if hc' : c then a hc' else b hc') = a hc :=
-  match h with
-  | isTrue _ => rfl
-  | isFalse hnc => absurd hc hnc
-
-private theorem ss_dite_neg {α : Type} {c : Prop} [h : Decidable c] (hnc : ¬ c)
-    (a : c → α) (b : ¬ c → α) : (if hc' : c then a hc' else b hc') = b hnc :=
-  match h with
-  | isTrue hc => absurd hc hnc
-  | isFalse _ => rfl
-
-private theorem ss_ofNat_add (a b : Nat) : Int.ofNat a + Int.ofNat b = Int.ofNat (a + b) := rfl
-private theorem ss_ofNat_mul (a b : Nat) : Int.ofNat a * Int.ofNat b = Int.ofNat (a * b) := rfl
-private theorem ss_ofNat_lt {a b : Nat} (h : a < b) : Int.ofNat a < Int.ofNat b := Int.ofNat_lt.mpr h
-
-private theorem ss_int_mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
-  rw [← Int.mul_assoc, Int.mul_comm a b, Int.mul_assoc]
-
-private theorem ss_int_mul_right_comm (a b c : Int) : (a * b) * c = (a * c) * b := by
-  rw [Int.mul_assoc, Int.mul_comm b c, ← Int.mul_assoc]
-
-private theorem ss_int_mul_four (p x q y : Int) : (p * x) * (q * y) = (p * q) * (x * y) := by
-  rw [Int.mul_assoc p x (q * y), ss_int_mul_left_comm x q y, ← Int.mul_assoc p q (x * y)]
-
-private theorem ss_int_mul_pos (a b : Int) (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
-  have h : 0 ≤ (a - 1) * (b - 1) := Int.mul_nonneg (by omega) (by omega)
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.one_mul, Int.mul_one] at h
-  omega
-
-private theorem ss_int_mul_le_right (a b c : Int) (hab : a ≤ b) (hc : 0 ≤ c) : a * c ≤ b * c := by
-  have h : 0 ≤ (b - a) * c := Int.mul_nonneg (by omega) hc
-  rw [Int.sub_mul] at h
-  omega
-
-private theorem ss_int_le_of_mul_le_right (x y d : Int) (hd : 0 < d) (h : x * d ≤ y * d) :
-    x ≤ y := by
-  if hxy : x ≤ y then exact hxy
-  else
-    have hpos : 0 < (x - y) * d := ss_int_mul_pos (x - y) d (by omega) hd
-    rw [Int.sub_mul] at hpos
-    omega
-
-private theorem ss_int_sub_sq (a b : Int) : (a - b) * (a - b) = a * a - 2 * (a * b) + b * b := by
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.mul_comm b a]; omega
-
-private theorem ss_int_add_sq (a b : Int) : (a + b) * (a + b) = a * a + 2 * (a * b) + b * b := by
-  rw [Int.add_mul, Int.mul_add, Int.mul_add, Int.mul_comm b a]; omega
+/-! ## Section 0: `QPos` Combinators & `Fin n` Summation Bridged to `Finset.sum` -/
 
 /-- Rational scaling and inversion combinators extending `Vibe.SchurGap.QPos`. -/
 def ssQPosScaleInt (c : Int) (q : QPos) : QPos := ⟨c * q.num, q.den, q.denPos⟩
@@ -118,109 +68,46 @@ def ssSumFinAux {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Int) : Int :=
   | 0 => 0
   | m + 1 => ssSumFinAux m (by omega) f + f ⟨m, by omega⟩
 
-/-- Exact finite integer sum `∑_{i : Fin n} f i`. -/
+/-- Exact finite integer sum `∑_{i : Fin n} f i` (bridged to Mathlib `∑ i : Fin n, f i`). -/
 def ssSumFin {n : Nat} (f : Fin n → Int) : Int := ssSumFinAux n (Nat.le_refl n) f
 
-private theorem ss_sumFinAux_zero {n : Nat} (k : Nat) (hk : k ≤ n) :
-    ssSumFinAux k hk (fun _ : Fin n => (0 : Int)) = 0 := by
+private theorem ssSumFinAux_eq_sum {n : Nat} (k : Nat) (hk : k ≤ n) (f : Fin n → Int) :
+    ssSumFinAux k hk f = ∑ i : Fin k, f ⟨i.val, Nat.lt_of_lt_of_le i.isLt hk⟩ := by
   induction k with
-  | zero => rfl
-  | succ m ih => change ssSumFinAux m (by omega) _ + 0 = 0; rw [ih (by omega)]; omega
-
-private theorem ss_sumFinAux_add {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Int) :
-    ssSumFinAux k hk (fun i => f i + g i) = ssSumFinAux k hk f + ssSumFinAux k hk g := by
-  induction k with
-  | zero => rfl
+  | zero => simp [ssSumFinAux]
   | succ m ih =>
-    change ssSumFinAux m (by omega) (fun i => f i + g i) + (f ⟨m, by omega⟩ + g ⟨m, by omega⟩) =
-      (ssSumFinAux m (by omega) f + f ⟨m, by omega⟩) + (ssSumFinAux m (by omega) g + g ⟨m, by omega⟩)
-    rw [ih (by omega)]; omega
+    simp only [ssSumFinAux, Fin.sum_univ_castSucc, ih (by omega), Fin.val_castSucc, Fin.val_last]
 
-private theorem ss_sumFinAux_le {n : Nat} (k : Nat) (hk : k ≤ n) (f g : Fin n → Int)
-    (h : ∀ i : Fin n, f i ≤ g i) : ssSumFinAux k hk f ≤ ssSumFinAux k hk g := by
-  induction k with
-  | zero => change (0 : Int) ≤ 0; decide
-  | succ m ih =>
-    change ssSumFinAux m (by omega) f + f ⟨m, by omega⟩ ≤
-           ssSumFinAux m (by omega) g + g ⟨m, by omega⟩
-    have hm := ih (by omega)
-    have ht := h ⟨m, by omega⟩
-    omega
+-- [helper]
+theorem ssSumFin_eq_sum {n : Nat} (f : Fin n → Int) : ssSumFin f = ∑ i : Fin n, f i := by
+  simpa [ssSumFin] using ssSumFinAux_eq_sum n (Nat.le_refl n) f
 
-private theorem ss_sumFinAux_mul_left {n : Nat} (k : Nat) (hk : k ≤ n) (c : Int) (f : Fin n → Int) :
-    ssSumFinAux k hk (fun i => c * f i) = c * ssSumFinAux k hk f := by
-  induction k with
-  | zero => change (0 : Int) = c * 0; rw [Int.mul_zero]
-  | succ m ih =>
-    change ssSumFinAux m (by omega) (fun i => c * f i) + c * f ⟨m, by omega⟩ =
-      c * (ssSumFinAux m (by omega) f + f ⟨m, by omega⟩)
-    rw [ih (by omega), Int.mul_add]
-
-private theorem ss_sumFinAux_swap {n1 n2 : Nat} (k : Nat) (hk : k ≤ n1)
-    (f : Fin n1 → Fin n2 → Int) :
-    ssSumFinAux k hk (fun i => ssSumFin (fun j => f i j)) =
-      ssSumFin (fun j => ssSumFinAux k hk (fun i => f i j)) := by
-  induction k with
-  | zero => exact (ss_sumFinAux_zero n2 (Nat.le_refl n2)).symm
-  | succ m ih =>
-    change ssSumFinAux m (by omega) (fun i => ssSumFin (fun j => f i j)) +
-      ssSumFin (fun j => f ⟨m, by omega⟩ j) =
-      ssSumFin (fun j => ssSumFinAux m (by omega) (fun i => f i j) + f ⟨m, by omega⟩ j)
-    rw [ih (by omega)]
-    exact (ss_sumFinAux_add n2 (Nat.le_refl n2) _ _).symm
-
-private theorem ss_sumFinAux_kronecker {m : Nat} (k : Nat) (hk : k ≤ m)
-    (u0 : Fin m) (g : Fin m → Int) :
-    ssSumFinAux k hk (fun u : Fin m => if u0 = u then g u else 0) =
-      if u0.val < k then g u0 else 0 := by
-  induction k with
-  | zero =>
-    have hlt : ¬ (u0.val < 0) := by omega
-    rw [ss_ite_neg hlt]; rfl
-  | succ p ih =>
-    change ssSumFinAux p (by omega) (fun u : Fin m => if u0 = u then g u else 0) +
-      (if u0 = ⟨p, by omega⟩ then g ⟨p, by omega⟩ else 0) = if u0.val < p + 1 then g u0 else 0
-    rw [ih (by omega)]
-    if hlt : u0.val < p then
-      have hlt1 : u0.val < p + 1 := by omega
-      have hne : u0 ≠ ⟨p, by omega⟩ := fun h => by
-        have hv : u0.val = p := congrArg Fin.val h
-        omega
-      rw [ss_ite_pos hlt, ss_ite_neg hne, ss_ite_pos hlt1]; omega
-    else if heq : u0.val = p then
-      have hlt1 : u0.val < p + 1 := by omega
-      have hfeq : u0 = ⟨p, by omega⟩ := Fin.ext heq
-      rw [ss_ite_neg hlt, ss_ite_pos hfeq, ← hfeq, ss_ite_pos hlt1]; omega
-    else
-      have hlt1 : ¬ (u0.val < p + 1) := by omega
-      have hne : u0 ≠ ⟨p, by omega⟩ := fun h => heq (congrArg Fin.val h)
-      rw [ss_ite_neg hlt, ss_ite_neg hne, ss_ite_neg hlt1]; omega
-
-private theorem ss_sumFin_zero {n : Nat} : ssSumFin (fun _ : Fin n => (0 : Int)) = 0 :=
-  ss_sumFinAux_zero n (Nat.le_refl n)
+private theorem ss_sumFin_zero {n : Nat} : ssSumFin (fun _ : Fin n => (0 : Int)) = 0 := by
+  simp [ssSumFin_eq_sum]
 
 private theorem ss_sumFin_add {n : Nat} (f g : Fin n → Int) :
-    ssSumFin (fun i => f i + g i) = ssSumFin f + ssSumFin g :=
-  ss_sumFinAux_add n (Nat.le_refl n) f g
+    ssSumFin (fun i => f i + g i) = ssSumFin f + ssSumFin g := by
+  simp [ssSumFin_eq_sum, Finset.sum_add_distrib]
 
 private theorem ss_sumFin_le {n : Nat} (f g : Fin n → Int) (h : ∀ i : Fin n, f i ≤ g i) :
-    ssSumFin f ≤ ssSumFin g := ss_sumFinAux_le n (Nat.le_refl n) f g h
+    ssSumFin f ≤ ssSumFin g := by
+  simp only [ssSumFin_eq_sum]; exact Finset.sum_le_sum fun i _ => h i
 
 private theorem ss_sumFin_mul_left {n : Nat} (c : Int) (f : Fin n → Int) :
-    ssSumFin (fun i => c * f i) = c * ssSumFin f := ss_sumFinAux_mul_left n (Nat.le_refl n) c f
+    ssSumFin (fun i => c * f i) = c * ssSumFin f := by
+  simp [ssSumFin_eq_sum, Finset.mul_sum]
 
 private theorem ss_sumFin_mul_right {n : Nat} (f : Fin n → Int) (c : Int) :
     ssSumFin (fun i => f i * c) = ssSumFin f * c := by
-  have h1 : (fun i => f i * c) = (fun i => c * f i) := funext (fun i => Int.mul_comm (f i) c)
-  rw [h1, ss_sumFin_mul_left, Int.mul_comm]
+  simp [ssSumFin_eq_sum, Finset.sum_mul]
 
 private theorem ss_sumFin_swap {n1 n2 : Nat} (f : Fin n1 → Fin n2 → Int) :
-    ssSumFin (fun i => ssSumFin (fun j => f i j)) = ssSumFin (fun j => ssSumFin (fun i => f i j)) :=
-  ss_sumFinAux_swap n1 (Nat.le_refl n1) f
+    ssSumFin (fun i => ssSumFin (fun j => f i j)) = ssSumFin (fun j => ssSumFin (fun i => f i j)) := by
+  simp only [ssSumFin_eq_sum]; exact Finset.sum_comm
 
 private theorem ss_sumFin_kronecker {m : Nat} (u0 : Fin m) (g : Fin m → Int) :
     ssSumFin (fun u : Fin m => if u0 = u then g u else 0) = g u0 := by
-  unfold ssSumFin; rw [ss_sumFinAux_kronecker, ss_ite_pos u0.isLt]
+  simp [ssSumFin_eq_sum]
 
 /-- Exact integer quadratic form `⟨x, A x⟩ = ∑_{i, j : Fin n} A_{ij} x_i x_j`. -/
 def ssQuadForm {n : Nat} (A : Fin n → Fin n → Bool) (x : Fin n → Int) : Int :=
@@ -246,47 +133,11 @@ theorem thm_ss_reciprocal_edge_amgm (a b D u v : Int)
     (-(2 * D * (a * b)) ≤ u * (a * a) + v * (b * b)) ∧
     QPos.le ⟨2 * (a * b), 1, by decide⟩ (QPos.add ⟨u * (a * a), D, hD⟩ ⟨v * (b * b), D, hD⟩) ∧
     QPos.le ⟨-(2 * (a * b)), 1, by decide⟩ (QPos.add ⟨u * (a * a), D, hD⟩ ⟨v * (b * b), D, hD⟩) := by
-  have hLHS : (2 * D * (a * b)) * u = 2 * ((u * a) * (D * b)) := by
-    calc
-      (2 * D * (a * b)) * u = (2 * D) * ((a * b) * u) := Int.mul_assoc (2 * D) (a * b) u
-      _ = 2 * (D * ((a * b) * u)) := Int.mul_assoc 2 D ((a * b) * u)
-      _ = 2 * ((u * a) * (D * b)) := by
-        apply congrArg (2 * ·)
-        calc
-          D * ((a * b) * u) = D * (u * (a * b)) := by rw [Int.mul_comm (a * b) u]
-          _ = u * (D * (a * b)) := ss_int_mul_left_comm D u (a * b)
-          _ = u * (a * (D * b)) := by rw [ss_int_mul_left_comm D a b]
-          _ = (u * a) * (D * b) := (Int.mul_assoc u a (D * b)).symm
-  have hRHS : (u * (a * a) + v * (b * b)) * u = (u * a) * (u * a) + (D * b) * (D * b) := by
-    have h1 : (u * (a * a)) * u = (u * a) * (u * a) := by
-      rw [ss_int_mul_right_comm u (a * a) u, ← ss_int_mul_four u a u a]
-    have h2 : (v * (b * b)) * u = (D * b) * (D * b) := by
-      rw [ss_int_mul_right_comm v (b * b) u, Int.mul_comm v u, hRec, ← ss_int_mul_four D b D b]
-    rw [Int.add_mul, h1, h2]
   have hPos : 2 * D * (a * b) ≤ u * (a * a) + v * (b * b) := by
-    apply ss_int_le_of_mul_le_right _ _ u hu
-    rw [hLHS, hRHS]
-    have hsq := int_sq_nonneg (u * a - D * b)
-    rw [ss_int_sub_sq] at hsq; omega
+    nlinarith [sq_nonneg (u * a - D * b)]
   have hNeg : -(2 * D * (a * b)) ≤ u * (a * a) + v * (b * b) := by
-    apply ss_int_le_of_mul_le_right _ _ u hu
-    rw [Int.neg_mul, hLHS, hRHS]
-    have hsq := int_sq_nonneg (u * a + D * b)
-    rw [ss_int_add_sq] at hsq; omega
-  have hQP : QPos.le ⟨2 * (a * b), 1, by decide⟩
-      (QPos.add ⟨u * (a * a), D, hD⟩ ⟨v * (b * b), D, hD⟩) := by
-    unfold QPos.le QPos.add
-    rw [Int.mul_one, ← Int.add_mul (u * (a * a)) (v * (b * b)) D,
-        ← Int.mul_assoc (2 * (a * b)) D D, ss_int_mul_right_comm 2 (a * b) D]
-    exact ss_int_mul_le_right _ _ D hPos (by omega)
-  have hQM : QPos.le ⟨-(2 * (a * b)), 1, by decide⟩
-      (QPos.add ⟨u * (a * a), D, hD⟩ ⟨v * (b * b), D, hD⟩) := by
-    unfold QPos.le QPos.add
-    rw [Int.mul_one, ← Int.add_mul (u * (a * a)) (v * (b * b)) D,
-        Int.neg_mul, ← Int.mul_assoc (2 * (a * b)) D D,
-        ss_int_mul_right_comm 2 (a * b) D, ← Int.neg_mul]
-    exact ss_int_mul_le_right _ _ D hNeg (by omega)
-  exact ⟨hPos, hNeg, hQP, hQM⟩
+    nlinarith [sq_nonneg (u * a + D * b)]
+  refine ⟨hPos, hNeg, ?_, ?_⟩ <;> unfold QPos.le QPos.add <;> dsimp only <;> nlinarith
 
 /-- Headline Theorem 2 (Unconditional Gabber-Galil-Nagnibeda Reciprocal Edge-Weight Schur Bound):
     for ANY finite symmetric graph `(Fin n, A)`, ANY common denominator `D > 0`, ANY strictly
@@ -311,17 +162,10 @@ theorem thm_ss_finite_reciprocal_schur_bound {n : Nat}
           (if A i j = true then W i j * (x i * x i) else 0) +
           (if A i j = true then W j i * (x j * x j) else 0) := by
       intro i j
-      if hA : A i j = true then
-        rw [ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA]
-        have hAM := thm_ss_reciprocal_edge_amgm (x i) (x j) D (W i j) (W j i) (hWPos i j) hD (hWRec i j hA)
-        cases hs with
-        | inl h1 => rw [h1, Int.one_mul]; exact hAM.1
-        | inr hm1 =>
-          have hNeg : 2 * D * ((-1) * (x i * x j)) = -(2 * D * (x i * x j)) := by
-            rw [Int.neg_mul, Int.one_mul, Int.mul_neg]
-          rw [hm1, hNeg]; exact hAM.2.1
-      else
-        rw [ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA]; omega
+      split_ifs with hA
+      · have hAM := thm_ss_reciprocal_edge_amgm (x i) (x j) D (W i j) (W j i) (hWPos i j) hD (hWRec i j hA)
+        rcases hs with rfl | rfl <;> linarith [hAM.1, hAM.2.1]
+      · omega
     have hSumLe : ssSumFin (fun i => ssSumFin (fun j => if A i j = true then 2 * D * (s * (x i * x j)) else 0)) ≤
         ssSumFin (fun i => ssSumFin (fun j =>
           (if A i j = true then W i j * (x i * x i) else 0) +
@@ -329,61 +173,37 @@ theorem thm_ss_finite_reciprocal_schur_bound {n : Nat}
       ss_sumFin_le _ _ (fun i => ss_sumFin_le _ _ (fun j => hEdge i j))
     have hLHS : ssSumFin (fun i => ssSumFin (fun j => if A i j = true then 2 * D * (s * (x i * x j)) else 0)) =
         2 * (s * (D * ssQuadForm A x)) := by
-      have hIn : (fun i : Fin n => ssSumFin (fun j => if A i j = true then 2 * D * (s * (x i * x j)) else 0)) =
-          (fun i : Fin n => (2 * (s * D)) * ssSumFin (fun j => if A i j = true then x i * x j else 0)) := by
-        funext i
-        have hF : (fun j : Fin n => if A i j = true then 2 * D * (s * (x i * x j)) else 0) =
-            (fun j : Fin n => (2 * (s * D)) * (if A i j = true then x i * x j else 0)) := by
-          funext j
-          if hA : A i j = true then
-            rw [ss_ite_pos hA, ss_ite_pos hA, Int.mul_assoc 2 D (s * (x i * x j)),
-                ss_int_mul_left_comm D s (x i * x j), ← Int.mul_assoc s D (x i * x j),
-                ← Int.mul_assoc 2 (s * D) (x i * x j)]
-          else
-            rw [ss_ite_neg hA, ss_ite_neg hA, Int.mul_zero]
-        rw [hF, ss_sumFin_mul_left]
-      rw [hIn, ss_sumFin_mul_left, Int.mul_assoc 2 (s * D) _, Int.mul_assoc s D _]; rfl
+      unfold ssQuadForm
+      simp only [ssSumFin_eq_sum, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+      split_ifs <;> ring
     have hSplit : ssSumFin (fun i => ssSumFin (fun j =>
           (if A i j = true then W i j * (x i * x i) else 0) +
           (if A i j = true then W j i * (x j * x j) else 0))) =
         ssSumFin (fun i => ssSumFin (fun j => if A i j = true then W i j * (x i * x i) else 0)) +
         ssSumFin (fun i => ssSumFin (fun j => if A i j = true then W j i * (x j * x j) else 0)) := by
-      have hIn : (fun i : Fin n => ssSumFin (fun j =>
-            (if A i j = true then W i j * (x i * x i) else 0) +
-            (if A i j = true then W j i * (x j * x j) else 0))) =
-          (fun i : Fin n => ssSumFin (fun j => if A i j = true then W i j * (x i * x i) else 0) +
-            ssSumFin (fun j => if A i j = true then W j i * (x j * x j) else 0)) :=
-        funext (fun i => ss_sumFin_add _ _)
-      rw [hIn, ss_sumFin_add]
+      simp only [ssSumFin_eq_sum, Finset.sum_add_distrib]
     have hSwap : ssSumFin (fun i => ssSumFin (fun j => if A i j = true then W j i * (x j * x j) else 0)) =
         ssSumFin (fun i => ssSumFin (fun j => if A i j = true then W i j * (x i * x i) else 0)) := by
       rw [ss_sumFin_swap]
-      apply congrArg ssSumFin; funext j; apply congrArg ssSumFin; funext i; rw [hSym i j]
+      simp only [ssSumFin_eq_sum]
+      refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun i _ => by rw [hSym i j]
     have hRowSum : ssSumFin (fun i => ssSumFin (fun j => if A i j = true then W i j * (x i * x i) else 0)) =
         ssSumFin (fun i => ssRowSumInt A W i * (x i * x i)) := by
-      apply congrArg ssSumFin; funext i
-      have hF : (fun j : Fin n => if A i j = true then W i j * (x i * x i) else 0) =
-          (fun j : Fin n => (if A i j = true then W i j else 0) * (x i * x i)) := by
-        funext j
-        if hA : A i j = true then rw [ss_ite_pos hA, ss_ite_pos hA]
-        else rw [ss_ite_neg hA, ss_ite_neg hA, Int.zero_mul]
-      rw [hF, ss_sumFin_mul_right]; rfl
+      unfold ssRowSumInt
+      simp only [ssSumFin_eq_sum, Finset.sum_mul]
+      refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+      split_ifs <;> ring
     have hBound : ssSumFin (fun i => ssRowSumInt A W i * (x i * x i)) ≤ MNum * ssNormSq x := by
-      have hLe := ss_sumFin_le (fun i => ssRowSumInt A W i * (x i * x i))
-        (fun i => MNum * (x i * x i))
-        (fun i => ss_int_mul_le_right _ _ (x i * x i) (hRow i) (int_sq_nonneg (x i)))
-      rw [ss_sumFin_mul_left] at hLe; exact hLe
+      unfold ssNormSq
+      rw [← ss_sumFin_mul_left]
+      exact ss_sumFin_le _ _ fun i => by nlinarith [hRow i, int_sq_nonneg (x i)]
     rw [hLHS, hSplit, hSwap, hRowSum] at hSumLe
     omega
-  have hP := hSigned 1 (Or.inl rfl); rw [Int.one_mul] at hP
-  have hM := hSigned (-1) (Or.inr rfl)
-  have hNegEq : (-1) * (D * ssQuadForm A x) = -(D * ssQuadForm A x) := by omega
-  rw [hNegEq] at hM
-  refine ⟨hP, hM, ?_, ?_⟩
-  · unfold QPos.le ssQPosScaleInt
-    rw [Int.mul_one, Int.mul_comm (ssQuadForm A x) D, Int.mul_comm (ssNormSq x) MNum]; exact hP
-  · unfold QPos.le ssQPosScaleInt
-    rw [Int.mul_one, Int.neg_mul, Int.mul_comm (ssQuadForm A x) D, Int.mul_comm (ssNormSq x) MNum]; exact hM
+  have hP : D * ssQuadForm A x ≤ MNum * ssNormSq x := by simpa using hSigned 1 (Or.inl rfl)
+  have hM : -(D * ssQuadForm A x) ≤ MNum * ssNormSq x := by
+    have h := hSigned (-1) (Or.inr rfl); linarith
+  refine ⟨hP, hM, ?_, ?_⟩ <;> unfold QPos.le ssQPosScaleInt <;> dsimp only <;> linarith
 
 
 /-! ## Section 2: Exhaustive 217-Clique `{3,4,3,4}` Right-Descent Partition & Detailed Balance -/
@@ -398,7 +218,8 @@ def ssAdjCount (adj : Fin 24 → Fin 24 → Bool) (x : Fin 24) : List (Fin 24) �
   | [] => 0
   | a :: as => (if adj a x = true then 1 else 0) + ssAdjCount adj x as
 
-private def ss_bump (acc : Nat × Nat × Nat × Nat) (sz : Nat) : Nat × Nat × Nat × Nat :=
+-- [helper]
+def ss_bump (acc : Nat × Nat × Nat × Nat) (sz : Nat) : Nat × Nat × Nat × Nat :=
   match sz with
   | 1 => (acc.1 + 1, acc.2.1, acc.2.2.1, acc.2.2.2)
   | 2 => (acc.1, acc.2.1 + 1, acc.2.2.1, acc.2.2.2)
@@ -567,17 +388,17 @@ theorem thm_ss_d4_comm_cliques_and_transitions :
        ssUpBound ⟨3, by decide⟩ ⟨3, by decide⟩, ssUpBound ⟨3, by decide⟩ ⟨0, by decide⟩)) ∧
     (0 + 24 = 24 ∧ 1 + 15 + 8 = 24 ∧ 2 + 11 + 8 + 3 = 24 ∧ 3 + 9 + 6 + 6 = 24) := by
   have h1 : (fun a : Fin 24 => decide (ssUpTypeCounts [a] = (15, 8, 0, 0))) =
-      (fun a : Fin 24 => decide (ss_up1Aux a.val (ss_adjTuple a) 24 = (15, 8, 0, 0))) := by
-    funext a; rw [ss_up1_eq_fast a]
+      (fun a : Fin 24 => decide (ss_up1Aux a.val (ss_adjTuple a) 24 = (15, 8, 0, 0))) :=
+    funext fun a => by rw [ss_up1_eq_fast a]
   have h2 : (fun ab : Fin 24 × Fin 24 => decide (ssUpTypeCounts [ab.1, ab.2] = (11, 8, 3, 0))) =
       (fun ab : Fin 24 × Fin 24 =>
-        decide (ss_up2Aux ab.1.val ab.2.val (ss_adjTuple ab.1) (ss_adjTuple ab.2) 24 = (11, 8, 3, 0))) := by
-    funext ab; rw [ss_up2_eq_fast ab.1 ab.2]
+        decide (ss_up2Aux ab.1.val ab.2.val (ss_adjTuple ab.1) (ss_adjTuple ab.2) 24 = (11, 8, 3, 0))) :=
+    funext fun ab => by rw [ss_up2_eq_fast ab.1 ab.2]
   have h3 : (fun t : Fin 24 × Fin 24 × Fin 24 => decide (ssUpTypeCounts [t.1, t.2.1, t.2.2] = (9, 6, 6, 0))) =
       (fun t : Fin 24 × Fin 24 × Fin 24 =>
         decide (ss_up3Aux t.1.val t.2.1.val t.2.2.val
-          (ss_adjTuple t.1) (ss_adjTuple t.2.1) (ss_adjTuple t.2.2) 24 = (9, 6, 6, 0))) := by
-    funext t; rw [ss_up3_eq_fast t.1 t.2.1 t.2.2]
+          (ss_adjTuple t.1) (ss_adjTuple t.2.1) (ss_adjTuple t.2.2) 24 = (9, 6, 6, 0))) :=
+    funext fun t => by rw [ss_up3_eq_fast t.1 t.2.1 t.2.2]
   refine ⟨thm_24cell_clique_fvector.1, thm_24cell_clique_fvector.2.1,
     thm_24cell_clique_fvector.2.2.1, by decide, ?_, ?_, ?_,
     by rw [ss_up1_eq_fast, ss_up2_eq_fast, ss_up3_eq_fast]; decide, by decide⟩
@@ -730,13 +551,15 @@ theorem thm_ss_refined_3rat_bound :
           by unfold QPos.eq; decide, by unfold QPos.eq; decide, by unfold QPos.le; decide,
           by decide, by decide, by unfold QPos.eq; decide, by decide⟩
 
-private def ss_wUp (D u1 u2 u3 : Int) : Fin 4 → Int
+-- [helper]
+def ss_wUp (D u1 u2 u3 : Int) : Fin 4 → Int
   | ⟨0, _⟩ => D
   | ⟨1, _⟩ => u1
   | ⟨2, _⟩ => u2
   | ⟨3, _⟩ => u3
 
-private def ss_wDn (D d1 d2 d3 : Int) : Fin 4 → Int
+-- [helper]
+def ss_wDn (D d1 d2 d3 : Int) : Fin 4 → Int
   | ⟨0, _⟩ => D
   | ⟨1, _⟩ => d1
   | ⟨2, _⟩ => d2
@@ -778,51 +601,7 @@ private theorem ss_fin4_decomp (k : Fin 4) (v0 v1 v2 v3 : Int) :
       ((if k = ⟨1, by decide⟩ then 1 else 0) * v1 +
        ((if k = ⟨2, by decide⟩ then 1 else 0) * v2 +
         (if k = ⟨3, by decide⟩ then 1 else 0) * v3)) := by
-  match k with
-  | ⟨0, _⟩ =>
-    have e0 : (⟨0, by decide⟩ : Fin 4) = ⟨0, by decide⟩ := rfl
-    have n1 : (⟨0, by decide⟩ : Fin 4) ≠ ⟨1, by decide⟩ := by decide
-    have n2 : (⟨0, by decide⟩ : Fin 4) ≠ ⟨2, by decide⟩ := by decide
-    have n3 : (⟨0, by decide⟩ : Fin 4) ≠ ⟨3, by decide⟩ := by decide
-    change v0 = (if (⟨0, by decide⟩ : Fin 4) = ⟨0, by decide⟩ then 1 else 0) * v0 +
-      ((if (⟨0, by decide⟩ : Fin 4) = ⟨1, by decide⟩ then 1 else 0) * v1 +
-       ((if (⟨0, by decide⟩ : Fin 4) = ⟨2, by decide⟩ then 1 else 0) * v2 +
-        (if (⟨0, by decide⟩ : Fin 4) = ⟨3, by decide⟩ then 1 else 0) * v3))
-    rw [ss_ite_pos e0, ss_ite_neg n1, ss_ite_neg n2, ss_ite_neg n3,
-        Int.one_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul]; omega
-  | ⟨1, _⟩ =>
-    have n0 : (⟨1, by decide⟩ : Fin 4) ≠ ⟨0, by decide⟩ := by decide
-    have e1 : (⟨1, by decide⟩ : Fin 4) = ⟨1, by decide⟩ := rfl
-    have n2 : (⟨1, by decide⟩ : Fin 4) ≠ ⟨2, by decide⟩ := by decide
-    have n3 : (⟨1, by decide⟩ : Fin 4) ≠ ⟨3, by decide⟩ := by decide
-    change v1 = (if (⟨1, by decide⟩ : Fin 4) = ⟨0, by decide⟩ then 1 else 0) * v0 +
-      ((if (⟨1, by decide⟩ : Fin 4) = ⟨1, by decide⟩ then 1 else 0) * v1 +
-       ((if (⟨1, by decide⟩ : Fin 4) = ⟨2, by decide⟩ then 1 else 0) * v2 +
-        (if (⟨1, by decide⟩ : Fin 4) = ⟨3, by decide⟩ then 1 else 0) * v3))
-    rw [ss_ite_neg n0, ss_ite_pos e1, ss_ite_neg n2, ss_ite_neg n3,
-        Int.one_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul]; omega
-  | ⟨2, _⟩ =>
-    have n0 : (⟨2, by decide⟩ : Fin 4) ≠ ⟨0, by decide⟩ := by decide
-    have n1 : (⟨2, by decide⟩ : Fin 4) ≠ ⟨1, by decide⟩ := by decide
-    have e2 : (⟨2, by decide⟩ : Fin 4) = ⟨2, by decide⟩ := rfl
-    have n3 : (⟨2, by decide⟩ : Fin 4) ≠ ⟨3, by decide⟩ := by decide
-    change v2 = (if (⟨2, by decide⟩ : Fin 4) = ⟨0, by decide⟩ then 1 else 0) * v0 +
-      ((if (⟨2, by decide⟩ : Fin 4) = ⟨1, by decide⟩ then 1 else 0) * v1 +
-       ((if (⟨2, by decide⟩ : Fin 4) = ⟨2, by decide⟩ then 1 else 0) * v2 +
-        (if (⟨2, by decide⟩ : Fin 4) = ⟨3, by decide⟩ then 1 else 0) * v3))
-    rw [ss_ite_neg n0, ss_ite_neg n1, ss_ite_pos e2, ss_ite_neg n3,
-        Int.one_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul]; omega
-  | ⟨3, _⟩ =>
-    have n0 : (⟨3, by decide⟩ : Fin 4) ≠ ⟨0, by decide⟩ := by decide
-    have n1 : (⟨3, by decide⟩ : Fin 4) ≠ ⟨1, by decide⟩ := by decide
-    have n2 : (⟨3, by decide⟩ : Fin 4) ≠ ⟨2, by decide⟩ := by decide
-    have e3 : (⟨3, by decide⟩ : Fin 4) = ⟨3, by decide⟩ := rfl
-    change v3 = (if (⟨3, by decide⟩ : Fin 4) = ⟨0, by decide⟩ then 1 else 0) * v0 +
-      ((if (⟨3, by decide⟩ : Fin 4) = ⟨1, by decide⟩ then 1 else 0) * v1 +
-       ((if (⟨3, by decide⟩ : Fin 4) = ⟨2, by decide⟩ then 1 else 0) * v2 +
-        (if (⟨3, by decide⟩ : Fin 4) = ⟨3, by decide⟩ then 1 else 0) * v3))
-    rw [ss_ite_neg n0, ss_ite_neg n1, ss_ite_neg n2, ss_ite_pos e3,
-        Int.one_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul]; omega
+  fin_cases k <;> simp [ss_wUp]
 
 private theorem ss_rowSum_le_from_deg (D u1 d1 u2 d2 u3 d3 : Int)
     (hD : 0 < D) (hu1 : 0 < u1) (hd1 : 0 < d1) (hu2 : 0 < u2) (hd2 : 0 < d2) (hu3 : 0 < u3) (hd3 : 0 < d3)
@@ -841,85 +620,63 @@ private theorem ss_rowSum_le_from_deg (D u1 d1 u2 d2 u3 d3 : Int)
         ((if A i j = true then (if depth j = depth i + 1 then (if ctype j = ⟨2, by decide⟩ then 1 else 0) else 0) else 0) * u2 +
          (if A i j = true then (if depth j = depth i + 1 then (if ctype j = ⟨3, by decide⟩ then 1 else 0) else 0) else 0) * u3))) := by
     intro j
-    if hA : A i j = true then
-      rw [ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA]
-      unfold ssDepth1WeightInt
+    by_cases hA : A i j = true
+    · simp only [hA, ↓reduceIte, ssDepth1WeightInt]
       cases hBip i j hA with
       | inl hUpJ =>
         have hNotDn : ¬ (depth i = depth j + 1) := by omega
-        rw [ss_ite_pos hUpJ, ss_ite_neg hNotDn, ss_ite_pos hUpJ, ss_ite_pos hUpJ, ss_ite_pos hUpJ,
-            ss_ite_pos hUpJ, Int.zero_mul, Int.zero_add]
+        rw [ite_eq_left hUpJ, ite_eq_right hNotDn, ite_eq_left hUpJ, ite_eq_left hUpJ,
+            ite_eq_left hUpJ, ite_eq_left hUpJ, zero_mul, zero_add]
         exact ss_fin4_decomp (ctype j) D u1 u2 u3
       | inr hDnJ =>
         have hNotUp : ¬ (depth j = depth i + 1) := by omega
-        rw [ss_ite_neg hNotUp, ss_ite_pos hDnJ, ss_ite_pos hDnJ, ss_ite_neg hNotUp, ss_ite_neg hNotUp,
-            ss_ite_neg hNotUp, ss_ite_neg hNotUp, Int.one_mul, Int.zero_mul, Int.zero_mul,
-            Int.zero_mul, Int.zero_mul]
-        omega
-    else
-      rw [ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA,
-          Int.zero_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul, Int.zero_mul]
-      omega
+        rw [ite_eq_right hNotUp, ite_eq_left hDnJ, ite_eq_left hDnJ, ite_eq_right hNotUp,
+            ite_eq_right hNotUp, ite_eq_right hNotUp, ite_eq_right hNotUp]
+        ring
+    · simp [hA]
   have hDecomp : ssRowSumInt A (ssDepth1WeightInt D u1 d1 u2 d2 u3 d3 depth ctype) i =
       ssDownDeg A depth i * ss_wDn D d1 d2 d3 (ctype i) +
       (ssUpDegTo A depth ctype i ⟨0, by decide⟩ * D +
        (ssUpDegTo A depth ctype i ⟨1, by decide⟩ * u1 +
         (ssUpDegTo A depth ctype i ⟨2, by decide⟩ * u2 +
          ssUpDegTo A depth ctype i ⟨3, by decide⟩ * u3))) := by
-    unfold ssRowSumInt
+    unfold ssRowSumInt ssDownDeg ssUpDegTo
     rw [funext hPt, ss_sumFin_add, ss_sumFin_add, ss_sumFin_add, ss_sumFin_add,
         ss_sumFin_mul_right, ss_sumFin_mul_right, ss_sumFin_mul_right,
         ss_sumFin_mul_right, ss_sumFin_mul_right]
-    rfl
   rw [hDecomp]
-  have hwDnPos : 0 ≤ ss_wDn D d1 d2 d3 (ctype i) := by
-    match ctype i with
-    | ⟨0, _⟩ => change 0 ≤ D; omega
-    | ⟨1, _⟩ => change 0 ≤ d1; omega
-    | ⟨2, _⟩ => change 0 ≤ d2; omega
-    | ⟨3, _⟩ => change 0 ≤ d3; omega
-  have bD := ss_int_mul_le_right _ _ (ss_wDn D d1 d2 d3 (ctype i)) (hDown i) hwDnPos
-  have b0 := ss_int_mul_le_right _ _ D (hUp i ⟨0, by decide⟩) (by omega)
-  have b1 := ss_int_mul_le_right _ _ u1 (hUp i ⟨1, by decide⟩) (by omega)
-  have b2 := ss_int_mul_le_right _ _ u2 (hUp i ⟨2, by decide⟩) (by omega)
-  have b3 := ss_int_mul_le_right _ _ u3 (hUp i ⟨3, by decide⟩) (by omega)
-  match hc : ctype i with
-  | ⟨0, _⟩ =>
-    rw [hc] at bD b0 b1 b2 b3
-    change ssDownDeg A depth i * D ≤ 0 * D at bD
-    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ * D ≤ 0 * D at b0
-    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ * u1 ≤ 24 * u1 at b1
-    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ * u2 ≤ 0 * u2 at b2
-    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ * u3 ≤ 0 * u3 at b3
-    change ssDownDeg A depth i * D + _ ≤ 24 * u1
-    omega
-  | ⟨1, _⟩ =>
-    rw [hc] at bD b0 b1 b2 b3
-    change ssDownDeg A depth i * d1 ≤ 1 * d1 at bD
-    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ * D ≤ 0 * D at b0
-    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ * u1 ≤ 15 * u1 at b1
-    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ * u2 ≤ 8 * u2 at b2
-    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ * u3 ≤ 0 * u3 at b3
-    change ssDownDeg A depth i * d1 + _ ≤ d1 + 15 * u1 + 8 * u2
-    omega
-  | ⟨2, _⟩ =>
-    rw [hc] at bD b0 b1 b2 b3
-    change ssDownDeg A depth i * d2 ≤ 2 * d2 at bD
-    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ * D ≤ 0 * D at b0
-    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ * u1 ≤ 11 * u1 at b1
-    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ * u2 ≤ 8 * u2 at b2
-    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ * u3 ≤ 3 * u3 at b3
-    change ssDownDeg A depth i * d2 + _ ≤ 2 * d2 + 11 * u1 + 8 * u2 + 3 * u3
-    omega
-  | ⟨3, _⟩ =>
-    rw [hc] at bD b0 b1 b2 b3
-    change ssDownDeg A depth i * d3 ≤ 3 * d3 at bD
-    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ * D ≤ 0 * D at b0
-    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ * u1 ≤ 9 * u1 at b1
-    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ * u2 ≤ 6 * u2 at b2
-    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ * u3 ≤ 6 * u3 at b3
-    change ssDownDeg A depth i * d3 + _ ≤ 3 * d3 + 9 * u1 + 6 * u2 + 6 * u3
-    omega
+  have hD' := hDown i
+  have h0' := hUp i ⟨0, by decide⟩
+  have h1' := hUp i ⟨1, by decide⟩
+  have h2' := hUp i ⟨2, by decide⟩
+  have h3' := hUp i ⟨3, by decide⟩
+  generalize hc : ctype i = k
+  rw [hc] at hD' h0' h1' h2' h3'
+  fin_cases k
+  · change ssDownDeg A depth i ≤ 0 at hD'
+    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ ≤ 0 at h0'
+    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ ≤ 24 at h1'
+    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ ≤ 0 at h2'
+    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ ≤ 0 at h3'
+    change ssDownDeg A depth i * D + _ ≤ 24 * u1; nlinarith
+  · change ssDownDeg A depth i ≤ 1 at hD'
+    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ ≤ 0 at h0'
+    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ ≤ 15 at h1'
+    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ ≤ 8 at h2'
+    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ ≤ 0 at h3'
+    change ssDownDeg A depth i * d1 + _ ≤ d1 + 15 * u1 + 8 * u2; nlinarith
+  · change ssDownDeg A depth i ≤ 2 at hD'
+    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ ≤ 0 at h0'
+    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ ≤ 11 at h1'
+    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ ≤ 8 at h2'
+    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ ≤ 3 at h3'
+    change ssDownDeg A depth i * d2 + _ ≤ 2 * d2 + 11 * u1 + 8 * u2 + 3 * u3; nlinarith
+  · change ssDownDeg A depth i ≤ 3 at hD'
+    change ssUpDegTo A depth ctype i ⟨0, by decide⟩ ≤ 0 at h0'
+    change ssUpDegTo A depth ctype i ⟨1, by decide⟩ ≤ 9 at h1'
+    change ssUpDegTo A depth ctype i ⟨2, by decide⟩ ≤ 6 at h2'
+    change ssUpDegTo A depth ctype i ⟨3, by decide⟩ ≤ 6 at h3'
+    change ssDownDeg A depth i * d3 + _ ≤ 3 * d3 + 9 * u1 + 6 * u2 + 6 * u3; nlinarith
 
 private theorem ss_depth1_int_pos_rec (D u1 d1 u2 d2 u3 d3 : Int)
     (hD : 0 < D) (hu1 : 0 < u1) (hd1 : 0 < d1) (hu2 : 0 < u2) (hd2 : 0 < d2) (hu3 : 0 < u3) (hd3 : 0 < d3)
@@ -932,41 +689,21 @@ private theorem ss_depth1_int_pos_rec (D u1 d1 u2 d2 u3 d3 : Int)
       ssDepth1WeightInt D u1 d1 u2 d2 u3 d3 depth ctype j i = D * D) := by
   constructor
   · intro i j; unfold ssDepth1WeightInt
-    if hUp : depth j = depth i + 1 then
-      rw [ss_ite_pos hUp]
-      match ctype j with
-      | ⟨0, _⟩ => exact hD
-      | ⟨1, _⟩ => exact hu1
-      | ⟨2, _⟩ => exact hu2
-      | ⟨3, _⟩ => exact hu3
-    else
-      rw [ss_ite_neg hUp]
-      if hDn : depth i = depth j + 1 then
-        rw [ss_ite_pos hDn]
-        match ctype i with
-        | ⟨0, _⟩ => exact hD
-        | ⟨1, _⟩ => exact hd1
-        | ⟨2, _⟩ => exact hd2
-        | ⟨3, _⟩ => exact hd3
-      else rw [ss_ite_neg hDn]; exact hD
+    split_ifs
+    · generalize ctype j = k; fin_cases k <;> assumption
+    · generalize ctype i = k; fin_cases k <;> assumption
+    · exact hD
   · intro i j hA; unfold ssDepth1WeightInt
     cases hBip i j hA with
     | inl hUp =>
       have hNotDn : ¬ (depth i = depth j + 1) := by omega
-      rw [ss_ite_pos hUp, ss_ite_neg hNotDn, ss_ite_pos hUp]
-      match ctype j with
-      | ⟨0, _⟩ => rfl
-      | ⟨1, _⟩ => exact hr1
-      | ⟨2, _⟩ => exact hr2
-      | ⟨3, _⟩ => exact hr3
+      rw [ite_eq_left hUp, ite_eq_right hNotDn, ite_eq_left hUp]
+      generalize ctype j = k; fin_cases k <;> simp [ss_wUp, ss_wDn, hr1, hr2, hr3]
     | inr hDn =>
       have hNotUp : ¬ (depth j = depth i + 1) := by omega
-      rw [ss_ite_neg hNotUp, ss_ite_pos hDn, ss_ite_pos hDn]
-      match ctype i with
-      | ⟨0, _⟩ => rfl
-      | ⟨1, _⟩ => rw [Int.mul_comm]; exact hr1
-      | ⟨2, _⟩ => rw [Int.mul_comm]; exact hr2
-      | ⟨3, _⟩ => rw [Int.mul_comm]; exact hr3
+      rw [ite_eq_right hNotUp, ite_eq_left hDn, ite_eq_right hNotUp, ite_eq_left hDn]
+      generalize ctype i = k
+      fin_cases k <;> simp [ss_wUp, ss_wDn] <;> nlinarith
 
 private theorem ss_racg_subgraph_core {n : Nat}
     (A : Fin n → Fin n → Bool) (hSym : ∀ i j : Fin n, A i j = A j i)
@@ -983,7 +720,7 @@ private theorem ss_racg_subgraph_core {n : Nat}
     (by decide) (by decide) (by decide) A depth ctype hBip
   have hSMax : ∀ k : Fin 4, ssDepth1RowInt 12 588 28 252 48 147 k ≤ 1005 := by decide
   have hRowS : ∀ i : Fin n, ssRowSumInt A (ssDepth1WeightInt 84 12 588 28 252 48 147 depth ctype) i ≤ 1005 :=
-    fun i => Int.le_trans
+    fun i => le_trans
       (ss_rowSum_le_from_deg 84 12 588 28 252 48 147
         (by decide) (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
         A depth ctype hBip hDown hUp i)
@@ -1000,7 +737,7 @@ private theorem ss_racg_subgraph_core {n : Nat}
   have hRowR : ∀ i : Fin n, ssRowSumInt A (ssDepth1WeightInt 133002149109300000
       18547149693291885 953762274000000000 44265775266557226 399621865000000000
       76228851740504202 232058745000000000 depth ctype) i ≤ 1586095721531836083 :=
-    fun i => Int.le_trans
+    fun i => le_trans
       (ss_rowSum_le_from_deg 133002149109300000
         18547149693291885 953762274000000000 44265775266557226 399621865000000000
         76228851740504202 232058745000000000
@@ -1009,22 +746,8 @@ private theorem ss_racg_subgraph_core {n : Nat}
       (hRMax (ctype i))
   have hRB := thm_ss_finite_reciprocal_schur_bound A hSym 133002149109300000 (by decide) _
     hR.1 hR.2 1586095721531836083 hRowR x
-  have hDiv : ∀ (a b c d k q m : Int), 0 < k → a * k = c → b * k = d → c * q ≤ d * m → a * q ≤ b * m := by
-    intro a b c d k q m hk hac hbd h
-    apply ss_int_le_of_mul_le_right (a * q) (b * m) k hk
-    rw [ss_int_mul_right_comm a q k, hac, ss_int_mul_right_comm b m k, hbd]
-    exact h
-  have hDivNeg : ∀ (a b c d k q m : Int), 0 < k → a * k = c → b * k = d → -(c * q) ≤ d * m → -(a * q) ≤ b * m := by
-    intro a b c d k q m hk hac hbd h
-    apply ss_int_le_of_mul_le_right (-(a * q)) (b * m) k hk
-    rw [Int.neg_mul, ss_int_mul_right_comm a q k, hac, ss_int_mul_right_comm b m k, hbd]
-    exact h
-  exact ⟨⟨hDiv 28 335 84 1005 3 _ _ (by decide) (by decide) (by decide) hSB.1,
-          hDivNeg 28 335 84 1005 3 _ _ (by decide) (by decide) (by decide) hSB.2.1⟩,
-         ⟨hDiv 278900000 3325977059 133002149109300000 1586095721531836083 476881137 _ _
-            (by decide) (by decide) (by decide) hRB.1,
-          hDivNeg 278900000 3325977059 133002149109300000 1586095721531836083 476881137 _ _
-            (by decide) (by decide) (by decide) hRB.2.1⟩⟩
+  exact ⟨⟨by linarith [hSB.1], by linarith [hSB.2.1]⟩,
+         ⟨by linarith [hRB.1], by linarith [hRB.2.1]⟩⟩
 
 private theorem ss_ball1_structural :
     (∀ i j : Fin 25, ssBall1Adj i j = ssBall1Adj j i) ∧
@@ -1080,15 +803,12 @@ private theorem ss_sumFin_stratify {n m : Nat} (σ : Fin n → Fin m) (g : Fin m
     ssSumFin (fun i : Fin n => g (σ i)) = ssSumFin (fun u : Fin m => ssStratumSize σ u * g u) := by
   have hStep : (fun i : Fin n => g (σ i)) =
       (fun i : Fin n => ssSumFin (fun u : Fin m => if σ i = u then g u else 0)) :=
-    funext (fun i => (ss_sumFin_kronecker (σ i) g).symm)
+    funext fun i => (ss_sumFin_kronecker (σ i) g).symm
   rw [hStep, ss_sumFin_swap]
-  apply congrArg ssSumFin; funext u
-  have hF : (fun i : Fin n => if σ i = u then g u else 0) =
-      (fun i : Fin n => (if σ i = u then 1 else 0) * g u) := by
-    funext i
-    if h : σ i = u then rw [ss_ite_pos h, ss_ite_pos h, Int.one_mul]
-    else rw [ss_ite_neg h, ss_ite_neg h, Int.zero_mul]
-  rw [hF, ss_sumFin_mul_right]; rfl
+  unfold ssStratumSize
+  simp only [ssSumFin_eq_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun u _ => Finset.sum_congr rfl fun i _ => ?_
+  split_ifs <;> ring
 
 /-- Headline Theorem 10 (Exact Upward-Only Bipartite Stratum-Compression Rayleigh-Ritz Identity):
     for ANY finite symmetric (`A i j = A j i`) bipartite (`depth (σ j) = depth (σ i) + 1` or reverse)
@@ -1117,57 +837,39 @@ theorem thm_ss_stratum_rayleigh_exact {n m : Nat}
   have hEdge : ∀ i j : Fin n,
       (if A i j = true then c (σ i) * c (σ j) else 0) = upTerm i j + dnTerm i j := by
     intro i j
-    if hA : A i j = true then
-      change (if A i j = true then c (σ i) * c (σ j) else 0) =
-        (if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ i) * c (σ j) else 0) else 0) +
-        (if A i j = true then (if depth (σ i) = depth (σ j) + 1 then c (σ i) * c (σ j) else 0) else 0)
-      rw [ss_ite_pos hA, ss_ite_pos hA, ss_ite_pos hA]
+    by_cases hA : A i j = true
+    · simp only [upTerm, dnTerm, hA, ↓reduceIte]
       cases hBip i j hA with
       | inl hUp =>
         have hNotDn : ¬ (depth (σ i) = depth (σ j) + 1) := by omega
-        rw [ss_ite_pos hUp, ss_ite_neg hNotDn]; omega
+        rw [ite_eq_left hUp, ite_eq_right hNotDn]; ring
       | inr hDn =>
         have hNotUp : ¬ (depth (σ j) = depth (σ i) + 1) := by omega
-        rw [ss_ite_neg hNotUp, ss_ite_pos hDn]; omega
-    else
-      change (if A i j = true then c (σ i) * c (σ j) else 0) =
-        (if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ i) * c (σ j) else 0) else 0) +
-        (if A i j = true then (if depth (σ i) = depth (σ j) + 1 then c (σ i) * c (σ j) else 0) else 0)
-      rw [ss_ite_neg hA, ss_ite_neg hA, ss_ite_neg hA]; omega
+        rw [ite_eq_right hNotUp, ite_eq_left hDn]; ring
+    · simp [upTerm, dnTerm, hA]
   have hSplit : ssQuadForm A (fun i => c (σ i)) =
       ssSumFin (fun i => ssSumFin (fun j => upTerm i j)) +
       ssSumFin (fun i => ssSumFin (fun j => dnTerm i j)) := by
     unfold ssQuadForm
-    have hF : (fun i : Fin n => ssSumFin (fun j : Fin n => if A i j = true then c (σ i) * c (σ j) else 0)) =
-        (fun i : Fin n => ssSumFin (fun j : Fin n => upTerm i j) + ssSumFin (fun j : Fin n => dnTerm i j)) := by
-      funext i
-      have hJ : (fun j : Fin n => if A i j = true then c (σ i) * c (σ j) else 0) =
-          (fun j : Fin n => upTerm i j + dnTerm i j) := funext (fun j => hEdge i j)
-      rw [hJ, ss_sumFin_add]
-    rw [hF, ss_sumFin_add]
+    simp only [ssSumFin_eq_sum, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => hEdge i j
   have hDnEqUp : ssSumFin (fun i => ssSumFin (fun j => dnTerm i j)) =
       ssSumFin (fun i => ssSumFin (fun j => upTerm i j)) := by
     rw [ss_sumFin_swap]
-    apply congrArg ssSumFin; funext j; apply congrArg ssSumFin; funext i
-    change (if A i j = true then (if depth (σ i) = depth (σ j) + 1 then c (σ i) * c (σ j) else 0) else 0) =
-           (if A j i = true then (if depth (σ i) = depth (σ j) + 1 then c (σ j) * c (σ i) else 0) else 0)
-    rw [hSym i j, Int.mul_comm (c (σ i)) (c (σ j))]
+    simp only [ssSumFin_eq_sum, upTerm, dnTerm]
+    refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun i _ => ?_
+    rw [hSym i j, mul_comm (c (σ i)) (c (σ j))]
   have hUpRow : ∀ i : Fin n,
       ssSumFin (fun j : Fin n => upTerm i j) =
         c (σ i) * ssSumFin (fun v : Fin m =>
           if depth v = depth (σ i) + 1 then M_up (σ i) v * c v else 0) := by
     intro i
-    have h1 : (fun j : Fin n => upTerm i j) =
-        (fun j : Fin n => c (σ i) *
-          (if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ j) else 0) else 0)) := by
-      funext j
-      change (if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ i) * c (σ j) else 0) else 0) = _
-      if hA : A i j = true then
-        rw [ss_ite_pos hA, ss_ite_pos hA]
-        if hUp : depth (σ j) = depth (σ i) + 1 then rw [ss_ite_pos hUp, ss_ite_pos hUp]
-        else rw [ss_ite_neg hUp, ss_ite_neg hUp, Int.mul_zero]
-      else rw [ss_ite_neg hA, ss_ite_neg hA, Int.mul_zero]
-    rw [h1, ss_sumFin_mul_left]
+    have h1 : ssSumFin (fun j : Fin n => upTerm i j) =
+        c (σ i) * ssSumFin (fun j : Fin n =>
+          if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ j) else 0) else 0) := by
+      simp only [ssSumFin_eq_sum, Finset.mul_sum, upTerm]
+      refine Finset.sum_congr rfl fun j _ => by split_ifs <;> ring
+    rw [h1]
     apply congrArg (c (σ i) * ·)
     have h2 : (fun j : Fin n =>
           if A i j = true then (if depth (σ j) = depth (σ i) + 1 then c (σ j) else 0) else 0) =
@@ -1176,71 +878,31 @@ theorem thm_ss_stratum_rayleigh_exact {n m : Nat}
             (if A i j = true then (if σ j = v then c v else 0) else 0)
           else 0)) := by
       funext j
-      if hA : A i j = true then
-        rw [ss_ite_pos hA]
-        have hF : (fun v : Fin m =>
-              if depth v = depth (σ i) + 1 then
-                (if A i j = true then (if σ j = v then c v else 0) else 0)
-              else 0) =
-            (fun v : Fin m =>
-              if σ j = v then (if depth v = depth (σ i) + 1 then c v else 0) else 0) := by
-          funext v
-          rw [ss_ite_pos hA]
-          if hUp : depth v = depth (σ i) + 1 then
-            rw [ss_ite_pos hUp]
-            if hv : σ j = v then rw [ss_ite_pos hv, ss_ite_pos hv, ss_ite_pos hUp]
-            else rw [ss_ite_neg hv, ss_ite_neg hv]
-          else
-            rw [ss_ite_neg hUp]
-            if hv : σ j = v then rw [ss_ite_pos hv, ss_ite_neg hUp]
-            else rw [ss_ite_neg hv]
-        rw [hF, ss_sumFin_kronecker]
-      else
-        rw [ss_ite_neg hA]
-        have hF : (fun v : Fin m =>
-              if depth v = depth (σ i) + 1 then
-                (if A i j = true then (if σ j = v then c v else 0) else 0)
-              else 0) = (fun _ : Fin m => (0 : Int)) := by
-          funext v
-          rw [ss_ite_neg hA]
-          if hUp : depth v = depth (σ i) + 1 then rw [ss_ite_pos hUp] else rw [ss_ite_neg hUp]
-        rw [hF, ss_sumFin_zero]
+      rw [ssSumFin_eq_sum]
+      by_cases hA : A i j = true
+      · simp only [hA, ↓reduceIte]
+        have hF : (∑ v : Fin m, if depth v = depth (σ i) + 1 then (if σ j = v then c v else 0) else 0) =
+            ∑ v : Fin m, if σ j = v then (if depth v = depth (σ i) + 1 then c v else 0) else 0 :=
+          Finset.sum_congr rfl fun v _ => by split_ifs <;> rfl
+        rw [hF]; simp
+      · simp [hA]
     rw [h2, ss_sumFin_swap]
-    apply congrArg ssSumFin; funext v
-    if hUp : depth v = depth (σ i) + 1 then
-      rw [ss_ite_pos hUp]
-      have h3 : (fun j : Fin n =>
-            if depth v = depth (σ i) + 1 then
-              (if A i j = true then (if σ j = v then c v else 0) else 0)
-            else 0) =
-          (fun j : Fin n => (if A i j = true then (if σ j = v then 1 else 0) else 0) * c v) := by
-        funext j
-        rw [ss_ite_pos hUp]
-        if hA : A i j = true then
-          rw [ss_ite_pos hA, ss_ite_pos hA]
-          if hv : σ j = v then rw [ss_ite_pos hv, ss_ite_pos hv, Int.one_mul]
-          else rw [ss_ite_neg hv, ss_ite_neg hv, Int.zero_mul]
-        else rw [ss_ite_neg hA, ss_ite_neg hA, Int.zero_mul]
-      rw [h3, ss_sumFin_mul_right]
-      exact congrArg (· * c v) (hUpDeg i v hUp)
-    else
-      rw [ss_ite_neg hUp]
-      have h3 : (fun j : Fin n =>
-            if depth v = depth (σ i) + 1 then
-              (if A i j = true then (if σ j = v then c v else 0) else 0)
-            else 0) = (fun _ : Fin n => (0 : Int)) :=
-        funext (fun j => ss_ite_neg hUp (if A i j = true then (if σ j = v then c v else 0) else 0) 0)
-      rw [h3, ss_sumFin_zero]
+    simp only [ssSumFin_eq_sum]
+    refine Finset.sum_congr rfl fun v _ => ?_
+    by_cases hUp : depth v = depth (σ i) + 1
+    · simp only [hUp, ↓reduceIte]
+      have hDeg := hUpDeg i v hUp
+      unfold ssDegTo at hDeg; rw [ssSumFin_eq_sum] at hDeg
+      rw [← hDeg, Finset.sum_mul]
+      refine Finset.sum_congr rfl fun j _ => by split_ifs <;> ring
+    · simp [hUp]
   have hUpSum : ssSumFin (fun i => ssSumFin (fun j => upTerm i j)) =
       ssSumFin (fun u => ssStratumSize σ u * c u *
         ssSumFin (fun v => if depth v = depth u + 1 then M_up u v * c v else 0)) := by
-    have hFun : (fun i : Fin n => ssSumFin (fun j : Fin n => upTerm i j)) =
-        (fun i : Fin n => c (σ i) * ssSumFin (fun v : Fin m =>
-          if depth v = depth (σ i) + 1 then M_up (σ i) v * c v else 0)) := funext hUpRow
-    rw [hFun, ss_sumFin_stratify σ (fun u => c u * ssSumFin (fun v : Fin m =>
+    rw [funext hUpRow, ss_sumFin_stratify σ (fun u => c u * ssSumFin (fun v : Fin m =>
       if depth v = depth u + 1 then M_up u v * c v else 0))]
-    apply congrArg ssSumFin; funext u
-    exact (Int.mul_assoc (ssStratumSize σ u) (c u) _).symm
+    simp only [ssSumFin_eq_sum]
+    exact Finset.sum_congr rfl fun u _ => by ring
   rw [hSplit, hDnEqUp, hUpSum]
   omega
 
@@ -1308,38 +970,29 @@ private theorem ss_sumFinAux_shell_slice {R : Nat} (i : Nat) (g : Fin (3 * R) �
         g ⟨3 * (i + 1), by omega⟩ + g ⟨3 * (i + 1) + 1, by omega⟩ + g ⟨3 * (i + 1) + 2, by omega⟩
       else 0 := by
   induction j with
-  | zero =>
-    have hlt : ¬ (i + 1 < 0) := by omega
-    rw [ss_dite_neg hlt]; rfl
+  | zero => simp [ssSumFinAux]
   | succ p ih =>
     rw [ss_sumFinAux_step3 _ p hj, ih (by omega)]
     unfold ssStratumDepth
     dsimp only
-    if hlt : i + 1 < p then
-      have hlt1 : i + 1 < p + 1 := by omega
-      have hne0 : ¬ ((3 * p) / 3 + 1 = i + 2) := by omega
-      have hne1 : ¬ ((3 * p + 1) / 3 + 1 = i + 2) := by omega
-      have hne2 : ¬ ((3 * p + 2) / 3 + 1 = i + 2) := by omega
-      rw [ss_dite_pos hlt, ss_dite_pos hlt1, ss_ite_neg hne0, ss_ite_neg hne1, ss_ite_neg hne2]; omega
-    else if heq : i + 1 = p then
-      have hlt1 : i + 1 < p + 1 := by omega
-      have he0 : (3 * p) / 3 + 1 = i + 2 := by omega
-      have he1 : (3 * p + 1) / 3 + 1 = i + 2 := by omega
-      have he2 : (3 * p + 2) / 3 + 1 = i + 2 := by omega
-      rw [ss_dite_neg hlt, ss_dite_pos hlt1, ss_ite_pos he0, ss_ite_pos he1, ss_ite_pos he2]
-      have hp0 : (⟨3 * p, by omega⟩ : Fin (3 * R)) = ⟨3 * (i + 1), by omega⟩ :=
-        Fin.ext (show 3 * p = 3 * (i + 1) by omega)
-      have hp1 : (⟨3 * p + 1, by omega⟩ : Fin (3 * R)) = ⟨3 * (i + 1) + 1, by omega⟩ :=
-        Fin.ext (show 3 * p + 1 = 3 * (i + 1) + 1 by omega)
-      have hp2 : (⟨3 * p + 2, by omega⟩ : Fin (3 * R)) = ⟨3 * (i + 1) + 2, by omega⟩ :=
-        Fin.ext (show 3 * p + 2 = 3 * (i + 1) + 2 by omega)
-      rw [hp0, hp1, hp2]; omega
-    else
-      have hlt1 : ¬ (i + 1 < p + 1) := by omega
-      have hne0 : ¬ ((3 * p) / 3 + 1 = i + 2) := by omega
-      have hne1 : ¬ ((3 * p + 1) / 3 + 1 = i + 2) := by omega
-      have hne2 : ¬ ((3 * p + 2) / 3 + 1 = i + 2) := by omega
-      rw [ss_dite_neg hlt, ss_dite_neg hlt1, ss_ite_neg hne0, ss_ite_neg hne1, ss_ite_neg hne2]; omega
+    by_cases hlt : i + 1 < p
+    · have h1 : i + 1 < p + 1 := by omega
+      have n0 : ¬ (3 * p) / 3 + 1 = i + 2 := by omega
+      have n1 : ¬ (3 * p + 1) / 3 + 1 = i + 2 := by omega
+      have n2 : ¬ (3 * p + 2) / 3 + 1 = i + 2 := by omega
+      rw [dite_eq_left hlt, dite_eq_left h1, ite_eq_right n0, ite_eq_right n1, ite_eq_right n2]; omega
+    · by_cases heq : i + 1 = p
+      · subst heq
+        have hlt1 : i + 1 < i + 1 + 1 := by omega
+        have e0 : (3 * (i + 1)) / 3 + 1 = i + 2 := by omega
+        have e1 : (3 * (i + 1) + 1) / 3 + 1 = i + 2 := by omega
+        have e2 : (3 * (i + 1) + 2) / 3 + 1 = i + 2 := by omega
+        rw [dite_eq_right hlt, dite_eq_left hlt1, ite_eq_left e0, ite_eq_left e1, ite_eq_left e2]; omega
+      · have n1 : ¬ (i + 1 < p + 1) := by omega
+        have e0 : ¬ (3 * p) / 3 + 1 = i + 2 := by omega
+        have e1 : ¬ (3 * p + 1) / 3 + 1 = i + 2 := by omega
+        have e2 : ¬ (3 * p + 2) / 3 + 1 = i + 2 := by omega
+        rw [dite_eq_right hlt, dite_eq_right n1, ite_eq_right e0, ite_eq_right e1, ite_eq_right e2]; omega
 
 private theorem ss_depth1Amp_3k {R a1 a2 a3 k : Nat} (h0 : 3 * k < 3 * R)
     (h1 : 3 * k + 1 < 3 * R) (h2 : 3 * k + 2 < 3 * R) :
@@ -1355,10 +1008,9 @@ private theorem ss_depth1Amp_3k {R a1 a2 a3 k : Nat} (h0 : 3 * k < 3 * R)
   have m1 : (3 * k + 1) % 3 = 1 := by omega
   have d2 : (3 * k + 2) / 3 = k := by omega
   have m2 : (3 * k + 2) % 3 = 2 := by omega
-  refine ⟨?_, ?_, ?_⟩
-  · unfold ssDepth1Amp; dsimp only; rw [d0, m0]; rfl
-  · unfold ssDepth1Amp; dsimp only; rw [d1, m1]; rfl
-  · unfold ssDepth1Amp; dsimp only; rw [d2, m2]; rfl
+  refine ⟨by unfold ssDepth1Amp; dsimp only; rw [d0, m0]; rfl,
+          by unfold ssDepth1Amp; dsimp only; rw [d1, m1]; rfl,
+          by unfold ssDepth1Amp; dsimp only; rw [d2, m2]; rfl⟩
 
 private theorem ss_depth1Size_3k {R k : Nat} (h0 : 3 * k < 3 * R)
     (h1 : 3 * k + 1 < 3 * R) (h2 : 3 * k + 2 < 3 * R) :
@@ -1368,16 +1020,12 @@ private theorem ss_depth1Size_3k {R k : Nat} (h0 : 3 * k < 3 * R)
   have d0 : (3 * k) / 3 = k := by omega
   have d1 : (3 * k + 1) / 3 = k := by omega
   have d2 : (3 * k + 2) / 3 = k := by omega
-  have f0 : (⟨(3 * k) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ :=
-    Fin.ext (show (3 * k) % 3 + 1 = 1 by omega)
-  have f1 : (⟨(3 * k + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ :=
-    Fin.ext (show (3 * k + 1) % 3 + 1 = 2 by omega)
-  have f2 : (⟨(3 * k + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ :=
-    Fin.ext (show (3 * k + 2) % 3 + 1 = 3 by omega)
-  refine ⟨?_, ?_, ?_⟩
-  · unfold ssDepth1Size; dsimp only; rw [f0, d0]; rfl
-  · unfold ssDepth1Size; dsimp only; rw [f1, d1]; rfl
-  · unfold ssDepth1Size; dsimp only; rw [f2, d2]; rfl
+  have f0 : (⟨(3 * k) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ := Fin.ext (show (3 * k) % 3 + 1 = 1 by omega)
+  have f1 : (⟨(3 * k + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ := Fin.ext (show (3 * k + 1) % 3 + 1 = 2 by omega)
+  have f2 : (⟨(3 * k + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ := Fin.ext (show (3 * k + 2) % 3 + 1 = 3 by omega)
+  refine ⟨by unfold ssDepth1Size; dsimp only; rw [f0, d0]; rfl,
+          by unfold ssDepth1Size; dsimp only; rw [f1, d1]; rfl,
+          by unfold ssDepth1Size; dsimp only; rw [f2, d2]; rfl⟩
 
 private theorem ss_depth1UpMat_eval {R k j : Nat}
     (hu0 : 3 * k < 3 * R) (hu1 : 3 * k + 1 < 3 * R) (hu2 : 3 * k + 2 < 3 * R)
@@ -1391,18 +1039,12 @@ private theorem ss_depth1UpMat_eval {R k j : Nat}
     (ssDepth1UpMat ⟨3 * k + 2, hu2⟩ ⟨3 * j, hv0⟩ = Int.ofNat 9 ∧
      ssDepth1UpMat ⟨3 * k + 2, hu2⟩ ⟨3 * j + 1, hv1⟩ = Int.ofNat 6 ∧
      ssDepth1UpMat ⟨3 * k + 2, hu2⟩ ⟨3 * j + 2, hv2⟩ = Int.ofNat 6) := by
-  have fu0 : (⟨(3 * k) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ :=
-    Fin.ext (show (3 * k) % 3 + 1 = 1 by omega)
-  have fu1 : (⟨(3 * k + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ :=
-    Fin.ext (show (3 * k + 1) % 3 + 1 = 2 by omega)
-  have fu2 : (⟨(3 * k + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ :=
-    Fin.ext (show (3 * k + 2) % 3 + 1 = 3 by omega)
-  have fv0 : (⟨(3 * j) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ :=
-    Fin.ext (show (3 * j) % 3 + 1 = 1 by omega)
-  have fv1 : (⟨(3 * j + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ :=
-    Fin.ext (show (3 * j + 1) % 3 + 1 = 2 by omega)
-  have fv2 : (⟨(3 * j + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ :=
-    Fin.ext (show (3 * j + 2) % 3 + 1 = 3 by omega)
+  have fu0 : (⟨(3 * k) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ := Fin.ext (show (3 * k) % 3 + 1 = 1 by omega)
+  have fu1 : (⟨(3 * k + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ := Fin.ext (show (3 * k + 1) % 3 + 1 = 2 by omega)
+  have fu2 : (⟨(3 * k + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ := Fin.ext (show (3 * k + 2) % 3 + 1 = 3 by omega)
+  have fv0 : (⟨(3 * j) % 3 + 1, by omega⟩ : Fin 4) = ⟨1, by decide⟩ := Fin.ext (show (3 * j) % 3 + 1 = 1 by omega)
+  have fv1 : (⟨(3 * j + 1) % 3 + 1, by omega⟩ : Fin 4) = ⟨2, by decide⟩ := Fin.ext (show (3 * j + 1) % 3 + 1 = 2 by omega)
+  have fv2 : (⟨(3 * j + 2) % 3 + 1, by omega⟩ : Fin 4) = ⟨3, by decide⟩ := Fin.ext (show (3 * j + 2) % 3 + 1 = 3 by omega)
   unfold ssDepth1UpMat; dsimp only
   rw [fu0, fu1, fu2, fv0, fv1, fv2]
   exact ⟨⟨rfl, rfl, rfl⟩, ⟨rfl, rfl, rfl⟩, ⟨rfl, rfl, rfl⟩⟩
@@ -1436,15 +1078,29 @@ private theorem ss_depth1_normSq_eq (R a1 a2 a3 : Nat) :
       obtain ⟨ha0, ha1, ha2⟩ := ss_depth1Amp_3k (R := R) (a1 := a1) (a2 := a2) (a3 := a3) (k := m)
         (by omega) (by omega) (by omega)
       obtain ⟨hs0, hs1, hs2⟩ := ss_depth1Size_3k (R := R) (k := m) (by omega) (by omega) (by omega)
-      rw [ha0, ha1, ha2, hs0, hs1, hs2]
-      simp only [ss_ofNat_mul, ss_ofNat_add]
-      all_goals rfl
+      rw [ha0, ha1, ha2, hs0, hs1, hs2]; rfl
   exact hAux R (Nat.le_refl (3 * R))
 
 private theorem ss_depth1_quad_eq (R a1 a2 a3 : Nat) :
     2 * ssSumFin (fun u : Fin (3 * R) =>
       ssDepth1Size u * ssDepth1Amp R a1 a2 a3 u * ss_depth1Inner R a1 a2 a3 u) =
       Int.ofNat (ssDepth1Quad R a1 a2 a3) := by
+  have hInnerSlice : ∀ (u : Fin (3 * R)) (k : Nat),
+      ssStratumDepth u + 1 = k + 2 →
+      ss_depth1Inner R a1 a2 a3 u =
+        if h : k + 1 < R then
+          ssDepth1UpMat u ⟨3 * (k + 1), by omega⟩ * ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1), by omega⟩ +
+          ssDepth1UpMat u ⟨3 * (k + 1) + 1, by omega⟩ * ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 1, by omega⟩ +
+          ssDepth1UpMat u ⟨3 * (k + 1) + 2, by omega⟩ * ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 2, by omega⟩
+        else 0 := by
+    intro u k hdu
+    unfold ss_depth1Inner ssSumFin
+    have hF : (fun v : Fin (3 * R) =>
+        if ssStratumDepth v = ssStratumDepth u + 1 then ssDepth1UpMat u v * ssDepth1Amp R a1 a2 a3 v else 0) =
+      (fun v : Fin (3 * R) =>
+        if ssStratumDepth v = k + 2 then ssDepth1UpMat u v * ssDepth1Amp R a1 a2 a3 v else 0) :=
+      funext fun _ => by rw [hdu]
+    rw [hF, ss_sumFinAux_shell_slice k _ R (Nat.le_refl (3 * R))]
   have hPair : ∀ k (hk : k + 1 < R),
       let r := k + 1
       let s := r * (R + 1 - r) * (11 ^ (r - 1)) * (47 ^ (R - r))
@@ -1466,60 +1122,10 @@ private theorem ss_depth1_quad_eq (R a1 a2 a3 : Nat) :
                    96 * v.a2 * p2 * (11 * q1 + 8 * q2 + 3 * q3) +
                    96 * v.a3 * p3 * (9 * q1 + 6 * q2 + 6 * q3)) := by
     intro k hk
-    have hd0 : ssStratumDepth (⟨3 * k, by omega⟩ : Fin (3 * R)) + 1 = k + 2 := by
-      unfold ssStratumDepth; show (3 * k) / 3 + 1 + 1 = k + 2; omega
-    have hd1 : ssStratumDepth (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) + 1 = k + 2 := by
-      unfold ssStratumDepth; show (3 * k + 1) / 3 + 1 + 1 = k + 2; omega
-    have hd2 : ssStratumDepth (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) + 1 = k + 2 := by
-      unfold ssStratumDepth; show (3 * k + 2) / 3 + 1 + 1 = k + 2; omega
-    have hi0 : ss_depth1Inner R a1 a2 a3 ⟨3 * k, by omega⟩ =
-        ssDepth1UpMat (⟨3 * k, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1), by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1), by omega⟩ +
-        ssDepth1UpMat (⟨3 * k, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 1, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 1, by omega⟩ +
-        ssDepth1UpMat (⟨3 * k, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 2, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 2, by omega⟩ := by
-      change ssSumFinAux (3 * R) (Nat.le_refl (3 * R)) _ = _
-      have hF : (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = ssStratumDepth (⟨3 * k, by omega⟩ : Fin (3 * R)) + 1 then
-            ssDepth1UpMat (⟨3 * k, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) =
-        (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = k + 2 then
-            ssDepth1UpMat (⟨3 * k, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) :=
-        funext (fun _ => by rw [hd0])
-      rw [hF, ss_sumFinAux_shell_slice k _ R (Nat.le_refl (3 * R)), ss_dite_pos hk]
-    have hi1 : ss_depth1Inner R a1 a2 a3 ⟨3 * k + 1, by omega⟩ =
-        ssDepth1UpMat (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1), by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1), by omega⟩ +
-        ssDepth1UpMat (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 1, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 1, by omega⟩ +
-        ssDepth1UpMat (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 2, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 2, by omega⟩ := by
-      change ssSumFinAux (3 * R) (Nat.le_refl (3 * R)) _ = _
-      have hF : (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = ssStratumDepth (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) + 1 then
-            ssDepth1UpMat (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) =
-        (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = k + 2 then
-            ssDepth1UpMat (⟨3 * k + 1, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) :=
-        funext (fun _ => by rw [hd1])
-      rw [hF, ss_sumFinAux_shell_slice k _ R (Nat.le_refl (3 * R)), ss_dite_pos hk]
-    have hi2 : ss_depth1Inner R a1 a2 a3 ⟨3 * k + 2, by omega⟩ =
-        ssDepth1UpMat (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1), by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1), by omega⟩ +
-        ssDepth1UpMat (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 1, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 1, by omega⟩ +
-        ssDepth1UpMat (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) (⟨3 * (k + 1) + 2, by omega⟩ : Fin (3 * R)) *
-          ssDepth1Amp R a1 a2 a3 ⟨3 * (k + 1) + 2, by omega⟩ := by
-      change ssSumFinAux (3 * R) (Nat.le_refl (3 * R)) _ = _
-      have hF : (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = ssStratumDepth (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) + 1 then
-            ssDepth1UpMat (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) =
-        (fun v : Fin (3 * R) =>
-          if ssStratumDepth v = k + 2 then
-            ssDepth1UpMat (⟨3 * k + 2, by omega⟩ : Fin (3 * R)) v * ssDepth1Amp R a1 a2 a3 v else 0) :=
-        funext (fun _ => by rw [hd2])
-      rw [hF, ss_sumFinAux_shell_slice k _ R (Nat.le_refl (3 * R)), ss_dite_pos hk]
+    have hi0 := hInnerSlice ⟨3 * k, by omega⟩ k (by unfold ssStratumDepth; show (3 * k) / 3 + 1 + 1 = k + 2; omega)
+    have hi1 := hInnerSlice ⟨3 * k + 1, by omega⟩ k (by unfold ssStratumDepth; show (3 * k + 1) / 3 + 1 + 1 = k + 2; omega)
+    have hi2 := hInnerSlice ⟨3 * k + 2, by omega⟩ k (by unfold ssStratumDepth; show (3 * k + 2) / 3 + 1 + 1 = k + 2; omega)
+    simp only [hk, ↓reduceDIte] at hi0 hi1 hi2
     obtain ⟨hp0, hp1, hp2⟩ := ss_depth1Amp_3k (R := R) (a1 := a1) (a2 := a2) (a3 := a3) (k := k)
       (by omega) (by omega) (by omega)
     obtain ⟨hq0, hq1, hq2⟩ := ss_depth1Amp_3k (R := R) (a1 := a1) (a2 := a2) (a3 := a3) (k := k + 1)
@@ -1528,13 +1134,14 @@ private theorem ss_depth1_quad_eq (R a1 a2 a3 : Nat) :
     obtain ⟨⟨m00, m01, m02⟩, ⟨m10, m11, m12⟩, ⟨m20, m21, m22⟩⟩ :=
       ss_depth1UpMat_eval (R := R) (k := k) (j := k + 1)
         (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+    dsimp only
     rw [hi0, hi1, hi2, hp0, hp1, hp2, hq0, hq1, hq2, hs0, hs1, hs2,
-        m00, m01, m02, m10, m11, m12, m20, m21, m22]
-    have hR1 : R + 1 - (k + 1 + 1) = R - (k + 1) := by omega
-    have hR2 : R - (k + 1 + 1) = R - 1 - (k + 1) := by omega
-    rw [hR1, hR2]
-    simp only [ss_ofNat_mul, ss_ofNat_add, Nat.zero_mul, Nat.add_zero]
-    all_goals rfl
+        m00, m01, m02, m10, m11, m12, m20, m21, m22,
+        show R + 1 - (k + 1 + 1) = R - (k + 1) by omega,
+        show R - (k + 1 + 1) = R - 1 - (k + 1) by omega,
+        show k + 1 - 1 = k by omega]
+    simp only [Int.ofNat_eq_natCast, Nat.cast_add, Nat.cast_mul]
+    ring
   have hAux : ∀ k (hk : k ≤ R - 1),
       2 * ssSumFinAux (3 * k) (by omega) (fun u : Fin (3 * R) =>
         ssDepth1Size u * ssDepth1Amp R a1 a2 a3 u * ss_depth1Inner R a1 a2 a3 u) =
@@ -1555,12 +1162,9 @@ private theorem ss_depth1_quad_eq (R a1 a2 a3 : Nat) :
     intro k hk; induction k with
     | zero => rfl
     | succ m ih =>
-      rw [ss_sumFinAux_step3 _ m (by omega), Int.mul_add, ih (by omega)]
+      rw [ss_sumFinAux_step3 _ m (by omega), mul_add, ih (by omega)]
       dsimp only
-      rw [hPair m (by omega)]
-      change Int.ofNat _ + Int.ofNat 2 * Int.ofNat _ = _
-      rw [ss_ofNat_mul, ss_ofNat_add]
-      rfl
+      rw [hPair m (by omega)]; rfl
   cases R with
   | zero => rfl
   | succ m =>
@@ -1570,24 +1174,12 @@ private theorem ss_depth1_quad_eq (R a1 a2 a3 : Nat) :
     rw [ss_sumFinAux_step3 _ m (Nat.le_refl (3 * (m + 1)))]
     have hTopZero : ∀ u : Fin (3 * (m + 1)), u.val / 3 = m → ss_depth1Inner (m + 1) a1 a2 a3 u = 0 := by
       intro u hu
-      have hdu : ssStratumDepth u + 1 = m + 2 := by unfold ssStratumDepth; omega
-      change ssSumFinAux (3 * (m + 1)) (Nat.le_refl (3 * (m + 1))) _ = 0
-      have hF : (fun v : Fin (3 * (m + 1)) =>
-          if ssStratumDepth v = ssStratumDepth u + 1 then
-            ssDepth1UpMat u v * ssDepth1Amp (m + 1) a1 a2 a3 v else 0) =
-        (fun v : Fin (3 * (m + 1)) =>
-          if ssStratumDepth v = m + 2 then
-            ssDepth1UpMat u v * ssDepth1Amp (m + 1) a1 a2 a3 v else 0) :=
-        funext (fun _ => by rw [hdu])
-      have hNotLt : ¬ (m + 1 < m + 1) := by omega
-      rw [hF, ss_sumFinAux_shell_slice m _ (m + 1) (Nat.le_refl (3 * (m + 1))), ss_dite_neg hNotLt]
-    have z0 : ss_depth1Inner (m + 1) a1 a2 a3 ⟨3 * m, by omega⟩ = 0 :=
-      hTopZero ⟨3 * m, by omega⟩ (show (3 * m) / 3 = m by omega)
-    have z1 : ss_depth1Inner (m + 1) a1 a2 a3 ⟨3 * m + 1, by omega⟩ = 0 :=
-      hTopZero ⟨3 * m + 1, by omega⟩ (show (3 * m + 1) / 3 = m by omega)
-    have z2 : ss_depth1Inner (m + 1) a1 a2 a3 ⟨3 * m + 2, by omega⟩ = 0 :=
-      hTopZero ⟨3 * m + 2, by omega⟩ (show (3 * m + 2) / 3 = m by omega)
-    rw [z0, z1, z2, Int.mul_zero, Int.mul_zero, Int.mul_zero, Int.add_zero, Int.add_zero, Int.add_zero]
+      rw [hInnerSlice u m (by unfold ssStratumDepth; omega)]
+      simp
+    have z0 := hTopZero ⟨3 * m, by omega⟩ (show (3 * m) / 3 = m by omega)
+    have z1 := hTopZero ⟨3 * m + 1, by omega⟩ (show (3 * m + 1) / 3 = m by omega)
+    have z2 := hTopZero ⟨3 * m + 2, by omega⟩ (show (3 * m + 2) / 3 = m by omega)
+    rw [z0, z1, z2]; simp only [mul_zero, add_zero]
     exact hAux m (by omega)
 
 private theorem ss_depth1_compress_exact {n R : Nat} (a1 a2 a3 : Nat)
@@ -1607,13 +1199,13 @@ private theorem ss_depth1_compress_exact {n R : Nat} (a1 a2 a3 : Nat)
   have hNormEq : ssSumFin (fun u : Fin (3 * R) =>
         ssStratumSize σ u * (ssDepth1Amp R a1 a2 a3 u * ssDepth1Amp R a1 a2 a3 u)) =
       ssSumFin (fun u : Fin (3 * R) =>
-        ssDepth1Size u * (ssDepth1Amp R a1 a2 a3 u * ssDepth1Amp R a1 a2 a3 u)) := by
-    apply congrArg ssSumFin; funext u; rw [hSize u]
+        ssDepth1Size u * (ssDepth1Amp R a1 a2 a3 u * ssDepth1Amp R a1 a2 a3 u)) :=
+    congrArg ssSumFin (funext fun u => by rw [hSize u])
   have hQuadEq : ssSumFin (fun u : Fin (3 * R) =>
         ssStratumSize σ u * ssDepth1Amp R a1 a2 a3 u * ss_depth1Inner R a1 a2 a3 u) =
       ssSumFin (fun u : Fin (3 * R) =>
-        ssDepth1Size u * ssDepth1Amp R a1 a2 a3 u * ss_depth1Inner R a1 a2 a3 u) := by
-    apply congrArg ssSumFin; funext u; rw [hSize u]
+        ssDepth1Size u * ssDepth1Amp R a1 a2 a3 u * ss_depth1Inner R a1 a2 a3 u) :=
+    congrArg ssSumFin (funext fun u => by rw [hSize u])
   refine ⟨by rw [hRR.1, hNormEq, ss_depth1_normSq_eq], ?_⟩
   rw [hRR.2]
   change 2 * ssSumFin (fun u : Fin (3 * R) =>
@@ -1661,26 +1253,13 @@ theorem thm_ss_rayleigh_lower_gt_11 :
   · intro _ A hSym σ hBip hSize hUpDeg
     obtain ⟨hN, hQ⟩ := ss_depth1_compress_exact 2 3 5 A hSym σ hBip hSize hUpDeg
     have hw := ss_rayleigh_nat_witnesses.1
-    change ssNormSq (fun i => ssDepth1Amp 24 2 3 5 (σ i)) > 0 ∧
-           ssQuadForm A (fun i => ssDepth1Amp 24 2 3 5 (σ i)) >
-             11 * ssNormSq (fun i => ssDepth1Amp 24 2 3 5 (σ i))
-    rw [hN, hQ]
-    change Int.ofNat 0 < Int.ofNat (ssDepth1NormSq 24 2 3 5) ∧
-           Int.ofNat 11 * Int.ofNat (ssDepth1NormSq 24 2 3 5) < Int.ofNat (ssDepth1Quad 24 2 3 5)
-    rw [ss_ofNat_mul]
-    exact ⟨ss_ofNat_lt hw.1, ss_ofNat_lt hw.2⟩
+    change ssNormSq _ > 0 ∧ ssQuadForm A _ > 11 * ssNormSq _
+    rw [hN, hQ, Int.ofNat_eq_natCast, Int.ofNat_eq_natCast]; omega
   · intro _ A hSym σ hBip hSize hUpDeg
     obtain ⟨hN, hQ⟩ := ss_depth1_compress_exact 17 26 45 A hSym σ hBip hSize hUpDeg
     have hw := ss_rayleigh_nat_witnesses.2
-    change ssNormSq (fun i => ssDepth1Amp 36 17 26 45 (σ i)) > 0 ∧
-           1000 * ssQuadForm A (fun i => ssDepth1Amp 36 17 26 45 (σ i)) >
-             11049 * ssNormSq (fun i => ssDepth1Amp 36 17 26 45 (σ i))
-    rw [hN, hQ]
-    change Int.ofNat 0 < Int.ofNat (ssDepth1NormSq 36 17 26 45) ∧
-           Int.ofNat 11049 * Int.ofNat (ssDepth1NormSq 36 17 26 45) <
-             Int.ofNat 1000 * Int.ofNat (ssDepth1Quad 36 17 26 45)
-    rw [ss_ofNat_mul, ss_ofNat_mul]
-    exact ⟨ss_ofNat_lt hw.1, ss_ofNat_lt hw.2⟩
+    change ssNormSq _ > 0 ∧ 1000 * ssQuadForm A _ > 11049 * ssNormSq _
+    rw [hN, hQ, Int.ofNat_eq_natCast, Int.ofNat_eq_natCast]; omega
 
 /-- Headline Theorem 12 (Master Certified `{3,4,3,4}` Spectral Radius Bracket Strictly Inside `(11, 12)`):
     combines the Depth-1 Cartier-Foata finite-support lower witnesses (`ssDepth1Quad / ssDepth1NormSq > 11`
@@ -1705,3 +1284,5 @@ theorem thm_ss_spectral_bracket_11_12 :
          thm_ss_normalized_gap_gt_half.1, by decide, by decide, by decide, by decide⟩
 
 end Vibe
+
+end

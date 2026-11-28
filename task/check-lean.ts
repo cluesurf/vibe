@@ -1,30 +1,36 @@
-// Deterministic Lean 4 kernel, `#print axioms`, and structural verifier for code/proof/Vibe.lean.
+// Deterministic Lean 4 kernel, `#print axioms`, `comparator.json` freeze, and structural verifier
+// for `code/proof/Vibe.lean` and `code/proof/Statements.lean`.
 //
 // 1. Audits every `.lean` file under `code/proof/`:
 //    - 0 sorry, 0 axiom, 0 native_decide, 0 unsafe, 0 implemented_by
-//    - set_option autoImplicit false in every module
+//    - 0 bare `import Mathlib`, 0 `open Classical`
+//    - `set_option autoImplicit false` in every module
 //    - balanced namespace / section / end pairs
 //    - separates substantive public headline theorems, exported cross-module helpers (`-- [helper]`),
 //      and module-internal `private theorem` helpers
-// 2. Runs real `lake build` against the installed Lean 4 toolchain (from `code/proof/lean-toolchain`
-//    or `~/.elan/bin/lake` / `PATH`) with strict exit-code and zero-warning verification.
-// 3. Runs a real `#print axioms` kernel audit over EVERY substantive public theorem via
-//    `lake env lean --stdin`, verifying that ONLY Lean core axioms
-//    (`propext`, `Quot.sound`, `Classical.choice`, or none) appear (zero `sorryAx`, zero
-//    `Lean.ofReduceBool`, zero `Lean.trustCompiler`, zero custom axioms).
-// 4. Runs E-FND-0185's exact zero-float BigInt algebraic proof-certificate suite (Theorems 1..6).
+//    - verifies `Statements.lean` references all 400 headline theorems without declaring new ones
+// 2. Runs real `lake build` against the installed Lean 4.35.0 toolchain with strict exit-code
+//    and zero-warning verification across `Vibe` and `Statements`.
+// 3. Runs a real `#print axioms` kernel audit over EVERY public theorem via
+//    `lake env lean --stdin`, verifying ONLY `{propext, Quot.sound, Classical.choice}` appear.
+// 4. Extracts `{ name, module, signature, axioms }` for EVERY headline theorem directly from the
+//    Lean 4.35.0 kernel (`Lean.collectAxioms` + `Meta.ppExpr`) and either writes
+//    `code/proof/comparator.json` (`--update-freeze`) or FAILS CLOSED on any missing theorem,
+//    altered signature, changed module, or unexpected axiom.
+// 5. Runs E-FND-0185's exact zero-float BigInt algebraic proof-certificate suite (Theorems 1..6).
 //
 //   pnpm run check:lean
+//   pnpm run check:lean -- --update-freeze
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 import { checkLeanLink } from './check-lean-link'
 
-const MIN_HEADLINE_THEOREM_COUNT = 383
+const MIN_HEADLINE_THEOREM_COUNT = 400
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -434,7 +440,7 @@ const REQUIRED_THEOREMS = [
   'thm_sm_asl23_two_transitivity_and_oh_triality_obstruction',
   'thm_sm_ckr_3d_bosonization_and_fermion_exchange',
   'thm_sm_cusp_shell_recurrence_and_baryon_charge',
-  // Vibe.StandardModelMathlib (8 headline: Canonical Mathlib v4.35.0 continuous/matrix/ZMod/D4-triality proofs)
+  // Vibe.StandardModelMathlib (10 headline: Canonical Mathlib v4.35.0 continuous/matrix/ZMod/D4-triality/2T_R proofs)
   'thm_ml_pure_ternary_odd_dim_parity_obstruction',
   'thm_ml_ternary_qutrit_power_odd',
   'thm_ml_so5_custodial_rho_eq_one_real',
@@ -765,12 +771,33 @@ const REQUIRED_THEOREMS = [
   'thm_dev_apart_one_input',
   'thm_dev_apart_any_entities',
   'thm_dev_interaction_headroom',
+  'thm_ml_d4_honeycomb_duality_and_villain_sd',
+  'thm_ml_2tr_character_table_and_rank1_origin',
+  // Vibe.LogicEmergence (7 headline: Logic of emergence & dynamical instantiations on Z_2^48, ZMod 6, D_4/3D_4)
+  'thm_le_bug1_e_invariance_vs_intermodel_counterexample',
+  'thm_le_bug2_equiv_disjunction_counterexample_and_eqvgen_join',
+  'thm_le_bug3_exogenous_measure_contradiction_and_pushforward_fix',
+  'thm_le_strict_transitivity_and_ouroboros_collapse',
+  'thm_le_constrained_asymmetry_and_non_transitivity',
+  'thm_le_vibe_z2_parity_and_z6_quotient_emergence',
+  'thm_le_vibe_d4_triality_torus_emergence',
+  // Vibe.PlebanskiDarkFlux (8 headline: Untwisted anomaly uniqueness, Z_3^DM x 2T_R stability, 24-cell Plebanski BF, NEC, Q_8 Witten parity, 3-smooth closure, W(F_4)^+ spin-2 uniqueness)
+  'thm_untwisted_anomaly_uniqueness',
+  'thm_vq2_dark_sector_stability',
+  'pleb_simplex_wedge_identities',
+  'thm_plebanski_24cell_simplicity_and_closure',
+  'thm_nec_monotone_velocity_bound',
+  'thm_q8_witten_z2_flux_parity',
+  'thm_zero_veto_3smooth_closure',
+  'thm_wf4_spin2_diffeo_uniqueness',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const root = resolve(scriptDir, '..')
 const proofDir = join(root, 'code', 'proof')
 const leanFile = join(proofDir, 'Vibe.lean')
+const statementsPath = join(proofDir, 'Statements.lean')
+const comparatorPath = join(proofDir, 'comparator.json')
 const lakefilePath = join(proofDir, 'lakefile.toml')
 const toolchainPath = join(proofDir, 'lean-toolchain')
 
@@ -898,9 +925,9 @@ function scanLeanFile(
       continue
     }
 
-    const thmMatch = /^(private\s+)?theorem\s+([A-Za-z0-9_'.]+)/.exec(line)
+    const thmMatch = /^(?:(private|public|protected)\s+)?theorem\s+([A-Za-z0-9_'.?]+)/.exec(line)
     if (thmMatch) {
-      const isPrivate = Boolean(thmMatch[1])
+      const isPrivate = thmMatch[1] === 'private'
       const shortName = thmMatch[2]!
       const nsPrefix = scopeStack
         .filter(s => s.kind === 'namespace')
@@ -935,6 +962,8 @@ function scanLeanFile(
     ['native_decide', /\bnative_decide\b/g],
     ['unsafe', /\bunsafe\b/g],
     ['implemented_by', /\bimplemented_by\b/g],
+    ['open Classical', /\bopen\s+Classical\b/g],
+    ['import Mathlib', /(?:^|\n)[ \t]*(?:public[ \t]+)?import[ \t]+Mathlib[ \t]*(?=\n|$)/g],
   ] as const) {
     const matches = codeOnly.match(re) ?? []
     if (matches.length > 0) {
@@ -1084,14 +1113,23 @@ function auditPrintAxioms(
     return { passed: false, summary: 'lean #print axioms failed', errors }
   }
 
-  // Lean wraps a long `#print axioms` result over several lines. Each record starts with a quoted name, so a
-  // line that does not start with a quote continues the previous record and is joined to it with a space.
+  const rawOutputLines = res.stdout
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
+
   const outputLines: string[] = []
-  for (const raw of res.stdout.split('\n')) {
-    const l = raw.trim()
-    if (l.length === 0) continue
-    if (l.startsWith("'") || outputLines.length === 0) outputLines.push(l)
-    else outputLines[outputLines.length - 1] = `${outputLines[outputLines.length - 1]} ${l}`
+  for (const rawLine of rawOutputLines) {
+    if (
+      outputLines.length > 0 &&
+      !rawLine.startsWith("'") &&
+      outputLines[outputLines.length - 1]!.includes('depends on axioms: [') &&
+      !outputLines[outputLines.length - 1]!.endsWith(']')
+    ) {
+      outputLines[outputLines.length - 1] = `${outputLines[outputLines.length - 1]!} ${rawLine}`
+    } else {
+      outputLines.push(rawLine)
+    }
   }
 
   const seenNames = new Set<string>()
@@ -1146,13 +1184,266 @@ function auditPrintAxioms(
   }
 }
 
+type ComparatorTheorem = {
+  readonly name: string
+  readonly module: string
+  readonly signature: string
+  readonly axioms: readonly string[]
+}
+
+type ComparatorFreeze = {
+  readonly toolchain: string
+  readonly theoremCount: number
+  readonly allowedAxioms: readonly string[]
+  readonly theorems: readonly ComparatorTheorem[]
+}
+
+function extractKernelComparator(
+  lakeBin: string,
+  leanBin: string,
+  env: NodeJS.ProcessEnv,
+  headlineDecls: readonly TheoremDecl[],
+): { readonly passed: boolean; readonly records: ComparatorTheorem[]; readonly errors: string[] } {
+  const sortedNames = [...headlineDecls].map(d => d.fullName).sort((a, b) => a.localeCompare(b))
+  const leanNames = sortedNames.map(n => `  \`${n}`).join(',\n')
+  const inspectorSrc = [
+    'import Lean',
+    'import Vibe',
+    '',
+    'open Lean Meta',
+    '',
+    '#eval show MetaM Unit from do',
+    '  let env ← getEnv',
+    '  let names : List Name := [',
+    leanNames,
+    '  ]',
+    '  for n in names do',
+    '    let some info := env.find? n',
+    '      | throwError m!"missing constant {n}"',
+    '    let modName := match env.getModuleIdxFor? n with',
+    '      | some idx => (env.allImportedModuleNames.getD idx.toNat Name.anonymous).toString',
+    '      | none => "<local>"',
+    '    let fmt ← withOptions (fun o =>',
+    '        o.setBool `pp.unicode.fun true',
+    '         |>.setBool `pp.proofs false',
+    '         |>.setBool `pp.all false',
+    '         |>.setBool `pp.universes false) (ppExpr info.type)',
+    '    let ax ← Lean.collectAxioms n',
+    '    let obj := Json.mkObj [',
+    '      ("name", Json.str n.toString),',
+    '      ("module", Json.str modName),',
+    '      ("signature", Json.str (fmt.pretty 1000000)),',
+    '      ("axioms", Json.arr (ax.map (fun a => Json.str a.toString)))',
+    '    ]',
+    '    IO.println s!"COMPARATOR_JSON:{obj.compress}"',
+    '',
+  ].join('\n')
+
+  const res = spawnSync(lakeBin, ['env', leanBin, '--stdin'], {
+    cwd: proofDir,
+    input: inspectorSrc,
+    encoding: 'utf8',
+    env,
+    maxBuffer: 64 * 1024 * 1024,
+  })
+
+  const errors: string[] = []
+  if (res.error) {
+    return { passed: false, records: [], errors: [res.error.message] }
+  }
+  if (res.status !== 0) {
+    errors.push(`kernel comparator inspector exited with code ${res.status ?? 1}`)
+    if (res.stderr.trim()) errors.push(res.stderr.trim())
+    if (res.stdout.trim()) errors.push(res.stdout.trim().slice(0, 2000))
+    return { passed: false, records: [], errors }
+  }
+  if (res.stderr.trim().length > 0) {
+    errors.push(`kernel comparator inspector emitted stderr: ${res.stderr.trim()}`)
+  }
+
+  const records: ComparatorTheorem[] = []
+  const prefix = 'COMPARATOR_JSON:'
+  const lines = res.stdout
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
+
+  for (const line of lines) {
+    if (!line.startsWith(prefix)) {
+      errors.push(`unexpected comparator inspector stdout line: ${line.slice(0, 200)}`)
+      continue
+    }
+    try {
+      const parsed = JSON.parse(line.slice(prefix.length)) as {
+        name?: unknown
+        module?: unknown
+        signature?: unknown
+        axioms?: unknown
+      }
+      if (
+        typeof parsed.name !== 'string' ||
+        typeof parsed.module !== 'string' ||
+        typeof parsed.signature !== 'string' ||
+        !Array.isArray(parsed.axioms) ||
+        !parsed.axioms.every(a => typeof a === 'string')
+      ) {
+        errors.push(`malformed comparator JSON record: ${line.slice(0, 200)}`)
+        continue
+      }
+      const sortedAxioms = [...(parsed.axioms as string[])].sort((a, b) => a.localeCompare(b))
+      for (const ax of sortedAxioms) {
+        if (!ALLOWED_AXIOMS.has(ax)) {
+          errors.push(`disallowed kernel axiom \`${ax}\` in ${parsed.name}`)
+        }
+      }
+      records.push({
+        name: parsed.name,
+        module: parsed.module,
+        signature: parsed.signature,
+        axioms: sortedAxioms,
+      })
+    } catch (err) {
+      errors.push(
+        `invalid comparator JSON: ${err instanceof Error ? err.message : String(err)}`,
+      )
+    }
+  }
+
+  records.sort((a, b) => a.name.localeCompare(b.name))
+  const seen = new Set(records.map(r => r.name))
+  for (const name of sortedNames) {
+    if (!seen.has(name)) {
+      errors.push(`missing kernel comparator record for ${name}`)
+    }
+  }
+  if (records.length !== sortedNames.length) {
+    errors.push(
+      `kernel comparator count mismatch: expected ${sortedNames.length}, extracted ${records.length}`,
+    )
+  }
+
+  return { passed: errors.length === 0, records, errors }
+}
+
+function verifyComparatorFreeze(
+  toolchainSpec: string,
+  liveRecords: readonly ComparatorTheorem[],
+): { readonly passed: boolean; readonly summary: string; readonly errors: string[] } {
+  const errors: string[] = []
+  if (!existsSync(comparatorPath)) {
+    return {
+      passed: false,
+      summary: 'missing code/proof/comparator.json',
+      errors: [
+        `missing kernel freeze manifest ${comparatorPath} (run check:lean -- --update-freeze to generate it)`,
+      ],
+    }
+  }
+
+  let frozen: ComparatorFreeze
+  try {
+    frozen = JSON.parse(readFileSync(comparatorPath, 'utf8')) as ComparatorFreeze
+  } catch (err) {
+    return {
+      passed: false,
+      summary: 'unreadable comparator.json',
+      errors: [
+        `invalid JSON in ${comparatorPath}: ${err instanceof Error ? err.message : String(err)}`,
+      ],
+    }
+  }
+
+  if (
+    !frozen ||
+    typeof frozen.toolchain !== 'string' ||
+    typeof frozen.theoremCount !== 'number' ||
+    !Array.isArray(frozen.theorems)
+  ) {
+    return {
+      passed: false,
+      summary: 'malformed comparator.json',
+      errors: [`malformed schema in ${comparatorPath}`],
+    }
+  }
+
+  if (frozen.toolchain !== toolchainSpec) {
+    errors.push(
+      `comparator.json toolchain "${frozen.toolchain}" != expected "${toolchainSpec}"`,
+    )
+  }
+  if (frozen.theoremCount !== frozen.theorems.length) {
+    errors.push(
+      `comparator.json theoremCount (${frozen.theoremCount}) != theorems.length (${frozen.theorems.length})`,
+    )
+  }
+
+  const liveByName = new Map(liveRecords.map(r => [r.name, r] as const))
+  const frozenByName = new Map<string, ComparatorTheorem>()
+
+  for (const entry of frozen.theorems) {
+    if (frozenByName.has(entry.name)) {
+      errors.push(`duplicate frozen theorem in comparator.json: ${entry.name}`)
+      continue
+    }
+    frozenByName.set(entry.name, entry)
+
+    const live = liveByName.get(entry.name)
+    if (!live) {
+      errors.push(`frozen theorem missing from live Lean kernel: ${entry.name}`)
+      continue
+    }
+    if (live.module !== entry.module) {
+      errors.push(
+        `module mismatch for ${entry.name}: frozen=${entry.module}, live=${live.module}`,
+      )
+    }
+    if (live.signature !== entry.signature) {
+      errors.push(`signature drift detected for ${entry.name}`)
+    }
+    const frozenAxioms = [...entry.axioms].sort((a, b) => a.localeCompare(b))
+    const liveAxioms = [...live.axioms].sort((a, b) => a.localeCompare(b))
+    for (const ax of liveAxioms) {
+      if (!ALLOWED_AXIOMS.has(ax)) {
+        errors.push(`disallowed axiom \`${ax}\` in live kernel theorem ${entry.name}`)
+      }
+    }
+    if (
+      frozenAxioms.length !== liveAxioms.length ||
+      frozenAxioms.some((ax, idx) => ax !== liveAxioms[idx])
+    ) {
+      errors.push(
+        `axiom set drift for ${entry.name}: frozen=[${frozenAxioms.join(', ')}], live=[${liveAxioms.join(', ')}]`,
+      )
+    }
+  }
+
+  for (const live of liveRecords) {
+    if (!frozenByName.has(live.name)) {
+      errors.push(`unfrozen live headline theorem missing from comparator.json: ${live.name}`)
+    }
+  }
+
+  return {
+    passed: errors.length === 0,
+    summary: `${liveRecords.length}/${frozen.theorems.length} signatures, modules & axioms exact match`,
+    errors,
+  }
+}
+
 function main(): void {
   const noBuild = process.argv.includes('--no-build')
   const allowMissingLean = process.argv.includes('--allow-missing-lean')
+  const updateFreeze = process.argv.includes('--update-freeze')
   const failures: string[] = []
+
+  if (updateFreeze && (noBuild || allowMissingLean)) {
+    console.error('  FAIL  --update-freeze requires live Lean 4.35.0 kernel build (cannot combine with --no-build or --allow-missing-lean)')
+    process.exit(1)
+  }
 
   for (const [label, filePath] of [
     ['Vibe.lean', leanFile],
+    ['Statements.lean', statementsPath],
     ['lakefile.toml', lakefilePath],
     ['lean-toolchain', toolchainPath],
   ] as const) {
@@ -1181,6 +1472,7 @@ function main(): void {
   const vibeSubdir = join(proofDir, 'Vibe')
   const leanFiles: Array<{ readonly label: string; readonly path: string }> = [
     { label: 'Vibe.lean', path: leanFile },
+    { label: 'Statements.lean', path: statementsPath },
   ]
   const collectLeanFiles = (dirPath: string, relPrefix: string): void => {
     for (const entry of readdirSync(dirPath).sort()) {
@@ -1198,8 +1490,9 @@ function main(): void {
     collectLeanFiles(vibeSubdir, 'Vibe')
   }
 
-  const hasSubmodules = leanFiles.length > 1
+  const hasSubmodules = leanFiles.length > 2
   const allDecls: TheoremDecl[] = []
+  let statementsCodeOnly = ''
   const perFileStats: Array<{
     readonly label: string
     readonly headline: number
@@ -1209,10 +1502,20 @@ function main(): void {
 
   for (const lf of leanFiles) {
     const src = readFileSync(lf.path, 'utf8')
-    const requireRoot = lf.label !== 'Vibe.lean' || !hasSubmodules
+    const requireRoot =
+      lf.label !== 'Vibe.lean' && lf.label !== 'Statements.lean' ? true : !hasSubmodules
     const scan = scanLeanFile(lf.label, src, requireRoot)
     failures.push(...scan.errors)
-    allDecls.push(...scan.decls)
+    if (lf.label === 'Statements.lean') {
+      statementsCodeOnly = scan.codeOnly
+      if (scan.decls.length > 0) {
+        failures.push(
+          `Statements.lean must be a pure manifest with 0 theorem declarations (found ${scan.decls.length})`,
+        )
+      }
+    } else {
+      allDecls.push(...scan.decls)
+    }
     perFileStats.push({
       label: lf.label,
       headline: scan.decls.filter(d => d.kind === 'headline').length,
@@ -1228,6 +1531,9 @@ function main(): void {
 
   const headlineNames = new Set(headlineDecls.map(d => d.shortName))
   const missingTheorems = REQUIRED_THEOREMS.filter(name => !headlineNames.has(name))
+  const missingFromStatements = headlineDecls
+    .filter(d => !statementsCodeOnly.includes(`@${d.fullName}`))
+    .map(d => d.fullName)
 
   if (toolchainSpec !== EXPECTED_LEAN_TOOLCHAIN) {
     failures.push(
@@ -1237,6 +1543,9 @@ function main(): void {
   if (!lakefileSrc.includes('name = "Vibe"')) {
     failures.push('lakefile.toml missing `name = "Vibe"` lean_lib target')
   }
+  if (!lakefileSrc.includes('name = "Statements"')) {
+    failures.push('lakefile.toml missing `name = "Statements"` lean_lib target')
+  }
   if (headlineDecls.length < MIN_HEADLINE_THEOREM_COUNT) {
     failures.push(
       `headline theorem count ${headlineDecls.length} is below required minimum ${MIN_HEADLINE_THEOREM_COUNT}`,
@@ -1245,13 +1554,18 @@ function main(): void {
   if (missingTheorems.length > 0) {
     failures.push(`missing required headline theorems: ${missingTheorems.join(', ')}`)
   }
+  if (missingFromStatements.length > 0) {
+    failures.push(
+      `Statements.lean missing ${missingFromStatements.length} headline theorem reference(s): ${missingFromStatements.slice(0, 10).join(', ')}`,
+    )
+  }
 
   console.log(
-    `check:lean  structural audit: ${leanFiles.length} files, substantiveTheorems=${headlineDecls.length} (publicTotal=${publicDecls.length}, exportedHelpers=${exportedHelperDecls.length}), privateHelpers=${privateHelperDecls.length}, 0 sorry, 0 axiom, 0 native_decide, 0 unsafe, 0 implemented_by, toolchain=${toolchainSpec}`,
+    `check:lean  structural audit: ${leanFiles.length} files, substantiveTheorems=${headlineDecls.length} (publicTotal=${publicDecls.length}, exportedHelpers=${exportedHelperDecls.length}), privateHelpers=${privateHelperDecls.length}, 0 sorry, 0 axiom, 0 native_decide, 0 unsafe, 0 implemented_by, 0 import Mathlib, 0 open Classical, toolchain=${toolchainSpec}`,
   )
   for (const s of perFileStats) {
     console.log(
-      `check:lean    ${s.label.padEnd(20)} headline=${String(s.headline).padStart(2)}  exportedHelpers=${String(s.exportedHelper).padStart(2)}  privateHelpers=${String(s.privateHelper).padStart(2)}`,
+      `check:lean    ${s.label.padEnd(32)} headline=${String(s.headline).padStart(2)}  exportedHelpers=${String(s.exportedHelper).padStart(2)}  privateHelpers=${String(s.privateHelper).padStart(3)}`,
     )
   }
 
@@ -1275,7 +1589,7 @@ function main(): void {
 
   if (noBuild) {
     console.log(
-      'check:lean  SKIPPED KERNEL BUILD (--no-build): lake build and #print axioms did not run',
+      'check:lean  SKIPPED KERNEL BUILD (--no-build): lake build, #print axioms, and comparator.json freeze did not run',
     )
   } else if (localToolchain.lakeBin && localToolchain.leanBin && localToolchain.matchedDir) {
     console.log(
@@ -1292,6 +1606,7 @@ function main(): void {
       cwd: proofDir,
       encoding: 'utf8',
       env,
+      maxBuffer: 64 * 1024 * 1024,
     })
 
     const combinedBuildOut = `${build.stdout ?? ''}\n${build.stderr ?? ''}`.trim()
@@ -1326,6 +1641,41 @@ function main(): void {
       process.exit(1)
     }
     console.log(`check:lean  #print axioms PASS (${axiomAudit.summary})`)
+
+    const liveComparator = extractKernelComparator(
+      localToolchain.lakeBin,
+      localToolchain.leanBin,
+      env,
+      headlineDecls,
+    )
+    if (!liveComparator.passed) {
+      for (const e of liveComparator.errors) {
+        console.error(`  FAIL  ${e}`)
+      }
+      process.exit(1)
+    }
+
+    if (updateFreeze) {
+      const payload: ComparatorFreeze = {
+        toolchain: toolchainSpec,
+        theoremCount: liveComparator.records.length,
+        allowedAxioms: [...ALLOWED_AXIOMS].sort((a, b) => a.localeCompare(b)),
+        theorems: liveComparator.records,
+      }
+      writeFileSync(comparatorPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8')
+      console.log(
+        `check:lean  comparator.json UPDATED (${payload.theoremCount} headline theorems frozen -> ${comparatorPath})`,
+      )
+    } else {
+      const freezeCheck = verifyComparatorFreeze(toolchainSpec, liveComparator.records)
+      if (!freezeCheck.passed) {
+        for (const e of freezeCheck.errors) {
+          console.error(`  FAIL  ${e}`)
+        }
+        process.exit(1)
+      }
+      console.log(`check:lean  comparator.json freeze PASS (${freezeCheck.summary})`)
+    }
   } else {
     const reason = localToolchain.accessError
       ? `toolchains directory unreadable or mismatched (${localToolchain.accessError})`
@@ -1339,7 +1689,7 @@ function main(): void {
         `  FAIL  local Lean 4 toolchain (${toolchainSpec}) unavailable: ${reason}`,
       )
       console.error(
-        '  FAIL  refusing to pass check:lean without running `lake build` and `#print axioms` (pass --no-build or --allow-missing-lean to skip kernel verification explicitly)',
+        '  FAIL  refusing to pass check:lean without running `lake build`, `#print axioms`, and `comparator.json` freeze (pass --no-build or --allow-missing-lean to skip kernel verification explicitly)',
       )
       process.exit(1)
     }

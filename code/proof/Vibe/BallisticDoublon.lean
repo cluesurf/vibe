@@ -1,11 +1,18 @@
-import Vibe.Algebra
-import Vibe.Rule
-import Vibe.CoxeterTransport
+module
+
+public import Vibe.Algebra
+public import Vibe.Rule
+public import Vibe.CoxeterTransport
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Data.Fintype.BigOperators
 
 /-!
 # Vibe Theory: Hyperbolic Ballistic Wavefront No-Go & Exact `ℤ[ω][1/13]` Composite Doublon
 
-Zero-dependency Lean 4.35.0 formalization of the algebraic core behind Wave-2 Track W3
+Lean 4.35.0 + Mathlib formalization of the algebraic core behind Wave-2 Track W3
 (Open Challenge 5 resolution & `k = 2` composite bound-state discovery; Milestone P7-B):
 
 1. **Exact `{3,4,3,4}` Hyperbolic Convexity, `ℤ_2`-Grading & Orthochronous Positivity (`O^+(4,1; ℤ[√2])`):**
@@ -53,198 +60,34 @@ Zero-dependency Lean 4.35.0 formalization of the algebraic core behind Wave-2 Tr
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
+
+open Matrix
 
 /-! ## Section 1: Exact `{3,4,3,4}` Hyperbolic Height, `ℤ_2`-Grading & Universal Convexity Identity -/
 
-private theorem bd_vec5_ext (u v : Vec5) (h : ∀ i : Fin 5, u i = v i) : u = v := funext h
-
-private theorem bd_z2_add_zero (x : ZSqrt2) : ZSqrt2.add x ZSqrt2.zero = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_zero_add (x : ZSqrt2) : ZSqrt2.add ZSqrt2.zero x = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_add_comm (x y : ZSqrt2) : ZSqrt2.add x y = ZSqrt2.add y x := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_add_assoc (x y z : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.add x y) z = ZSqrt2.add x (ZSqrt2.add y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_add_sub_sub_add (a b c d : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.sub a b) (ZSqrt2.sub c d) = ZSqrt2.sub (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-  cases a; cases b; cases c; cases d
-  simp only [ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_mul_zero (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.zero = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.zero_mul, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_one_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.one x = x := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.one, ZSqrt2.mk.injEq, Int.one_mul, Int.zero_mul, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_mul_add (x y z : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.add y z) = ZSqrt2.add (ZSqrt2.mul x y) (ZSqrt2.mul x z) := by
-  cases x; cases y; cases z
-  simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.mul_add]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_add_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.add x y) z = ZSqrt2.add (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z
-  simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_sub_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.sub x y) z = ZSqrt2.sub (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z
-  simp only [ZSqrt2.mul, ZSqrt2.sub, ZSqrt2.mk.injEq, Int.sub_mul, Int.mul_sub]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_mul_assoc (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.mul x y) z = ZSqrt2.mul x (ZSqrt2.mul y z) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  cases z with | mk za zb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
-  have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
-    rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
-    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
-  rw [h1, h2]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_scale_add (c : Int) (x y : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.scale c x) (ZSqrt2.scale c y) = ZSqrt2.scale c (ZSqrt2.add x y) := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.scale, Int.mul_add]
-
-private theorem bd_z2_scale_scale (c d : Int) (x : ZSqrt2) :
-    ZSqrt2.scale c (ZSqrt2.scale d x) = ZSqrt2.scale (c * d) x := by
-  cases x; simp only [ZSqrt2.scale, Int.mul_assoc]
-
-private theorem bd_z2_neg_scale (c : Int) (x : ZSqrt2) :
-    ZSqrt2.neg (ZSqrt2.scale c x) = ZSqrt2.scale (-c) x := by
-  cases x; simp only [ZSqrt2.neg, ZSqrt2.scale, Int.neg_mul]
-
-private theorem bd_z2_mul_scale (c : Int) (x y : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.scale c y) = ZSqrt2.scale c (ZSqrt2.mul x y) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_add]
-  have h1 : xa * (c * ya) = c * (xa * ya) := by
-    rw [← Int.mul_assoc xa c ya, Int.mul_comm xa c, Int.mul_assoc c xa ya]
-  have h2 : 2 * xb * (c * yb) = c * (2 * xb * yb) := by
-    rw [← Int.mul_assoc (2 * xb) c yb, Int.mul_comm (2 * xb) c, Int.mul_assoc c (2 * xb) yb]
-  have h3 : xa * (c * yb) = c * (xa * yb) := by
-    rw [← Int.mul_assoc xa c yb, Int.mul_comm xa c, Int.mul_assoc c xa yb]
-  have h4 : xb * (c * ya) = c * (xb * ya) := by
-    rw [← Int.mul_assoc xb c ya, Int.mul_comm xb c, Int.mul_assoc c xb ya]
-  rw [h1, h2, h3, h4]; exact ⟨rfl, rfl⟩
-
-private theorem bd_z2_mul_neg2 (x : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.ofInt (-2)) = ZSqrt2.scale (-2) x := by
-  cases x with | mk xa xb =>
-  simp only [ZSqrt2.mul, ZSqrt2.ofInt, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_zero]
-  rw [Int.mul_comm xa (-2), Int.mul_comm xb (-2)]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_sub_mul_neg2 (c n : ZSqrt2) :
-    ZSqrt2.sub c (ZSqrt2.mul n (ZSqrt2.ofInt (-2))) = ZSqrt2.add c (ZSqrt2.scale 2 n) := by
-  cases c; cases n with | mk na nb =>
-  simp only [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.mul, ZSqrt2.ofInt, ZSqrt2.scale, ZSqrt2.mk.injEq,
-    Int.mul_zero, Int.mul_neg]
-  rw [Int.mul_comm na 2, Int.mul_comm nb 2]; exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_add_scale2 (c n1 n2 : ZSqrt2)
-    (h : ZSqrt2.add n1 n2 = ZSqrt2.scale 2 c) :
-    ZSqrt2.add (ZSqrt2.add c (ZSqrt2.scale 2 n1)) (ZSqrt2.add c (ZSqrt2.scale 2 n2)) =
-      ZSqrt2.scale 6 c := by
-  cases c; cases n1; cases n2
-  simp only [ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq] at h ⊢
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) := by
-  have swap4 : ∀ a b c d : ZSqrt2,
-      ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) =
-        ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-    intro a b c d
-    rw [bd_z2_add_assoc a b (ZSqrt2.add c d), ← bd_z2_add_assoc b c d, bd_z2_add_comm b c,
-        bd_z2_add_assoc c b d, ← bd_z2_add_assoc a c (ZSqrt2.add b d)]
-  let f0 := f ⟨0, by decide⟩; let f1 := f ⟨1, by decide⟩; let f2 := f ⟨2, by decide⟩
-  let f3 := f ⟨3, by decide⟩; let f4 := f ⟨4, by decide⟩
-  let g0 := g ⟨0, by decide⟩; let g1 := g ⟨1, by decide⟩; let g2 := g ⟨2, by decide⟩
-  let g3 := g ⟨3, by decide⟩; let g4 := g ⟨4, by decide⟩
-  change ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
-      (ZSqrt2.add f2 g2)) (ZSqrt2.add f3 g3)) (ZSqrt2.add f4 g4) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
-      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4)
-  rw [swap4 f0 g0 f1 g1,
-      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
-      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
-      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
-            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
-
-private theorem bd_sum5_sub (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.sub (f k) (g k)) = ZSqrt2.sub (sum5 f) (sum5 g) := by
-  unfold sum5
-  rw [bd_z2_add_sub_sub_add, bd_z2_add_sub_sub_add, bd_z2_add_sub_sub_add, bd_z2_add_sub_sub_add]
-
-private theorem bd_sum5_mul_left (c : ZSqrt2) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul c (f k)) = ZSqrt2.mul c (sum5 f) := by
-  unfold sum5; rw [bd_z2_mul_add, bd_z2_mul_add, bd_z2_mul_add, bd_z2_mul_add]
-
-private theorem bd_sum5_mul_right (f : Fin 5 → ZSqrt2) (c : ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (f k) c) = ZSqrt2.mul (sum5 f) c := by
-  unfold sum5; rw [bd_z2_add_mul, bd_z2_add_mul, bd_z2_add_mul, bd_z2_add_mul]
-
-private theorem bd_sum5_scale (c : Int) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.scale c (f k)) = ZSqrt2.scale c (sum5 f) := by
-  unfold sum5; rw [bd_z2_scale_add, bd_z2_scale_add, bd_z2_scale_add, bd_z2_scale_add]
-
-private theorem bd_sum5_comm (f : Fin 5 → Fin 5 → ZSqrt2) :
-    sum5 (fun i => sum5 (fun j => f i j)) = sum5 (fun j => sum5 (fun i => f i j)) := by
-  change sum5 (fun i => sum5 (fun j => f i j)) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add
-      (sum5 (fun i => f i ⟨0, by decide⟩)) (sum5 (fun i => f i ⟨1, by decide⟩)))
-      (sum5 (fun i => f i ⟨2, by decide⟩))) (sum5 (fun i => f i ⟨3, by decide⟩)))
-      (sum5 (fun i => f i ⟨4, by decide⟩))
-  rw [← bd_sum5_add, ← bd_sum5_add, ← bd_sum5_add, ← bd_sum5_add]; rfl
-
-private theorem bd_sum5_kron_left (i : Fin 5) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (mat5Id i k) (f k)) = f i := by
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [sum5, mat5Id, bd_z2_one_mul, bd_z2_zero_mul, bd_z2_add_zero, bd_z2_zero_add]
+private theorem bd_z2_scale_eq_mul (c : Int) (x : ZSqrt2) :
+    ZSqrt2.scale c x = ZSqrt2.ofInt c * x := by
+  cases x; change ZSqrt2.mk _ _ = ZSqrt2.mul _ _; ext <;> simp [ZSqrt2.mul, ZSqrt2.ofInt]
 
 private theorem bd_mat5Vec_mul (A B : Mat5) (v : Vec5) :
     mat5Vec (mat5Mul A B) v = mat5Vec A (mat5Vec B v) := by
-  apply bd_vec5_ext; intro i; unfold mat5Vec mat5Mul
-  have hL : sum5 (fun k => ZSqrt2.mul (sum5 (fun m => ZSqrt2.mul (A i m) (B m k))) (v k)) =
-      sum5 (fun k => sum5 (fun m => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (v k)))) := by
-    apply congrArg sum5; funext k; rw [← bd_sum5_mul_right]
-    apply congrArg sum5; funext m; exact bd_z2_mul_assoc (A i m) (B m k) (v k)
-  have hR : sum5 (fun m => ZSqrt2.mul (A i m) (sum5 (fun k => ZSqrt2.mul (B m k) (v k)))) =
-      sum5 (fun m => sum5 (fun k => ZSqrt2.mul (A i m) (ZSqrt2.mul (B m k) (v k)))) := by
-    apply congrArg sum5; funext m; rw [← bd_sum5_mul_left]
-  rw [hL, bd_sum5_comm, hR]
+  rw [mat5Vec_eq_mulVec, toMat5_mul, ← Matrix.mulVec_mulVec, ← mat5Vec_eq_mulVec, ← mat5Vec_eq_mulVec]
 
 private theorem bd_mat5Vec_add (A : Mat5) (u v : Vec5) (i : Fin 5) :
     ZSqrt2.add (mat5Vec A u i) (mat5Vec A v i) =
       mat5Vec A (fun k => ZSqrt2.add (u k) (v k)) i := by
-  unfold mat5Vec; rw [← bd_sum5_add]
-  apply congrArg sum5; funext k; exact (bd_z2_mul_add (A i k) (u k) (v k)).symm
+  change sum5 (fun k => A i k * u k) + sum5 (fun k => A i k * v k) =
+    sum5 (fun k => A i k * (u k + v k))
+  simp only [sum5_eq_sum, ← Finset.sum_add_distrib, mul_add]
 
 private theorem bd_mat5Vec_scale (A : Mat5) (c : Int) (v : Vec5) (i : Fin 5) :
     mat5Vec A (fun k => ZSqrt2.scale c (v k)) i = ZSqrt2.scale c (mat5Vec A v i) := by
-  unfold mat5Vec
-  have h : (fun k => ZSqrt2.mul (A i k) (ZSqrt2.scale c (v k))) =
-      (fun k => ZSqrt2.scale c (ZSqrt2.mul (A i k) (v k))) := by
-    funext k; exact bd_z2_mul_scale c (A i k) (v k)
-  rw [h, bd_sum5_scale]
+  change sum5 (fun k => A i k * ZSqrt2.scale c (v k)) = ZSqrt2.scale c (sum5 (fun k => A i k * v k))
+  simp only [sum5_eq_sum, bd_z2_scale_eq_mul, Finset.mul_sum]
+  exact Finset.sum_congr rfl fun k _ => by ring
 
 private theorem bd_transport_baseCenter (a : Fin 24) :
     mat5Vec (transport a) baseCenter =
@@ -255,18 +98,28 @@ private theorem bd_transport_baseCenter (a : Fin 24) :
       sum5 (fun k => ZSqrt2.mul (mat5Vec twiceGram (facetNormal x) k) (baseCenter k)) =
         ZSqrt2.ofInt (-2) := by
     decide
-  apply bd_vec5_ext; intro i
-  have hFun : (fun k => ZSqrt2.mul
-        (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (facetNormal a i) (mat5Vec twiceGram (facetNormal a) k)))
-        (baseCenter k)) =
-      (fun k => ZSqrt2.sub (ZSqrt2.mul (mat5Id i k) (baseCenter k))
-        (ZSqrt2.mul (facetNormal a i) (ZSqrt2.mul (mat5Vec twiceGram (facetNormal a) k) (baseCenter k)))) := by
-    funext k; rw [bd_z2_sub_mul, bd_z2_mul_assoc]
-  change sum5 (fun k => ZSqrt2.mul
-        (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (facetNormal a i) (mat5Vec twiceGram (facetNormal a) k)))
-        (baseCenter k)) = ZSqrt2.add (baseCenter i) (ZSqrt2.scale 2 (facetNormal a i))
-  rw [hFun, bd_sum5_sub, bd_sum5_kron_left i baseCenter, bd_sum5_mul_left, hDotAll a]
-  exact bd_z2_sub_mul_neg2 (baseCenter i) (facetNormal a i)
+  funext i
+  have hDot : ∑ k : Fin 5, mat5Vec twiceGram (facetNormal a) k * baseCenter k = ZSqrt2.ofInt (-2) := by
+    have h := hDotAll a; rw [sum5_eq_sum] at h; exact h
+  have hId : ∑ k : Fin 5, mat5Id i k * baseCenter k = baseCenter i := by
+    have h := congrFun (mat5Vec_eq_mulVec mat5Id baseCenter) i
+    rw [toMat5_id, Matrix.one_mulVec] at h
+    unfold mat5Vec at h; rw [sum5_eq_sum] at h; exact h
+  change sum5 (fun k => (mat5Id i k - facetNormal a i * mat5Vec twiceGram (facetNormal a) k) * baseCenter k) =
+    baseCenter i + ZSqrt2.scale 2 (facetNormal a i)
+  rw [sum5_eq_sum]
+  calc ∑ k : Fin 5, (mat5Id i k - facetNormal a i * mat5Vec twiceGram (facetNormal a) k) * baseCenter k
+      = ∑ k : Fin 5, (mat5Id i k * baseCenter k -
+          facetNormal a i * (mat5Vec twiceGram (facetNormal a) k * baseCenter k)) := by
+        refine Finset.sum_congr rfl fun k _ => by ring
+    _ = (∑ k : Fin 5, mat5Id i k * baseCenter k) -
+          facetNormal a i * ∑ k : Fin 5, mat5Vec twiceGram (facetNormal a) k * baseCenter k := by
+        rw [Finset.sum_sub_distrib, ← Finset.mul_sum]
+    _ = baseCenter i - facetNormal a i * ZSqrt2.ofInt (-2) := by rw [hId, hDot]
+    _ = baseCenter i + ZSqrt2.scale 2 (facetNormal a i) := by
+        rw [bd_z2_scale_eq_mul]
+        have hNeg : ZSqrt2.ofInt (-2) = -(ZSqrt2.ofInt 2) := by decide
+        rw [hNeg]; ring
 
 /-- Exact doubled Lorentz height `H_2(g) = -2 B(g c_0, c_0)` in `ℤ[√2]`. -/
 def lorentzHeightZ2 (g : Mat5) : ZSqrt2 :=
@@ -307,18 +160,18 @@ private theorem bd_z2HasParity_mul (p q : Bool) (x y : ZSqrt2)
   cases x with | mk xa xb =>
   cases y with | mk ya yb =>
   cases p <;> cases q
-  · refine ⟨fun _ => ?_, fun h => absurd h (by decide)⟩
+  · refine ⟨fun _ => ?_, fun h => (by cases h)⟩
     have hxa : xa = 0 := hx.2 rfl; have hya : ya = 0 := hy.2 rfl
-    change xa * yb + xb * ya = 0; rw [hxa, hya, Int.zero_mul, Int.mul_zero]; rfl
-  · refine ⟨fun h => absurd h (by decide), fun _ => ?_⟩
+    change xa * yb + xb * ya = 0; rw [hxa, hya]; ring
+  · refine ⟨fun h => (by cases h), fun _ => ?_⟩
     have hxa : xa = 0 := hx.2 rfl; have hyb : yb = 0 := hy.1 rfl
-    change xa * ya + 2 * xb * yb = 0; rw [hxa, hyb, Int.zero_mul, Int.mul_zero]; rfl
-  · refine ⟨fun h => absurd h (by decide), fun _ => ?_⟩
+    change xa * ya + 2 * xb * yb = 0; rw [hxa, hyb]; ring
+  · refine ⟨fun h => (by cases h), fun _ => ?_⟩
     have hxb : xb = 0 := hx.1 rfl; have hya : ya = 0 := hy.2 rfl
-    change xa * ya + 2 * xb * yb = 0; rw [hxb, hya, Int.mul_zero, Int.mul_zero, Int.zero_mul]; rfl
-  · refine ⟨fun _ => ?_, fun h => absurd h (by decide)⟩
+    change xa * ya + 2 * xb * yb = 0; rw [hxb, hya]; ring
+  · refine ⟨fun _ => ?_, fun h => (by cases h)⟩
     have hxb : xb = 0 := hx.1 rfl; have hyb : yb = 0 := hy.1 rfl
-    change xa * yb + xb * ya = 0; rw [hxb, hyb, Int.mul_zero, Int.zero_mul]; rfl
+    change xa * yb + xb * ya = 0; rw [hxb, hyb]; ring
 
 private theorem bd_sum5_parity (p : Bool) (f : Fin 5 → ZSqrt2)
     (hf : ∀ k : Fin 5, z2HasParity p (f k)) : z2HasParity p (sum5 f) :=
@@ -328,23 +181,22 @@ private theorem bd_sum5_parity (p : Bool) (f : Fin 5 → ZSqrt2)
         (bd_z2HasParity_add p _ _ (hf ⟨0, by decide⟩) (hf ⟨1, by decide⟩))
         (hf ⟨2, by decide⟩)) (hf ⟨3, by decide⟩)) (hf ⟨4, by decide⟩)
 
-private theorem bd_bool_beq_trans (a k b : Bool) : ((a == k) == (k == b)) = (a == b) := by
-  cases a <;> cases k <;> cases b <;> rfl
-
-private theorem bd_bool_beq_cancel (a k : Bool) : ((a == k) == k) = a := by
-  cases a <;> cases k <;> rfl
-
 private theorem bd_mat5Graded_vec (A : Mat5) (v : Vec5)
     (hA : mat5Graded A) (hv : vec5Graded v) : vec5Graded (mat5Vec A v) := by
   intro i; apply bd_sum5_parity; intro k
   have hm := bd_z2HasParity_mul _ _ _ _ (hA i k) (hv k)
-  rw [bd_bool_beq_cancel] at hm; exact hm
+  have hB : ((coxeterCoordEven i == coxeterCoordEven k) == coxeterCoordEven k) = coxeterCoordEven i := by
+    cases coxeterCoordEven i <;> cases coxeterCoordEven k <;> rfl
+  rwa [hB] at hm
 
 private theorem bd_mat5Graded_mul (A B : Mat5)
     (hA : mat5Graded A) (hB : mat5Graded B) : mat5Graded (mat5Mul A B) := by
   intro i j; apply bd_sum5_parity; intro k
   have hm := bd_z2HasParity_mul _ _ _ _ (hA i k) (hB k j)
-  rw [bd_bool_beq_trans] at hm; exact hm
+  have hT : ((coxeterCoordEven i == coxeterCoordEven k) ==
+      (coxeterCoordEven k == coxeterCoordEven j)) = (coxeterCoordEven i == coxeterCoordEven j) := by
+    cases coxeterCoordEven i <;> cases coxeterCoordEven k <;> cases coxeterCoordEven j <;> rfl
+  rwa [hT] at hm
 
 /-- Headline Theorem 1 (Exact Gram-Center Contraction & Lorentz Height Formula):
     `(2 B) c_0 = -2 e_4`, so for EVERY `v : Vec5` and EVERY `g : Mat5`:
@@ -358,17 +210,13 @@ theorem thm_bd_twiceForm_baseCenter_and_height :
     (∀ a : Fin 24, lorentzHeightZ2 (transport a) = ZSqrt2.ofInt 6) := by
   have hGramC0 : mat5Vec twiceGram baseCenter =
       mkVec5 ZSqrt2.zero ZSqrt2.zero ZSqrt2.zero ZSqrt2.zero (ZSqrt2.ofInt (-2)) :=
-    bd_vec5_ext _ _ (by decide)
+    funext (by decide)
   have hTF : ∀ v : Vec5, twiceForm v baseCenter = ZSqrt2.scale (-2) (v ⟨4, by decide⟩) := by
     intro v; unfold twiceForm dot5; rw [hGramC0]
-    change ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add
-        (ZSqrt2.mul (v ⟨0, by decide⟩) ZSqrt2.zero) (ZSqrt2.mul (v ⟨1, by decide⟩) ZSqrt2.zero))
-        (ZSqrt2.mul (v ⟨2, by decide⟩) ZSqrt2.zero)) (ZSqrt2.mul (v ⟨3, by decide⟩) ZSqrt2.zero))
-        (ZSqrt2.mul (v ⟨4, by decide⟩) (ZSqrt2.ofInt (-2))) = ZSqrt2.scale (-2) (v ⟨4, by decide⟩)
-    rw [bd_z2_mul_zero, bd_z2_mul_zero, bd_z2_mul_zero, bd_z2_mul_zero,
-        bd_z2_add_zero, bd_z2_add_zero, bd_z2_add_zero, bd_z2_zero_add, bd_z2_mul_neg2]
+    ext <;> simp [sum5, mkVec5, ZSqrt2.zero, ZSqrt2.ofInt, ZSqrt2.scale, ZSqrt2.add, ZSqrt2.mul] <;> ring
   have hH : ∀ g : Mat5, lorentzHeightZ2 g = ZSqrt2.scale 2 (mat5Vec g baseCenter ⟨4, by decide⟩) := by
-    intro g; unfold lorentzHeightZ2; rw [hTF, bd_z2_neg_scale]; rfl
+    intro g; unfold lorentzHeightZ2; rw [hTF]
+    ext <;> simp [ZSqrt2.neg, ZSqrt2.scale]
   refine ⟨hGramC0, hTF, hH, by decide, ?_⟩
   intro a; unfold lorentzHeightZ2; rw [thm_coxeter_transport_preserves_lorentz.2 a]; decide
 
@@ -395,13 +243,16 @@ theorem thm_bd_coxeter_antipodal_sum_six :
         ZSqrt2.scale 6 (baseCenter i) := by
     intro a i
     rw [bd_transport_baseCenter a, bd_transport_baseCenter (oppSlot a)]
-    exact bd_z2_add_scale2 (baseCenter i) (facetNormal a i) (facetNormal (oppSlot a) i) (hNormSum a i)
+    have hns := hNormSum a i
+    have hna := congrArg ZSqrt2.a hns
+    have hnb := congrArg ZSqrt2.b hns
+    ext <;> simp [ZSqrt2.add, ZSqrt2.scale] at hna hnb ⊢ <;> omega
   refine ⟨hNormSum, hBase6, ?_⟩
   intro g a i
   rw [bd_mat5Vec_mul, bd_mat5Vec_mul, bd_mat5Vec_add]
   have hFun : (fun k => ZSqrt2.add (mat5Vec (transport a) baseCenter k)
       (mat5Vec (transport (oppSlot a)) baseCenter k)) =
-      (fun k => ZSqrt2.scale 6 (baseCenter k)) := funext (fun k => hBase6 a k)
+      (fun k => ZSqrt2.scale 6 (baseCenter k)) := funext (hBase6 a)
   rw [hFun, bd_mat5Vec_scale]
 
 /-- Headline Theorem 3 (Universal Hyperbolic Convexity Identity on Infinite `{3,4,3,4}`):
@@ -421,95 +272,42 @@ theorem thm_bd_hyperbolic_height_convexity :
         ZSqrt2.scale 6 (lorentzHeightZ2 g) := by
     intro g a
     have hH := thm_bd_twiceForm_baseCenter_and_height.2.2.1
-    rw [hH, hH, hH, bd_z2_scale_add,
-        thm_bd_coxeter_antipodal_sum_six.2.2 g a ⟨4, by decide⟩,
-        bd_z2_scale_scale, bd_z2_scale_scale]
-    rfl
+    rw [hH, hH, hH]
+    have hSum := thm_bd_coxeter_antipodal_sum_six.2.2 g a ⟨4, by decide⟩
+    change ZSqrt2.scale 2 _ + ZSqrt2.scale 2 _ = ZSqrt2.scale 6 (ZSqrt2.scale 2 _)
+    simp only [bd_z2_scale_eq_mul, ← mul_add]
+    change ZSqrt2.ofInt 2 * ZSqrt2.add _ _ = _
+    rw [hSum, bd_z2_scale_eq_mul]; ring
   exact ⟨hZ2, fun g a => congrArg ZSqrt2.a (hZ2 g a)⟩
-
-private theorem bd_z2_mul_comm (x y : ZSqrt2) : ZSqrt2.mul x y = ZSqrt2.mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xa yb, Int.mul_comm xb ya,
-      Int.mul_assoc 2 xb yb, Int.mul_comm xb yb, ← Int.mul_assoc 2 yb xb]
-  exact ⟨by omega, by omega⟩
-
-private theorem bd_z2_scale_mul_left (c : Int) (x y : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.scale c x) y = ZSqrt2.scale c (ZSqrt2.mul x y) := by
-  rw [bd_z2_mul_comm, bd_z2_mul_scale, bd_z2_mul_comm]
 
 private theorem bd_z2HasParity_scale (p : Bool) (c : Int) (x : ZSqrt2)
     (hx : z2HasParity p x) : z2HasParity p (ZSqrt2.scale c x) :=
-  ⟨fun ht => by have h := hx.1 ht; change c * x.b = 0; rw [h, Int.mul_zero],
-   fun hf => by have h := hx.2 hf; change c * x.a = 0; rw [h, Int.mul_zero]⟩
-
-private theorem bd_dot5_add_left (u v w : Vec5) :
-    dot5 (fun i => ZSqrt2.add (u i) (v i)) w = ZSqrt2.add (dot5 u w) (dot5 v w) := by
-  unfold dot5; rw [← bd_sum5_add]; apply congrArg sum5; funext k; exact bd_z2_add_mul _ _ _
-
-private theorem bd_dot5_add_right (u v w : Vec5) :
-    dot5 u (fun i => ZSqrt2.add (v i) (w i)) = ZSqrt2.add (dot5 u v) (dot5 u w) := by
-  unfold dot5; rw [← bd_sum5_add]; apply congrArg sum5; funext k; exact bd_z2_mul_add _ _ _
-
-private theorem bd_dot5_scale_left (c : Int) (u v : Vec5) :
-    dot5 (fun i => ZSqrt2.scale c (u i)) v = ZSqrt2.scale c (dot5 u v) := by
-  unfold dot5; rw [← bd_sum5_scale]; apply congrArg sum5; funext k; exact bd_z2_scale_mul_left _ _ _
-
-private theorem bd_dot5_scale_right (c : Int) (u v : Vec5) :
-    dot5 u (fun i => ZSqrt2.scale c (v i)) = ZSqrt2.scale c (dot5 u v) := by
-  unfold dot5; rw [← bd_sum5_scale]; apply congrArg sum5; funext k; exact bd_z2_mul_scale _ _ _
+  ⟨fun ht => by change c * x.b = 0; rw [hx.1 ht, mul_zero],
+   fun hf => by change c * x.a = 0; rw [hx.2 hf, mul_zero]⟩
 
 private theorem bd_twiceForm_symm (u v : Vec5) : twiceForm u v = twiceForm v u := by
-  unfold twiceForm dot5 mat5Vec
   have hSym := thm_coxeter_gram_and_center.1
-  have hL : sum5 (fun i => ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (v j)))) =
-      sum5 (fun i => sum5 (fun j => ZSqrt2.mul (u i) (ZSqrt2.mul (twiceGram i j) (v j)))) := by
-    apply congrArg sum5; funext i; rw [← bd_sum5_mul_left]
-  have hR : sum5 (fun j => ZSqrt2.mul (v j) (sum5 (fun i => ZSqrt2.mul (twiceGram j i) (u i)))) =
-      sum5 (fun j => sum5 (fun i => ZSqrt2.mul (u i) (ZSqrt2.mul (twiceGram i j) (v j)))) := by
-    apply congrArg sum5; funext j; rw [← bd_sum5_mul_left]
-    apply congrArg sum5; funext i
-    have hT : twiceGram j i = twiceGram i j := congrFun (congrFun hSym i) j
-    rw [hT, bd_z2_mul_comm (twiceGram i j) (u i), ← bd_z2_mul_assoc,
-        bd_z2_mul_comm (v j) (u i), bd_z2_mul_assoc, bd_z2_mul_comm (v j) (twiceGram i j)]
-  rw [hL, bd_sum5_comm, hR]
-
-private theorem bd_dot5_mat5Vec_left (A : Mat5) (u w : Vec5) :
-    dot5 (mat5Vec A u) w = dot5 u (mat5Vec (mat5Transpose A) w) := by
-  unfold dot5 mat5Vec mat5Transpose
-  have hL : sum5 (fun i => ZSqrt2.mul (sum5 (fun k => ZSqrt2.mul (A i k) (u k))) (w i)) =
-      sum5 (fun i => sum5 (fun k => ZSqrt2.mul (u k) (ZSqrt2.mul (A i k) (w i)))) := by
-    apply congrArg sum5; funext i; rw [← bd_sum5_mul_right]
-    apply congrArg sum5; funext k; rw [bd_z2_mul_comm (A i k) (u k), bd_z2_mul_assoc]
-  have hR : sum5 (fun k => ZSqrt2.mul (u k) (sum5 (fun i => ZSqrt2.mul (A i k) (w i)))) =
-      sum5 (fun k => sum5 (fun i => ZSqrt2.mul (u k) (ZSqrt2.mul (A i k) (w i)))) := by
-    apply congrArg sum5; funext k; rw [← bd_sum5_mul_left]
-  rw [hL, bd_sum5_comm, hR]
+  change sum5 (fun i => u i * sum5 (fun j => twiceGram i j * v j)) =
+    sum5 (fun j => v j * sum5 (fun i => twiceGram j i * u i))
+  simp only [sum5_eq_sum, Finset.mul_sum]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun i _ => ?_
+  have hT : twiceGram j i = twiceGram i j := congrFun (congrFun hSym i) j
+  rw [hT]; ring
 
 private theorem bd_twiceForm_orth (A : Mat5)
     (hA : mat5Mul (mat5Transpose A) (mat5Mul twiceGram A) = twiceGram) (u v : Vec5) :
     twiceForm (mat5Vec A u) (mat5Vec A v) = twiceForm u v := by
+  have hDot : ∀ (M : Mat5) (x y : Vec5), dot5 (mat5Vec M x) y = dot5 x (mat5Vec (mat5Transpose M) y) := by
+    intro M x y
+    change sum5 (fun i => sum5 (fun k => M i k * x k) * y i) =
+      sum5 (fun k => x k * sum5 (fun i => M i k * y i))
+    simp only [sum5_eq_sum, Finset.sum_mul, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun k _ => Finset.sum_congr rfl fun i _ => by ring
   unfold twiceForm
-  rw [bd_dot5_mat5Vec_left, ← bd_mat5Vec_mul twiceGram A v,
+  rw [hDot, ← bd_mat5Vec_mul twiceGram A v,
       ← bd_mat5Vec_mul (mat5Transpose A) (mat5Mul twiceGram A) v, hA]
-
-private theorem bd_int_sq_lin (p q x y : Int) :
-    (p * x - q * y) * (p * x - q * y) =
-      (p * p) * (x * x) - 2 * ((p * q) * (x * y)) + (q * q) * (y * y) := by
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub]
-  have h1 : (p * x) * (p * x) = (p * p) * (x * x) := by
-    rw [Int.mul_assoc p x (p * x), ← Int.mul_assoc x p x, Int.mul_comm x p,
-        Int.mul_assoc p x x, ← Int.mul_assoc p p (x * x)]
-  have h2 : (q * y) * (q * y) = (q * q) * (y * y) := by
-    rw [Int.mul_assoc q y (q * y), ← Int.mul_assoc y q y, Int.mul_comm y q,
-        Int.mul_assoc q y y, ← Int.mul_assoc q q (y * y)]
-  have h3 : (p * x) * (q * y) = (p * q) * (x * y) := by
-    rw [Int.mul_assoc p x (q * y), ← Int.mul_assoc x q y, Int.mul_comm x q,
-        Int.mul_assoc q x y, ← Int.mul_assoc p q (x * y)]
-  have h4 : (q * y) * (p * x) = (p * q) * (x * y) := by
-    rw [Int.mul_comm (q * y) (p * x), h3]
-  rw [h1, h2, h3, h4]; omega
 
 /-- Exact Cholesky positivity of the `[3,4,3,4]` Lorentz form on the spacelike slice `w_4 = 0`:
     `6 (2 B(w, w)).a = 3(2a_0-a_1)^2 + (3a_1-4b_2)^2 + 2(2b_2-3b_3)^2 + 6 b_3^2 ≥ 0`. -/
@@ -531,7 +329,7 @@ private theorem bd_graded_zero4_twiceForm_nonneg (w : Vec5)
   have hGw : mat5Vec twiceGram w =
       mkVec5 ⟨2 * a0 - a1, 0⟩ ⟨-a0 + 2 * a1 - 2 * b2, 0⟩
              ⟨0, -a1 + 2 * b2 - b3⟩ ⟨0, -b2 + 2 * b3⟩ ⟨-2 * b3, 0⟩ := by
-    apply bd_vec5_ext; intro i
+    funext i
     match i with
     | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
       simp only [mat5Vec, sum5, twiceGram, mkVec5, h0, h1, h2, h3, h4,
@@ -539,30 +337,9 @@ private theorem bd_graded_zero4_twiceForm_nonneg (w : Vec5)
       exact ⟨by omega, by omega⟩
   unfold twiceForm dot5
   rw [hGw]
-  simp only [sum5, mkVec5, h0, h1, h2, h3, h4, ZSqrt2.add, ZSqrt2.mul, Int.zero_mul]
-  have ht0 : a0 * (2 * a0 - a1) = 2 * (a0 * a0) - a0 * a1 := by
-    rw [Int.mul_sub, ← Int.mul_assoc a0 2 a0, Int.mul_comm a0 2, Int.mul_assoc 2 a0 a0]
-  have ht1 : a1 * (-a0 + 2 * a1 - 2 * b2) = -(a0 * a1) + 2 * (a1 * a1) - 2 * (a1 * b2) := by
-    rw [Int.mul_sub, Int.mul_add, Int.mul_neg, Int.mul_comm a1 a0,
-        ← Int.mul_assoc a1 2 a1, Int.mul_comm a1 2, Int.mul_assoc 2 a1 a1,
-        ← Int.mul_assoc a1 2 b2, Int.mul_comm a1 2, Int.mul_assoc 2 a1 b2]
-  have ht2 : 2 * b2 * (-a1 + 2 * b2 - b3) = -2 * (a1 * b2) + 4 * (b2 * b2) - 2 * (b2 * b3) := by
-    rw [Int.mul_sub, Int.mul_add, Int.mul_neg, Int.mul_assoc 2 b2 a1, Int.mul_comm b2 a1,
-        Int.mul_assoc 2 b2 (2 * b2), ← Int.mul_assoc b2 2 b2, Int.mul_comm b2 2,
-        Int.mul_assoc 2 b2 b2, ← Int.mul_assoc 2 2 (b2 * b2), Int.mul_assoc 2 b2 b3]
-    omega
-  have ht3 : 2 * b3 * (-b2 + 2 * b3) = -2 * (b2 * b3) + 4 * (b3 * b3) := by
-    rw [Int.mul_add, Int.mul_neg, Int.mul_assoc 2 b3 b2, Int.mul_comm b3 b2,
-        Int.mul_assoc 2 b3 (2 * b3), ← Int.mul_assoc b3 2 b3, Int.mul_comm b3 2,
-        Int.mul_assoc 2 b3 b3, ← Int.mul_assoc 2 2 (b3 * b3)]
-    omega
-  have hs0 : 0 ≤ (2 * a0 - 1 * a1) * (2 * a0 - 1 * a1) := int_sq_nonneg _
-  have hs1 : 0 ≤ (3 * a1 - 4 * b2) * (3 * a1 - 4 * b2) := int_sq_nonneg _
-  have hs2 : 0 ≤ (2 * b2 - 3 * b3) * (2 * b2 - 3 * b3) := int_sq_nonneg _
-  have hs3 : 0 ≤ b3 * b3 := int_sq_nonneg _
-  rw [bd_int_sq_lin] at hs0 hs1 hs2
-  rw [ht0, ht1, ht2, ht3]
-  omega
+  simp only [sum5, mkVec5, h0, h1, h2, h3, h4, ZSqrt2.add, ZSqrt2.mul]
+  nlinarith [sq_nonneg (2 * a0 - a1), sq_nonneg (3 * a1 - 4 * b2),
+             sq_nonneg (2 * b2 - 3 * b3), sq_nonneg b3]
 
 private theorem bd_twiceForm_lincomb_a (p q : Int) (u v : Vec5) :
     (twiceForm (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))
@@ -572,25 +349,40 @@ private theorem bd_twiceForm_lincomb_a (p q : Int) (u v : Vec5) :
   have hEq : twiceForm (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))
                        (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i))) =
       ZSqrt2.add
-        (ZSqrt2.add (ZSqrt2.scale (p * p) (twiceForm u u))
-                    (ZSqrt2.scale (p * q) (twiceForm u v)))
-        (ZSqrt2.add (ZSqrt2.scale (p * q) (twiceForm u v))
-                    (ZSqrt2.scale (q * q) (twiceForm v v))) := by
-    unfold twiceForm
+        (ZSqrt2.add (ZSqrt2.scale (p * p) (twiceForm u u)) (ZSqrt2.scale (p * q) (twiceForm u v)))
+        (ZSqrt2.add (ZSqrt2.scale (p * q) (twiceForm u v)) (ZSqrt2.scale (q * q) (twiceForm v v))) := by
+    have hSym : twiceForm v u = twiceForm u v := bd_twiceForm_symm v u
     have hGw : mat5Vec twiceGram (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i))) =
-        fun i => ZSqrt2.add (ZSqrt2.scale p (mat5Vec twiceGram u i))
-                            (ZSqrt2.scale q (mat5Vec twiceGram v i)) := by
-      apply bd_vec5_ext; intro i
+        fun i => ZSqrt2.ofInt p * mat5Vec twiceGram u i + ZSqrt2.ofInt q * mat5Vec twiceGram v i := by
+      funext i
       rw [← bd_mat5Vec_add, bd_mat5Vec_scale, bd_mat5Vec_scale]
-    rw [hGw,
-        bd_dot5_add_left, bd_dot5_add_right, bd_dot5_add_right,
-        bd_dot5_scale_left, bd_dot5_scale_left, bd_dot5_scale_left, bd_dot5_scale_left,
-        bd_dot5_scale_right, bd_dot5_scale_right, bd_dot5_scale_right, bd_dot5_scale_right,
-        bd_z2_scale_scale, bd_z2_scale_scale, bd_z2_scale_scale, bd_z2_scale_scale,
-        Int.mul_comm q p]
-    have hSym : dot5 v (mat5Vec twiceGram u) = dot5 u (mat5Vec twiceGram v) :=
-      bd_twiceForm_symm v u
-    rw [hSym]
+      simp only [bd_z2_scale_eq_mul]; rfl
+    have hOfMul : ∀ c d : Int, ZSqrt2.ofInt (c * d) = ZSqrt2.ofInt c * ZSqrt2.ofInt d := fun c d => by
+      change ZSqrt2.mk _ _ = ZSqrt2.mul _ _; ext <;> simp [ZSqrt2.mul, ZSqrt2.ofInt]
+    change sum5 (fun k => (ZSqrt2.scale p (u k) + ZSqrt2.scale q (v k)) *
+        mat5Vec twiceGram (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i))) k) =
+      ZSqrt2.scale (p * p) (twiceForm u u) + ZSqrt2.scale (p * q) (twiceForm u v) +
+      (ZSqrt2.scale (p * q) (twiceForm u v) + ZSqrt2.scale (q * q) (twiceForm v v))
+    rw [hGw]
+    simp only [bd_z2_scale_eq_mul, hOfMul, sum5_eq_sum]
+    have hSym' : ∑ k : Fin 5, v k * mat5Vec twiceGram u k = ∑ k : Fin 5, u k * mat5Vec twiceGram v k := by
+      change sum5 (fun k => v k * mat5Vec twiceGram u k) = sum5 (fun k => u k * mat5Vec twiceGram v k) at hSym
+      simpa only [sum5_eq_sum] using hSym
+    calc ∑ k : Fin 5, (ZSqrt2.ofInt p * u k + ZSqrt2.ofInt q * v k) *
+            (ZSqrt2.ofInt p * mat5Vec twiceGram u k + ZSqrt2.ofInt q * mat5Vec twiceGram v k)
+        = (ZSqrt2.ofInt p * ZSqrt2.ofInt p) * (∑ k : Fin 5, u k * mat5Vec twiceGram u k) +
+          (ZSqrt2.ofInt p * ZSqrt2.ofInt q) * (∑ k : Fin 5, u k * mat5Vec twiceGram v k) +
+          ((ZSqrt2.ofInt p * ZSqrt2.ofInt q) * (∑ k : Fin 5, v k * mat5Vec twiceGram u k) +
+           (ZSqrt2.ofInt q * ZSqrt2.ofInt q) * (∑ k : Fin 5, v k * mat5Vec twiceGram v k)) := by
+          simp only [Finset.mul_sum, ← Finset.sum_add_distrib]
+          exact Finset.sum_congr rfl fun k _ => by ring
+      _ = _ := by
+          rw [hSym']
+          change _ = ZSqrt2.ofInt p * ZSqrt2.ofInt p * sum5 (fun k => u k * mat5Vec twiceGram u k) +
+            ZSqrt2.ofInt p * ZSqrt2.ofInt q * sum5 (fun k => u k * mat5Vec twiceGram v k) +
+            (ZSqrt2.ofInt p * ZSqrt2.ofInt q * sum5 (fun k => u k * mat5Vec twiceGram v k) +
+             ZSqrt2.ofInt q * ZSqrt2.ofInt q * sum5 (fun k => v k * mat5Vec twiceGram v k))
+          simp only [sum5_eq_sum]
   exact congrArg ZSqrt2.a hEq
 
 private theorem bd_future_sheet_step (u v : Vec5)
@@ -598,42 +390,30 @@ private theorem bd_future_sheet_step (u v : Vec5)
     (huQ : (twiceForm u u).a = -2) (hvQ : (twiceForm v v).a = -2)
     (hu4 : (u ⟨4, by decide⟩).a ≥ 1) (hNeg : (twiceForm u v).a < 0) :
     (v ⟨4, by decide⟩).a ≥ 1 := by
-  if hvPos : (v ⟨4, by decide⟩).a ≥ 1 then exact hvPos
-  else if hv0 : (v ⟨4, by decide⟩).a = 0 then
-    have hGe := bd_graded_zero4_twiceForm_nonneg v hvG hv0
-    omega
-  else
-    let p : Int := -(v ⟨4, by decide⟩).a
-    let q : Int := (u ⟨4, by decide⟩).a
-    have hpGe1 : p ≥ 1 := by change -(v ⟨4, by decide⟩).a ≥ 1; omega
-    have hqGe1 : q ≥ 1 := hu4
-    let w : Vec5 := fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i))
-    have hwG : vec5Graded w := fun i =>
-      bd_z2HasParity_add _ _ _ (bd_z2HasParity_scale _ p _ (huG i))
-        (bd_z2HasParity_scale _ q _ (hvG i))
-    have hw4 : (w ⟨4, by decide⟩).a = 0 := by
-      change -(v ⟨4, by decide⟩).a * (u ⟨4, by decide⟩).a +
-        (u ⟨4, by decide⟩).a * (v ⟨4, by decide⟩).a = 0
-      rw [Int.neg_mul, Int.mul_comm (v ⟨4, by decide⟩).a (u ⟨4, by decide⟩).a]; omega
-    have hNonneg := bd_graded_zero4_twiceForm_nonneg w hwG hw4
-    have hLC := bd_twiceForm_lincomb_a p q u v
-    rw [huQ, hvQ] at hLC
-    have hpp : p * p ≥ 1 := by
-      have h := Int.mul_nonneg (show 0 ≤ p by omega) (show 0 ≤ p - 1 by omega)
-      rw [Int.mul_sub, Int.mul_one] at h; omega
-    have hqq : q * q ≥ 1 := by
-      have h := Int.mul_nonneg (show 0 ≤ q by omega) (show 0 ≤ q - 1 by omega)
-      rw [Int.mul_sub, Int.mul_one] at h; omega
-    have hpq : p * q ≥ 1 := by
-      have h := Int.mul_nonneg (show 0 ≤ p by omega) (show 0 ≤ q - 1 by omega)
-      rw [Int.mul_sub, Int.mul_one] at h; omega
-    have hCross : (p * q) * (twiceForm u v).a ≤ 0 := by
-      have h := Int.mul_nonneg (show 0 ≤ p * q by omega) (show 0 ≤ -(twiceForm u v).a by omega)
-      rw [Int.mul_neg] at h; omega
-    change 0 ≤ (twiceForm (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))
-                          (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))).a
-      at hNonneg
-    omega
+  by_cases hvPos : (v ⟨4, by decide⟩).a ≥ 1
+  · exact hvPos
+  · by_cases hv0 : (v ⟨4, by decide⟩).a = 0
+    · have hGe := bd_graded_zero4_twiceForm_nonneg v hvG hv0; omega
+    · let p : Int := -(v ⟨4, by decide⟩).a
+      let q : Int := (u ⟨4, by decide⟩).a
+      let w : Vec5 := fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i))
+      have hwG : vec5Graded w := fun i =>
+        bd_z2HasParity_add _ _ _ (bd_z2HasParity_scale _ p _ (huG i))
+          (bd_z2HasParity_scale _ q _ (hvG i))
+      have hw4 : (w ⟨4, by decide⟩).a = 0 := by
+        change -(v ⟨4, by decide⟩).a * (u ⟨4, by decide⟩).a +
+          (u ⟨4, by decide⟩).a * (v ⟨4, by decide⟩).a = 0
+        ring
+      have hNonneg := bd_graded_zero4_twiceForm_nonneg w hwG hw4
+      have hLC := bd_twiceForm_lincomb_a p q u v
+      rw [huQ, hvQ] at hLC
+      have hpGe1 : p ≥ 1 := by change -(v ⟨4, by decide⟩).a ≥ 1; omega
+      have hqGe1 : q ≥ 1 := hu4
+      change 0 ≤ (twiceForm (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))
+                            (fun i => ZSqrt2.add (ZSqrt2.scale p (u i)) (ZSqrt2.scale q (v i)))).a at hNonneg
+      rw [hLC] at hNonneg
+      have hpq : p * q ≥ 1 := by nlinarith
+      nlinarith
 
 /-- Headline Theorem 4 (Exact `ℤ_2`-Grading, Pure Even Integrality & Orthochronous Positivity `H_2(w) ≥ 2`):
     for EVERY finite Coxeter walk `w : List (Fin 24)` across infinite `{3,4,3,4}`,
@@ -717,21 +497,6 @@ theorem thm_bd_word_height_pure_even_integer (w : List (Fin 24)) :
 
 /-! ## Section 2: Frontier Separation, Pell Ballistic Recurrence & Compacton No-Go -/
 
-private theorem bd_nat_mul_le_left (c a b : Nat) (h : a ≤ b) : c * a ≤ c * b := by
-  induction c with
-  | zero => simp only [Nat.zero_mul]; exact Nat.le_refl 0
-  | succ k ih => rw [Nat.succ_mul, Nat.succ_mul]; omega
-
-private theorem bd_nat_mul_le_right (a b c : Nat) (h : a ≤ b) : a * c ≤ b * c := by
-  rw [Nat.mul_comm a c, Nat.mul_comm b c]; exact bd_nat_mul_le_left c a b h
-
-private theorem bd_nat_le_of_mul_le_mul_right (a b c : Nat) (hc : c > 0)
-    (h : a * c ≤ b * c) : a ≤ b := by
-  if hab : a ≤ b then exact hab
-  else
-    have hm := bd_nat_mul_le_right (b + 1) a c (by omega)
-    rw [Nat.add_mul, Nat.one_mul] at hm; omega
-
 private theorem bd_pow5_ge_succ (n : Nat) : 5 ^ n ≥ n + 1 := by
   induction n with
   | zero => decide
@@ -812,18 +577,7 @@ theorem thm_bd_ballistic_recurrence_strict_growth :
     | zero => decide
     | succ k ih =>
       have hRec := (hMono k).2.2.1
-      have h1 := congrArg (fun t => t * ballisticSeq (k + 2)) hRec
-      have h2 := congrArg (fun t => t * ballisticSeq k) hRec
-      rw [Nat.add_mul] at h1 h2
-      have hComm : ballisticSeq k * ballisticSeq (k + 2) = ballisticSeq (k + 2) * ballisticSeq k :=
-        Nat.mul_comm _ _
-      have hRhs : (6 * ballisticSeq (k + 1)) * ballisticSeq (k + 2) =
-          6 * ballisticSeq (k + 2) * ballisticSeq (k + 1) := by
-        rw [Nat.mul_assoc, Nat.mul_comm (ballisticSeq (k + 1)) (ballisticSeq (k + 2)), ← Nat.mul_assoc]
-      change ballisticSeq (k + 2) * ballisticSeq (k + 2) +
-          ballisticSeq (k + 1) * ballisticSeq (k + 1) + 4 =
-        6 * ballisticSeq (k + 2) * ballisticSeq (k + 1)
-      omega
+      nlinarith
   refine ⟨by decide, fun n => (hMono n).2.2.1, fun n => ?_, hPow, hCassini, ?_⟩
   · have h := hMono n; exact ⟨h.2.1, h.2.2.2, by omega⟩
   · intro B; refine ⟨B + 2, ?_⟩
@@ -869,20 +623,14 @@ theorem thm_bd_ballistic_no_periodic_compacton (M : Nat → Nat)
   have hSeqRec := thm_bd_ballistic_recurrence_strict_growth.2.1
   have hSeqMono := thm_bd_ballistic_recurrence_strict_growth.2.2.1
   have hSeqPow := thm_bd_ballistic_recurrence_strict_growth.2.2.2.1
+  have hSeqPos : ∀ k : Nat, ballisticSeq k > 0 := by
+    intro k
+    cases k with
+    | zero => decide
+    | succ m => have hp := hSeqPow m; have h5 := bd_pow5_ge_succ m; omega
   have hRatio : ∀ n : Nat,
       N (n + 1) * ballisticSeq n ≥ N n * ballisticSeq (n + 1) ∧
       N (n + 1) ≥ N n ∧ N (n + 2) ≥ 5 * N (n + 1) := by
-    have hStep5 : ∀ k : Nat,
-        N (k + 2) * ballisticSeq (k + 1) ≥ N (k + 1) * ballisticSeq (k + 2) →
-        N (k + 2) ≥ 5 * N (k + 1) := by
-      intro k hR
-      have haPos : ballisticSeq (k + 1) > 0 := by
-        have hp := hSeqPow k; have h5 := bd_pow5_ge_succ k; omega
-      have h5Mul := bd_nat_mul_le_left (N (k + 1)) (5 * ballisticSeq (k + 1))
-        (ballisticSeq (k + 2)) (hSeqMono k).2.1
-      rw [← Nat.mul_assoc, Nat.mul_comm (N (k + 1)) 5] at h5Mul
-      exact bd_nat_le_of_mul_le_mul_right (5 * N (k + 1)) (N (k + 2)) (ballisticSeq (k + 1))
-        haPos (by omega)
     intro n
     induction n with
     | zero =>
@@ -892,18 +640,15 @@ theorem thm_bd_ballistic_no_periodic_compacton (M : Nat → Nat)
     | succ k ih =>
       obtain ⟨ihR, ihM, ih5⟩ := ih
       have hL := hNLeap k ihM
-      have hMul := bd_nat_mul_le_right (6 * N (k + 1)) (N (k + 2) + N k) (ballisticSeq (k + 1)) hL
-      rw [Nat.add_mul, Nat.mul_comm 6 (N (k + 1)), Nat.mul_assoc, ← hSeqRec k, Nat.mul_add] at hMul
-      have hNextR : N (k + 2) * ballisticSeq (k + 1) ≥ N (k + 1) * ballisticSeq (k + 2) := by omega
+      have hRec := hSeqRec k
+      have hNextR : N (k + 2) * ballisticSeq (k + 1) ≥ N (k + 1) * ballisticSeq (k + 2) := by nlinarith
       have hM2 : N (k + 2) ≥ N (k + 1) := by omega
-      have hL2 : N (k + 3) + N (k + 1) ≥ 6 * N (k + 2) := hNLeap (k + 1) hM2
-      have hRec2 : ballisticSeq (k + 3) + ballisticSeq (k + 1) = 6 * ballisticSeq (k + 2) :=
-        hSeqRec (k + 1)
-      have hMul2 := bd_nat_mul_le_right (6 * N (k + 2)) (N (k + 3) + N (k + 1))
-        (ballisticSeq (k + 2)) hL2
-      rw [Nat.add_mul, Nat.mul_comm 6 (N (k + 2)), Nat.mul_assoc, ← hRec2, Nat.mul_add] at hMul2
-      have hNextR2 : N (k + 3) * ballisticSeq (k + 2) ≥ N (k + 2) * ballisticSeq (k + 3) := by omega
-      have h5Next : N (k + 3) ≥ 5 * N (k + 2) := hStep5 (k + 1) hNextR2
+      have hL2 := hNLeap (k + 1) hM2
+      have hRec2 := hSeqRec (k + 1)
+      have hNextR2 : N (k + 3) * ballisticSeq (k + 2) ≥ N (k + 2) * ballisticSeq (k + 3) := by nlinarith
+      have hSeq5 := (hSeqMono (k + 1)).2.1
+      have haPos := hSeqPos (k + 2)
+      have h5Next : N (k + 3) ≥ 5 * N (k + 2) := by nlinarith
       exact ⟨hNextR, hM2, h5Next⟩
   have hPell : ∀ n : Nat, N n ≥ N 0 * ballisticSeq n := by
     intro n
@@ -911,25 +656,16 @@ theorem thm_bd_ballistic_no_periodic_compacton (M : Nat → Nat)
     | zero => change N 0 ≥ N 0 * 1; omega
     | succ k ih =>
       have hR := (hRatio k).1
-      have haPos : ballisticSeq k > 0 := by
-        cases k with
-        | zero => decide
-        | succ m => have hp := hSeqPow m; have h5 := bd_pow5_ge_succ m; omega
-      have h1 := bd_nat_mul_le_right (N 0 * ballisticSeq k) (N k) (ballisticSeq (k + 1)) ih
-      rw [Nat.mul_assoc, Nat.mul_comm (ballisticSeq k) (ballisticSeq (k + 1)), ← Nat.mul_assoc] at h1
-      exact bd_nat_le_of_mul_le_mul_right (N 0 * ballisticSeq (k + 1)) (N (k + 1))
-        (ballisticSeq k) haPos (by omega)
+      have haPos := hSeqPos k
+      nlinarith
   have hExp : ∀ n : Nat, N (n + 1) ≥ 5 ^ n * N 0 := by
     intro n
     induction n with
     | zero => change N 1 ≥ 1 * N 0; omega
     | succ k ih =>
       have h5 := (hRatio k).2.2
-      have hMul := bd_nat_mul_le_left 5 (5 ^ k * N 0) (N (k + 1)) ih
-      have hPowEq : 5 ^ (k + 1) * N 0 = 5 * (5 ^ k * N 0) := by
-        rw [Nat.pow_succ, Nat.mul_comm (5 ^ k) 5, Nat.mul_assoc]
       change N (k + 2) ≥ 5 ^ (k + 1) * N 0
-      rw [hPowEq]; omega
+      rw [Nat.pow_succ]; nlinarith
   have hStrict : ∀ k : Nat, k ≥ 1 → N (k + 1) > N 1 := by
     intro k hk
     induction k with
@@ -939,75 +675,34 @@ theorem thm_bd_ballistic_no_periodic_compacton (M : Nat → Nat)
       | zero =>
         have h5 : N 2 ≥ 5 * N 1 := (hRatio 0).2.2
         have hp := hNPos 1
-        change N 2 > N 1
-        omega
+        change N 2 > N 1; omega
       | succ r =>
         have hprev : N (r + 2) > N 1 := ih (by omega)
         have h5 : N (r + 3) ≥ 5 * N (r + 2) := (hRatio (r + 1)).2.2
-        change N (r + 3) > N 1
-        omega
+        change N (r + 3) > N 1; omega
   refine ⟨⟨t0, ht0, fun n => ⟨hPell n, hExp n⟩⟩, ?_, ?_⟩
   · intro B; refine ⟨t0 + (B + 2), ?_⟩
-    have hE : N (B + 2) ≥ 5 ^ (B + 1) * N 0 := hExp (B + 1)
-    have hP0 := hNPos 0; have h5 := bd_pow5_ge_succ (B + 1)
-    have h1 := bd_nat_mul_le_left (5 ^ (B + 1)) 1 (N 0) (by omega)
-    rw [Nat.mul_one] at h1; change N (B + 2) > B; omega
+    have hE := hExp (B + 1); have hP0 := hNPos 0; have h5 := bd_pow5_ge_succ (B + 1)
+    change N (B + 2) > B; nlinarith
   · intro T hT hPer
     have hGt := hStrict T hT
     have hEq : N (T + 1) = N 1 := by
       change M (t0 + (T + 1)) = M (t0 + 1)
-      have hIdx : t0 + (T + 1) = (t0 + 1) + T := by omega
-      rw [hIdx]
+      rw [show t0 + (T + 1) = (t0 + 1) + T by omega]
       exact hPer (t0 + 1)
     omega
 
 
 /-! ## Section 3: Exact `2^m`-Branch Frontier-Leakage Diagonalization (`Lemma 2`) -/
 
-private theorem bd_eis_mul_comm (x y : Eis) : Eis.mul x y = Eis.mul y x :=
-  StarCommRing.mul_comm (R := Eis) x y
-
-private theorem bd_eis_mul_assoc (x y z : Eis) :
-    Eis.mul (Eis.mul x y) z = Eis.mul x (Eis.mul y z) :=
-  StarCommRing.mul_assoc (R := Eis) x y z
-
-private theorem bd_eis_conj_mul (x y : Eis) :
-    Eis.conj (Eis.mul x y) = Eis.mul (Eis.conj x) (Eis.conj y) :=
-  StarCommRing.conj_mul (R := Eis) x y
-
-private theorem bd_eis_conj_mul_self (x : Eis) :
-    Eis.mul (Eis.conj x) x = Eis.ofInt (Eis.normSq x) := by
-  cases x with | mk xa xb =>
-  simp only [Eis.mul, Eis.conj, Eis.ofInt, Eis.normSq, Eis.mk.injEq, Int.sub_mul, Int.neg_mul]
-  rw [Int.mul_comm xb xa]; exact ⟨by omega, by omega⟩
-
-private theorem bd_eis_ofInt_mul (m n : Int) :
-    Eis.mul (Eis.ofInt m) (Eis.ofInt n) = Eis.ofInt (m * n) := by
-  simp only [Eis.mul, Eis.ofInt, Eis.mk.injEq, Int.mul_zero, Int.zero_mul]
-  exact ⟨by omega, by omega⟩
-
 private theorem bd_eis_normSq_mul (x y : Eis) :
     Eis.normSq (Eis.mul x y) = Eis.normSq x * Eis.normSq y := by
-  have h : Eis.ofInt (Eis.normSq (Eis.mul x y)) = Eis.ofInt (Eis.normSq x * Eis.normSq y) := by
-    rw [← bd_eis_conj_mul_self, bd_eis_conj_mul, bd_eis_mul_assoc,
-        ← bd_eis_mul_assoc (Eis.conj y) x y, bd_eis_mul_comm (Eis.conj y) x,
-        bd_eis_mul_assoc x (Eis.conj y) y,
-        ← bd_eis_mul_assoc (Eis.conj x) x (Eis.mul (Eis.conj y) y),
-        bd_eis_conj_mul_self x, bd_eis_conj_mul_self y, bd_eis_ofInt_mul]
-  exact congrArg Eis.a h
+  cases x; cases y; simp only [Eis.mul, Eis.normSq]; ring
 
 private theorem bd_eis_normSq_nonneg (x : Eis) : 0 ≤ Eis.normSq x := by
   cases x with | mk xa xb =>
-  have h1 := int_sq_nonneg (2 * xa - xb); have h2 := int_sq_nonneg xb
-  have hExp : (2 * xa - xb) * (2 * xa - xb) = 4 * (xa * xa) - 4 * (xa * xb) + xb * xb := by
-    rw [Int.sub_mul, Int.mul_sub, Int.mul_sub]
-    have ha : (2 * xa) * (2 * xa) = 4 * (xa * xa) := by
-      rw [Int.mul_assoc 2 xa (2 * xa), ← Int.mul_assoc xa 2 xa, Int.mul_comm xa 2,
-          Int.mul_assoc 2 xa xa, ← Int.mul_assoc 2 2 (xa * xa)]; rfl
-    have hb1 : (2 * xa) * xb = 2 * (xa * xb) := Int.mul_assoc 2 xa xb
-    have hb2 : xb * (2 * xa) = 2 * (xa * xb) := by rw [Int.mul_comm xb (2 * xa), Int.mul_assoc 2 xa xb]
-    rw [ha, hb1, hb2]; omega
-  rw [hExp] at h1; change 0 ≤ xa * xa - xa * xb + xb * xb; omega
+  change 0 ≤ xa * xa - xa * xb + xb * xb
+  nlinarith [sq_nonneg (2 * xa - xb), sq_nonneg xb]
 
 /-- Exact integer power `b^n` with definitional step `bdPowInt b (n + 1) = b * bdPowInt b n`. -/
 def bdPowInt (b : Int) : Nat → Int
@@ -1017,10 +712,10 @@ def bdPowInt (b : Int) : Nat → Int
 private theorem bd_powInt_add (b : Int) (m n : Nat) :
     bdPowInt b (m + n) = bdPowInt b m * bdPowInt b n := by
   induction m with
-  | zero => simp only [Nat.zero_add, bdPowInt, Int.one_mul]
+  | zero => simp [bdPowInt]
   | succ k ih =>
     rw [Nat.succ_add]; change b * bdPowInt b (k + n) = (b * bdPowInt b k) * bdPowInt b n
-    rw [ih, Int.mul_assoc]
+    rw [ih]; ring
 
 private theorem bd_powInt_3_le_4 (n : Nat) :
     0 < bdPowInt 3 n ∧ bdPowInt 3 n ≤ bdPowInt 4 n := by
@@ -1080,7 +775,7 @@ def frontierSuperpositionTotal (M : Nat) : List (Eis × Nat) → Int
 private theorem bd_sumBranchesIf_append (p : List Bool → Bool) (xs ys : List (List Bool)) :
     sumBranchesIf p (xs ++ ys) = sumBranchesIf p xs + sumBranchesIf p ys := by
   induction xs with
-  | nil => simp only [List.nil_append, sumBranchesIf, Int.zero_add]
+  | nil => simp [sumBranchesIf]
   | cons _ _ ih => simp only [List.cons_append, sumBranchesIf]; rw [ih]; omega
 
 private theorem bd_sumBranchesIf_false (xs : List (List Bool)) :
@@ -1095,28 +790,22 @@ private theorem bd_sumBranchesIf_map (p q : List Bool → Bool) (b : Bool) (c : 
     (xs : List (List Bool)) :
     sumBranchesIf p (xs.map (fun bs => b :: bs)) = c * sumBranchesIf q xs := by
   induction xs with
-  | nil => simp only [List.map, sumBranchesIf, Int.mul_zero]
+  | nil => simp [sumBranchesIf]
   | cons x rest ih =>
-    simp only [List.map, sumBranchesIf, hp x]
-    rw [ih]
+    simp only [List.map, sumBranchesIf, hp x, ih]
     cases q x
-    · change 0 + c * sumBranchesIf q rest = c * (0 + sumBranchesIf q rest)
-      rw [Int.zero_add, Int.zero_add]
-    · change Eis.normSq (frontierBranchAmp (b :: x)) + c * sumBranchesIf q rest =
-        c * (Eis.normSq (frontierBranchAmp x) + sumBranchesIf q rest)
-      rw [hc x, Int.mul_add]
+    · simp
+    · rw [hc x]; ring
 
 private theorem bd_branchAmp_true_normSq (x : List Bool) :
     Eis.normSq (frontierBranchAmp (true :: x)) = 1 * Eis.normSq (frontierBranchAmp x) := by
   change Eis.normSq (Eis.mul coin2.m00 (frontierBranchAmp x)) = _
-  have h1 : Eis.normSq coin2.m00 = 1 := by decide
-  rw [bd_eis_normSq_mul, h1]
+  rw [bd_eis_normSq_mul, show Eis.normSq coin2.m00 = 1 by decide]
 
 private theorem bd_branchAmp_false_normSq (x : List Bool) :
     Eis.normSq (frontierBranchAmp (false :: x)) = 3 * Eis.normSq (frontierBranchAmp x) := by
   change Eis.normSq (Eis.mul coin2.m01 (frontierBranchAmp x)) = _
-  have h3 : Eis.normSq coin2.m01 = 3 := by decide
-  rw [bd_eis_normSq_mul, h3]
+  rw [bd_eis_normSq_mul, show Eis.normSq coin2.m01 = 3 by decide]
 
 /-- Antipodal-free slot predicate on `{0..23}`: `A ∩ (-A) = ∅`. -/
 def AntipodalFree (A : Fin 24 → Bool) : Prop :=
@@ -1146,18 +835,6 @@ def flipLines {α : Type} (c : Fin 24 → Option α) (m : Fin 12 → Bool) : Fin
 private theorem bd_lineOfSlot_opp : ∀ a : Fin 24, bdLineOfSlot (oppSlot a) = bdLineOfSlot a := by
   decide
 
-private theorem bd_if_bool_true {P : Prop} [d : Decidable P]
-    (h : (if P then true else false) = true) : P := by
-  cases d with
-  | isTrue hp => exact hp
-  | isFalse _ => exact Bool.noConfusion h
-
-private theorem bd_if_bool_false {P : Prop} [d : Decidable P]
-    (h : ¬ P) : (if P then true else false) = false := by
-  cases d with
-  | isTrue hp => exact absurd hp h
-  | isFalse _ => rfl
-
 /-- Headline Theorem 8 (Exact Bare-Coin Outward Transmission & Scalar `ζ_6^k` Unit-Norm Invariance):
     `2 C_diag = 1 + ω = ζ_6` has `|C_diag|^2 = 1/4` (strictly positive outward transmission),
     `2 C_off = 1 - ω` has `|C_off|^2 = 3/4` (inward reflection), and every scalar `ζ_6^k` phase
@@ -1180,11 +857,11 @@ theorem thm_bd_coin_strict_outward_transmission :
       rw [bd_eis_normSq_mul, ih]; decide
   refine ⟨rfl, rfl, by decide, by decide, by decide, ?_, ?_⟩
   · intro x
-    have h1 : Eis.normSq coin2.m00 = 1 := by decide
-    have h3 : Eis.normSq coin2.m01 = 3 := by decide
-    rw [bd_eis_normSq_mul, bd_eis_normSq_mul, h1, h3, Int.one_mul]
+    rw [bd_eis_normSq_mul, bd_eis_normSq_mul,
+        show Eis.normSq coin2.m00 = 1 by decide,
+        show Eis.normSq coin2.m01 = 3 by decide, one_mul]
     exact ⟨rfl, rfl, by omega⟩
-  · intro k x; rw [bd_eis_normSq_mul, hZ6Pow k, Int.one_mul]
+  · intro k x; rw [bd_eis_normSq_mul, hZ6Pow k, one_mul]
 
 /-- Headline Theorem 9 (Antipodal-Free Disjoint-Support & Exact `1 - (3/4)^m` Frontier-Leakage Gram):
     1. Every maximal frontier arrival set `arrivalSlots g mPrev` (`H_2(g) = mCurr ≥ mPrev`, `mCurr > 0`)
@@ -1226,12 +903,12 @@ theorem thm_bd_frontier_leakage_exact_eigenvalues :
       mCurr > 0 → mPrev ≤ mCurr → lorentzHeight g = mCurr →
       AntipodalFree (arrivalSlots g mPrev) := by
     intro g mCurr mPrev hPos hMono hHeight a ha
-    have hArr : lorentzHeight (mat5Mul g (transport (oppSlot a))) ≤ mPrev :=
-      bd_if_bool_true ha
-    have hNotOpp : ¬ (lorentzHeight (mat5Mul g (transport (oppSlot (oppSlot a)))) ≤ mPrev) := by
-      rw [(thm_24_facets_geometry.2.1 a).1]
-      exact ((thm_bd_frontier_no_antipodal_arrival_pair g mCurr mPrev hPos hMono hHeight a).1 hArr).2.2.2
-    exact bd_if_bool_false hNotOpp
+    unfold arrivalSlots at ha ⊢
+    by_cases hArr : lorentzHeight (mat5Mul g (transport (oppSlot a))) ≤ mPrev
+    · rw [(thm_24_facets_geometry.2.1 a).1]
+      have hNotOpp := ((thm_bd_frontier_no_antipodal_arrival_pair g mCurr mPrev hPos hMono hHeight a).1 hArr).2.2.2
+      simp [hNotOpp]
+    · simp [hArr] at ha
   have hDisjoint : ∀ {α : Type} (A : Fin 24 → Bool), AntipodalFree A →
       (∀ (c : Fin 24 → Option α), SupportedOn A c →
         ∀ a : Fin 24, ¬ (c a ≠ none ∧ c (oppSlot a) ≠ none)) ∧
@@ -1243,20 +920,13 @@ theorem thm_bd_frontier_leakage_exact_eigenvalues :
     · intro c hSupp a hBoth
       have h1 := hSupp a hBoth.1
       have h2 := hSupp (oppSlot a) hBoth.2
-      have hF := hFree a h1
-      rw [hF] at h2
-      exact absurd h2 (by decide)
+      rw [hFree a h1] at h2; cases h2
     · intro c1 c2 hSupp1 hSupp2 m1 m2 hFlip
       have hNoneOfFalse : ∀ (c : Fin 24 → Option α), SupportedOn A c →
-          ∀ x : Fin 24, A x = false → c x = none := by
-        intro c hS x hAx
+          ∀ x : Fin 24, A x = false → c x = none := fun c hS x hAx => by
         cases hcx : c x with
         | none => rfl
-        | some _ =>
-          have hne : c x ≠ none := by rw [hcx]; intro h; cases h
-          have ht := hS x hne
-          rw [hAx] at ht
-          exact absurd ht (by decide)
+        | some _ => have ht := hS x (by simp [hcx]); rw [hAx] at ht; cases ht
       have hPoint : ∀ a : Fin 24,
           c1 a = c2 a ∧ (c1 a ≠ none → m1 (bdLineOfSlot a) = m2 (bdLineOfSlot a)) := by
         intro a
@@ -1266,29 +936,23 @@ theorem thm_bd_frontier_leakage_exact_eigenvalues :
           have h2 := hNoneOfFalse c2 hSupp2 a hAa
           exact ⟨by rw [h1, h2], fun hne => absurd h1 hne⟩
         | true =>
-          have hOppF : A (oppSlot a) = false := hFree a hAa
-          have ho1 : c1 (oppSlot a) = none := hNoneOfFalse c1 hSupp1 (oppSlot a) hOppF
-          have ho2 : c2 (oppSlot a) = none := hNoneOfFalse c2 hSupp2 (oppSlot a) hOppF
-          have hAt : flipLines c1 m1 a = flipLines c2 m2 a := congrFun hFlip a
-          have hOpp : flipLines c1 m1 (oppSlot a) = flipLines c2 m2 (oppSlot a) :=
-            congrFun hFlip (oppSlot a)
+          have ho1 := hNoneOfFalse c1 hSupp1 (oppSlot a) (hFree a hAa)
+          have ho2 := hNoneOfFalse c2 hSupp2 (oppSlot a) (hFree a hAa)
+          have hAt := congrFun hFlip a
+          have hOpp := congrFun hFlip (oppSlot a)
           unfold flipLines at hAt hOpp
           rw [bd_lineOfSlot_opp a, (thm_24_facets_geometry.2.1 a).1] at hOpp
           cases hb1 : m1 (bdLineOfSlot a) <;> cases hb2 : m2 (bdLineOfSlot a)
-          · rw [hb1, hb2] at hAt
-            exact ⟨hAt, fun _ => rfl⟩
+          · rw [hb1, hb2] at hAt; exact ⟨hAt, fun _ => rfl⟩
           · rw [hb1, hb2] at hAt hOpp
-            change c1 a = c2 (oppSlot a) at hAt
-            change c1 (oppSlot a) = c2 a at hOpp
+            change c1 a = c2 (oppSlot a) at hAt; change c1 (oppSlot a) = c2 a at hOpp
             rw [ho2] at hAt; rw [ho1] at hOpp
             exact ⟨by rw [hAt, ← hOpp], fun hne => absurd hAt hne⟩
           · rw [hb1, hb2] at hAt hOpp
-            change c1 (oppSlot a) = c2 a at hAt
-            change c1 a = c2 (oppSlot a) at hOpp
+            change c1 (oppSlot a) = c2 a at hAt; change c1 a = c2 (oppSlot a) at hOpp
             rw [ho1] at hAt; rw [ho2] at hOpp
             exact ⟨by rw [hOpp, ← hAt], fun hne => absurd hOpp hne⟩
-          · rw [hb1, hb2] at hOpp
-            exact ⟨hOpp, fun _ => rfl⟩
+          · rw [hb1, hb2] at hOpp; exact ⟨hOpp, fun _ => rfl⟩
       exact ⟨funext (fun a => (hPoint a).1), fun a ha => (hPoint a).2 ha⟩
   have hExact : ∀ m : Nat,
       frontierTotalWeight m = bdPowInt 4 m ∧
@@ -1340,9 +1004,7 @@ theorem thm_bd_frontier_leakage_exact_eigenvalues :
       4 * frontierSuperpositionOutward M cfg ≥ frontierSuperpositionTotal M cfg := by
     intro M cfg hCfg
     induction cfg with
-    | nil =>
-      change 4 * (0 : Int) ≥ 0
-      omega
+    | nil => change 4 * (0 : Int) ≥ 0; omega
     | cons p rest ih =>
       cases p with | mk amp m =>
       obtain ⟨⟨hm1, hmM⟩, hRest⟩ := hCfg
@@ -1351,45 +1013,20 @@ theorem thm_bd_frontier_leakage_exact_eigenvalues :
       have hPow : bdPowInt 4 (M - m) * bdPowInt 4 m = bdPowInt 4 M := by
         rw [← bd_powInt_add, Nat.sub_add_cancel hmM]
       have h4Pos : 0 ≤ bdPowInt 4 (M - m) := by have h := bd_powInt_3_le_4 (M - m); omega
-      have hStep1 := Int.mul_nonneg h4Pos (show 0 ≤ 4 * frontierOutwardWeight m - bdPowInt 4 m by omega)
-      rw [Int.mul_sub, hPow, ← Int.mul_assoc (bdPowInt 4 (M - m)) 4 (frontierOutwardWeight m),
-          Int.mul_comm (bdPowInt 4 (M - m)) 4,
-          Int.mul_assoc 4 (bdPowInt 4 (M - m)) (frontierOutwardWeight m)] at hStep1
-      have hStep2 := Int.mul_nonneg (bd_eis_normSq_nonneg amp)
-        (show 0 ≤ 4 * (bdPowInt 4 (M - m) * frontierOutwardWeight m) - bdPowInt 4 M by omega)
-      rw [Int.mul_sub, ← Int.mul_assoc (Eis.normSq amp) 4 _,
-          Int.mul_comm (Eis.normSq amp) 4, Int.mul_assoc 4 (Eis.normSq amp) _] at hStep2
+      have hAmpNonneg := bd_eis_normSq_nonneg amp
       change 4 * (Eis.normSq amp * (bdPowInt 4 (M - m) * frontierOutwardWeight m) +
           frontierSuperpositionOutward M rest) ≥
         Eis.normSq amp * bdPowInt 4 M + frontierSuperpositionTotal M rest
-      omega
+      have h1 : bdPowInt 4 M ≤ 4 * (bdPowInt 4 (M - m) * frontierOutwardWeight m) := by nlinarith
+      nlinarith
   exact ⟨hArrFree, fun {α} A hFree => hDisjoint A hFree, hExact, by decide, hGap, hSup⟩
 
 
 /-! ## Section 4: Exact Zero-Parameter `ℤ[ω][1/13]` Composite Doublon Certificate (`P = 0`) -/
 
-private theorem bd_eis_scale_add (k : Int) (x y : Eis) :
-    Eis.add (Eis.scale k x) (Eis.scale k y) = Eis.scale k (Eis.add x y) := by
-  cases x; cases y; simp only [Eis.add, Eis.scale, Int.mul_add]
-
-private theorem bd_eis_scale_scale (c d : Int) (x : Eis) :
-    Eis.scale c (Eis.scale d x) = Eis.scale (c * d) x := by
-  cases x; simp only [Eis.scale, Int.mul_assoc]
-
-private theorem bd_eis_scale_comm (c d : Int) (x : Eis) :
-    Eis.scale c (Eis.scale d x) = Eis.scale d (Eis.scale c x) := by
-  rw [bd_eis_scale_scale, bd_eis_scale_scale, Int.mul_comm]
-
-private theorem bd_eis_mul_scale_right (k : Int) (x y : Eis) :
-    Eis.mul x (Eis.scale k y) = Eis.scale k (Eis.mul x y) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [Eis.mul, Eis.scale, Eis.mk.injEq, Int.mul_add, Int.mul_sub]
-  have h1 : xa * (k * ya) = k * (xa * ya) := by rw [← Int.mul_assoc, Int.mul_comm xa k, Int.mul_assoc]
-  have h2 : xb * (k * yb) = k * (xb * yb) := by rw [← Int.mul_assoc, Int.mul_comm xb k, Int.mul_assoc]
-  have h3 : xa * (k * yb) = k * (xa * yb) := by rw [← Int.mul_assoc, Int.mul_comm xa k, Int.mul_assoc]
-  have h4 : xb * (k * ya) = k * (xb * ya) := by rw [← Int.mul_assoc, Int.mul_comm xb k, Int.mul_assoc]
-  rw [h1, h2, h3, h4]; exact ⟨rfl, rfl⟩
+private theorem bd_eis_scale_eq_mul (k : Int) (x : Eis) :
+    Eis.scale k x = Eis.ofInt k * x := by
+  cases x; change Eis.mk _ _ = Eis.mul _ _; ext <;> simp [Eis.mul, Eis.ofInt]
 
 /-- Exact `P = 0` `M_meet sym(+)` composite doublon eigenvalue numerator `13 λ = 7 + 15 ω ∈ ℤ[ω]`. -/
 def doublonLam13 : Eis := ⟨7, 15⟩
@@ -1449,30 +1086,20 @@ def bdGeomScaled (r c : Int) : Nat → Int
 private theorem bd_tensorCoin4Vec_scale (c : Int) (v : Fin 4 → Eis) (out : Fin 4) :
     tensorCoin4Vec (fun s => Eis.scale c (v s)) out = Eis.scale c (tensorCoin4Vec v out) := by
   unfold tensorCoin4Vec
-  rw [bd_eis_mul_scale_right, bd_eis_mul_scale_right,
-      bd_eis_mul_scale_right, bd_eis_mul_scale_right,
-      bd_eis_scale_add, bd_eis_scale_add, bd_eis_scale_add]
+  change _ * Eis.scale c _ + _ * Eis.scale c _ + _ * Eis.scale c _ + _ * Eis.scale c _ =
+    Eis.scale c (_ * _ + _ * _ + _ * _ + _ * _)
+  simp only [bd_eis_scale_eq_mul]; ring
 
 private theorem bd_geom_series_closed (r c : Int) (N : Nat) :
     (r - 1) * bdGeomScaled r c N = c * (bdPowInt r N - 1) := by
   induction N with
-  | zero =>
-    change (r - 1) * 0 = c * 0
-    rw [Int.mul_zero, Int.mul_zero]
+  | zero => simp [bdGeomScaled, bdPowInt]
   | succ k ih =>
     change (r - 1) * (r * bdGeomScaled r c k + c) = c * (r * bdPowInt r k - 1)
-    have h1 : (r - 1) * (r * bdGeomScaled r c k + c) =
-        r * ((r - 1) * bdGeomScaled r c k) + (r - 1) * c := by
-      rw [Int.mul_add, ← Int.mul_assoc (r - 1) r (bdGeomScaled r c k),
-          Int.mul_comm (r - 1) r, Int.mul_assoc r (r - 1) (bdGeomScaled r c k)]
-    rw [h1, ih]
-    have hL1 : r * (c * (bdPowInt r k - 1)) = c * (r * bdPowInt r k) - c * r := by
-      rw [Int.mul_sub, Int.mul_one, Int.mul_sub,
-          ← Int.mul_assoc r c (bdPowInt r k), Int.mul_comm r c, Int.mul_assoc c r (bdPowInt r k)]
-    have hL2 : (r - 1) * c = c * r - c := by rw [Int.sub_mul, Int.one_mul, Int.mul_comm r c]
-    have hR : c * (r * bdPowInt r k - 1) = c * (r * bdPowInt r k) - c := by
-      rw [Int.mul_sub, Int.mul_one]
-    rw [hL1, hL2, hR]; omega
+    calc (r - 1) * (r * bdGeomScaled r c k + c)
+        = r * ((r - 1) * bdGeomScaled r c k) + (r - 1) * c := by ring
+      _ = r * (c * (bdPowInt r k - 1)) + (r - 1) * c := by rw [ih]
+      _ = c * (r * bdPowInt r k - 1) := by ring
 
 /-- Headline Theorem 10 (Exact `ℤ[ω][1/13]` Doublon Unit-Modulus & Spinor-Norm Certificate):
     `λ = (7 + 15 ω)/13 = (-1 + 15 i √3)/26` lies identically on the unit circle (`|7 + 15 ω|^2 = 169`),
@@ -1540,52 +1167,109 @@ theorem thm_bd_doublon_infinite_line_eigenstate :
       Eis.scale 169 (tensorCoin4Vec doublonU ⟨1, by decide⟩) =
         Eis.scale 4 (Eis.mul doublonLam13 (doublonU ⟨1, by decide⟩)) := by
     decide
+  have hOfMul : ∀ c d : Int, Eis.ofInt (c * d) = Eis.ofInt c * Eis.ofInt d := fun c d => by
+    change Eis.mk _ _ = Eis.mul _ _; ext <;> simp [Eis.mul, Eis.ofInt]
   refine ⟨by decide, ?_⟩
   intro M hM
   have hM1 : M + 1 - 1 = M := by omega
   have hM2 : M + 1 - 2 + 1 = M := by omega
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
   · unfold doublonState doublonState0
-    rw [hM1, bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 13, bd_eis_scale_comm 4]
-    exact congrArg (Eis.scale (bdPowInt 13 M)) hBase.1
+    rw [hM1, bd_tensorCoin4Vec_scale]
+    change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+    have hb := hBase.1; change Eis.scale 13 _ = Eis.scale 4 (doublonLam13 * doublonA0) at hb
+    simp only [bd_eis_scale_eq_mul] at hb ⊢
+    calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 M) * tensorCoin4Vec doublonU ⟨2, by decide⟩)
+        = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨2, by decide⟩) := by ring
+      _ = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 4 * (doublonLam13 * doublonA0)) := by rw [hb]
+      _ = _ := by ring
   · unfold doublonState
-    rw [hM1, bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 13, bd_eis_scale_comm 4]
-    exact congrArg (Eis.scale (bdPowInt 13 M)) hBase.2.1
+    rw [hM1, bd_tensorCoin4Vec_scale]
+    change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+    have hb := hBase.2.1; change Eis.scale 13 _ = Eis.scale 4 (doublonLam13 * _) at hb
+    simp only [bd_eis_scale_eq_mul] at hb ⊢
+    calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 M) * tensorCoin4Vec doublonU ⟨0, by decide⟩)
+        = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨0, by decide⟩) := by ring
+      _ = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨0, by decide⟩)) := by rw [hb]
+      _ = _ := by ring
   · unfold doublonState doublonState0
-    rw [hM1, bd_eis_mul_scale_right, bd_eis_mul_scale_right, bd_eis_scale_add,
-        bd_eis_mul_scale_right, bd_eis_scale_comm 26, bd_eis_scale_comm 4]
-    exact congrArg (Eis.scale (bdPowInt 13 M)) hBase.2.2.1
+    rw [hM1]
+    change Eis.scale 26 (doublonMeet2.m00 * Eis.scale _ _ + doublonMeet2.m01 * Eis.scale _ _) =
+      Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+    have hb := hBase.2.2.1
+    change Eis.scale 26 (doublonMeet2.m00 * _ + doublonMeet2.m01 * _) =
+      Eis.scale 4 (doublonLam13 * _) at hb
+    simp only [bd_eis_scale_eq_mul] at hb ⊢
+    calc Eis.ofInt 26 * (doublonMeet2.m00 * (Eis.ofInt (bdPowInt 13 M) * doublonA0) +
+            doublonMeet2.m01 * (Eis.ofInt (bdPowInt 13 M) * doublonA0))
+        = Eis.ofInt (bdPowInt 13 M) *
+            (Eis.ofInt 26 * (doublonMeet2.m00 * doublonA0 + doublonMeet2.m01 * doublonA0)) := by ring
+      _ = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨1, by decide⟩)) := by rw [hb]
+      _ = _ := by ring
   · unfold doublonState
-    rw [hM1, bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_scale 13, bd_eis_scale_comm 4]
+    rw [hM1, bd_tensorCoin4Vec_scale]
     have hP : 13 * bdPowInt 13 (M + 1 - 2) = bdPowInt 13 M := by
       change bdPowInt 13 (M + 1 - 2 + 1) = bdPowInt 13 M; rw [hM2]
-    rw [hP]; exact congrArg (Eis.scale (bdPowInt 13 M)) hBase.2.2.2.1
+    change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+    have hb := hBase.2.2.2.1; change _ = Eis.scale 4 (doublonLam13 * _) at hb
+    simp only [bd_eis_scale_eq_mul] at hb ⊢
+    rw [← hP, hOfMul]
+    calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 (M + 1 - 2)) * tensorCoin4Vec doublonU ⟨2, by decide⟩)
+        = Eis.ofInt 13 * Eis.ofInt (bdPowInt 13 (M + 1 - 2)) *
+            (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨2, by decide⟩)) := by rw [← hb]; ring
+      _ = _ := by ring
   · unfold doublonState
-    rw [hM1, bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 13, bd_eis_scale_comm 4]
-    exact congrArg (Eis.scale (bdPowInt 13 M)) hBase.2.2.2.2.1
+    rw [hM1, bd_tensorCoin4Vec_scale]
+    change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+    have hb := hBase.2.2.2.2.1; change Eis.scale 13 _ = Eis.scale 4 (doublonLam13 * _) at hb
+    simp only [bd_eis_scale_eq_mul] at hb ⊢
+    calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 M) * tensorCoin4Vec doublonU ⟨3, by decide⟩)
+        = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨3, by decide⟩) := by ring
+      _ = Eis.ofInt (bdPowInt 13 M) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨3, by decide⟩)) := by rw [hb]
+      _ = _ := by ring
   · intro m hm2 hmM
     have hPrev : M + 1 - (m - 1) = (M + 1 - m) + 1 := by omega
     have hNext : (M + 1 - (m + 1)) + 1 = M + 1 - m := by omega
     refine ⟨?_, ?_, ?_, ?_⟩
-    · unfold doublonState
-      rw [bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 13, bd_eis_scale_comm 4]
-      exact congrArg (Eis.scale (bdPowInt 13 (M + 1 - m))) hBase.2.1
-    · unfold doublonState
-      rw [hPrev, bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 4]
-      change Eis.scale 13 (Eis.scale (13 * bdPowInt 13 (M + 1 - m))
-          (tensorCoin4Vec doublonU ⟨1, by decide⟩)) = _
-      rw [bd_eis_scale_scale 13, ← Int.mul_assoc 13 13 (bdPowInt 13 (M + 1 - m)),
-          Int.mul_comm (13 * 13) (bdPowInt 13 (M + 1 - m)),
-          ← bd_eis_scale_scale (bdPowInt 13 (M + 1 - m)) (13 * 13)]
-      exact congrArg (Eis.scale (bdPowInt 13 (M + 1 - m))) hBase.2.2.2.2.2
-    · unfold doublonState
-      rw [bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_scale 13, bd_eis_scale_comm 4]
+    · unfold doublonState; rw [bd_tensorCoin4Vec_scale]
+      change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+      have hb := hBase.2.1; change Eis.scale 13 _ = Eis.scale 4 (doublonLam13 * _) at hb
+      simp only [bd_eis_scale_eq_mul] at hb ⊢
+      calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 (M + 1 - m)) * tensorCoin4Vec doublonU ⟨0, by decide⟩)
+          = Eis.ofInt (bdPowInt 13 (M + 1 - m)) * (Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨0, by decide⟩) := by ring
+        _ = Eis.ofInt (bdPowInt 13 (M + 1 - m)) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨0, by decide⟩)) := by rw [hb]
+        _ = _ := by ring
+    · unfold doublonState; rw [hPrev, bd_tensorCoin4Vec_scale]
+      change Eis.scale 13 (Eis.scale (13 * bdPowInt 13 (M + 1 - m)) _) =
+        Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+      have hb := hBase.2.2.2.2.2; change Eis.scale 169 _ = Eis.scale 4 (doublonLam13 * _) at hb
+      simp only [bd_eis_scale_eq_mul] at hb ⊢
+      rw [hOfMul]
+      rw [show Eis.ofInt 169 = Eis.ofInt 13 * Eis.ofInt 13 by decide] at hb
+      calc Eis.ofInt 13 * (Eis.ofInt 13 * Eis.ofInt (bdPowInt 13 (M + 1 - m)) * tensorCoin4Vec doublonU ⟨1, by decide⟩)
+          = Eis.ofInt (bdPowInt 13 (M + 1 - m)) *
+              (Eis.ofInt 13 * Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨1, by decide⟩) := by ring
+        _ = Eis.ofInt (bdPowInt 13 (M + 1 - m)) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨1, by decide⟩)) := by rw [hb]
+        _ = _ := by ring
+    · unfold doublonState; rw [bd_tensorCoin4Vec_scale]
       have hP : 13 * bdPowInt 13 (M + 1 - (m + 1)) = bdPowInt 13 (M + 1 - m) := by
         change bdPowInt 13 ((M + 1 - (m + 1)) + 1) = bdPowInt 13 (M + 1 - m); rw [hNext]
-      rw [hP]; exact congrArg (Eis.scale (bdPowInt 13 (M + 1 - m))) hBase.2.2.2.1
-    · unfold doublonState
-      rw [bd_tensorCoin4Vec_scale, bd_eis_mul_scale_right, bd_eis_scale_comm 13, bd_eis_scale_comm 4]
-      exact congrArg (Eis.scale (bdPowInt 13 (M + 1 - m))) hBase.2.2.2.2.1
+      change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+      have hb := hBase.2.2.2.1; change _ = Eis.scale 4 (doublonLam13 * _) at hb
+      simp only [bd_eis_scale_eq_mul] at hb ⊢
+      rw [← hP, hOfMul]
+      calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 (M + 1 - (m + 1))) * tensorCoin4Vec doublonU ⟨2, by decide⟩)
+          = Eis.ofInt 13 * Eis.ofInt (bdPowInt 13 (M + 1 - (m + 1))) *
+              (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨2, by decide⟩)) := by rw [← hb]; ring
+        _ = _ := by ring
+    · unfold doublonState; rw [bd_tensorCoin4Vec_scale]
+      change Eis.scale 13 (Eis.scale _ _) = Eis.scale 4 (doublonLam13 * Eis.scale _ _)
+      have hb := hBase.2.2.2.2.1; change Eis.scale 13 _ = Eis.scale 4 (doublonLam13 * _) at hb
+      simp only [bd_eis_scale_eq_mul] at hb ⊢
+      calc Eis.ofInt 13 * (Eis.ofInt (bdPowInt 13 (M + 1 - m)) * tensorCoin4Vec doublonU ⟨3, by decide⟩)
+          = Eis.ofInt (bdPowInt 13 (M + 1 - m)) * (Eis.ofInt 13 * tensorCoin4Vec doublonU ⟨3, by decide⟩) := by ring
+        _ = Eis.ofInt (bdPowInt 13 (M + 1 - m)) * (Eis.ofInt 4 * (doublonLam13 * doublonU ⟨3, by decide⟩)) := by rw [hb]
+        _ = _ := by ring
 
 /-- Exact squared norm `‖doublonState M m‖^2` of the `13^M`-scaled doublon 4-spinor at shell `m`. -/
 def doublonSiteNormSq (M m : Nat) : Int :=
@@ -1605,12 +1289,7 @@ def doublonIprSumAt (M : Nat) : Nat → Int
 
 private theorem bd_eis_normSq_scale (c : Int) (x : Eis) :
     Eis.normSq (Eis.scale c x) = (c * c) * Eis.normSq x := by
-  have hSc : Eis.scale c x = Eis.mul (Eis.ofInt c) x := by
-    cases x; simp only [Eis.scale, Eis.mul, Eis.ofInt, Eis.mk.injEq, Int.zero_mul]
-    exact ⟨by omega, by omega⟩
-  have hN : Eis.normSq (Eis.ofInt c) = c * c := by
-    simp only [Eis.normSq, Eis.ofInt, Int.mul_zero]; omega
-  rw [hSc, bd_eis_normSq_mul, hN]
+  cases x; simp only [Eis.normSq, Eis.scale]; ring
 
 private theorem bd_powInt_13_sq (k : Nat) :
     bdPowInt 13 k * bdPowInt 13 k = bdPowInt 169 k := by
@@ -1618,55 +1297,37 @@ private theorem bd_powInt_13_sq (k : Nat) :
   | zero => decide
   | succ m ih =>
     change (13 * bdPowInt 13 m) * (13 * bdPowInt 13 m) = 169 * bdPowInt 169 m
-    rw [Int.mul_assoc 13 (bdPowInt 13 m) (13 * bdPowInt 13 m),
-        ← Int.mul_assoc (bdPowInt 13 m) 13 (bdPowInt 13 m),
-        Int.mul_comm (bdPowInt 13 m) 13,
-        Int.mul_assoc 13 (bdPowInt 13 m) (bdPowInt 13 m),
-        ← Int.mul_assoc 13 13 (bdPowInt 13 m * bdPowInt 13 m), ih]
-    rfl
+    calc (13 * bdPowInt 13 m) * (13 * bdPowInt 13 m)
+        = 169 * (bdPowInt 13 m * bdPowInt 13 m) := by ring
+      _ = 169 * bdPowInt 169 m := by rw [ih]
 
 private theorem bd_doublonSiteNormSq_eq (M m : Nat) :
     doublonSiteNormSq M m = bdPowInt 169 (M + 1 - m) * doublonCellNormSq := by
   unfold doublonSiteNormSq doublonState doublonCellNormSq
-  rw [bd_eis_normSq_scale, bd_eis_normSq_scale, bd_eis_normSq_scale, bd_eis_normSq_scale,
-      bd_powInt_13_sq, Int.mul_add, Int.mul_add, Int.mul_add]
+  simp only [bd_eis_normSq_scale, bd_powInt_13_sq]; ring
 
 private theorem bd_doublonSiteNormSq_shift (M j : Nat) (hj : j ≤ M + 1) :
     doublonSiteNormSq (M + 1) j = 169 * doublonSiteNormSq M j := by
-  rw [bd_doublonSiteNormSq_eq (M + 1) j, bd_doublonSiteNormSq_eq M j]
-  have hExp : (M + 1) + 1 - j = (M + 1 - j) + 1 := by omega
-  rw [hExp]
-  change (169 * bdPowInt 169 (M + 1 - j)) * doublonCellNormSq =
-    169 * (bdPowInt 169 (M + 1 - j) * doublonCellNormSq)
-  rw [Int.mul_assoc]
+  rw [bd_doublonSiteNormSq_eq (M + 1) j, bd_doublonSiteNormSq_eq M j,
+      show (M + 1) + 1 - j = (M + 1 - j) + 1 by omega]
+  change (169 * bdPowInt 169 (M + 1 - j)) * doublonCellNormSq = _
+  ring
 
 private theorem bd_doublonTailSumAt_shift (M k : Nat) (hk : k ≤ M + 1) :
     doublonTailSumAt (M + 1) k = 169 * doublonTailSumAt M k := by
   induction k with
-  | zero => change (0 : Int) = 169 * 0; rfl
+  | zero => rfl
   | succ j ih =>
     unfold doublonTailSumAt
-    rw [ih (by omega), bd_doublonSiteNormSq_shift M (j + 1) (by omega)]
-    omega
+    rw [ih (by omega), bd_doublonSiteNormSq_shift M (j + 1) (by omega)]; ring
 
 private theorem bd_doublonIprSumAt_shift (M k : Nat) (hk : k ≤ M + 1) :
     doublonIprSumAt (M + 1) k = 28561 * doublonIprSumAt M k := by
   induction k with
-  | zero => change (0 : Int) = 28561 * 0; rfl
+  | zero => rfl
   | succ j ih =>
     unfold doublonIprSumAt
-    rw [ih (by omega), bd_doublonSiteNormSq_shift M (j + 1) (by omega)]
-    let s : Int := doublonSiteNormSq M (j + 1)
-    have hSq : 2 * (169 * s) * (169 * s) = 28561 * (2 * s * s) := by
-      rw [Int.mul_assoc 2 (169 * s) (169 * s), Int.mul_assoc 169 s (169 * s),
-          ← Int.mul_assoc s 169 s, Int.mul_comm s 169, Int.mul_assoc 169 s s,
-          ← Int.mul_assoc 169 169 (s * s), ← Int.mul_assoc 2 (169 * 169) (s * s),
-          Int.mul_comm 2 (169 * 169), Int.mul_assoc (169 * 169) 2 (s * s),
-          ← Int.mul_assoc 2 s s]
-      rfl
-    change 28561 * doublonIprSumAt M j + 2 * (169 * s) * (169 * s) =
-      28561 * (doublonIprSumAt M j + 2 * s * s)
-    rw [hSq]; omega
+    rw [ih (by omega), bd_doublonSiteNormSq_shift M (j + 1) (by omega)]; ring
 
 /-- Headline Theorem 12 (Exact Eigenstate Geometric-Series Normalization `p(r = 0) = 6/13` & `IPR = 5118/14365`):
     ties the literal finite-shell sums `doublonTailSumAt` and `doublonIprSumAt` directly to
@@ -1701,9 +1362,9 @@ theorem thm_bd_doublon_exact_norm_and_ipr :
       change doublonTailSumAt (m + 1) (m + 1) + 2 * doublonSiteNormSq (m + 1) (m + 2) =
         169 * bdGeomScaled 169 (2 * doublonCellNormSq) (m + 1) + 2 * doublonCellNormSq
       rw [bd_doublonTailSumAt_shift m (m + 1) (Nat.le_refl _), ih,
-          bd_doublonSiteNormSq_eq (m + 1) (m + 2)]
-      have hz : (m + 1) + 1 - (m + 2) = 0 := by omega
-      rw [hz]; simp only [bdPowInt, Int.one_mul]
+          bd_doublonSiteNormSq_eq (m + 1) (m + 2),
+          show (m + 1) + 1 - (m + 2) = 0 by omega]
+      simp [bdPowInt]
   have hIpr : ∀ n : Nat,
       doublonIprSumAt n (n + 1) =
         bdGeomScaled 28561 (2 * doublonCellNormSq * doublonCellNormSq) (n + 1) := by
@@ -1716,11 +1377,13 @@ theorem thm_bd_doublon_exact_norm_and_ipr :
         28561 * bdGeomScaled 28561 (2 * doublonCellNormSq * doublonCellNormSq) (m + 1) +
           2 * doublonCellNormSq * doublonCellNormSq
       rw [bd_doublonIprSumAt_shift m (m + 1) (Nat.le_refl _), ih,
-          bd_doublonSiteNormSq_eq (m + 1) (m + 2)]
-      have hz : (m + 1) + 1 - (m + 2) = 0 := by omega
-      rw [hz]; simp only [bdPowInt, Int.one_mul]
+          bd_doublonSiteNormSq_eq (m + 1) (m + 2),
+          show (m + 1) + 1 - (m + 2) = 0 by omega]
+      simp [bdPowInt]
   refine ⟨fun n => ⟨hTail n, by rw [hTail n]; exact bd_geom_series_closed 169 (2 * doublonCellNormSq) (n + 1)⟩,
     fun n => ⟨hIpr n, by rw [hIpr n]; exact bd_geom_series_closed 28561 (2 * doublonCellNormSq * doublonCellNormSq) (n + 1)⟩,
     by decide⟩
 
 end Vibe
+
+end
