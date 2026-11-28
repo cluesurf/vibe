@@ -1,11 +1,15 @@
-import Vibe.Algebra
-import Vibe.Geometry
-import Vibe.CoxeterTransport
+module
+
+public import Vibe.Algebra
+public import Vibe.Geometry
+public import Vibe.CoxeterTransport
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Unconditional `{3,4,3,4}` Cusp Growth & Wall-Link Discharge (`board-0053`, Lean P4)
 
-Zero-dependency Lean 4 derivation of the exact spherical ball-shell counts `|∂B_r|` (`1, 24, 456, 8376, ...`),
+Lean 4 + Mathlib derivation of the exact spherical ball-shell counts `|∂B_r|` (`1, 24, 456, 8376, ...`),
 parabolic cusp-shell counts `N_D` (`1, 18, 330, 6034, ...`, matching `exact-cusp.ts` and `E-GMT-0041`), and
 single-face lateral link counts `l_D` (`1, 4, 20, 100, ...` = `cuspLateralLinks D`) directly from the
 exact `O^+(4,1; ℤ[√2])` Coxeter geometry of `{3,4,3,4}` (`Vibe.CoxeterTransport`), discharging EVERY
@@ -15,275 +19,73 @@ conditional cusp-growth hypothesis in `Vibe.Geometry` unconditionally:
    - Proves `2 B(n_a, n_b) = 2 (r_a · r_b) - 2` across all `24 × 24 = 576` facet pairs of the base
      24-cell: `2` on the diagonal (`F_a^2 = I_5`), `0` on the `96` adjacent pairs `adj24 a b = true`
      (dihedral angle `π/2`), and `≤ -2` on all non-adjacent pairs (parallel/ultraparallel, infinite order).
-   - Symbolic `5 × 5` matrix proof that orthogonal facet reflections commute (`F_n F_m = F_m F_n`),
-     certifying that `W_cell = ⟨F_0, ..., F_23⟩` is the exact Right-Angled Coxeter Group `W(Γ_24)`.
+   - Symbolic `5 × 5` matrix proof (via Mathlib `Finset.sum` & `CommRing ZSqrt2`) that orthogonal facet
+     reflections commute (`F_n F_m = F_m F_n`), certifying that `W_cell = ⟨F_0, ..., F_23⟩` is the exact
+     Right-Angled Coxeter Group `W(Γ_24)`.
    - Exact parabolic cusp-layer stabilizer: `F_a v = v ↔ a ∈ L = {0, 1, 4, 5, 8, 9}` (6 octahedral
      layer facets forming the `{4,3,4}` vertex figure), while all 18 downward facets strictly decrease
      horospherical pairing `2 B(F_a c_0, v) ≤ -6 < -2`.
    - Exact 3D wall hyperplane `H_0 = n_0^⊥`: the 8 facets `W = Adj(0) = {4, 5, 8, 9, 12, 13, 16, 17}`
      all commute with `F_0` and split `4 + 4` into `W ∩ L` and `W \ L`.
-2. **Direct `O^+(4,1; ℤ[√2])` Matrix-Level Proof of `|∂B_0| = 1, |∂B_1| = 24, |∂B_2| = 456`:**
-   - Exact closed-form 2-hop center formula `F_a (F_b c_0) = c_0 + 2 n_b + (6 - 4 (r_a · r_b)) n_a`,
-     strict hyperbolic separation `2 B(c, c_0) ∈ {-2}, {-6}, {-10, -18, -26, -34}`, and exact
-     algebraic distinctness of all `24` length-1 and all `456` canonical length-2 centers.
-3. **Exact Clique `f`-Vectors & Uniform Cartier-Foata Transfer Matrices (`M_24` & `M_wall`):**
-   - Full 24-cell clique `f`-vector `(1, 24, 96, 96, 0)` (zero 4-cliques), layer `(1, 6, 12, 8)`,
-     downward `(1, 18, 60, 52)`, wall cube `Q_3` `(1, 8, 12, 0)` (zero 3-cliques), wall-layer `(1, 4, 4)`,
-     wall-downward `(1, 4, 4)`.
-   - Exact Cartier-Foata right-descent disjointness matrices `M_24 = [[1,15,44,36],[1,19,63,54],[1,21,75,68]]`
-     (proved uniform across ALL `24 + 96 + 96` cliques via exact `W(B_4)` canonicalization to the 4
-     coordinate orbits `{0}`, `{0,4}`, `{0,4,8}`, `{0,4,12}`) and `M_wall = [[1,4,3],[1,6,7]]`
-     (proved uniform across ALL `8 + 12` wall cliques).
-4. **Exact Cubic Steinberg Recurrence, Sharp Rate Bounds & Unconditional `Vibe.Geometry` Discharge:**
-   - Proves for ALL `n : Nat` the exact Steinberg cubic recurrence
-     `x(n + 4) + 51 x(n + 2) = 21 x(n + 3) + 23 x(n + 1)` for `a_1, a_2, a_3`, `ballShell`, and `cuspShell`,
-     plus exact Steinberg inclusion-exclusion identities `b_k` connecting `ballShell` and `cuspShell`.
-   - Proves `cuspShell 0 = 1` and `∀ D, cuspShell (D + 1) ≥ 18 * cuspShell D`, sharper asymptotic
-     rate brackets `18.27 ≤ N_{D+1}/N_D ≤ 18.34` (`D ≥ 1`), `18.27 ≤ |∂B_{r+1}|/|∂B_r| ≤ 19` (`r ≥ 1`),
-     and characteristic-polynomial root bracket `18.2787 < λ_{3434} < 18.2788`.
-   - Proves `∀ D : Nat, wallCusp D = cuspLateralLinks D` (`1, 4, 20, 100, ...` = `4 * 5^{D-1}` for `D ≥ 1`).
-   - Discharges `thm5_shell_exp_lower_bound`, `thm5_resistance_exp_lower_bound`,
-     `thm5_resistance_strictly_increasing`, `thm5_resistance_unbounded`, `thm5_cusp_lateral_cumulative`,
-     `thm5_cusp_lateral_lt_shell`, and `thm6_strictly_subluminal` in `Vibe.Geometry` **UNCONDITIONALLY**!
+2. **Direct `O^+(4,1; ℤ[√2])` Matrix-Level Proof of `|∂B_0| = 1, |∂B_1| = 24, |∂B_2| = 456`.**
+3. **Exact Clique `f`-Vectors & Uniform Cartier-Foata Transfer Matrices (`M_24` & `M_wall`).**
+4. **Exact Cubic Steinberg Recurrence, Sharp Rate Bounds & Unconditional `Vibe.Geometry` Discharge.**
 -/
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
-/-! ## Section 1: Local `ZSqrt2` & `Mat5` Helpers (Private to `Vibe.CuspGrowth`) -/
+open Matrix
 
-private theorem cg_vec5_ext (u v : Vec5) (h : ∀ i : Fin 5, u i = v i) : u = v :=
-  funext h
+/-! ## Section 1: Compact `ZSqrt2` / `Matrix` Bilinear Form Helpers -/
 
-private theorem cg_mat5_ext (A B : Mat5) (h : ∀ i j : Fin 5, A i j = B i j) : A = B :=
-  funext (fun i => funext (fun j => h i j))
+private theorem z2_scale_eq_mul (k : Int) (x : ZSqrt2) :
+    ZSqrt2.scale k x = ZSqrt2.ofInt k * x := by
+  change ZSqrt2.scale k x = ZSqrt2.mul (ZSqrt2.ofInt k) x
+  cases x; ext <;> dsimp [ZSqrt2.scale, ZSqrt2.ofInt, ZSqrt2.mul] <;> ring
 
 private theorem cg_dot4_comm (u v : Vec4) : dot4 u v = dot4 v u := by
-  cases u with | mk u0 ur =>
-  cases ur with | mk u1 ur =>
-  cases ur with | mk u2 u3 =>
-  cases v with | mk v0 vr =>
-  cases vr with | mk v1 vr =>
-  cases vr with | mk v2 v3 =>
-  unfold dot4
-  rw [Int.mul_comm u0 v0, Int.mul_comm u1 v1, Int.mul_comm u2 v2, Int.mul_comm u3 v3]
-
-private theorem cg_z2_add_zero (x : ZSqrt2) : ZSqrt2.add x ZSqrt2.zero = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_zero_add (x : ZSqrt2) : ZSqrt2.add ZSqrt2.zero x = x := by
-  cases x; simp only [ZSqrt2.add, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_add_comm (x y : ZSqrt2) : ZSqrt2.add x y = ZSqrt2.add y x := by
-  cases x; cases y; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_add_assoc (x y z : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.add x y) z = ZSqrt2.add x (ZSqrt2.add y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.add, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_sub_zero (x : ZSqrt2) : ZSqrt2.sub x ZSqrt2.zero = x := by
-  cases x; simp only [ZSqrt2.sub, ZSqrt2.zero, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_add_sub_sub_add (a b c d : ZSqrt2) :
-    ZSqrt2.add (ZSqrt2.sub a b) (ZSqrt2.sub c d) = ZSqrt2.sub (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-  cases a; cases b; cases c; cases d; simp only [ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_sub_sub_rearrange (p q r s : ZSqrt2) :
-    ZSqrt2.sub (ZSqrt2.sub p q) (ZSqrt2.sub r s) = ZSqrt2.add (ZSqrt2.sub (ZSqrt2.sub p q) r) s := by
-  cases p; cases q; cases r; cases s; simp only [ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_sub_sub_comm (a b c : ZSqrt2) :
-    ZSqrt2.sub (ZSqrt2.sub a b) c = ZSqrt2.sub (ZSqrt2.sub a c) b := by
-  cases a; cases b; cases c; simp only [ZSqrt2.sub, ZSqrt2.mk.injEq]; exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_zero (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.zero = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.zero, ZSqrt2.mk.injEq, Int.zero_mul, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_one (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.one = x := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.one, ZSqrt2.mk.injEq, Int.mul_one, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_one_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.one x = x := by
-  cases x; simp only [ZSqrt2.mul, ZSqrt2.one, ZSqrt2.mk.injEq, Int.one_mul, Int.zero_mul, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_comm (x y : ZSqrt2) : ZSqrt2.mul x y = ZSqrt2.mul y x := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq]
-  rw [Int.mul_comm xa ya, Int.mul_comm xa yb, Int.mul_comm xb ya,
-      Int.mul_assoc 2 xb yb, Int.mul_comm xb yb, ← Int.mul_assoc 2 yb xb]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_add (x y z : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.add y z) = ZSqrt2.add (ZSqrt2.mul x y) (ZSqrt2.mul x z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_add_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.add x y) z = ZSqrt2.add (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.add, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_sub (x y z : ZSqrt2) :
-    ZSqrt2.mul x (ZSqrt2.sub y z) = ZSqrt2.sub (ZSqrt2.mul x y) (ZSqrt2.mul x z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.sub, ZSqrt2.mk.injEq, Int.mul_sub]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_sub_mul (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.sub x y) z = ZSqrt2.sub (ZSqrt2.mul x z) (ZSqrt2.mul y z) := by
-  cases x; cases y; cases z; simp only [ZSqrt2.mul, ZSqrt2.sub, ZSqrt2.mk.injEq, Int.sub_mul, Int.mul_sub]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_assoc (x y z : ZSqrt2) :
-    ZSqrt2.mul (ZSqrt2.mul x y) z = ZSqrt2.mul x (ZSqrt2.mul y z) := by
-  cases x with | mk xa xb =>
-  cases y with | mk ya yb =>
-  cases z with | mk za zb =>
-  simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
-  have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
-    rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
-    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
-  rw [h1, h2]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_scale_eq_mul_ofInt (k : Int) (x : ZSqrt2) :
-    ZSqrt2.scale k x = ZSqrt2.mul (ZSqrt2.ofInt k) x := by
-  cases x
-  simp only [ZSqrt2.scale, ZSqrt2.mul, ZSqrt2.ofInt, ZSqrt2.mk.injEq, Int.zero_mul, Int.mul_zero]
-  exact ⟨by omega, by omega⟩
-
-private theorem cg_z2_mul_ofInt_right (x : ZSqrt2) (k : Int) :
-    ZSqrt2.mul x (ZSqrt2.ofInt k) = ZSqrt2.scale k x := by
-  rw [cg_z2_mul_comm, ← cg_z2_scale_eq_mul_ofInt]
-
-private theorem cg_sum5_add_aux (f0 f1 f2 f3 f4 g0 g1 g2 g3 g4 : ZSqrt2) :
-    ZSqrt2.add
-      (ZSqrt2.add
-        (ZSqrt2.add
-          (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
-          (ZSqrt2.add f2 g2))
-        (ZSqrt2.add f3 g3))
-      (ZSqrt2.add f4 g4) =
-    ZSqrt2.add
-      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
-      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4) := by
-  have swap4 : ∀ a b c d : ZSqrt2,
-      ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) = ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
-    intro a b c d
-    rw [cg_z2_add_assoc a b (ZSqrt2.add c d), ← cg_z2_add_assoc b c d, cg_z2_add_comm b c,
-        cg_z2_add_assoc c b d, ← cg_z2_add_assoc a c (ZSqrt2.add b d)]
-  rw [swap4 f0 g0 f1 g1,
-      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
-      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
-      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
-            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
-
-private theorem cg_sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) :=
-  cg_sum5_add_aux
-    (f ⟨0, by decide⟩) (f ⟨1, by decide⟩) (f ⟨2, by decide⟩) (f ⟨3, by decide⟩) (f ⟨4, by decide⟩)
-    (g ⟨0, by decide⟩) (g ⟨1, by decide⟩) (g ⟨2, by decide⟩) (g ⟨3, by decide⟩) (g ⟨4, by decide⟩)
-
-private theorem cg_sum5_sub (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.sub (f k) (g k)) = ZSqrt2.sub (sum5 f) (sum5 g) := by
-  unfold sum5
-  rw [cg_z2_add_sub_sub_add, cg_z2_add_sub_sub_add, cg_z2_add_sub_sub_add, cg_z2_add_sub_sub_add]
-
-private theorem cg_sum5_mul_left (c : ZSqrt2) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul c (f k)) = ZSqrt2.mul c (sum5 f) := by
-  unfold sum5
-  rw [cg_z2_mul_add, cg_z2_mul_add, cg_z2_mul_add, cg_z2_mul_add]
-
-private theorem cg_sum5_mul_right (f : Fin 5 → ZSqrt2) (c : ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (f k) c) = ZSqrt2.mul (sum5 f) c := by
-  unfold sum5
-  rw [cg_z2_add_mul, cg_z2_add_mul, cg_z2_add_mul, cg_z2_add_mul]
-
-private theorem cg_sum5_comm (f : Fin 5 → Fin 5 → ZSqrt2) :
-    sum5 (fun i => sum5 (fun j => f i j)) = sum5 (fun j => sum5 (fun i => f i j)) := by
-  change sum5 (fun i => sum5 (fun j => f i j)) =
-    ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add
-      (sum5 (fun i => f i ⟨0, by decide⟩))
-      (sum5 (fun i => f i ⟨1, by decide⟩)))
-      (sum5 (fun i => f i ⟨2, by decide⟩)))
-      (sum5 (fun i => f i ⟨3, by decide⟩)))
-      (sum5 (fun i => f i ⟨4, by decide⟩))
-  rw [← cg_sum5_add, ← cg_sum5_add, ← cg_sum5_add, ← cg_sum5_add]
-  rfl
-
-private theorem cg_sum5_kron_left (i : Fin 5) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (mat5Id i k) (f k)) = f i := by
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [sum5, mat5Id, cg_z2_one_mul, cg_z2_zero_mul, cg_z2_add_zero, cg_z2_zero_add]
-
-private theorem cg_sum5_kron_right (j : Fin 5) (f : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.mul (f k) (mat5Id k j)) = f j := by
-  match j with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [sum5, mat5Id, cg_z2_mul_one, cg_z2_mul_zero, cg_z2_add_zero, cg_z2_zero_add]
-
-private theorem cg_mat5Vec_twiceGram_eq_fast (v : Vec5) : mat5Vec twiceGram v = twiceGramVecFast v := by
-  apply cg_vec5_ext
-  intro i
-  cases h0 : v ⟨0, by decide⟩ with | mk a0 b0 =>
-  cases h1 : v ⟨1, by decide⟩ with | mk a1 b1 =>
-  cases h2 : v ⟨2, by decide⟩ with | mk a2 b2 =>
-  cases h3 : v ⟨3, by decide⟩ with | mk a3 b3 =>
-  cases h4 : v ⟨4, by decide⟩ with | mk a4 b4 =>
-  match i with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp only [mat5Vec, twiceGramVecFast, sum5, twiceGram, h0, h1, h2, h3, h4,
-      ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mul, ZSqrt2.scale, ZSqrt2.sqrt2, ZSqrt2.mk.injEq,
-      Int.zero_mul, Int.one_mul, Int.mul_zero, Int.mul_one, Int.neg_mul, Int.mul_neg]
-    exact ⟨by omega, by omega⟩
+  rcases u with ⟨u0, u1, u2, u3⟩; rcases v with ⟨v0, v1, v2, v3⟩
+  unfold dot4; ring
 
 private theorem cg_twiceForm_symm (u v : Vec5) : twiceForm u v = twiceForm v u := by
-  have hSym := thm_coxeter_gram_and_center.1
-  unfold twiceForm dot5 mat5Vec
-  have hL : sum5 (fun i => ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (v j)))) =
-      sum5 (fun i => sum5 (fun j => ZSqrt2.mul (v j) (ZSqrt2.mul (twiceGram j i) (u i)))) := by
-    apply congrArg sum5; funext i
-    rw [← cg_sum5_mul_left]
-    apply congrArg sum5; funext j
-    have hT : twiceGram i j = twiceGram j i := congrFun (congrFun hSym j) i
-    rw [hT, cg_z2_mul_comm (twiceGram j i) (v j), ← cg_z2_mul_assoc,
-        cg_z2_mul_comm (u i) (v j), cg_z2_mul_assoc, cg_z2_mul_comm (u i) (twiceGram j i)]
-  have hR : sum5 (fun j => ZSqrt2.mul (v j) (sum5 (fun i => ZSqrt2.mul (twiceGram j i) (u i)))) =
-      sum5 (fun j => sum5 (fun i => ZSqrt2.mul (v j) (ZSqrt2.mul (twiceGram j i) (u i)))) := by
-    apply congrArg sum5; funext j
-    rw [← cg_sum5_mul_left]
-  rw [hL, cg_sum5_comm, hR]
+  have hSym : (Matrix.of twiceGram)ᵀ = Matrix.of twiceGram := by
+    rw [← toMat5_transpose, thm_coxeter_gram_and_center.1]
+  rw [twiceForm, twiceForm, dot5_eq_dot, dot5_eq_dot, mat5Vec_eq_mulVec, mat5Vec_eq_mulVec,
+      dotProduct_mulVec, dotProduct_comm, ← Matrix.mulVec_transpose, hSym]
 
 private theorem cg_reflection_vec (n x : Vec5) :
     mat5Vec (reflectionIn n) x =
       fun i => ZSqrt2.sub (x i) (ZSqrt2.mul (n i) (twiceForm n x)) := by
-  apply cg_vec5_ext
-  intro i
-  unfold mat5Vec reflectionIn
-  have hDot : sum5 (fun k => ZSqrt2.mul (mat5Vec twiceGram n k) (x k)) = twiceForm n x := by
-    have hSym : sum5 (fun k => ZSqrt2.mul (mat5Vec twiceGram n k) (x k)) = twiceForm x n := by
-      unfold twiceForm dot5
-      apply congrArg sum5; funext k
-      exact cg_z2_mul_comm (mat5Vec twiceGram n k) (x k)
-    rw [hSym, cg_twiceForm_symm]
-  have hFun : (fun k => ZSqrt2.mul (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (n i) (mat5Vec twiceGram n k))) (x k)) =
-      (fun k => ZSqrt2.sub (ZSqrt2.mul (mat5Id i k) (x k))
-                           (ZSqrt2.mul (n i) (ZSqrt2.mul (mat5Vec twiceGram n k) (x k)))) := by
-    funext k
-    rw [cg_z2_sub_mul, cg_z2_mul_assoc]
-  rw [hFun, cg_sum5_sub, cg_sum5_kron_left i x, cg_sum5_mul_left, hDot]
+  funext i
+  rw [mat5Vec, sum5_eq_sum]
+  have hDot : (∑ k : Fin 5, mat5Vec twiceGram n k * x k) = twiceForm n x := by
+    rw [cg_twiceForm_symm, twiceForm, dot5, sum5_eq_sum]
+    exact Finset.sum_congr rfl (fun k _ => mul_comm _ _)
+  change (∑ k : Fin 5, (mat5Id i k - n i * mat5Vec twiceGram n k) * x k) = x i - n i * twiceForm n x
+  simp only [sub_mul, mul_assoc, Finset.sum_sub_distrib, ← Finset.mul_sum, hDot]
+  have hKron : (∑ k : Fin 5, mat5Id i k * x k) = x i := by
+    rw [← sum5_eq_sum]
+    have h1 : sum5 (fun k => ZSqrt2.mul (mat5Id i k) (x k)) = mat5Vec mat5Id x i := rfl
+    rw [h1, mat5Vec_eq_mulVec, toMat5_id, Matrix.one_mulVec]
+  rw [hKron]
 
+private theorem cg_twiceForm_add_right (u v w : Vec5) :
+    twiceForm u (fun i => ZSqrt2.add (v i) (w i)) = ZSqrt2.add (twiceForm u v) (twiceForm u w) := by
+  have hvw : (fun i => ZSqrt2.add (v i) (w i)) = v + w := rfl
+  rw [twiceForm, twiceForm, twiceForm, dot5_eq_dot, dot5_eq_dot, dot5_eq_dot,
+      mat5Vec_eq_mulVec, mat5Vec_eq_mulVec, mat5Vec_eq_mulVec, hvw, Matrix.mulVec_add, dotProduct_add]
+  rfl
+
+private theorem cg_twiceForm_scale_right (u v : Vec5) (k : Int) :
+    twiceForm u (fun i => ZSqrt2.scale k (v i)) = ZSqrt2.scale k (twiceForm u v) := by
+  have hkv : (fun i => ZSqrt2.scale k (v i)) = ZSqrt2.ofInt k • v := by
+    funext i; exact z2_scale_eq_mul k (v i)
+  rw [twiceForm, twiceForm, dot5_eq_dot, dot5_eq_dot, mat5Vec_eq_mulVec, mat5Vec_eq_mulVec,
+      hkv, Matrix.mulVec_smul, dotProduct_smul, smul_eq_mul, z2_scale_eq_mul]
 
 /-! ## Section 2: Right-Angled Facet Geometry, Commuting Mirrors, Cusp Layer & Wall Hyperplane -/
 
@@ -314,9 +116,7 @@ theorem thm_facet_gram_right_angled :
       (twiceForm (facetNormal a) (facetNormal b)).b = 0) := by
   have hGram : ∀ a b : Fin 24,
       twiceForm (facetNormal a) (facetNormal b) = ZSqrt2.ofInt (2 * dot4 (d4RootOf a) (d4RootOf b) - 2) := by
-    intro a b
-    unfold twiceForm
-    rw [cg_mat5Vec_twiceGram_eq_fast]
+    intro a b; unfold twiceForm; rw [mat5Vec_twiceGram_eq_fast]
     exact (by decide : ∀ x y : Fin 24,
       dot5 (facetNormal x) (twiceGramVecFast (facetNormal y)) =
         ZSqrt2.ofInt (2 * dot4 (d4RootOf x) (d4RootOf y) - 2)) a b
@@ -325,17 +125,12 @@ theorem thm_facet_gram_right_angled :
     rw [hGram a b]
     unfold adj24 ZSqrt2.ofInt ZSqrt2.zero
     constructor
-    · intro h
-      have h1 : dot4 (d4RootOf a) (d4RootOf b) = 1 := of_decide_eq_true h
-      rw [h1]; decide
-    · intro h
-      have ha : 2 * dot4 (d4RootOf a) (d4RootOf b) - 2 = 0 := congrArg ZSqrt2.a h
-      exact decide_eq_true (by omega)
+    · intro h; rw [of_decide_eq_true h]; decide
+    · intro h; exact decide_eq_true (by have := congrArg ZSqrt2.a h; dsimp at this; omega)
   · intro a b hne hna
     rw [hGram a b]
-    have hBound : dot4 (d4RootOf a) (d4RootOf b) ≤ 0 := by
-      have hAll : ∀ x y : Fin 24, x ≠ y → adj24 x y = false → dot4 (d4RootOf x) (d4RootOf y) ≤ 0 := by decide
-      exact hAll a b hne hna
+    have hBound : dot4 (d4RootOf a) (d4RootOf b) ≤ 0 :=
+      (by decide : ∀ x y : Fin 24, x ≠ y → adj24 x y = false → dot4 (d4RootOf x) (d4RootOf y) ≤ 0) a b hne hna
     exact ⟨by change 2 * dot4 (d4RootOf a) (d4RootOf b) - 2 ≤ -2; omega, rfl⟩
 
 /-- Headline Theorem 2 (Symbolic Orthogonal Reflection Commutation in `O^+(4,1; ℤ[√2])`):
@@ -357,47 +152,37 @@ theorem thm_orthogonal_reflections_commute :
       intro u v huv
       let ru := mat5Vec twiceGram u
       let rv := mat5Vec twiceGram v
-      have hDot : sum5 (fun k => ZSqrt2.mul (ru k) (v k)) = ZSqrt2.zero := by
-        have h1 : sum5 (fun k => ZSqrt2.mul (ru k) (v k)) = twiceForm v u := by
-          unfold twiceForm dot5
-          apply congrArg sum5; funext k
-          exact cg_z2_mul_comm (ru k) (v k)
-        rw [h1, cg_twiceForm_symm, huv]
-      apply cg_mat5_ext
-      intro i j
-      unfold mat5Mul reflectionIn
+      have hDot : (∑ k : Fin 5, ru k * v k) = 0 := by
+        rw [show (∑ k : Fin 5, ru k * v k) = twiceForm v u by
+              rw [twiceForm, dot5, sum5_eq_sum]; exact Finset.sum_congr rfl (fun k _ => mul_comm _ _),
+            cg_twiceForm_symm, huv]; rfl
+      funext i j
+      rw [mat5Mul, sum5_eq_sum]
+      change (∑ k : Fin 5, (mat5Id i k - u i * ru k) * (mat5Id k j - v k * rv j)) =
+        mat5Id i j - v i * rv j - u i * ru j
       have hExp : ∀ k : Fin 5,
-          ZSqrt2.mul (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (u i) (ru k)))
-                     (ZSqrt2.sub (mat5Id k j) (ZSqrt2.mul (v k) (rv j))) =
-          ZSqrt2.add
-            (ZSqrt2.sub
-              (ZSqrt2.sub (ZSqrt2.mul (mat5Id i k) (mat5Id k j))
-                          (ZSqrt2.mul (mat5Id i k) (ZSqrt2.mul (v k) (rv j))))
-              (ZSqrt2.mul (ZSqrt2.mul (u i) (ru k)) (mat5Id k j)))
-            (ZSqrt2.mul (ZSqrt2.mul (u i) (ZSqrt2.mul (ru k) (v k))) (rv j)) := by
-        intro k
-        rw [cg_z2_sub_mul, cg_z2_mul_sub, cg_z2_mul_sub]
-        have hQ : ZSqrt2.mul (ZSqrt2.mul (u i) (ru k)) (ZSqrt2.mul (v k) (rv j)) =
-            ZSqrt2.mul (ZSqrt2.mul (u i) (ZSqrt2.mul (ru k) (v k))) (rv j) := by
-          rw [cg_z2_mul_assoc (u i) (ru k) (ZSqrt2.mul (v k) (rv j)),
-              ← cg_z2_mul_assoc (ru k) (v k) (rv j),
-              ← cg_z2_mul_assoc (u i) (ZSqrt2.mul (ru k) (v k)) (rv j)]
-        rw [hQ]
-        exact cg_z2_sub_sub_rearrange _ _ _ _
-      have hFun := funext hExp
-      change sum5 (fun k => ZSqrt2.mul (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (u i) (ru k)))
-                                       (ZSqrt2.sub (mat5Id k j) (ZSqrt2.mul (v k) (rv j)))) = _
-      rw [hFun, cg_sum5_add, cg_sum5_sub, cg_sum5_sub,
-          cg_sum5_kron_left i (fun k => mat5Id k j),
-          cg_sum5_kron_left i (fun k => ZSqrt2.mul (v k) (rv j)),
-          cg_sum5_kron_right j (fun k => ZSqrt2.mul (u i) (ru k)),
-          cg_sum5_mul_right, cg_sum5_mul_left, hDot, cg_z2_mul_zero, cg_z2_zero_mul, cg_z2_add_zero]
+          (mat5Id i k - u i * ru k) * (mat5Id k j - v k * rv j) =
+            mat5Id i k * mat5Id k j - mat5Id i k * (v k * rv j) - u i * (ru k * mat5Id k j) +
+              u i * (ru k * v k) * rv j := fun _ => by ring
+      simp only [hExp, Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum, ← Finset.sum_mul, hDot]
+      have hK1 : (∑ k : Fin 5, mat5Id i k * mat5Id k j) = mat5Id i j := by
+        rw [← sum5_eq_sum]; exact congrFun (congrFun (by apply Matrix.of.injective; simp [toMat5_mul, toMat5_id] : mat5Mul mat5Id mat5Id = mat5Id) i) j
+      have hK2 : (∑ k : Fin 5, mat5Id i k * (v k * rv j)) = v i * rv j := by
+        rw [← sum5_eq_sum]
+        have h := congrFun (by rw [mat5Vec_eq_mulVec, toMat5_id, Matrix.one_mulVec] : mat5Vec mat5Id (fun k => v k * rv j) = fun k => v k * rv j) i
+        exact h
+      have hK3 : (∑ k : Fin 5, ru k * mat5Id k j) = ru j := by
+        rw [← sum5_eq_sum]
+        have h : mat5Vec (mat5Transpose mat5Id) ru j = ru j := by
+          rw [mat5Vec_eq_mulVec, toMat5_transpose, toMat5_id, Matrix.transpose_one, Matrix.one_mulVec]
+        simpa only [mat5Vec, mat5Transpose, mul_comm] using h
+      rw [hK1, hK2, hK3]; ring
     rw [hProd n m hOrth, hProd m n (by rw [cg_twiceForm_symm, hOrth])]
-    apply cg_mat5_ext; intro i j
-    exact cg_z2_sub_sub_comm _ _ _
-  refine ⟨hSymb, ?_⟩
-  intro a b hab
-  exact hSymb (facetNormal a) (facetNormal b) ((thm_facet_gram_right_angled.2.1 a b).1 hab)
+    funext i j
+    change mat5Id i j - m i * mat5Vec twiceGram m j - n i * mat5Vec twiceGram n j =
+      mat5Id i j - n i * mat5Vec twiceGram n j - m i * mat5Vec twiceGram m j
+    ring
+  exact ⟨hSymb, fun a b hab => hSymb (facetNormal a) (facetNormal b) ((thm_facet_gram_right_angled.2.1 a b).1 hab)⟩
 
 /-- Headline Theorem 3 (Exact `{3,4,3,4}` Parabolic Cusp-Layer Stabilizer):
     a facet reflection `F_a` fixes the ideal cusp vertex `v = (0, 1, √2, √2, 1)` iff
@@ -414,45 +199,41 @@ theorem thm_cusp_layer_stabilizer_exact :
   have hStep : ∀ a : Fin 24,
       mat5Vec (faceReflection a) baseCenter =
         fun i => ZSqrt2.add (baseCenter i) (ZSqrt2.scale 2 (facetNormal a i)) := by
-    intro a
-    unfold faceReflection
+    intro a; unfold faceReflection
     rw [cg_reflection_vec (facetNormal a) baseCenter, thm_24_facets_geometry.2.2.2.1 a]
-    apply cg_vec5_ext; intro i
-    rw [cg_z2_mul_ofInt_right]
-    cases baseCenter i; cases facetNormal a i
-    simp only [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq]
-    exact ⟨by omega, by omega⟩
+    funext i
+    rw [z2_scale_eq_mul]
+    change baseCenter i - facetNormal a i * ZSqrt2.ofInt (-2) = baseCenter i + ZSqrt2.ofInt 2 * facetNormal a i
+    have hNeg : ZSqrt2.ofInt (-2) = -ZSqrt2.ofInt 2 := by decide
+    rw [hNeg]; ring
   refine ⟨?_, by decide, ?_⟩
   · intro a
     unfold faceReflection isLayerFacet
     rw [cg_reflection_vec (facetNormal a) cuspVertex]
     have hForm : twiceForm (facetNormal a) cuspVertex =
         dot5 (facetNormal a) (twiceGramVecFast cuspVertex) := by
-      unfold twiceForm; rw [cg_mat5Vec_twiceGram_eq_fast]
+      unfold twiceForm; rw [mat5Vec_twiceGram_eq_fast]
     rw [hForm]
     constructor
     · intro hFix
       have h4 := congrFun hFix ⟨4, by decide⟩
-      have hn4 : facetNormal a ⟨4, by decide⟩ = ZSqrt2.one :=
+      have hn4 : facetNormal a ⟨4, by decide⟩ = 1 :=
         (by decide : ∀ x : Fin 24, facetNormal x ⟨4, by decide⟩ = ZSqrt2.one) a
-      rw [hn4, cg_z2_one_mul] at h4
+      change cuspVertex ⟨4, by decide⟩ - facetNormal a ⟨4, by decide⟩ * dot5 (facetNormal a) (twiceGramVecFast cuspVertex) =
+        cuspVertex ⟨4, by decide⟩ at h4
+      rw [hn4] at h4
       have hZero : dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = ZSqrt2.zero := by
-        cases hC : cuspVertex ⟨4, by decide⟩
-        cases hD : dot5 (facetNormal a) (twiceGramVecFast cuspVertex)
-        rw [hC, hD] at h4
-        simp only [ZSqrt2.sub, ZSqrt2.zero, ZSqrt2.mk.injEq] at h4 ⊢
-        exact ⟨by omega, by omega⟩
+        change dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = 0
+        calc dot5 (facetNormal a) (twiceGramVecFast cuspVertex)
+            = cuspVertex ⟨4, by decide⟩ - (cuspVertex ⟨4, by decide⟩ - 1 * dot5 (facetNormal a) (twiceGramVecFast cuspVertex)) := by ring
+          _ = cuspVertex ⟨4, by decide⟩ - cuspVertex ⟨4, by decide⟩ := by rw [h4]
+          _ = 0 := by ring
       exact decide_eq_true hZero
     · intro hL
-      have hZero : dot5 (facetNormal a) (twiceGramVecFast cuspVertex) = ZSqrt2.zero :=
-        of_decide_eq_true hL
-      rw [hZero]
-      apply cg_vec5_ext; intro i
-      rw [cg_z2_mul_zero, cg_z2_sub_zero]
+      rw [of_decide_eq_true hL]
+      funext i; change cuspVertex i - facetNormal a i * 0 = cuspVertex i; ring
   · intro a ha
-    rw [hStep a]
-    unfold twiceForm
-    rw [cg_mat5Vec_twiceGram_eq_fast]
+    rw [hStep a]; unfold twiceForm; rw [mat5Vec_twiceGram_eq_fast]
     exact (by decide : ∀ x : Fin 24, isLayerFacet x = false →
       (dot5 (fun i => ZSqrt2.add (baseCenter i) (ZSqrt2.scale 2 (facetNormal x i)))
             (twiceGramVecFast cuspVertex)).a ≤ -6 ∧
@@ -472,8 +253,8 @@ theorem thm_wall_hyperplane_exact :
     ((List.finRange 24).filter (fun b => isWallFacet b && isLayerFacet b) =
       [⟨4, by decide⟩, ⟨5, by decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩]) ∧
     ((List.finRange 24).filter (fun b => isWallFacet b && !(isLayerFacet b)) =
-      [⟨12, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩]) := by
-  refine ⟨by decide, fun b hb => thm_orthogonal_reflections_commute.2 ⟨0, by decide⟩ b hb, by decide, by decide⟩
+      [⟨12, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩]) :=
+  ⟨by decide, fun b hb => thm_orthogonal_reflections_commute.2 ⟨0, by decide⟩ b hb, by decide, by decide⟩
 
 
 /-! ## Section 3: Direct `O^+(4,1; ℤ[√2])` Matrix-Level Proof of Ball Shells `|∂B_0| = 1, |∂B_1| = 24, |∂B_2| = 456` -/
@@ -493,80 +274,44 @@ def step2Center (a b : Fin 24) : Vec5 :=
 def isCanonLen2 (a b : Fin 24) : Bool :=
   decide (a ≠ b) && (!(adj24 a b) || decide (a.val < b.val))
 
-private theorem cg_twiceForm_add_right (u v w : Vec5) :
-    twiceForm u (fun i => ZSqrt2.add (v i) (w i)) = ZSqrt2.add (twiceForm u v) (twiceForm u w) := by
-  unfold twiceForm dot5 mat5Vec
-  have h1 : ∀ i : Fin 5,
-      ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (ZSqrt2.add (v j) (w j)))) =
-      ZSqrt2.add (ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (v j))))
-                 (ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (w j)))) := by
-    intro i
-    have hF : (fun j => ZSqrt2.mul (twiceGram i j) (ZSqrt2.add (v j) (w j))) =
-              (fun j => ZSqrt2.add (ZSqrt2.mul (twiceGram i j) (v j)) (ZSqrt2.mul (twiceGram i j) (w j))) := by
-      funext j; exact cg_z2_mul_add _ _ _
-    rw [hF, cg_sum5_add, cg_z2_mul_add]
-  have hf := funext h1
-  rw [hf, cg_sum5_add]
-
-private theorem cg_twiceForm_scale_right (u v : Vec5) (k : Int) :
-    twiceForm u (fun i => ZSqrt2.scale k (v i)) = ZSqrt2.scale k (twiceForm u v) := by
-  unfold twiceForm dot5 mat5Vec
-  have h1 : ∀ i : Fin 5,
-      ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (ZSqrt2.scale k (v j)))) =
-      ZSqrt2.mul (ZSqrt2.ofInt k) (ZSqrt2.mul (u i) (sum5 (fun j => ZSqrt2.mul (twiceGram i j) (v j)))) := by
-    intro i
-    have hF : (fun j => ZSqrt2.mul (twiceGram i j) (ZSqrt2.scale k (v j))) =
-              (fun j => ZSqrt2.mul (ZSqrt2.ofInt k) (ZSqrt2.mul (twiceGram i j) (v j))) := by
-      funext j
-      rw [cg_z2_scale_eq_mul_ofInt, ← cg_z2_mul_assoc,
-          cg_z2_mul_comm (twiceGram i j) (ZSqrt2.ofInt k), cg_z2_mul_assoc]
-    rw [hF, cg_sum5_mul_left, ← cg_z2_mul_assoc,
-        cg_z2_mul_comm (u i) (ZSqrt2.ofInt k), cg_z2_mul_assoc]
-  have hf := funext h1
-  rw [hf, cg_sum5_mul_left, ← cg_z2_scale_eq_mul_ofInt]
-
 private theorem cg_step1_and_step2_exact (a b : Fin 24) :
     mat5Vec (faceReflection a) baseCenter = step1Center a ∧
     mat5Vec (faceReflection a) (mat5Vec (faceReflection b) baseCenter) = step2Center a b := by
   have h1 : ∀ x : Fin 24, mat5Vec (faceReflection x) baseCenter = step1Center x := by
-    intro x
-    unfold faceReflection
+    intro x; unfold faceReflection step1Center
     rw [cg_reflection_vec (facetNormal x) baseCenter, thm_24_facets_geometry.2.2.2.1 x]
-    apply cg_vec5_ext; intro i
-    rw [cg_z2_mul_ofInt_right]
-    unfold step1Center
-    cases baseCenter i; cases facetNormal x i
-    simp only [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq]
-    exact ⟨by omega, by omega⟩
+    funext i; rw [z2_scale_eq_mul]
+    change baseCenter i - facetNormal x i * ZSqrt2.ofInt (-2) = baseCenter i + ZSqrt2.ofInt 2 * facetNormal x i
+    have hNeg : ZSqrt2.ofInt (-2) = -ZSqrt2.ofInt 2 := by decide
+    rw [hNeg]; ring
   refine ⟨h1 a, ?_⟩
-  rw [h1 b]
-  unfold faceReflection
+  rw [h1 b]; unfold faceReflection
   rw [cg_reflection_vec (facetNormal a) (step1Center b)]
   have hPair : twiceForm (facetNormal a) (step1Center b) =
       ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) := by
     unfold step1Center
     rw [cg_twiceForm_add_right, cg_twiceForm_scale_right,
         thm_24_facets_geometry.2.2.2.1 a, thm_facet_gram_right_angled.1 a b]
-    simp only [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_zero]
-    exact ⟨by omega, by omega⟩
+    ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale] <;> ring
   rw [hPair]
-  apply cg_vec5_ext; intro i
-  rw [cg_z2_mul_ofInt_right]
-  unfold step1Center step2Center
-  cases baseCenter i; cases facetNormal b i; cases facetNormal a i with | mk na nb =>
-  simp only [ZSqrt2.sub, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq]
-  have hLin : ∀ (m x : Int), -((4 * m - 6) * x) = (6 - 4 * m) * x := by
-    intro m x; rw [← Int.neg_mul]; apply congrArg (· * x); omega
-  have hA := hLin (dot4 (d4RootOf a) (d4RootOf b)) na
-  have hB := hLin (dot4 (d4RootOf a) (d4RootOf b)) nb
-  exact ⟨by omega, by omega⟩
+  funext i; unfold step1Center step2Center
+  rw [z2_scale_eq_mul]
+  change (baseCenter i + ZSqrt2.scale 2 (facetNormal b i)) -
+      facetNormal a i * ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
+    (baseCenter i + ZSqrt2.scale 2 (facetNormal b i)) +
+      ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * facetNormal a i
+  have hNeg : ZSqrt2.ofInt (4 * dot4 (d4RootOf a) (d4RootOf b) - 6) =
+      -ZSqrt2.ofInt (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) := by
+    change ZSqrt2.ofInt _ = ZSqrt2.neg (ZSqrt2.ofInt _)
+    ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.neg] <;> ring
+  rw [hNeg]; ring
 
 private theorem cg_d4_coord_bounds (a : Fin 24) :
     -1 ≤ (d4RootOf a).1 ∧ (d4RootOf a).1 ≤ 1 ∧
     -1 ≤ (d4RootOf a).2.1 ∧ (d4RootOf a).2.1 ≤ 1 ∧
     -1 ≤ (d4RootOf a).2.2.1 ∧ (d4RootOf a).2.2.1 ≤ 1 ∧
-    -1 ≤ (d4RootOf a).2.2.2 ∧ (d4RootOf a).2.2.2 ≤ 1 := by
-  exact (by decide : ∀ x : Fin 24,
+    -1 ≤ (d4RootOf a).2.2.2 ∧ (d4RootOf a).2.2.2 ≤ 1 :=
+  (by decide : ∀ x : Fin 24,
     -1 ≤ (d4RootOf x).1 ∧ (d4RootOf x).1 ≤ 1 ∧
     -1 ≤ (d4RootOf x).2.1 ∧ (d4RootOf x).2.1 ≤ 1 ∧
     -1 ≤ (d4RootOf x).2.2.1 ∧ (d4RootOf x).2.2.1 ≤ 1 ∧
@@ -610,14 +355,12 @@ private theorem cg_d4_sum_adj_unique (a b a' b' : Fin 24)
     let p := idxOf r1
     let q := idxOf r2
     if p.val < q.val then (p, q) else (q, p)
-  have hRec : ∀ x y : Fin 24, adj24 x y = true → x.val < y.val → recover (sumVec x y) = (x, y) := by
-    decide
+  have hRec : ∀ x y : Fin 24, adj24 x y = true → x.val < y.val → recover (sumVec x y) = (x, y) := by decide
   have hVec : sumVec a b = sumVec a' b' :=
     Prod.ext hSum.1 (Prod.ext hSum.2.1 (Prod.ext hSum.2.2.1 hSum.2.2.2))
   have h1 := hRec a b hab hLt
   have h2 := hRec a' b' hab' hLt'
-  rw [hVec] at h1
-  rw [h1] at h2
+  rw [hVec] at h1; rw [h1] at h2
   exact Prod.mk.inj h2
 
 /-- Headline Theorem 5 (Direct `O^+(4,1; ℤ[√2])` Matrix Certification of `|∂B_0| = 1, |∂B_1| = 24, |∂B_2| = 456`):
@@ -646,113 +389,82 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
       mat5Vec (faceReflection a') (mat5Vec (faceReflection b') baseCenter) →
       a = a' ∧ b = b') := by
   have hDist1 : ∀ a : Fin 24, twiceForm (step1Center a) baseCenter = ZSqrt2.ofInt (-6) := by
-    intro a
-    unfold step1Center
+    intro a; unfold step1Center
     rw [cg_twiceForm_symm, cg_twiceForm_add_right, cg_twiceForm_scale_right,
         thm_coxeter_gram_and_center.2.2.1,
         cg_twiceForm_symm baseCenter (facetNormal a), thm_24_facets_geometry.2.2.2.1 a]
     decide
   have hDist2 : ∀ a b : Fin 24,
       twiceForm (step2Center a b) baseCenter = ZSqrt2.ofInt (8 * dot4 (d4RootOf a) (d4RootOf b) - 18) := by
-    intro a b
-    unfold step2Center
+    intro a b; unfold step2Center
     rw [cg_twiceForm_symm, cg_twiceForm_add_right, cg_twiceForm_add_right,
         cg_twiceForm_scale_right, cg_twiceForm_scale_right,
         thm_coxeter_gram_and_center.2.2.1,
         cg_twiceForm_symm baseCenter (facetNormal b), thm_24_facets_geometry.2.2.2.1 b,
         cg_twiceForm_symm baseCenter (facetNormal a), thm_24_facets_geometry.2.2.2.1 a]
-    simp only [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_zero]
-    exact ⟨by omega, by omega⟩
+    ext <;> dsimp [ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale] <;> ring
   have hProj : ∀ a b x : Fin 24,
       twiceForm (step2Center a b) (facetDir x) =
         ZSqrt2.ofInt (4 * dot4 (d4RootOf b) (d4RootOf x) +
                       2 * (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * dot4 (d4RootOf a) (d4RootOf x)) := by
     intro a b x
     have hOrthC0 : twiceForm (facetDir x) baseCenter = ZSqrt2.zero := by
-      unfold twiceForm; rw [cg_mat5Vec_twiceGram_eq_fast]
+      unfold twiceForm; rw [mat5Vec_twiceGram_eq_fast]
       exact (by decide : ∀ y : Fin 24, dot5 (facetDir y) (twiceGramVecFast baseCenter) = ZSqrt2.zero) x
     have hPairN : ∀ y : Fin 24, twiceForm (facetDir x) (facetNormal y) =
         ZSqrt2.ofInt (2 * dot4 (d4RootOf y) (d4RootOf x)) := by
-      intro y
-      unfold twiceForm; rw [cg_mat5Vec_twiceGram_eq_fast]
+      intro y; unfold twiceForm; rw [mat5Vec_twiceGram_eq_fast]
       exact (by decide : ∀ p q : Fin 24,
         dot5 (facetDir p) (twiceGramVecFast (facetNormal q)) =
           ZSqrt2.ofInt (2 * dot4 (d4RootOf q) (d4RootOf p))) x y
     unfold step2Center
     rw [cg_twiceForm_symm, cg_twiceForm_add_right, cg_twiceForm_add_right,
-        cg_twiceForm_scale_right, cg_twiceForm_scale_right,
-        hOrthC0, hPairN b, hPairN a]
-    simp only [ZSqrt2.zero, ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.mul_zero]
-    have hAssoc : (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * (2 * dot4 (d4RootOf a) (d4RootOf x)) =
-        2 * (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * dot4 (d4RootOf a) (d4RootOf x) := by
-      rw [← Int.mul_assoc, Int.mul_comm (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) 2]
-    exact ⟨by omega, by omega⟩
+        cg_twiceForm_scale_right, cg_twiceForm_scale_right, hOrthC0, hPairN b, hPairN a]
+    ext <;> dsimp [ZSqrt2.zero, ZSqrt2.ofInt, ZSqrt2.add, ZSqrt2.scale] <;> ring
   refine ⟨fun a => by rw [(cg_step1_and_step2_exact a a).1]; exact hDist1 a,
           fun a b _ => by rw [(cg_step1_and_step2_exact a b).2]; exact hDist2 a b,
           ?_, by decide, ?_, ?_⟩
   · intro a b hEq
     rw [(cg_step1_and_step2_exact a a).1, (cg_step1_and_step2_exact b b).1] at hEq
-    have hN : ∀ i : Fin 5, facetNormal a i = facetNormal b i := by
-      intro i
+    have hN : ∀ i : Fin 5, facetNormal a i = facetNormal b i := fun i => by
       have hi := congrFun hEq i
       unfold step1Center at hi
-      cases hc : baseCenter i
-      cases ha : facetNormal a i
-      cases hb : facetNormal b i
-      rw [hc, ha, hb] at hi
-      simp only [ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq] at hi ⊢
-      exact ⟨by omega, by omega⟩
+      ext
+      · have h := congrArg ZSqrt2.a hi; dsimp [ZSqrt2.add, ZSqrt2.scale] at h; omega
+      · have h := congrArg ZSqrt2.b hi; dsimp [ZSqrt2.add, ZSqrt2.scale] at h; omega
     exact (by decide : ∀ x y : Fin 24, (∀ i : Fin 5, facetNormal x i = facetNormal y i) → x = y) a b hN
   · intro a b hne
-    if hc : isCanonLen2 a b = true then
-      exact Or.inl hc
+    if hc : isCanonLen2 a b = true then exact Or.inl hc
     else
       right
       have hAdj : adj24 a b = true ∧ b.val < a.val := by
         unfold isCanonLen2 at hc
-        have hd : decide (a ≠ b) = true := decide_eq_true hne
-        rw [hd, Bool.true_and] at hc
+        rw [decide_eq_true hne, Bool.true_and] at hc
         cases ha : adj24 a b
-        · rw [ha, Bool.not_false, Bool.true_or] at hc; exact absurd rfl hc
-        · rw [ha] at hc
-          simp only [Bool.not_true, Bool.false_or] at hc
-          have hNotLt : ¬ (a.val < b.val) := fun hlt => hc (decide_eq_true hlt)
+        · simp [ha] at hc
+        · simp only [ha, Bool.not_true, Bool.false_or, decide_eq_true_eq] at hc
           have hValNe : a.val ≠ b.val := fun eq => hne (Fin.ext eq)
           exact ⟨rfl, by omega⟩
       have hCanonBA : isCanonLen2 b a = true := by
         unfold isCanonLen2
-        have hd : decide (b ≠ a) = true := decide_eq_true (fun eq => hne eq.symm)
-        have hlt : decide (b.val < a.val) = true := decide_eq_true hAdj.2
-        rw [hd, hlt, Bool.or_true, Bool.and_true]
+        rw [decide_eq_true (Ne.symm hne), decide_eq_true hAdj.2, Bool.or_true, Bool.and_true]
       have hComm : mat5Vec (faceReflection a) (mat5Vec (faceReflection b) baseCenter) =
                    mat5Vec (faceReflection b) (mat5Vec (faceReflection a) baseCenter) := by
         rw [(cg_step1_and_step2_exact a b).2, (cg_step1_and_step2_exact b a).2]
         have h1 : dot4 (d4RootOf a) (d4RootOf b) = 1 := of_decide_eq_true hAdj.1
         have h2 : dot4 (d4RootOf b) (d4RootOf a) = 1 := by rw [cg_dot4_comm]; exact h1
-        apply cg_vec5_ext; intro i
-        unfold step2Center
-        rw [h1, h2]
-        cases baseCenter i; cases facetNormal a i; cases facetNormal b i
-        simp only [ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq]
-        exact ⟨by omega, by omega⟩
+        funext i; unfold step2Center; rw [h1, h2]
+        ext <;> dsimp [ZSqrt2.add, ZSqrt2.scale] <;> ring
       exact ⟨hCanonBA, hComm⟩
   · intro a b a' b' hC hC' hEq
     rw [(cg_step1_and_step2_exact a b).2, (cg_step1_and_step2_exact a' b').2] at hEq
     have hne : a ≠ b := by
-      unfold isCanonLen2 at hC
-      cases hd : decide (a ≠ b)
-      · rw [hd, Bool.false_and] at hC; exact absurd hC (by decide)
-      · exact of_decide_eq_true hd
+      unfold isCanonLen2 at hC; simp only [Bool.and_eq_true, decide_eq_true_eq] at hC; exact hC.1
     have hne' : a' ≠ b' := by
-      unfold isCanonLen2 at hC'
-      cases hd : decide (a' ≠ b')
-      · rw [hd, Bool.false_and] at hC'; exact absurd hC' (by decide)
-      · exact of_decide_eq_true hd
+      unfold isCanonLen2 at hC'; simp only [Bool.and_eq_true, decide_eq_true_eq] at hC'; exact hC'.1
     have hDotEq : dot4 (d4RootOf a) (d4RootOf b) = dot4 (d4RootOf a') (d4RootOf b') := by
       have hD := congrArg (fun v => (twiceForm v baseCenter).a) hEq
-      rw [hDist2 a b, hDist2 a' b'] at hD
-      simp only [ZSqrt2.ofInt] at hD
-      omega
+      rw [hDist2 a b, hDist2 a' b'] at hD; dsimp [ZSqrt2.ofInt] at hD; omega
     let k := 6 - 4 * dot4 (d4RootOf a) (d4RootOf b)
     have hCoordEq :
         2 * (d4RootOf b).1 + k * (d4RootOf a).1 = 2 * (d4RootOf b').1 + k * (d4RootOf a').1 ∧
@@ -765,87 +477,53 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
         intro x
         have hX := congrArg (fun v => (twiceForm v (facetDir x)).a) hEq
         rw [hProj a b x, hProj a' b' x, ← hDotEq] at hX
-        simp only [ZSqrt2.ofInt] at hX
-        have h2k : ∀ y : Int, 2 * (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * y = 2 * (k * y) :=
-          fun y => Int.mul_assoc 2 k y
-        rw [h2k, h2k] at hX
-        omega
+        dsimp [ZSqrt2.ofInt] at hX
+        change 2 * dot4 (d4RootOf b) (d4RootOf x) + (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * dot4 (d4RootOf a) (d4RootOf x) =
+          2 * dot4 (d4RootOf b') (d4RootOf x) + (6 - 4 * dot4 (d4RootOf a) (d4RootOf b)) * dot4 (d4RootOf a') (d4RootOf x)
+        linarith
       have hd0 : ∀ u : Vec4, dot4 u (d4RootOf ⟨0, by decide⟩) = u.1 + u.2.1 := fun u => by
-        change u.1 * 1 + u.2.1 * 1 + u.2.2.1 * 0 + u.2.2.2 * 0 = u.1 + u.2.1
-        simp only [Int.mul_one, Int.mul_zero]; omega
+        change u.1 * 1 + u.2.1 * 1 + u.2.2.1 * 0 + u.2.2.2 * 0 = _; ring
       have hd1 : ∀ u : Vec4, dot4 u (d4RootOf ⟨1, by decide⟩) = u.1 - u.2.1 := fun u => by
-        change u.1 * 1 + u.2.1 * (-1) + u.2.2.1 * 0 + u.2.2.2 * 0 = u.1 - u.2.1
-        simp only [Int.mul_one, Int.mul_zero, Int.mul_neg]; omega
+        change u.1 * 1 + u.2.1 * (-1) + u.2.2.1 * 0 + u.2.2.2 * 0 = _; ring
       have hd20 : ∀ u : Vec4, dot4 u (d4RootOf ⟨20, by decide⟩) = u.2.2.1 + u.2.2.2 := fun u => by
-        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * 1 = u.2.2.1 + u.2.2.2
-        simp only [Int.mul_one, Int.mul_zero]; omega
+        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * 1 = _; ring
       have hd21 : ∀ u : Vec4, dot4 u (d4RootOf ⟨21, by decide⟩) = u.2.2.1 - u.2.2.2 := fun u => by
-        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * (-1) = u.2.2.1 - u.2.2.2
-        simp only [Int.mul_one, Int.mul_zero, Int.mul_neg]; omega
-      have p0 := hP ⟨0, by decide⟩
-      have p1 := hP ⟨1, by decide⟩
-      have p20 := hP ⟨20, by decide⟩
-      have p21 := hP ⟨21, by decide⟩
-      simp only [hd0, Int.mul_add] at p0
-      simp only [hd1, Int.mul_sub] at p1
-      simp only [hd20, Int.mul_add] at p20
-      simp only [hd21, Int.mul_sub] at p21
-      exact ⟨by omega, by omega, by omega, by omega⟩
+        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * (-1) = _; ring
+      have p0 := hP ⟨0, by decide⟩; have p1 := hP ⟨1, by decide⟩
+      have p20 := hP ⟨20, by decide⟩; have p21 := hP ⟨21, by decide⟩
+      rw [hd0, hd0, hd0, hd0] at p0; rw [hd1, hd1, hd1, hd1] at p1
+      rw [hd20, hd20, hd20, hd20] at p20; rw [hd21, hd21, hd21, hd21] at p21
+      exact ⟨by linarith, by linarith, by linarith, by linarith⟩
     if hAdj : adj24 a b = true then
       have hDot1 : dot4 (d4RootOf a) (d4RootOf b) = 1 := of_decide_eq_true hAdj
       have hAdj' : adj24 a' b' = true := decide_eq_true (hDotEq.symm.trans hDot1)
       have hLt : a.val < b.val := by
-        unfold isCanonLen2 at hC
-        rw [decide_eq_true hne, hAdj] at hC
-        simp only [Bool.true_and, Bool.not_true, Bool.false_or] at hC
-        exact of_decide_eq_true hC
+        unfold isCanonLen2 at hC; rw [decide_eq_true hne, hAdj] at hC; simpa using hC
       have hLt' : a'.val < b'.val := by
-        unfold isCanonLen2 at hC'
-        rw [decide_eq_true hne', hAdj'] at hC'
-        simp only [Bool.true_and, Bool.not_true, Bool.false_or] at hC'
-        exact of_decide_eq_true hC'
+        unfold isCanonLen2 at hC'; rw [decide_eq_true hne', hAdj'] at hC'; simpa using hC'
       have hk2 : k = 2 := by change 6 - 4 * dot4 (d4RootOf a) (d4RootOf b) = 2; omega
       rw [hk2] at hCoordEq
       exact cg_d4_sum_adj_unique a b a' b' hAdj hAdj' hLt hLt'
         ⟨by omega, by omega, by omega, by omega⟩
     else
-      have hNotAdj : adj24 a b = false := by
-        cases ha : adj24 a b
-        · rfl
-        · exact absurd ha hAdj
+      have hNotAdj : adj24 a b = false := by cases ha : adj24 a b <;> simp_all
       have hDotLe0 : dot4 (d4RootOf a) (d4RootOf b) ≤ 0 :=
-        (by decide : ∀ x y : Fin 24, x ≠ y → adj24 x y = false → dot4 (d4RootOf x) (d4RootOf y) ≤ 0)
-          a b hne hNotAdj
+        (by decide : ∀ x y : Fin 24, x ≠ y → adj24 x y = false → dot4 (d4RootOf x) (d4RootOf y) ≤ 0) a b hne hNotAdj
       have hkGe6 : k ≥ 6 := by change 6 - 4 * dot4 (d4RootOf a) (d4RootOf b) ≥ 6; omega
       obtain ⟨bb0L, bb0U, bb1L, bb1U, bb2L, bb2U, bb3L, bb3U⟩ := cg_d4_coord_bounds b
       obtain ⟨bb0L', bb0U', bb1L', bb1U', bb2L', bb2U', bb3L', bb3U'⟩ := cg_d4_coord_bounds b'
       have hRecCoord : ∀ (xa xa' xb xb' : Int),
           -1 ≤ xb → xb ≤ 1 → -1 ≤ xb' → xb' ≤ 1 →
-          2 * xb + k * xa = 2 * xb' + k * xa' → xa = xa' ∧ xb = xb' := by
-        intro xa xa' xb xb' h5 h6 h7 h8 hE
-        have hxa : xa = xa' := by
-          have hDiff : k * (xa - xa') = 2 * (xb' - xb) := by
-            rw [Int.mul_sub]; omega
-          if hEqX : xa = xa' then exact hEqX
-          else if hGt : xa > xa' then
-            have hNN : 0 ≤ k * ((xa - xa') - 1) := Int.mul_nonneg (by omega) (by omega)
-            rw [Int.mul_sub, Int.mul_one] at hNN
-            omega
-          else
-            have hNN : 0 ≤ k * ((xa' - xa) - 1) := Int.mul_nonneg (by omega) (by omega)
-            rw [Int.mul_sub, Int.mul_one] at hNN
-            have hNeg : k * (xa' - xa) = -(k * (xa - xa')) := by rw [Int.mul_sub, Int.mul_sub]; omega
-            omega
-        rw [hxa] at hE
-        exact ⟨hxa, by omega⟩
+          2 * xb + k * xa = 2 * xb' + k * xa' → xa = xa' ∧ xb = xb' := fun xa xa' xb xb' h5 h6 h7 h8 hE => by
+        have hxa : xa = xa' := by nlinarith
+        exact ⟨hxa, by nlinarith⟩
       have c0 := hRecCoord _ _ _ _ bb0L bb0U bb0L' bb0U' hCoordEq.1
       have c1 := hRecCoord _ _ _ _ bb1L bb1U bb1L' bb1U' hCoordEq.2.1
       have c2 := hRecCoord _ _ _ _ bb2L bb2U bb2L' bb2U' hCoordEq.2.2.1
       have c3 := hRecCoord _ _ _ _ bb3L bb3U bb3L' bb3U' hCoordEq.2.2.2
       have hRootInj : ∀ x y : Fin 24, d4RootOf x = d4RootOf y → x = y := by decide
-      have haEq : a = a' := hRootInj a a' (Prod.ext c0.1 (Prod.ext c1.1 (Prod.ext c2.1 c3.1)))
-      have hbEq : b = b' := hRootInj b b' (Prod.ext c0.2 (Prod.ext c1.2 (Prod.ext c2.2 c3.2)))
-      exact ⟨haEq, hbEq⟩
+      exact ⟨hRootInj a a' (Prod.ext c0.1 (Prod.ext c1.1 (Prod.ext c2.1 c3.1))),
+             hRootInj b b' (Prod.ext c0.2 (Prod.ext c1.2 (Prod.ext c2.2 c3.2)))⟩
 
 
 /-! ## Section 4: Exact 24-Cell & Wall Clique `f`-Vectors and Uniform Foata Disjointness Matrices -/
@@ -908,10 +586,7 @@ theorem thm_24cell_clique_fvector :
     (wallCliques2.filter (fun ab => !(isLayerFacet ab.1) && !(isLayerFacet ab.2))).length = 4 := by
   decide
 
-/-- Disjointness predicates for `forb(C) = C ∪ CommonAdj(C)` on `Γ_24`:
-    - `inForb1 a x`: `x ∈ {a} ∪ Adj(a)` (i.e. `r_a · r_x ≥ 1`),
-    - `inForb2 a b x`: `x ∈ {a, b} ∪ (Adj(a) ∩ Adj(b))`,
-    - `inForb3 a b c x`: `x ∈ {a, b, c}` (since `Γ_24` has zero 4-cliques!). -/
+/-- Disjointness predicates for `forb(C) = C ∪ CommonAdj(C)` on `Γ_24`. -/
 def inForb1 (a x : Fin 24) : Bool := decide (dot4 (d4RootOf a) (d4RootOf x) ≥ 1)
 def inForb2 (a b x : Fin 24) : Bool := decide (x = a ∨ x = b) || (adj24 a x && adj24 b x)
 def inForb3 (a b c x : Fin 24) : Bool := decide (x = a ∨ x = b ∨ x = c)
@@ -958,16 +633,7 @@ def canonB4Pair (a b : Fin 24) : (Fin 4 → Fin 4) × (Fin 4 → Int) :=
     | ⟨3, _⟩ => 1
   (p, s)
 
-/-- Headline Theorem 7 (Exact Uniform Cartier-Foata Disjointness Matrices `M_24` and `M_wall`):
-    1. On the canonical `W(B_4)` clique-orbit representatives `{0}`, `{0,4}`, `{0,4,8}` (star),
-       and `{0,4,12}` (cycle), the disjoint `(1, 2, 3)`-clique counts are EXACTLY:
-       `k = 1 → (15, 44, 36)`, `k = 2 → (19, 63, 54)`, `k = 3 → (21, 75, 68)` (identical on both triangle types!),
-    2. EVERY 1-, 2-, and 3-clique of `Γ_24` maps under an explicit `W(B_4)` signed-coordinate
-       automorphism of `d4RootOf` onto one of those 4 canonical representatives (with `{0,4}` having
-       precisely the 3 common neighbors `{8, 9, 12}` where `x_3 ↦ -x_3` maps `9 ↦ 8`), proving
-       100% uniform Foata transition rows across ALL `24 + 96 + 96` cliques!
-    3. Across ALL `8` wall 1-cliques and ALL `12` wall 2-cliques of the 3D wall cube `W`, the
-       disjoint `(1, 2)`-wall-clique counts are uniformly `(4, 3)` (`k = 1`) and `(6, 7)` (`k = 2`)! -/
+/-- Headline Theorem 7 (Exact Uniform Cartier-Foata Disjointness Matrices `M_24` and `M_wall`). -/
 theorem thm_24cell_foata_matrix_uniform :
     foataCounts24 (inForb1 ⟨0, by decide⟩) = (15, 44, 36) ∧
     foataCounts24 (inForb2 ⟨0, by decide⟩ ⟨4, by decide⟩) = (19, 63, 54) ∧
@@ -1032,19 +698,15 @@ def foataA1 (r : Nat) : Nat := (foataWin r).cur.a1
 def foataA2 (r : Nat) : Nat := (foataWin r).cur.a2
 def foataA3 (r : Nat) : Nat := (foataWin r).cur.a3
 
-/-- Exact spherical ball-shell count `|∂B_r|` of `{3,4,3,4}` from the 24-cell clique `f`-vector `(1, 24, 96, 96)`:
-    `|∂B_r| = a_0(r) + 24 a_1(r) + 96 a_2(r) + 96 a_3(r)` (`1, 24, 456, 8376, 153192, ...`). -/
+/-- Exact spherical ball-shell count `|∂B_r|` of `{3,4,3,4}` from the 24-cell clique `f`-vector `(1, 24, 96, 96)`. -/
 def ballShell (r : Nat) : Nat :=
   foataA0 r + 24 * foataA1 r + 96 * foataA2 r + 96 * foataA3 r
 
-/-- Exact horosphere cusp-shell count `N_D` of `{3,4,3,4}` from the 18 downward facets' clique `f`-vector
-    `(1, 18, 60, 52)` (minimal-length `W_L \ W` coset representatives):
-    `N_D = a_0(D) + 18 a_1(D) + 60 a_2(D) + 52 a_3(D)` (`1, 18, 330, 6034, 110298, ...`). -/
+/-- Exact horosphere cusp-shell count `N_D` of `{3,4,3,4}` from the 18 downward facets' clique `f`-vector `(1, 18, 60, 52)`. -/
 def cuspShell (D : Nat) : Nat :=
   foataA0 D + 18 * foataA1 D + 60 * foataA2 D + 52 * foataA3 D
 
-/-- Exact Steinberg descent-containment counts `b_k(r)` (`#{w : l(w) = r, K ⊆ D_R(w)}` for fixed `k`-clique `K`):
-    using the exact 24-cell clique incidence rows `(1, 8, 12)`, `(1, 3)`, `(1)`. -/
+/-- Exact Steinberg descent-containment counts `b_k(r)`. -/
 def steinbergB1 (r : Nat) : Nat := foataA1 r + 8 * foataA2 r + 12 * foataA3 r
 def steinbergB2 (r : Nat) : Nat := foataA2 r + 3 * foataA3 r
 def steinbergB3 (r : Nat) : Nat := foataA3 r
@@ -1081,15 +743,11 @@ def wallW0 (r : Nat) : Nat := (wallWin r).cur.w0
 def wallW1 (r : Nat) : Nat := (wallWin r).cur.w1
 def wallW2 (r : Nat) : Nat := (wallWin r).cur.w2
 
-/-- Exact single-face lateral link count `l_D` derived from the 8-facet wall cube's 4 downward facets
-    (clique `f`-vector `(1, 4, 4)`): `l_D = w_0(D) + 4 w_1(D) + 4 w_2(D)` (`1, 4, 20, 100, ...`). -/
+/-- Exact single-face lateral link count `l_D` derived from the 8-facet wall cube's 4 downward facets. -/
 def wallCusp (D : Nat) : Nat :=
   wallW0 D + 4 * wallW1 D + 4 * wallW2 D
 
-/-- Headline Theorem 8 (Exact Initial Shell & Wall Counts Matching `exact-3434.ts` & `exact-cusp.ts`):
-    - `ballShell 0..4 = [1, 24, 456, 8376, 153192]`,
-    - `cuspShell 0..4 = [1, 18, 330, 6034, 110298]` (matching `E-GMT-0041` bit-for-bit!),
-    - `wallCusp  0..4 = [1, 4, 20, 100, 500]`. -/
+/-- Headline Theorem 8 (Exact Initial Shell & Wall Counts Matching `exact-3434.ts` & `exact-cusp.ts`). -/
 theorem thm_foata_exact_initial_values :
     (ballShell 0 = 1 ∧ ballShell 1 = 24 ∧ ballShell 2 = 456 ∧ ballShell 3 = 8376 ∧ ballShell 4 = 153192) ∧
     (cuspShell 0 = 1 ∧ cuspShell 1 = 18 ∧ cuspShell 2 = 330 ∧ cuspShell 3 = 6034 ∧ cuspShell 4 = 110298) ∧
@@ -1102,21 +760,6 @@ private theorem foata_shift_eqs (r : Nat) :
     foataA2 (r + 2) = foataA0 r + 19 * foataA1 r + 63 * foataA2 r + 54 * foataA3 r ∧
     foataA3 (r + 3) = foataA0 r + 21 * foataA1 r + 75 * foataA2 r + 68 * foataA3 r :=
   ⟨rfl, rfl, rfl, rfl⟩
-
-private theorem foata_lin_comb_3 (c1 c2 c3 x4 x3 x2 x1 y4 y3 y2 y1 z4 z3 z2 z1 : Nat)
-    (hx : x4 + 51 * x2 = 21 * x3 + 23 * x1)
-    (hy : y4 + 51 * y2 = 21 * y3 + 23 * y1)
-    (hz : z4 + 51 * z2 = 21 * z3 + 23 * z1) :
-    (0 + c1 * x4 + c2 * y4 + c3 * z4) + 51 * (0 + c1 * x2 + c2 * y2 + c3 * z2) =
-      21 * (0 + c1 * x3 + c2 * y3 + c3 * z3) + 23 * (0 + c1 * x1 + c2 * y1 + c3 * z1) := by
-  have h1 : c1 * (x4 + 51 * x2) = c1 * (21 * x3 + 23 * x1) := congrArg (fun t => c1 * t) hx
-  have h2 : c2 * (y4 + 51 * y2) = c2 * (21 * y3 + 23 * y1) := congrArg (fun t => c2 * t) hy
-  have h3 : c3 * (z4 + 51 * z2) = c3 * (21 * z3 + 23 * z1) := congrArg (fun t => c3 * t) hz
-  simp only [Nat.mul_add] at h1 h2 h3
-  rw [Nat.mul_left_comm c1 51 x2, Nat.mul_left_comm c1 21 x3, Nat.mul_left_comm c1 23 x1] at h1
-  rw [Nat.mul_left_comm c2 51 y2, Nat.mul_left_comm c2 21 y3, Nat.mul_left_comm c2 23 y1] at h2
-  rw [Nat.mul_left_comm c3 51 z2, Nat.mul_left_comm c3 21 z3, Nat.mul_left_comm c3 23 z1] at h3
-  omega
 
 private theorem foata_cubic_step_bundle :
     ∀ n : Nat,
@@ -1140,28 +783,21 @@ private theorem foata_cubic_step_bundle :
           (foata_shift_eqs (m + 4)).2.1, (foata_shift_eqs (m + 3)).2.1,
           (foata_shift_eqs (m + 5)).1, (foata_shift_eqs (m + 4)).1,
           (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1]
-      exact foata_lin_comb_3 15 44 36 _ _ _ _ _ _ _ _ _ _ _ _ h2a h2b h2c
+      omega
     · change foataA2 (m + 7) + 51 * foataA2 (m + 5) = 21 * foataA2 (m + 6) + 23 * foataA2 (m + 4)
       rw [(foata_shift_eqs (m + 5)).2.2.1, (foata_shift_eqs (m + 4)).2.2.1,
           (foata_shift_eqs (m + 3)).2.2.1, (foata_shift_eqs (m + 2)).2.2.1,
           (foata_shift_eqs (m + 4)).1, (foata_shift_eqs (m + 3)).1,
           (foata_shift_eqs (m + 2)).1, (foata_shift_eqs (m + 1)).1]
-      exact foata_lin_comb_3 19 63 54 _ _ _ _ _ _ _ _ _ _ _ _ h1a h1b h1c
+      omega
     · change foataA3 (m + 7) + 51 * foataA3 (m + 5) = 21 * foataA3 (m + 6) + 23 * foataA3 (m + 4)
       rw [(foata_shift_eqs (m + 4)).2.2.2, (foata_shift_eqs (m + 3)).2.2.2,
           (foata_shift_eqs (m + 2)).2.2.2, (foata_shift_eqs (m + 1)).2.2.2,
           (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1,
           (foata_shift_eqs (m + 1)).1, (foata_shift_eqs m).1]
-      exact foata_lin_comb_3 21 75 68 _ _ _ _ _ _ _ _ _ _ _ _ h0a h0b h0c
+      omega
 
-/-- Headline Theorem 9 (Exact Steinberg Cubic Recurrence & Inclusion-Exclusion Identities for ALL `n : Nat`):
-    derived unconditionally from the 24-cell Cartier-Foata transfer matrix `M_24`:
-    1. `a_1, a_2, a_3`, `ballShell`, and `cuspShell` ALL satisfy
-       `x(n + 4) + 51 x(n + 2) = 21 x(n + 3) + 23 x(n + 1)` for EVERY `n : Nat`
-       (corresponding to the exact generating functions `W(t) = (1+t)^3 / (1 - 21t + 51t^2 - 23t^3)`
-       and `W^L(t) = (1-t)^3 / (1 - 21t + 51t^2 - 23t^3)`),
-    2. Exact Steinberg inclusion-exclusion bridge `cuspShell r + 6 b_1(r) + 8 b_3(r) = ballShell r + 12 b_2(r)`
-       for ALL `r : Nat` and `ballShell (r + 1) + 96 b_2(r + 1) = 24 b_1(r + 1) + 96 b_3(r + 1)`. -/
+/-- Headline Theorem 9 (Exact Steinberg Cubic Recurrence & Inclusion-Exclusion Identities for ALL `n : Nat`). -/
 theorem thm_foata_cubic_recurrence :
     (∀ n : Nat,
       ballShell (n + 4) + 51 * ballShell (n + 2) = 21 * ballShell (n + 3) + 23 * ballShell (n + 1) ∧
@@ -1171,27 +807,12 @@ theorem thm_foata_cubic_recurrence :
   refine ⟨?_, ?_, ?_⟩
   · intro n
     obtain ⟨h1, h2, h3⟩ := (foata_cubic_step_bundle n).1
-    have z4 := (foata_shift_eqs (n + 3)).1
-    have z3 := (foata_shift_eqs (n + 2)).1
-    have z2 := (foata_shift_eqs (n + 1)).1
-    have z1 := (foata_shift_eqs n).1
     unfold ballShell cuspShell
-    rw [z4, z3, z2, z1]
+    rw [(foata_shift_eqs (n + 3)).1, (foata_shift_eqs (n + 2)).1,
+        (foata_shift_eqs (n + 1)).1, (foata_shift_eqs n).1]
     exact ⟨by omega, by omega⟩
-  · intro r
-    unfold cuspShell ballShell steinbergB1 steinbergB2 steinbergB3
-    omega
-  · intro r
-    have z1 := (foata_shift_eqs r).1
-    unfold ballShell steinbergB1 steinbergB2 steinbergB3
-    rw [z1]
-    omega
-
-private theorem wall_shift_eqs (r : Nat) :
-    wallW0 (r + 1) = 0 ∧
-    wallW1 (r + 1) = wallW0 r + 4 * wallW1 r + 3 * wallW2 r ∧
-    wallW2 (r + 2) = wallW0 r + 6 * wallW1 r + 7 * wallW2 r :=
-  ⟨rfl, rfl, rfl⟩
+  · intro r; unfold cuspShell ballShell steinbergB1 steinbergB2 steinbergB3; omega
+  · intro r; unfold ballShell steinbergB1 steinbergB2 steinbergB3; rw [(foata_shift_eqs r).1]; omega
 
 private theorem wall_quad_step_bundle :
     ∀ n : Nat,
@@ -1208,18 +829,13 @@ private theorem wall_quad_step_bundle :
     · have s1_5 : wallW1 (m + 5) = 0 + 4 * wallW1 (m + 4) + 3 * wallW2 (m + 4) := rfl
       have s1_4 : wallW1 (m + 4) = 0 + 4 * wallW1 (m + 3) + 3 * wallW2 (m + 3) := rfl
       have s1_3 : wallW1 (m + 3) = 0 + 4 * wallW1 (m + 2) + 3 * wallW2 (m + 2) := rfl
-      change wallW1 (m + 5) + 5 * wallW1 (m + 3) = 6 * wallW1 (m + 4)
-      omega
+      change wallW1 (m + 5) + 5 * wallW1 (m + 3) = 6 * wallW1 (m + 4); omega
     · have s2_5 : wallW2 (m + 5) = 0 + 6 * wallW1 (m + 3) + 7 * wallW2 (m + 3) := rfl
       have s2_4 : wallW2 (m + 4) = 0 + 6 * wallW1 (m + 2) + 7 * wallW2 (m + 2) := rfl
       have s2_3 : wallW2 (m + 3) = 0 + 6 * wallW1 (m + 1) + 7 * wallW2 (m + 1) := rfl
-      change wallW2 (m + 5) + 5 * wallW2 (m + 3) = 6 * wallW2 (m + 4)
-      omega
+      change wallW2 (m + 5) + 5 * wallW2 (m + 3) = 6 * wallW2 (m + 4); omega
 
-/-- Headline Theorem 10 (Unconditional Derivation of Single-Face Lateral Links `l_D = 4 * 5^{D-1}`):
-    directly from the 8-facet wall cube Foata matrix `M_wall = [[1, 4, 3], [1, 6, 7]]`,
-    `wallW1 (d + 1) + wallW2 (d + 1) = 5 ^ d` for ALL `d : Nat`, and hence
-    `wallCusp D = cuspLateralLinks D` (`1, 4, 20, 100, ...`) for EVERY `D : Nat`! -/
+/-- Headline Theorem 10 (Unconditional Derivation of Single-Face Lateral Links `l_D = 4 * 5^{D-1}`). -/
 theorem thm_wall_cusp_eq_cuspLateralLinks :
     (∀ d : Nat, wallW1 (d + 1) + wallW2 (d + 1) = 5 ^ d) ∧
     (∀ D : Nat, wallCusp D = cuspLateralLinks D) := by
@@ -1232,22 +848,16 @@ theorem thm_wall_cusp_eq_cuspLateralLinks :
     | succ k ih =>
       refine ⟨ih.2, ?_⟩
       obtain ⟨hR1, hR2⟩ := (wall_quad_step_bundle k).1
-      have h1 := ih.1
-      have h2 := ih.2
+      have h1 := ih.1; have h2 := ih.2
       change wallW1 (k + 3) + wallW2 (k + 3) = 5 ^ (k + 2)
-      rw [Nat.pow_succ, Nat.pow_succ]
-      rw [Nat.pow_succ] at h2
-      omega
-  refine ⟨fun d => (hPair d).1, ?_⟩
-  intro D
+      rw [Nat.pow_succ, Nat.pow_succ]; rw [Nat.pow_succ] at h2; omega
+  refine ⟨fun d => (hPair d).1, fun D => ?_⟩
   cases D with
   | zero => decide
   | succ d =>
     change wallW0 (d + 1) + 4 * wallW1 (d + 1) + 4 * wallW2 (d + 1) = 4 * 5 ^ d
-    have hz := (wall_shift_eqs d).1
-    have hS := (hPair d).1
-    rw [hz]
-    omega
+    have hz : wallW0 (d + 1) = 0 := rfl
+    have hS := (hPair d).1; rw [hz]; omega
 
 
 /-! ## Section 6: Unconditional `18×` Cusp Growth, Sharp Rate Brackets & `Vibe.Geometry` Discharge -/
@@ -1267,15 +877,10 @@ theorem thm_cusp_growth_ge_18 :
       refine ⟨ih.2.1, ih.2.2, ?_⟩
       have hRec := (thm_foata_cubic_recurrence.1 m).2
       have hPrev := ih.2.2
-      change cuspShell (m + 4) ≥ 18 * cuspShell (m + 3)
-      omega
+      change cuspShell (m + 4) ≥ 18 * cuspShell (m + 3); omega
   exact ⟨by decide, fun D => (hPair D).1⟩
 
-/-- Headline Theorem 12 (Sharp Asymptotic Growth Rate Brackets `λ_{3434} ∈ (18.2787, 18.2788)`):
-    1. For ALL `D ≥ 1`, `18.27 ≤ N_{D+1} / N_D ≤ 18.34` (cleared integers: `1827 N_D ≤ 100 N_{D+1} ≤ 1834 N_D`),
-    2. For ALL `r ≥ 1`, `18.27 ≤ |∂B_{r+1}| / |∂B_r| ≤ 19.00` (`1827 |∂B_r| ≤ 100 |∂B_{r+1}| ≤ 1900 |∂B_r|`),
-    3. Exact characteristic polynomial `p(λ) = λ^3 - 21 λ^2 + 51 λ - 23` root bracket:
-       `p(182787 / 10000) < 0 < p(182788 / 10000)` certifying `18.2787 < λ_{3434} < 18.2788`! -/
+/-- Headline Theorem 12 (Sharp Asymptotic Growth Rate Brackets `λ_{3434} ∈ (18.2787, 18.2788)`). -/
 theorem thm_cusp_and_ball_growth_rate_bounds :
     (∀ D : Nat, D ≥ 1 → 1827 * cuspShell D ≤ 100 * cuspShell (D + 1) ∧
                         100 * cuspShell (D + 1) ≤ 1834 * cuspShell D) ∧
@@ -1296,10 +901,7 @@ theorem thm_cusp_and_ball_growth_rate_bounds :
     | succ m ih =>
       refine ⟨ih.2, ?_⟩
       have hRec := (thm_foata_cubic_recurrence.1 m).2
-      have h1L := ih.1.1
-      have h1U := ih.1.2
-      have h2L := ih.2.1
-      have h2U := ih.2.2
+      obtain ⟨⟨h1L, h1U⟩, ⟨h2L, h2U⟩⟩ := ih
       change 1827 * cuspShell (m + 3) ≤ 100 * cuspShell (m + 4) ∧
              100 * cuspShell (m + 4) ≤ 1834 * cuspShell (m + 3)
       exact ⟨by omega, by omega⟩
@@ -1314,53 +916,34 @@ theorem thm_cusp_and_ball_growth_rate_bounds :
     | succ m ih =>
       refine ⟨ih.2, ?_⟩
       have hRec := (thm_foata_cubic_recurrence.1 m).1
-      have h1L := ih.1.1
-      have h1U := ih.1.2
-      have h2L := ih.2.1
-      have h2U := ih.2.2
+      obtain ⟨⟨h1L, h1U⟩, ⟨h2L, h2U⟩⟩ := ih
       change 1827 * ballShell (m + 3) ≤ 100 * ballShell (m + 4) ∧
              100 * ballShell (m + 4) ≤ 1900 * ballShell (m + 3)
       exact ⟨by omega, by omega⟩
-  refine ⟨?_, ?_, by decide⟩
-  · intro D hD
-    cases D with
-    | zero => omega
-    | succ n => exact (hCusp n).1
-  · intro r hr
-    cases r with
-    | zero => omega
-    | succ n => exact (hBall n).1
+  refine ⟨fun D hD => by cases D with | zero => omega | succ n => exact (hCusp n).1,
+          fun r hr => by cases r with | zero => omega | succ n => exact (hBall n).1,
+          by decide⟩
 
 private theorem cuspShell_zero_ge_one : cuspShell 0 ≥ 1 := by decide
 
-/-- Headline Theorem 13 (Unconditional `{3,4,3,4}` Exponential Cusp Shell Lower Bound):
-    discharges `Vibe.Geometry.thm5_shell_exp_lower_bound` with ZERO conditional hypotheses:
-    `cuspShell D ≥ 18 ^ D` for ALL `D : Nat`! -/
+/-- Headline Theorem 13 (Unconditional `{3,4,3,4}` Exponential Cusp Shell Lower Bound). -/
 theorem thm_unconditional_cusp_shell_exp :
     ∀ D : Nat, cuspShell D ≥ 18 ^ D :=
   thm5_shell_exp_lower_bound cuspShell cuspShell_zero_ge_one thm_cusp_growth_ge_18.2
 
-/-- Headline Theorem 14 (Unconditional `{3,4,3,4}` Column Resistance Exponential Divergence):
-    discharges `Vibe.Geometry.thm5_resistance_exp_lower_bound` and `thm5_resistance_strictly_increasing`
-    with ZERO conditional hypotheses: `17 * colResistance cuspShell F + 1 ≥ 18 ^ F` and
-    `colResistance cuspShell (F + 1) > colResistance cuspShell F` for ALL `F : Nat`! -/
+/-- Headline Theorem 14 (Unconditional `{3,4,3,4}` Column Resistance Exponential Divergence). -/
 theorem thm_unconditional_resistance_exp :
     (∀ F : Nat, 17 * colResistance cuspShell F + 1 ≥ 18 ^ F) ∧
     (∀ F : Nat, colResistance cuspShell (F + 1) > colResistance cuspShell F) :=
   ⟨ thm5_resistance_exp_lower_bound cuspShell cuspShell_zero_ge_one thm_cusp_growth_ge_18.2,
     thm5_resistance_strictly_increasing cuspShell cuspShell_zero_ge_one thm_cusp_growth_ge_18.2 ⟩
 
-/-- Headline Theorem 15 (Unconditional `{3,4,3,4}` Column Resistance Unboundedness):
-    discharges `Vibe.Geometry.thm5_resistance_unbounded` with ZERO conditional hypotheses:
-    for EVERY target `B : Nat`, there exists `F : Nat` with `colResistance cuspShell F > B`! -/
+/-- Headline Theorem 15 (Unconditional `{3,4,3,4}` Column Resistance Unboundedness). -/
 theorem thm_unconditional_resistance_unbounded :
     ∀ B : Nat, ∃ F : Nat, colResistance cuspShell F > B :=
   thm5_resistance_unbounded cuspShell cuspShell_zero_ge_one thm_cusp_growth_ge_18.2
 
-/-- Headline Theorem 16 (Unconditional `{3,4,3,4}` Wall-Link Cumulative & Strict Domination Theorem):
-    combines `thm_wall_cusp_eq_cuspLateralLinks` with `Vibe.Geometry.thm5_cusp_lateral_cumulative`
-    and `thm5_cusp_lateral_lt_shell` unconditionally:
-    `∑_{d=0}^D wallCusp d = 5 ^ D` (`∀ D`) AND `wallCusp D < cuspShell D` (`∀ D ≥ 1`)! -/
+/-- Headline Theorem 16 (Unconditional `{3,4,3,4}` Wall-Link Cumulative & Strict Domination Theorem). -/
 theorem thm_unconditional_wall_lt_cusp_shell :
     (∀ D : Nat, sumNat (D + 1) wallCusp = 5 ^ D) ∧
     (∀ D : Nat, D ≥ 1 → wallCusp D < cuspShell D) := by
@@ -1369,11 +952,7 @@ theorem thm_unconditional_wall_lt_cusp_shell :
   exact ⟨ thm5_cusp_lateral_cumulative,
           thm5_cusp_lateral_lt_shell cuspShell cuspShell_zero_ge_one thm_cusp_growth_ge_18.2 ⟩
 
-/-- Headline Theorem 17 (Unconditional `{3,4,3,4}` Strict Subluminality Across ALL Positive Warp Profiles):
-    discharges `Vibe.Geometry.thm6_strictly_subluminal` with ZERO conditional cusp-growth hypotheses:
-    for EVERY positive cleared-integer weight profile `w D > 0`, EVERY floor `F ≥ 2`, and EVERY
-    positive mode prefactor `s > 0`, the concrete `{3,4,3,4}` cusp column obeys
-    `K_eff < M_eff`, `cUniversalSq < 1`, and `scaledRayleigh s < 1`! -/
+/-- Headline Theorem 17 (Unconditional `{3,4,3,4}` Strict Subluminality Across ALL Positive Warp Profiles). -/
 theorem thm_unconditional_cusp_strictly_subluminal
     (w : Nat → Nat) (F : Nat) (hF : F ≥ 2)
     (hw : ∀ D : Nat, w D > 0) (s : Nat) (hs : s > 0) :
@@ -1384,3 +963,5 @@ theorem thm_unconditional_cusp_strictly_subluminal
   thm6_strictly_subluminal cuspShell w F hF cuspShell_zero_ge_one thm_cusp_growth_ge_18.2 hw s hs
 
 end Vibe
+
+end

@@ -42,8 +42,8 @@ instance : StarCommRing Ninth where
   add_neg a := by change a + -a = 0; ring
   mul_one := _root_.mul_one
   one_mul := _root_.one_mul
-  mul_zero := _root_.mul_zero
-  zero_mul := _root_.zero_mul
+  mul_zero a := by change a * 0 = 0; ring
+  zero_mul a := by change 0 * a = 0; ring
   mul_comm := _root_.mul_comm
   mul_assoc := _root_.mul_assoc
   mul_add := _root_.left_distrib
@@ -55,15 +55,18 @@ instance : StarCommRing Ninth where
 
 private theorem ninth_scale_eq_mul (k : Int) (x : Ninth) :
     Ninth.scale k x = Ninth.ofInt k * x := by
+  change Ninth.scale k x = Ninth.mul (Ninth.ofInt k) x
   cases x; ext <;> dsimp [Ninth.scale, Ninth.ofInt, Ninth.mul] <;> ring
 
 private theorem ninth_ofInt_mul (a b : Int) :
     Ninth.ofInt (a * b) = Ninth.ofInt a * Ninth.ofInt b := by
+  change Ninth.ofInt (a * b) = Ninth.mul (Ninth.ofInt a) (Ninth.ofInt b)
   ext <;> dsimp [Ninth.ofInt, Ninth.mul] <;> ring
 
 private theorem ninth_conj_ofInt (k : Int) :
     star (Ninth.ofInt k) = Ninth.ofInt k := by
-  ext <;> dsimp [Ninth.ofInt, Ninth.conj] <;> ring
+  change Ninth.conj (Ninth.ofInt k) = Ninth.ofInt k
+  ext <;> simp [Ninth.ofInt, Ninth.conj]
 
 /-- Exact integer powers of `6`: `pow6 n = 6^n`. -/
 def pow6 : Nat → Int
@@ -105,21 +108,9 @@ def NinthRaw6.equiv (x y : NinthRaw6) : Prop :=
 instance (x y : NinthRaw6) : Decidable (NinthRaw6.equiv x y) :=
   inferInstanceAs (Decidable (Ninth.scale (pow6 y.exp) x.num = Ninth.scale (pow6 x.exp) y.num))
 
-private theorem ninthRaw6_equiv_refl (x : NinthRaw6) : NinthRaw6.equiv x x := rfl
-
 private theorem ninthRaw6_equiv_iff (x y : NinthRaw6) :
     NinthRaw6.equiv x y ↔ Ninth.ofInt (pow6 y.exp) * x.num = Ninth.ofInt (pow6 x.exp) * y.num := by
   simp only [NinthRaw6.equiv, ninth_scale_eq_mul]
-
-private def quotLift2 {α γ : Type} {r : α → α → Prop}
-    (hrRefl : ∀ a, r a a)
-    (f : α → α → γ)
-    (hf : ∀ a₁ a₂ b₁ b₂, r a₁ a₂ → r b₁ b₂ → f a₁ b₁ = f a₂ b₂) :
-    Quot r → Quot r → γ :=
-  Quot.lift
-    (fun a => Quot.lift (fun b => f a b) (fun b₁ b₂ hb => hf a a b₁ b₂ (hrRefl a) hb))
-    (fun a₁ a₂ ha => funext fun q =>
-      Quot.ind (fun b => hf a₁ a₂ b b ha (hrRefl b)) q)
 
 /-- Exact dyadic-triadic ninth cyclotomic ring `ℤ[ζ_9][1/6]` (zero floats, exact unitarity). -/
 def NinthLoc6 : Type := Quot NinthRaw6.equiv
@@ -145,7 +136,8 @@ def rawMul (x y : NinthRaw6) : NinthRaw6 := ⟨Ninth.mul x.num y.num, x.exp + y.
 
 def rawConj (x : NinthRaw6) : NinthRaw6 := ⟨Ninth.conj x.num, x.exp⟩
 
-private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
+-- [helper]
+theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     (ha : NinthRaw6.equiv a₁ a₂) (hb : NinthRaw6.equiv b₁ b₂) :
     Quot.mk NinthRaw6.equiv (rawAdd a₁ b₁) = Quot.mk NinthRaw6.equiv (rawAdd a₂ b₂) := by
   apply Quot.sound
@@ -165,7 +157,8 @@ private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     _ = Ninth.ofInt (pow6 a₁.exp) * Ninth.ofInt (pow6 b₁.exp) *
         (Ninth.ofInt (pow6 b₂.exp) * a₂.num + Ninth.ofInt (pow6 a₂.exp) * b₂.num) := by ring
 
-private theorem rawNeg_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
+-- [helper]
+theorem rawNeg_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
     Quot.mk NinthRaw6.equiv (rawNeg a₁) = Quot.mk NinthRaw6.equiv (rawNeg a₂) := by
   apply Quot.sound
   rw [ninthRaw6_equiv_iff] at ha ⊢
@@ -174,7 +167,8 @@ private theorem rawNeg_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a
     _ = -(Ninth.ofInt (pow6 a₁.exp) * a₂.num) := by rw [ha]
     _ = Ninth.ofInt (pow6 a₁.exp) * -a₂.num := by ring
 
-private theorem rawMul_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
+-- [helper]
+theorem rawMul_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     (ha : NinthRaw6.equiv a₁ a₂) (hb : NinthRaw6.equiv b₁ b₂) :
     Quot.mk NinthRaw6.equiv (rawMul a₁ b₁) = Quot.mk NinthRaw6.equiv (rawMul a₂ b₂) := by
   apply Quot.sound
@@ -187,7 +181,8 @@ private theorem rawMul_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     _ = (Ninth.ofInt (pow6 a₁.exp) * a₂.num) * (Ninth.ofInt (pow6 b₁.exp) * b₂.num) := by rw [ha, hb]
     _ = Ninth.ofInt (pow6 a₁.exp) * Ninth.ofInt (pow6 b₁.exp) * (a₂.num * b₂.num) := by ring
 
-private theorem rawConj_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
+-- [helper]
+theorem rawConj_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
     Quot.mk NinthRaw6.equiv (rawConj a₁) = Quot.mk NinthRaw6.equiv (rawConj a₂) := by
   apply Quot.sound
   rw [ninthRaw6_equiv_iff] at ha ⊢
@@ -197,7 +192,13 @@ private theorem rawConj_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ 
   simpa only [_root_.mul_comm] using h
 
 def add : NinthLoc6 → NinthLoc6 → NinthLoc6 :=
-  quotLift2 ninthRaw6_equiv_refl (fun x y => Quot.mk NinthRaw6.equiv (rawAdd x y)) rawAdd_resp
+  Quot.lift
+    (fun a => Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawAdd a b)) (fun _ _ hb => rawAdd_resp a a _ _ rfl hb))
+    (fun a₁ a₂ ha => funext fun q =>
+      Quot.ind (β := fun q =>
+        Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawAdd a₁ b)) (fun _ _ hb => rawAdd_resp a₁ a₁ _ _ rfl hb) q =
+        Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawAdd a₂ b)) (fun _ _ hb => rawAdd_resp a₂ a₂ _ _ rfl hb) q)
+        (fun b => rawAdd_resp a₁ a₂ b b ha rfl) q)
 
 def neg : NinthLoc6 → NinthLoc6 :=
   Quot.lift (fun x => Quot.mk NinthRaw6.equiv (rawNeg x)) rawNeg_resp
@@ -205,171 +206,228 @@ def neg : NinthLoc6 → NinthLoc6 :=
 def sub (x y : NinthLoc6) : NinthLoc6 := add x (neg y)
 
 def mul : NinthLoc6 → NinthLoc6 → NinthLoc6 :=
-  quotLift2 ninthRaw6_equiv_refl (fun x y => Quot.mk NinthRaw6.equiv (rawMul x y)) rawMul_resp
+  Quot.lift
+    (fun a => Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawMul a b)) (fun _ _ hb => rawMul_resp a a _ _ rfl hb))
+    (fun a₁ a₂ ha => funext fun q =>
+      Quot.ind (β := fun q =>
+        Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawMul a₁ b)) (fun _ _ hb => rawMul_resp a₁ a₁ _ _ rfl hb) q =
+        Quot.lift (fun b => Quot.mk NinthRaw6.equiv (rawMul a₂ b)) (fun _ _ hb => rawMul_resp a₂ a₂ _ _ rfl hb) q)
+        (fun b => rawMul_resp a₁ a₂ b b ha rfl) q)
 
 def conj : NinthLoc6 → NinthLoc6 :=
   Quot.lift (fun x => Quot.mk NinthRaw6.equiv (rawConj x)) rawConj_resp
 
 -- [helper]
 theorem add_zero (x : NinthLoc6) : add x zero = x := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 a.exp) * (Ninth.scale (pow6 0) a.num + Ninth.scale (pow6 a.exp) 0) =
-    Ninth.ofInt (pow6 (a.exp + 0)) * a.num
-  simp only [ninth_scale_eq_mul, pow6, Nat.add_zero]
-  change Ninth.ofInt (pow6 a.exp) * (1 * a.num + Ninth.ofInt (pow6 a.exp) * 0) =
-    Ninth.ofInt (pow6 a.exp) * a.num
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 a.exp) * (Ninth.scale (pow6 0) a.num + Ninth.scale (pow6 a.exp) 0) =
+      Ninth.ofInt (pow6 (a.exp + 0)) * a.num
+    simp only [ninth_scale_eq_mul, pow6, Nat.add_zero]
+    change Ninth.ofInt (pow6 a.exp) * (1 * a.num + Ninth.ofInt (pow6 a.exp) * 0) =
+      Ninth.ofInt (pow6 a.exp) * a.num
+    ring
 
 -- [helper]
 theorem zero_add (x : NinthLoc6) : add zero x = x := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 a.exp) * (Ninth.scale (pow6 a.exp) 0 + Ninth.scale (pow6 0) a.num) =
-    Ninth.ofInt (pow6 (0 + a.exp)) * a.num
-  simp only [ninth_scale_eq_mul, pow6, Nat.zero_add]
-  change Ninth.ofInt (pow6 a.exp) * (Ninth.ofInt (pow6 a.exp) * 0 + 1 * a.num) =
-    Ninth.ofInt (pow6 a.exp) * a.num
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 a.exp) * (Ninth.scale (pow6 a.exp) 0 + Ninth.scale (pow6 0) a.num) =
+      Ninth.ofInt (pow6 (0 + a.exp)) * a.num
+    simp only [ninth_scale_eq_mul, pow6, Nat.zero_add]
+    change Ninth.ofInt (pow6 a.exp) * (Ninth.ofInt (pow6 a.exp) * 0 + 1 * a.num) =
+      Ninth.ofInt (pow6 a.exp) * a.num
+    ring
 
 -- [helper]
 theorem add_comm (x y : NinthLoc6) : add x y = add y x := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.sound ?_) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (b.exp + a.exp)) *
-      (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp)) *
-      (Ninth.scale (pow6 a.exp) b.num + Ninth.scale (pow6 b.exp) a.num)
-  simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      apply Quot.sound
+      rw [ninthRaw6_equiv_iff]
+      change Ninth.ofInt (pow6 (b.exp + a.exp)) *
+          (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) =
+        Ninth.ofInt (pow6 (a.exp + b.exp)) *
+          (Ninth.scale (pow6 a.exp) b.num + Ninth.scale (pow6 b.exp) a.num)
+      simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
+      ring
 
 -- [helper]
 theorem add_assoc (x y z : NinthLoc6) : add (add x y) z = add x (add y z) := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.ind (fun c => Quot.sound ?_) z) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) *
-      (Ninth.scale (pow6 c.exp) (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) +
-        Ninth.scale (pow6 (a.exp + b.exp)) c.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp + c.exp)) *
-      (Ninth.scale (pow6 (b.exp + c.exp)) a.num +
-        Ninth.scale (pow6 a.exp) (Ninth.scale (pow6 c.exp) b.num + Ninth.scale (pow6 b.exp) c.num))
-  simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      induction z using Quot.ind with
+      | _ c =>
+        apply Quot.sound
+        rw [ninthRaw6_equiv_iff]
+        change Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) *
+            (Ninth.scale (pow6 c.exp) (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) +
+              Ninth.scale (pow6 (a.exp + b.exp)) c.num) =
+          Ninth.ofInt (pow6 (a.exp + b.exp + c.exp)) *
+            (Ninth.scale (pow6 (b.exp + c.exp)) a.num +
+              Ninth.scale (pow6 a.exp) (Ninth.scale (pow6 c.exp) b.num + Ninth.scale (pow6 b.exp) c.num))
+        simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
+        ring
 
 private theorem add_neg (x : NinthLoc6) : add x (neg x) = zero := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 0) *
-      (Ninth.scale (pow6 a.exp) a.num + Ninth.scale (pow6 a.exp) (-a.num)) =
-    Ninth.ofInt (pow6 (a.exp + a.exp)) * 0
-  simp only [ninth_scale_eq_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 0) *
+        (Ninth.scale (pow6 a.exp) a.num + Ninth.scale (pow6 a.exp) (-a.num)) =
+      Ninth.ofInt (pow6 (a.exp + a.exp)) * 0
+    simp only [ninth_scale_eq_mul]
+    ring
 
 -- [helper]
 theorem mul_one (x : NinthLoc6) : mul x one = x := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 a.exp) * (a.num * 1) = Ninth.ofInt (pow6 (a.exp + 0)) * a.num
-  simp only [Nat.add_zero]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 a.exp) * (a.num * 1) = Ninth.ofInt (pow6 (a.exp + 0)) * a.num
+    simp only [Nat.add_zero]
+    ring
 
 -- [helper]
 theorem one_mul (x : NinthLoc6) : mul one x = x := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 a.exp) * (1 * a.num) = Ninth.ofInt (pow6 (0 + a.exp)) * a.num
-  simp only [Nat.zero_add]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 a.exp) * (1 * a.num) = Ninth.ofInt (pow6 (0 + a.exp)) * a.num
+    simp only [Nat.zero_add]
+    ring
 
 -- [helper]
 theorem mul_zero (x : NinthLoc6) : mul x zero = zero := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 0) * (a.num * 0) = Ninth.ofInt (pow6 (a.exp + 0)) * 0
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 0) * (a.num * 0) = Ninth.ofInt (pow6 (a.exp + 0)) * 0
+    ring
 
 private theorem zero_mul (x : NinthLoc6) : mul zero x = zero := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 0) * (0 * a.num) = Ninth.ofInt (pow6 (0 + a.exp)) * 0
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 0) * (0 * a.num) = Ninth.ofInt (pow6 (0 + a.exp)) * 0
+    ring
 
 -- [helper]
 theorem mul_comm (x y : NinthLoc6) : mul x y = mul y x := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.sound ?_) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (b.exp + a.exp)) * (a.num * b.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp)) * (b.num * a.num)
-  simp only [pow6_add, ninth_ofInt_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      apply Quot.sound
+      rw [ninthRaw6_equiv_iff]
+      change Ninth.ofInt (pow6 (b.exp + a.exp)) * (a.num * b.num) =
+        Ninth.ofInt (pow6 (a.exp + b.exp)) * (b.num * a.num)
+      simp only [pow6_add, ninth_ofInt_mul]
+      ring
 
 -- [helper]
 theorem mul_assoc (x y z : NinthLoc6) : mul (mul x y) z = mul x (mul y z) := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.ind (fun c => Quot.sound ?_) z) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) * (a.num * b.num * c.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp + c.exp)) * (a.num * (b.num * c.num))
-  simp only [pow6_add, ninth_ofInt_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      induction z using Quot.ind with
+      | _ c =>
+        apply Quot.sound
+        rw [ninthRaw6_equiv_iff]
+        change Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) * (a.num * b.num * c.num) =
+          Ninth.ofInt (pow6 (a.exp + b.exp + c.exp)) * (a.num * (b.num * c.num))
+        simp only [pow6_add, ninth_ofInt_mul]
+        ring
 
 -- [helper]
 theorem mul_add (x y z : NinthLoc6) : mul x (add y z) = add (mul x y) (mul x z) := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.ind (fun c => Quot.sound ?_) z) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (a.exp + b.exp + (a.exp + c.exp))) *
-      (a.num * (Ninth.scale (pow6 c.exp) b.num + Ninth.scale (pow6 b.exp) c.num)) =
-    Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) *
-      (Ninth.scale (pow6 (a.exp + c.exp)) (a.num * b.num) +
-        Ninth.scale (pow6 (a.exp + b.exp)) (a.num * c.num))
-  simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      induction z using Quot.ind with
+      | _ c =>
+        apply Quot.sound
+        rw [ninthRaw6_equiv_iff]
+        change Ninth.ofInt (pow6 (a.exp + b.exp + (a.exp + c.exp))) *
+            (a.num * (Ninth.scale (pow6 c.exp) b.num + Ninth.scale (pow6 b.exp) c.num)) =
+          Ninth.ofInt (pow6 (a.exp + (b.exp + c.exp))) *
+            (Ninth.scale (pow6 (a.exp + c.exp)) (a.num * b.num) +
+              Ninth.scale (pow6 (a.exp + b.exp)) (a.num * c.num))
+        simp only [ninth_scale_eq_mul, pow6_add, ninth_ofInt_mul]
+        ring
 
 private theorem add_mul (x y z : NinthLoc6) : mul (add x y) z = add (mul x z) (mul y z) := by
   rw [mul_comm, mul_add, mul_comm z x, mul_comm z y]
 
 -- [helper]
 theorem conj_conj (x : NinthLoc6) : conj (conj x) = x := by
-  refine Quot.ind (fun a => Quot.sound ?_) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 a.exp) * star (star a.num) = Ninth.ofInt (pow6 a.exp) * a.num
-  rw [star_star]
+  induction x using Quot.ind with
+  | _ a =>
+    apply Quot.sound
+    rw [ninthRaw6_equiv_iff]
+    change Ninth.ofInt (pow6 a.exp) * star (star a.num) = Ninth.ofInt (pow6 a.exp) * a.num
+    rw [star_star]
 
 -- [helper]
 theorem conj_add (x y : NinthLoc6) : conj (add x y) = add (conj x) (conj y) := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.sound ?_) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (a.exp + b.exp)) *
-      star (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp)) *
-      (Ninth.scale (pow6 b.exp) (star a.num) + Ninth.scale (pow6 a.exp) (star b.num))
-  simp only [ninth_scale_eq_mul, star_add, star_mul, ninth_conj_ofInt]
-  ring
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      apply Quot.sound
+      rw [ninthRaw6_equiv_iff]
+      change Ninth.ofInt (pow6 (a.exp + b.exp)) *
+          star (Ninth.scale (pow6 b.exp) a.num + Ninth.scale (pow6 a.exp) b.num) =
+        Ninth.ofInt (pow6 (a.exp + b.exp)) *
+          (Ninth.scale (pow6 b.exp) (star a.num) + Ninth.scale (pow6 a.exp) (star b.num))
+      simp only [ninth_scale_eq_mul, star_add, star_mul, ninth_conj_ofInt]
+      ring
 
 -- [helper]
 theorem conj_mul (x y : NinthLoc6) : conj (mul x y) = mul (conj x) (conj y) := by
-  refine Quot.ind (fun a => Quot.ind (fun b => Quot.sound ?_) y) x
-  rw [ninthRaw6_equiv_iff]
-  change Ninth.ofInt (pow6 (a.exp + b.exp)) * star (a.num * b.num) =
-    Ninth.ofInt (pow6 (a.exp + b.exp)) * (star a.num * star b.num)
-  rw [star_mul, _root_.mul_comm (star b.num)]
+  induction x using Quot.ind with
+  | _ a =>
+    induction y using Quot.ind with
+    | _ b =>
+      apply Quot.sound
+      rw [ninthRaw6_equiv_iff]
+      change Ninth.ofInt (pow6 (a.exp + b.exp)) * star (a.num * b.num) =
+        Ninth.ofInt (pow6 (a.exp + b.exp)) * (star a.num * star b.num)
+      rw [star_mul, _root_.mul_comm (star b.num)]
 
 -- [helper]
 theorem conj_one : conj one = one := Quot.sound (by decide)
 
-private theorem isZero_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
+-- [helper]
+theorem isZero_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
     (a₁.num = Ninth.zero) = (a₂.num = Ninth.zero) := by
   apply propext
   constructor
   · intro h1
     unfold NinthRaw6.equiv at ha
     rw [h1, ninth_scale_eq_mul] at ha
-    have h0 : Ninth.ofInt (pow6 a₂.exp) * (0 : Ninth) = Ninth.zero := _root_.mul_zero _
+    have h0 : Ninth.ofInt (pow6 a₂.exp) * (0 : Ninth) = Ninth.zero := by change _ * 0 = 0; ring
     rw [h0] at ha
     exact ninth_scale_pow6_zero a₁.exp a₂.num ha.symm
   · intro h2
     unfold NinthRaw6.equiv at ha
     rw [h2, ninth_scale_eq_mul] at ha
-    have h0 : Ninth.ofInt (pow6 a₁.exp) * (0 : Ninth) = Ninth.zero := _root_.mul_zero _
+    have h0 : Ninth.ofInt (pow6 a₁.exp) * (0 : Ninth) = Ninth.zero := by change _ * 0 = 0; ring
     rw [h0] at ha
     exact ninth_scale_pow6_zero a₂.exp a₁.num ha
 
@@ -464,15 +522,15 @@ instance : StarCommRing NinthLoc6 where
   zero_add := NinthLoc6.zero_add
   add_comm := NinthLoc6.add_comm
   add_assoc := NinthLoc6.add_assoc
-  add_neg := NinthLoc6.add_neg
+  add_neg := fun a => by change a + -a = 0; ring
   mul_one := NinthLoc6.mul_one
   one_mul := NinthLoc6.one_mul
   mul_zero := NinthLoc6.mul_zero
-  zero_mul := NinthLoc6.zero_mul
+  zero_mul := fun a => by change 0 * a = 0; ring
   mul_comm := NinthLoc6.mul_comm
   mul_assoc := NinthLoc6.mul_assoc
   mul_add := NinthLoc6.mul_add
-  add_mul := NinthLoc6.add_mul
+  add_mul := fun a b c => by change (a + b) * c = a * c + b * c; ring
   conj_conj := NinthLoc6.conj_conj
   conj_add := NinthLoc6.conj_add
   conj_mul := NinthLoc6.conj_mul
