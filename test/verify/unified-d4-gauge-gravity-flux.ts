@@ -68,8 +68,8 @@
 //         single-beat dephasing sqrt(1 - 3 rho + 3 rho^2) disclosures).
 //   - U4: Real-positive Yukawa weight realization of |J_CKM| ~ 2.9e-5 (with |V_us|, |V_cb|, |V_ub|)
 //         from the +-60 deg Hesse phase; Dirac V_{q=2} axial-vector portal thermal freeze-out comparing
-//         degenerate 2T_R doublet (N_fl = 2, m_DM = 370..400 GeV) vs split single Dirac (N_fl = 1,
-//         m_DM = 250..280 GeV) at Lambda = 884.89 GeV, with honest LZ 2024 (arXiv:2410.17036) exclusion
+//         degenerate 2T_R doublet (N_fl = 2, m_DM = 490.7 GeV) vs split single Dirac (N_fl = 1,
+//         m_DM = 327.0 GeV) at Lambda = 884.89 GeV, with honest LZ 2024 (arXiv:2410.17036) exclusion
 //         of baseline c_A = 1/3 vs c_A = 1/6 or Lambda = 1.4 TeV discovery band and 1-loop top-quark
 //         RG-induced sigma_SI disclosure.
 //
@@ -1325,7 +1325,7 @@ function runU1(): void {
   // Single-beat dephasing factor |<e^{i phi}>| = sqrt(1 - 3 rho + 3 rho^2) (from Z_3 phase shift on spectator slots)
   const dephase = (rho: number): number => Math.sqrt(1 - 3 * rho + 3 * rho * rho)
   const deph005 = dephase(0.05) // 0.9260
-  const deph011 = dephase(0.11) // 0.8505
+  const deph011 = dephase(0.11) // 0.8404
   const deph050 = dephase(0.50) // 0.5000
 
   const solveRho = (fn: (r: number) => number, target: number): number => {

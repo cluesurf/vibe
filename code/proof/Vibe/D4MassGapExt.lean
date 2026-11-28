@@ -1,11 +1,15 @@
-import Vibe.Algebra
-import Vibe.Geometry
-import Vibe.D4MassGap
+module
+
+public import Vibe.Algebra
+public import Vibe.Geometry
+public import Vibe.D4MassGap
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
 
 /-!
 # Vibe Theory: Sharp 4D `D_4` Lattice Mass-Gap Extensions (`Alt-x0+planes`, `SU(3)` Convex Hull & `K = 2` Peter-Weyl, `SU(2)` Chordal & 2-Link Wedge)
 
-Zero-dependency Lean `4.35.0` formalization of the exact **algebraic, graph-theoretic, representation-theoretic,
+Lean `4.35.0` + Mathlib `v4.35.0` formalization of the exact **algebraic, graph-theoretic, representation-theoretic,
 and spectral pillars** of Wave-3 Track W8 (`test/verify/d4-mass-gap-su2-su3-sharp.ts`, Milestone P9-A)
 pushing the discrete 4D `D_4` Yang-Mills mass-gap window strictly beyond Wave-2 Track W6 (`Vibe.D4MassGap`)
 and strictly beyond the 1D-axial single-link `SU(2)` chordal ceiling `4 / (4 + 4√7) ≈ 0.274291`.
@@ -78,6 +82,8 @@ and strictly beyond the 1D-axial single-link `SU(2)` chordal ceiling `4 / (4 + 4
 
 set_option autoImplicit false
 
+@[expose] public section
+
 namespace Vibe
 
 /-! ## Section 0: Local Private Arithmetic, List, & `Fin 8 × Fin 11` Summation Helpers -/
@@ -85,7 +91,7 @@ namespace Vibe
 /-- Exact `88`-class index space `Fin 8 × Fin 11` (`8` `D_4` site parity classes × `11` active directions). -/
 abbrev MgeIdx88 := Fin 8 × Fin 11
 
-private def mgeListSum : List Nat → Nat
+def mgeListSum : List Nat → Nat
   | [] => 0
   | x :: xs => x + mgeListSum xs
 
@@ -341,40 +347,12 @@ private theorem mge_getD_map_finRange {n : Nat} {α : Type} (f : Fin n → α) (
   rw [mge_getD_map_aux f d (List.finRange n) u.val hLen, List.getElem_finRange]
   exact congrArg f (Fin.ext rfl)
 
-private theorem mge_int_mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
-  rw [← Int.mul_assoc, Int.mul_comm a b, Int.mul_assoc]
-
-private theorem mge_int_mul_pos {a b : Int} (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
-  have h := Int.mul_nonneg (show 0 ≤ a - 1 by omega) (show 0 ≤ b - 1 by omega)
-  rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.one_mul, Int.mul_one] at h
-  omega
-
 private theorem mge_int_abs_le_of_sq_le {a D : Int} (hD : 0 ≤ D) (hsq : a * a ≤ D * D) :
-    -D ≤ a ∧ a ≤ D := by
-  have hFac : (D - a) * (D + a) = D * D - a * a := by
-    simp only [Int.sub_mul, Int.mul_add, Int.mul_comm a D]; omega
-  constructor
-  · by_cases h : -D ≤ a
-    · exact h
-    · exfalso
-      have hp := mge_int_mul_pos (show 0 < D - a by omega) (show 0 < -(D + a) by omega)
-      rw [Int.mul_neg] at hp; omega
-  · by_cases h : a ≤ D
-    · exact h
-    · exfalso
-      have hp := mge_int_mul_pos (show 0 < -(D - a) by omega) (show 0 < D + a by omega)
-      rw [Int.neg_mul] at hp; omega
+    -D ≤ a ∧ a ≤ D := ⟨by nlinarith, by nlinarith⟩
 
 private theorem mge_int_cauchy_schwarz_2d (a b c d : Int) :
     (a * c + b * d) * (a * c + b * d) + (a * d - b * c) * (a * d - b * c) =
-      (a * a + b * b) * (c * c + d * d) := by
-  simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub]
-  have hsq : ∀ u v : Int, (u * v) * (u * v) = (u * u) * (v * v) := fun u v => by ac_rfl
-  have hc1 : (a * c) * (b * d) = (a * d) * (b * c) := by ac_rfl
-  have hc2 : (b * d) * (a * c) = (a * d) * (b * c) := by ac_rfl
-  have hc3 : (b * c) * (a * d) = (a * d) * (b * c) := by ac_rfl
-  rw [hsq a c, hsq b d, hsq a d, hsq b c, hc1, hc2, hc3]
-  omega
+      (a * a + b * b) * (c * c + d * d) := by ring
 
 private theorem mge_nat_half_slab :
     ∀ m : Nat, ∃ n : Int, 0 ≤ Int.ofNat m - 2 * n ∧ Int.ofNat m - 2 * n ≤ 1
@@ -1258,7 +1236,6 @@ private theorem mge_matPow88_weighted_step (K : MgeIdx88 → MgeIdx88 → Nat)
     intro x
     simp only [Nat.pow_zero, Nat.one_mul, mgeMatPow88]
     rw [mge_sum88_eq_listSum, mge_listSum_map_delta x v mgeAll88 mge_all88_nodup (mge_mem_all88 x)]
-    exact Nat.le_refl (v x)
   | succ m ih =>
     intro x
     have hDist : mgeSum88 (fun y => mgeMatPow88 K (m + 1) x y * v y) =
@@ -1344,7 +1321,7 @@ private theorem mge_dobrushin88_decay (K : MgeIdx88 → MgeIdx88 → Nat)
       _ ≤ (q ^ (M - 1 - j) * Q ^ (M - 1 - j)) * ((p * Q) ^ (d + j) * vMax) :=
             Nat.mul_le_mul_left _ hEj
       _ = Q ^ (d + M - 1) * (p ^ (d + j) * q ^ (M - 1 - j)) * vMax := by
-            rw [mge_nat_mul_pow p Q (d + j), hExp, Nat.pow_add Q (d + j) (M - 1 - j)]; ac_rfl
+            rw [mge_nat_mul_pow p Q (d + j), hExp, Nat.pow_add Q (d + j) (M - 1 - j)]; ring
   have hSumLe : q ^ (d + M - 1) * (vMin * mgeEntryTailSum88 K Q x y d M) ≤
       Q ^ (d + M - 1) * geomTailNum p q d M * vMax := by
     unfold mgeEntryTailSum88 geomTailNum
@@ -1478,39 +1455,7 @@ private theorem mge_su3_hull_poly_id (cg sg cb sb cd : Int) :
       2 * (cg * cb - sg * sb) * (1 - cd) + 2 * (1 - cb) * (2 * cg + (cg * cb + sg * sb)) ∧
     mgeSu3HullResidual cg sg cb sb cd =
       2 * (-(cg * cb - sg * sb)) * (1 + cd) + 2 * (1 + cb) * (2 * cg - (cg * cb + sg * sb)) := by
-  unfold mgeSu3HullResidual
-  have hcb2 : cg * (2 * (cb * cb) - 1) = 2 * (cg * cb * cb) - cg := by
-    rw [Int.mul_sub, Int.mul_one]; congr 1; ac_rfl
-  have hsb2 : 2 * sg * sb * cb = 2 * (sg * sb * cb) := by ac_rfl
-  have h1 : 2 * (1 - cb) * (2 * cg + (cg * cb + sg * sb)) =
-      4 * cg - 2 * (cg * cb) + 2 * (sg * sb) - 2 * (cg * cb * cb) - 2 * (sg * sb * cb) := by
-    simp only [Int.mul_sub, Int.sub_mul, Int.mul_add, Int.mul_one]
-    have a1 : 2 * (2 * cg) = 4 * cg := by rw [← Int.mul_assoc 2 2 cg]; rfl
-    have a2 : 2 * cb * (2 * cg) = 4 * (cg * cb) := by
-      calc 2 * cb * (2 * cg) = (2 * 2) * (cg * cb) := by ac_rfl
-        _ = 4 * (cg * cb) := rfl
-    have a3 : 2 * cb * (cg * cb) = 2 * (cg * cb * cb) := by ac_rfl
-    have a4 : 2 * cb * (sg * sb) = 2 * (sg * sb * cb) := by ac_rfl
-    rw [a1, a2, a3, a4]; omega
-  have h2 : 2 * (1 + cb) * (2 * cg - (cg * cb + sg * sb)) =
-      4 * cg + 2 * (cg * cb) - 2 * (sg * sb) - 2 * (cg * cb * cb) - 2 * (sg * sb * cb) := by
-    simp only [Int.mul_sub, Int.mul_add, Int.add_mul, Int.mul_one]
-    have a1 : 2 * (2 * cg) = 4 * cg := by rw [← Int.mul_assoc 2 2 cg]; rfl
-    have a2 : 2 * cb * (2 * cg) = 4 * (cg * cb) := by
-      calc 2 * cb * (2 * cg) = (2 * 2) * (cg * cb) := by ac_rfl
-        _ = 4 * (cg * cb) := rfl
-    have a3 : 2 * cb * (cg * cb) = 2 * (cg * cb * cb) := by ac_rfl
-    have a4 : 2 * cb * (sg * sb) = 2 * (sg * sb * cb) := by ac_rfl
-    rw [a1, a2, a3, a4]; omega
-  have h3 : 2 * (cg * cb - sg * sb) * (1 - cd) =
-      2 * (cg * cb) - 2 * (sg * sb) - 2 * (cg * cb - sg * sb) * cd := by
-    simp only [Int.mul_sub, Int.mul_one]
-  have h4 : 2 * (-(cg * cb - sg * sb)) * (1 + cd) =
-      -(2 * (cg * cb) - 2 * (sg * sb)) - 2 * (cg * cb - sg * sb) * cd := by
-    simp only [Int.mul_neg, Int.neg_mul, Int.mul_add, Int.mul_one, Int.mul_sub]
-    omega
-  rw [hcb2, hsb2, h1, h2, h3, h4]
-  exact ⟨by omega, by omega⟩
+  unfold mgeSu3HullResidual; exact ⟨by ring, by ring⟩
 
 private theorem mge_su3_hull_hom_poly_id (cg sg cb sb cd D : Int) :
     mgeSu3HullResidualHom cg sg cb sb cd D =
@@ -1519,66 +1464,7 @@ private theorem mge_su3_hull_hom_poly_id (cg sg cb sb cd D : Int) :
     mgeSu3HullResidualHom cg sg cb sb cd D =
       2 * D * (-(cg * cb - sg * sb)) * (D + cd) +
       2 * (D + cb) * (2 * cg * (D * D) - (cg * cb + sg * sb) * D) := by
-  unfold mgeSu3HullResidualHom
-  have hcb2 : cg * (2 * (cb * cb) - D * D) * D =
-      2 * (cg * cb * (cb * D)) - cg * (D * D * D) := by
-    simp only [Int.mul_sub, Int.sub_mul]
-    have a1 : cg * (2 * (cb * cb)) * D = 2 * (cg * cb * (cb * D)) := by ac_rfl
-    have a2 : cg * (D * D) * D = cg * (D * D * D) := by ac_rfl
-    rw [a1, a2]
-  have hsb2 : 2 * sg * sb * cb * D = 2 * (sg * sb * (cb * D)) := by ac_rfl
-  have hD1 : 2 * (D - cb) * (2 * cg * (D * D) + (cg * cb + sg * sb) * D) =
-      4 * (cg * (D * D * D)) - 2 * (D * (cg * cb) * D) + 2 * (D * (sg * sb) * D) -
-      2 * (cg * cb * (cb * D)) - 2 * (sg * sb * (cb * D)) := by
-    simp only [Int.mul_sub, Int.sub_mul, Int.mul_add, Int.add_mul]
-    have a1 : 2 * D * (2 * cg * (D * D)) = 4 * (cg * (D * D * D)) := by
-      calc 2 * D * (2 * cg * (D * D)) = (2 * 2) * (cg * (D * D * D)) := by ac_rfl
-        _ = 4 * (cg * (D * D * D)) := rfl
-    have a2 : 2 * D * (cg * cb * D) = 2 * (D * (cg * cb) * D) := by ac_rfl
-    have a3 : 2 * D * (sg * sb * D) = 2 * (D * (sg * sb) * D) := by ac_rfl
-    have a4 : 2 * cb * (2 * cg * (D * D)) = 4 * (D * (cg * cb) * D) := by
-      calc 2 * cb * (2 * cg * (D * D)) = (2 * 2) * (D * (cg * cb) * D) := by ac_rfl
-        _ = 4 * (D * (cg * cb) * D) := rfl
-    have a5 : 2 * cb * (cg * cb * D) = 2 * (cg * cb * (cb * D)) := by ac_rfl
-    have a6 : 2 * cb * (sg * sb * D) = 2 * (sg * sb * (cb * D)) := by ac_rfl
-    rw [a1, a2, a3, a4, a5, a6]; omega
-  have hD2 : 2 * (D + cb) * (2 * cg * (D * D) - (cg * cb + sg * sb) * D) =
-      4 * (cg * (D * D * D)) + 2 * (D * (cg * cb) * D) - 2 * (D * (sg * sb) * D) -
-      2 * (cg * cb * (cb * D)) - 2 * (sg * sb * (cb * D)) := by
-    simp only [Int.mul_sub, Int.mul_add, Int.add_mul]
-    have a1 : 2 * D * (2 * cg * (D * D)) = 4 * (cg * (D * D * D)) := by
-      calc 2 * D * (2 * cg * (D * D)) = (2 * 2) * (cg * (D * D * D)) := by ac_rfl
-        _ = 4 * (cg * (D * D * D)) := rfl
-    have a2 : 2 * D * (cg * cb * D) = 2 * (D * (cg * cb) * D) := by ac_rfl
-    have a3 : 2 * D * (sg * sb * D) = 2 * (D * (sg * sb) * D) := by ac_rfl
-    have a4 : 2 * cb * (2 * cg * (D * D)) = 4 * (D * (cg * cb) * D) := by
-      calc 2 * cb * (2 * cg * (D * D)) = (2 * 2) * (D * (cg * cb) * D) := by ac_rfl
-        _ = 4 * (D * (cg * cb) * D) := rfl
-    have a5 : 2 * cb * (cg * cb * D) = 2 * (cg * cb * (cb * D)) := by ac_rfl
-    have a6 : 2 * cb * (sg * sb * D) = 2 * (sg * sb * (cb * D)) := by ac_rfl
-    rw [a1, a2, a3, a4, a5, a6]; omega
-  have hM1 : 2 * D * (cg * cb - sg * sb) * (D - cd) =
-      2 * (D * (cg * cb) * D) - 2 * (D * (sg * sb) * D) - 2 * D * (cg * cb - sg * sb) * cd := by
-    rw [Int.mul_sub]
-    congr 1
-    simp only [Int.mul_sub, Int.sub_mul]
-    have b1 : 2 * D * (cg * cb) * D = 2 * (D * (cg * cb) * D) := by ac_rfl
-    have b2 : 2 * D * (sg * sb) * D = 2 * (D * (sg * sb) * D) := by ac_rfl
-    rw [b1, b2]
-  have hM2 : 2 * D * (-(cg * cb - sg * sb)) * (D + cd) =
-      -(2 * (D * (cg * cb) * D) - 2 * (D * (sg * sb) * D)) - 2 * D * (cg * cb - sg * sb) * cd := by
-    have hNeg : 2 * D * (-(cg * cb - sg * sb)) * (D + cd) =
-        -(2 * D * (cg * cb - sg * sb) * D) - 2 * D * (cg * cb - sg * sb) * cd := by
-      simp only [Int.mul_neg, Int.neg_mul, Int.mul_add]; omega
-    rw [hNeg]
-    congr 1; congr 1
-    simp only [Int.mul_sub, Int.sub_mul]
-    have b1 : 2 * D * (cg * cb) * D = 2 * (D * (cg * cb) * D) := by ac_rfl
-    have b2 : 2 * D * (sg * sb) * D = 2 * (D * (sg * sb) * D) := by ac_rfl
-    rw [b1, b2]
-  have h3cg : 3 * cg * (D * D * D) = 3 * (cg * (D * D * D)) := by ac_rfl
-  rw [hcb2, hsb2, hD1, hD2, hM1, hM2, h3cg]
-  exact ⟨by omega, by omega⟩
+  unfold mgeSu3HullResidualHom; exact ⟨by ring, by ring⟩
 
 /-- Theorem MGE-4: Exact `SU(3)` staple convex-hull maximal-torus algebraic theorem
     (`cos u_1 + cos u_2 + cos u_3 ≤ 3 cos(φ/3)` for `u_1 + u_2 + u_3 = φ ∈ [-π, π]`, yielding
@@ -1694,96 +1580,12 @@ theorem thm_mge_su3_maximal_torus_and_cardano_invariants :
     have b2 := mge_int_abs_le_of_sq_le hD (show c2 * c2 ≤ D * D by have := int_sq_nonneg s2; omega)
     have b3 := mge_int_abs_le_of_sq_le hD (show c3 * c3 ≤ D * D by have := int_sq_nonneg s3; omega)
     exact ⟨by omega, by omega⟩
-  · intro ca cd sd
-    have hsq : (2 * ca + cd) * (2 * ca + cd) = 4 * (ca * ca) + 4 * (ca * cd) + cd * cd := by
-      simp only [Int.add_mul, Int.mul_add]
-      have a1 : (2 * ca) * (2 * ca) = 4 * (ca * ca) := by
-        calc (2 * ca) * (2 * ca) = (2 * 2) * (ca * ca) := by ac_rfl
-          _ = 4 * (ca * ca) := rfl
-      have a2 : (2 * ca) * cd = 2 * (ca * cd) := by ac_rfl
-      have a3 : cd * (2 * ca) = 2 * (ca * cd) := by ac_rfl
-      rw [a1, a2, a3]; omega
-    have h2 : 2 * (2 * ca * cd) = 4 * (ca * cd) := by
-      calc 2 * (2 * ca * cd) = (2 * 2) * (ca * cd) := by ac_rfl
-        _ = 4 * (ca * cd) := rfl
-    rw [hsq, Int.mul_add, h2]; omega
+  · intro ca cd sd; ring
   · intro ca cd sd D _ hCirc
-    have hsq : (2 * ca + cd) * (2 * ca + cd) = 4 * (ca * ca) + 4 * (ca * cd) + cd * cd := by
-      simp only [Int.add_mul, Int.mul_add]
-      have a1 : (2 * ca) * (2 * ca) = 4 * (ca * ca) := by
-        calc (2 * ca) * (2 * ca) = (2 * 2) * (ca * ca) := by ac_rfl
-          _ = 4 * (ca * ca) := rfl
-      have a2 : (2 * ca) * cd = 2 * (ca * cd) := by ac_rfl
-      have a3 : cd * (2 * ca) = 2 * (ca * cd) := by ac_rfl
-      rw [a1, a2, a3]; omega
-    have h2 : 2 * (2 * ca * cd) = 4 * (ca * cd) := by
-      calc 2 * (2 * ca * cd) = (2 * 2) * (ca * cd) := by ac_rfl
-        _ = 4 * (ca * cd) := rfl
-    have hId : 2 * (2 * ca * cd + (2 * (ca * ca) - D * D)) + 3 * (D * D) =
-        (2 * ca + cd) * (2 * ca + cd) + sd * sd := by
-      rw [hsq, Int.mul_add, Int.mul_sub, h2]; omega
-    have hnn1 := int_sq_nonneg (2 * ca + cd)
-    have hnn2 := int_sq_nonneg sd
-    exact ⟨hId, by omega⟩
-  · intro lam tr q1 detH
-    have hCube : (3 * lam - tr) * (3 * lam - tr) * (3 * lam - tr) =
-        27 * (lam * lam * lam) - 27 * (tr * (lam * lam)) + 9 * ((tr * tr) * lam) - tr * tr * tr := by
-      have hSq : (3 * lam - tr) * (3 * lam - tr) = 9 * (lam * lam) - 6 * (tr * lam) + tr * tr := by
-        simp only [Int.sub_mul, Int.mul_sub]
-        have a1 : (3 * lam) * (3 * lam) = 9 * (lam * lam) := by
-          calc (3 * lam) * (3 * lam) = (3 * 3) * (lam * lam) := by ac_rfl
-            _ = 9 * (lam * lam) := rfl
-        have a2 : (3 * lam) * tr = 3 * (tr * lam) := by ac_rfl
-        have a3 : tr * (3 * lam) = 3 * (tr * lam) := by ac_rfl
-        rw [a1, a2, a3]; omega
-      rw [hSq]
-      simp only [Int.sub_mul, Int.mul_sub, Int.add_mul]
-      have b1 : 9 * (lam * lam) * (3 * lam) = 27 * (lam * lam * lam) := by
-        calc 9 * (lam * lam) * (3 * lam) = (9 * 3) * (lam * lam * lam) := by ac_rfl
-          _ = 27 * (lam * lam * lam) := rfl
-      have b2 : 9 * (lam * lam) * tr = 9 * (tr * (lam * lam)) := by ac_rfl
-      have b3 : 6 * (tr * lam) * (3 * lam) = 18 * (tr * (lam * lam)) := by
-        calc 6 * (tr * lam) * (3 * lam) = (6 * 3) * (tr * (lam * lam)) := by ac_rfl
-          _ = 18 * (tr * (lam * lam)) := rfl
-      have b4 : 6 * (tr * lam) * tr = 6 * ((tr * tr) * lam) := by ac_rfl
-      have b5 : tr * tr * (3 * lam) = 3 * ((tr * tr) * lam) := by ac_rfl
-      rw [b1, b2, b3, b4, b5]; omega
-    have hLin : 3 * (3 * q1 - tr * tr) * (3 * lam - tr) =
-        27 * (q1 * lam) - 9 * (tr * q1) - 9 * ((tr * tr) * lam) + 3 * (tr * tr * tr) := by
-      simp only [Int.mul_sub, Int.sub_mul]
-      have c1 : 3 * (3 * q1) * (3 * lam) = 27 * (q1 * lam) := by
-        calc 3 * (3 * q1) * (3 * lam) = (3 * 3 * 3) * (q1 * lam) := by ac_rfl
-          _ = 27 * (q1 * lam) := rfl
-      have c2 : 3 * (3 * q1) * tr = 9 * (tr * q1) := by
-        calc 3 * (3 * q1) * tr = (3 * 3) * (tr * q1) := by ac_rfl
-          _ = 9 * (tr * q1) := rfl
-      have c3 : 3 * (tr * tr) * (3 * lam) = 9 * ((tr * tr) * lam) := by
-        calc 3 * (tr * tr) * (3 * lam) = (3 * 3) * ((tr * tr) * lam) := by ac_rfl
-          _ = 9 * ((tr * tr) * lam) := rfl
-      have c4 : 3 * (tr * tr) * tr = 3 * (tr * tr * tr) := by ac_rfl
-      rw [c1, c2, c3, c4]; omega
-    have hTrQ : 9 * tr * q1 = 9 * (tr * q1) := by ac_rfl
-    rw [hCube, hLin, hTrQ]
-    simp only [Int.mul_sub, Int.mul_add]
-    omega
+    exact ⟨by nlinarith, by nlinarith [mul_self_nonneg (2 * ca + cd), mul_self_nonneg sd]⟩
+  · intro lam tr q1 detH; ring
   · intro s1 s2 s3
-    have h1 : (s1 + s2 + s3) * (s1 + s2 + s3) =
-        s1 * s1 + s2 * s2 + s3 * s3 + 2 * (s1 * s2) + 2 * (s2 * s3) + 2 * (s3 * s1) := by
-      simp only [Int.add_mul, Int.mul_add]
-      rw [Int.mul_comm s2 s1, Int.mul_comm s3 s2, Int.mul_comm s1 s3]; omega
-    have h2 : (s1 - s2) * (s1 - s2) = s1 * s1 - 2 * (s1 * s2) + s2 * s2 := by
-      simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm s2 s1]; omega
-    have h3 : (s2 - s3) * (s2 - s3) = s2 * s2 - 2 * (s2 * s3) + s3 * s3 := by
-      simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm s3 s2]; omega
-    have h4 : (s3 - s1) * (s3 - s1) = s3 * s3 - 2 * (s3 * s1) + s1 * s1 := by
-      simp only [Int.sub_mul, Int.mul_sub, Int.mul_comm s1 s3]; omega
-    have hId : 3 * (s1 * s1 + s2 * s2 + s3 * s3) - (s1 + s2 + s3) * (s1 + s2 + s3) =
-        (s1 - s2) * (s1 - s2) + (s2 - s3) * (s2 - s3) + (s3 - s1) * (s3 - s1) := by
-      rw [h1, h2, h3, h4]; omega
-    have n1 := int_sq_nonneg (s1 - s2)
-    have n2 := int_sq_nonneg (s2 - s3)
-    have n3 := int_sq_nonneg (s3 - s1)
-    exact ⟨hId, by omega⟩
+    exact ⟨by ring, by nlinarith [mul_self_nonneg (s1 - s2), mul_self_nonneg (s2 - s3), mul_self_nonneg (s3 - s1)]⟩
 
 
 /-! ## Section 4: Exact `SU(3)` `K = 2` Peter-Weyl Irreps, Casimir Tail Floor, Pieri Rules & Weight Sectors -/
@@ -1821,25 +1623,7 @@ private theorem mge_su3_dim_even (p q : Nat) :
 private theorem mge_su3_casimir3_tail (p q : Nat) (h : p + q ≥ 3) :
     mgeSu3Casimir3 p q ≥ 16 := by
   unfold mgeSu3Casimir3
-  let pi : Int := (p : Int)
-  let qi : Int := (q : Int)
-  have hCast : ((p * p + q * q + p * q + 3 * p + 3 * q : Nat) : Int) =
-      pi * pi + qi * qi + pi * qi + 3 * pi + 3 * qi := by
-    simp only [Int.natCast_add, Int.natCast_mul, pi, qi]; rfl
-  have h4 : 4 * (pi * pi + qi * qi + pi * qi + 3 * pi + 3 * qi) =
-      3 * ((pi + qi) * (pi + qi)) + (pi - qi) * (pi - qi) + 12 * (pi + qi) := by
-    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_comm qi pi]
-    omega
-  have hSq := int_sq_nonneg (pi - qi)
-  have hs3 : (3 : Int) ≤ pi + qi := by simp only [pi, qi]; omega
-  have hs2 : (9 : Int) ≤ (pi + qi) * (pi + qi) := by
-    have h0 := Int.mul_nonneg (show 0 ≤ (pi + qi) - 3 by omega) (show 0 ≤ (pi + qi) + 3 by omega)
-    rw [Int.sub_mul, Int.mul_add (pi + qi) (pi + qi) 3, Int.mul_add 3 (pi + qi) 3,
-        Int.mul_comm (pi + qi) 3] at h0
-    omega
-  have hInt16 : (16 : Int) ≤ ((p * p + q * q + p * q + 3 * p + 3 * q : Nat) : Int) := by
-    rw [hCast]; omega
-  omega
+  rcases (by omega : p = 0 ∨ p = 1 ∨ p = 2 ∨ 3 ≤ p) with rfl | rfl | rfl | hp <;> nlinarith
 
 /-- Theorem MGE-6: Exact `SU(3)` Weyl dimension formula, complete `K ≤ 2` Peter-Weyl irrep
     enumeration (`dim = 155`, `6` characters, Laplacian spectrum `0, 8/3, 6, 20/3`), and
@@ -1945,60 +1729,7 @@ private theorem mge_pieri3_xy_identities (x y : Int) :
     (x + 1) * y * (x + y + 1) * (2 * x + y) +
       (x - 1) * (y + 1) * (x + y) * (-x + y) +
       x * (y - 1) * (x + y - 1) * (-x - 2 * y) =
-      9 * (x * y * (x + y)) := by
-  have hD1 : (x + 1) * y * (x + y + 1) =
-      x * x * y + x * (y * y) + 2 * (x * y) + y * y + y := by
-    simp only [Int.add_mul, Int.mul_add, Int.one_mul, Int.mul_one]
-    have a1 : x * y * x = x * x * y := by ac_rfl
-    have a2 : x * y * y = x * (y * y) := by ac_rfl
-    have a3 : y * x = x * y := by ac_rfl
-    rw [a1, a2, a3]; omega
-  have hD2 : (x - 1) * (y + 1) * (x + y) =
-      x * x * y + x * (y * y) + x * x - y * y - x - y := by
-    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.one_mul, Int.mul_one]
-    have a1 : x * y * x = x * x * y := by ac_rfl
-    have a2 : x * y * y = x * (y * y) := by ac_rfl
-    have a3 : y * x = x * y := by ac_rfl
-    rw [a1, a2, a3]; omega
-  have hD3 : x * (y - 1) * (x + y - 1) =
-      x * x * y + x * (y * y) - x * x - 2 * (x * y) + x := by
-    simp only [Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_one]
-    have a1 : x * y * x = x * x * y := by ac_rfl
-    have a2 : x * y * y = x * (y * y) := by ac_rfl
-    rw [a1, a2]; omega
-  have hD0 : x * y * (x + y) = x * x * y + x * (y * y) := by
-    rw [Int.mul_add]
-    have a1 : x * y * x = x * x * y := by ac_rfl
-    have a2 : x * y * y = x * (y * y) := by ac_rfl
-    rw [a1, a2]
-  constructor
-  · rw [hD1, hD2, hD3, hD0]; omega
-  · rw [hD1, hD2, hD3, hD0]
-    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_neg]
-    have m1 : x * x * y * (2 * x) = 2 * (x * x * x * y) := by ac_rfl
-    have m2 : x * (y * y) * (2 * x) = 2 * (x * x * (y * y)) := by ac_rfl
-    have m3 : 2 * (x * y) * (2 * x) = 4 * (x * x * y) := by
-      calc 2 * (x * y) * (2 * x) = (2 * 2) * (x * x * y) := by ac_rfl
-        _ = 4 * (x * x * y) := rfl
-    have m4 : y * y * (2 * x) = 2 * (x * (y * y)) := by ac_rfl
-    have m5 : y * (2 * x) = 2 * (x * y) := by ac_rfl
-    have m6 : x * x * y * y = x * x * (y * y) := by ac_rfl
-    have m7 : x * (y * y) * y = x * (y * y * y) := by ac_rfl
-    have m8 : 2 * (x * y) * y = 2 * (x * (y * y)) := by ac_rfl
-    have m9 : x * x * y * x = x * x * x * y := by ac_rfl
-    have m10 : x * (y * y) * x = x * x * (y * y) := by ac_rfl
-    have m11 : y * y * x = x * (y * y) := by ac_rfl
-    have m12 : y * x = x * y := by ac_rfl
-    have m13 : x * x * y * (2 * y) = 2 * (x * x * (y * y)) := by ac_rfl
-    have m14 : x * (y * y) * (2 * y) = 2 * (x * (y * y * y)) := by ac_rfl
-    have m15 : x * x * (2 * y) = 2 * (x * x * y) := by ac_rfl
-    have m16 : 2 * (x * y) * x = 2 * (x * x * y) := by ac_rfl
-    have m17 : 2 * (x * y) * (2 * y) = 4 * (x * (y * y)) := by
-      calc 2 * (x * y) * (2 * y) = (2 * 2) * (x * (y * y)) := by ac_rfl
-        _ = 4 * (x * (y * y)) := rfl
-    have m18 : x * (2 * y) = 2 * (x * y) := by ac_rfl
-    rw [m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18]
-    omega
+      9 * (x * y * (x + y)) := ⟨by ring, by ring⟩
 
 private def mgeDimXY (x y : Int) : Int := x * y * (x + y)
 private def mgeCasXY (x y : Int) : Int := x * x + y * y + x * y - 3
@@ -2307,81 +2038,13 @@ theorem thm_mge_su2_chordal_region1_and_region3_bounds :
     (112 * (100 * 100) < 9 * (353 * 353) ∧
      3 * 76800 < 100 * 2351 ∧
      20 * 16799 > 224000) := by
-  have hFac : ∀ r Dr : Int,
-      (16 * r - 3 * Dr) * (112 * r + 48 * Dr) =
-        16 * (112 * (r * r) + 27 * (r * Dr) - 9 * (Dr * Dr)) := by
-    intro r Dr
-    simp only [Int.sub_mul, Int.mul_add]
-    have a1 : (16 * r) * (112 * r) = 1792 * (r * r) := by
-      calc (16 * r) * (112 * r) = (16 * 112) * (r * r) := by ac_rfl
-        _ = 1792 * (r * r) := rfl
-    have a2 : (16 * r) * (48 * Dr) = 768 * (r * Dr) := by
-      calc (16 * r) * (48 * Dr) = (16 * 48) * (r * Dr) := by ac_rfl
-        _ = 768 * (r * Dr) := rfl
-    have a3 : (3 * Dr) * (112 * r) = 336 * (r * Dr) := by
-      calc (3 * Dr) * (112 * r) = (3 * 112) * (r * Dr) := by ac_rfl
-        _ = 336 * (r * Dr) := rfl
-    have a4 : (3 * Dr) * (48 * Dr) = 144 * (Dr * Dr) := by
-      calc (3 * Dr) * (48 * Dr) = (3 * 48) * (Dr * Dr) := by ac_rfl
-        _ = 144 * (Dr * Dr) := rfl
-    rw [a1, a2, a3, a4]; omega
-  refine ⟨hFac, ?_, ?_, ?_,
+  refine ⟨fun _ _ => by ring, ?_, fun _ _ => by ring, ?_,
           ⟨mge_su2_region13_checks.1, mge_su2_region13_checks.2.2.2.1, mge_su2_region13_checks.2.2.2.2.2⟩⟩
   · intro κ D r Dr hD hDr hr hKap hRic
-    have hD2Pos : 0 < D * D := mge_int_mul_pos hD hD
-    have hr2 : 0 ≤ r * r := int_sq_nonneg r
-    have h1 : 9 * ((κ * κ) * (r * r) + 3 * (D * D) * (r * Dr)) ≤ 9 * ((D * D) * (Dr * Dr)) := by omega
-    have h2 : 112 * (D * D) * (r * r) ≤ 9 * (κ * κ) * (r * r) := by
-      have hm := Int.mul_nonneg (show 0 ≤ 9 * (κ * κ) - 112 * (D * D) by omega) hr2
-      rw [Int.sub_mul] at hm; omega
-    have h3 : (D * D) * (112 * (r * r) + 27 * (r * Dr) - 9 * (Dr * Dr)) ≤ 0 := by
-      have e1 : 9 * ((κ * κ) * (r * r)) = 9 * (κ * κ) * (r * r) := by ac_rfl
-      have e2 : 112 * (D * D) * (r * r) = (D * D) * (112 * (r * r)) := by ac_rfl
-      have e3 : 9 * (3 * (D * D) * (r * Dr)) = (D * D) * (27 * (r * Dr)) := by
-        calc 9 * (3 * (D * D) * (r * Dr)) = (D * D) * ((9 * 3) * (r * Dr)) := by ac_rfl
-          _ = (D * D) * (27 * (r * Dr)) := rfl
-      have e4 : 9 * ((D * D) * (Dr * Dr)) = (D * D) * (9 * (Dr * Dr)) := by ac_rfl
-      rw [Int.mul_add] at h1
-      rw [e1, e3, e4] at h1
-      rw [e2] at h2
-      rw [Int.mul_sub, Int.mul_add]
-      omega
     have hQuad : 112 * (r * r) + 27 * (r * Dr) - 9 * (Dr * Dr) ≤ 0 := by
-      by_cases hq : 112 * (r * r) + 27 * (r * Dr) - 9 * (Dr * Dr) ≤ 0
-      · exact hq
-      · exfalso
-        have hp := mge_int_mul_pos hD2Pos (show 0 < 112 * (r * r) + 27 * (r * Dr) - 9 * (Dr * Dr) by omega)
-        omega
-    have hProdLe : (16 * r - 3 * Dr) * (112 * r + 48 * Dr) ≤ 0 := by
-      rw [hFac r Dr]; omega
-    by_cases hGoal : 16 * r ≤ 3 * Dr
-    · exact hGoal
-    · exfalso
-      have hp := mge_int_mul_pos (show 0 < 16 * r - 3 * Dr by omega) (show 0 < 112 * r + 48 * Dr by omega)
-      omega
-  · intro D2 k2
-    have hSq : (24 * D2 - k2) * (24 * D2 - k2) = 576 * (D2 * D2) - 48 * (D2 * k2) + k2 * k2 := by
-      simp only [Int.sub_mul, Int.mul_sub]
-      have a1 : (24 * D2) * (24 * D2) = 576 * (D2 * D2) := by
-        calc (24 * D2) * (24 * D2) = (24 * 24) * (D2 * D2) := by ac_rfl
-          _ = 576 * (D2 * D2) := rfl
-      have a2 : (24 * D2) * k2 = 24 * (D2 * k2) := by ac_rfl
-      have a3 : k2 * (24 * D2) = 24 * (D2 * k2) := by ac_rfl
-      rw [a1, a2, a3]; omega
-    rw [hSq]
-    simp only [Int.mul_sub, Int.mul_add]
-    have b1 : 288 * (D2 * D2) * (24 * D2) = 6912 * (D2 * D2 * D2) := by
-      calc 288 * (D2 * D2) * (24 * D2) = (288 * 24) * (D2 * D2 * D2) := by ac_rfl
-        _ = 6912 * (D2 * D2 * D2) := rfl
-    have b2 : 288 * (D2 * D2) * k2 = 288 * (D2 * D2 * k2) := by ac_rfl
-    have b3 : k2 * (576 * (D2 * D2)) = 576 * (D2 * D2 * k2) := by ac_rfl
-    have b4 : k2 * (48 * (D2 * k2)) = 48 * (D2 * (k2 * k2)) := by ac_rfl
-    have b5 : k2 * (288 * (D2 * D2)) = 288 * (D2 * D2 * k2) := by ac_rfl
-    rw [b1, b2, b3, b4, b5]
-    omega
-  · intro κ D hD hBound
-    have hD2 : 0 < D * D := mge_int_mul_pos hD hD
-    omega
+      nlinarith [mul_self_nonneg r, mul_pos hD hD]
+    nlinarith
+  · intro κ D hD hBound; nlinarith [mul_pos hD hD]
 
 /-- Map a positive direction `d ≠ mgFrozenIdx` (`10`) back to its `Fin 11` active index. -/
 def mgeDirTo11 (d : Fin 12) : Option (Fin 11) :=

@@ -1,6 +1,8 @@
 module
 
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
+public import Mathlib.Data.Nat.Prime.Basic
+public import Mathlib.Data.Rat.Defs
 public import Vibe.StandardModelMathlib
 
 import Mathlib.Tactic.Ring
@@ -8,11 +10,11 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.NormNum
 
 /-!
-# Vibe Theory: Plebanski 24-Cell Geometry, Dark-Sector Stability, Flux Uniqueness & NEC Bounds
+# Vibe Theory: Plebanski 24-Cell Geometry, Dark-Sector Stability, Flux Uniqueness, NEC Bounds & Spin-2 Uniqueness
 
 Mathlib `v4.35.0` formalization building directly on `Vibe.StandardModelMathlib` (`mlD4Fprim`,
 `mlD4Triality`, `mlD4Root`, `mlDot4`, `mlOmegaC`, `mlChar2T`, `mlCharInner2T`, `mlChiV1`,
-`mlChiV2`) for four Tier-A theorems:
+`mlChiV2`) for exact discrete-gravity, dark-sector, flux-selection, and algebraic-closure theorems:
 
 Headline theorems (`0 sorry`, `0 axiom`, `0 native_decide`, `#print axioms` clean):
 1. `thm_untwisted_anomaly_uniqueness`: Derives `orbPfaffian n = 6 n^2` from
@@ -26,25 +28,37 @@ Headline theorems (`0 sorry`, `0 axiom`, `0 native_decide`, `#print axioms` clea
    `mlChiV2` (`2T_R = SL(2, 3)`) proving zero Dirac mixing, zero Majorana mixing, exact 3-body
    `ΔF = -2` stability of the `1'` dark singlet, allowed `2 → 2` thermal-relic annihilation
    portal (multiplicity `7`), and allowed Dirac dark self-mass (multiplicity `2`).
-3. `thm_plebanski_24cell_simplicity_and_closure`: Exact 24-cell (`D_4` root polytope via
-   `mlD4Root`) Plebanski BF geometry over `ℤ`: exact `f`-vector (`96` equilateral triangles,
-   `24` octahedral facets with `6` vertices and `8` triangles each, `672` intra-facet pairs),
-   exact diagonal simplicity (`96/96` triangles & `192/192` oriented facet-triangles), exact
-   cross-simplicity (`672` intra-facet pairs), exact octahedral Gauss closure (`24/24` facets),
-   the universal 4-simplex 6-face exterior opposite-face wedge-pairing identity over `ℤ^4`
-   (anisotropically invariant), exact per-simplex & integrated 192-simplex Plebanski tensors
+3. `pleb_simplex_wedge_identities` & `thm_plebanski_24cell_simplicity_and_closure`: Exact 24-cell
+   (`D_4` root polytope via `mlD4Root`) Plebanski BF geometry over `ℤ`: exact `f`-vector (`96`
+   equilateral triangles, `24` octahedral facets with `6` vertices and `8` triangles each, `672`
+   intra-facet pairs), exact diagonal simplicity (`96/96` triangles & `192/192` oriented
+   facet-triangles), exact cross-simplicity (`672` intra-facet pairs), exact octahedral Gauss
+   closure (`24/24` facets), universal 4-simplex 6-face exterior opposite-face wedge-pairing
+   identity over `ℤ^4`, exact per-simplex & integrated 192-simplex Plebanski tensors
    (`plebTensorPP = +4·192 I_3`, `plebTensorMM = -4·192 I_3`, `plebTensorPM = 0`, 4-volume
-   `V_24 = 8`), and an unconstrained BF negative control (`5:4` deformation) that preserves
-   exact Gauss closure on all `24` facets while strictly breaking both diagonal simplicity and
-   traceless Plebanski symmetry.
+   `V_24 = 8`), and an unconstrained BF negative control (`5:4` deformation).
 4. `thm_nec_monotone_velocity_bound`: Exact continuous real-calculus `HasDerivAt`
-   differentiation of the near-horizon metric function
-   `f(z) = 1 - z^2 + a₀ z^2 log z + a₁ (z^3 - z^2)`, exact NEC identity
-   `z f''(z) - f'(z) = 2 a₀ z + 3 a₁ z^2 ≥ 0`, exact quotient derivative
-   `(f'(z) / z)' = (z f''(z) - f'(z)) / z^2`, monotonicity of `q(z) = f'(z) / z` on `(0, ∞)`,
-   horizon values `f(1) = 0`, `f'(1) = -2 + a₀ + a₁`, exterior sub-BTZ blackening bound
-   `f(z) ≤ 1 - z^2` on `(0, 1]`, and interior `z ≥ 1` Hartman-Maldacena causal entanglement
-   velocity bound `1 - z^2 ≤ f(z)` and `v_E^2(z) = -f(z) / z^2 ≤ 1 - 1 / z^2 < 1`.
+   differentiation of `f(z) = 1 - z^2 + a₀ z^2 log z + a₁ (z^3 - z^2)`, exact NEC identity
+   `z f''(z) - f'(z) = 2 a₀ z + 3 a₁ z^2 ≥ 0`, monotonicity of `f'(z) / z` on `(0, ∞)`,
+   exterior sub-BTZ bound `f(z) ≤ 1 - z^2` on `(0, 1]`, and interior `z ≥ 1` Hartman-Maldacena
+   causal entanglement velocity bound `v_E^2(z) = -f(z) / z^2 ≤ 1 - 1 / z^2 < 1`.
+5. `thm_q8_witten_z2_flux_parity`: First-principles derivation of the `Q_8 < 2T_R` chiral doublet
+   multiplicities `q8DoubletCount`, `v0DoubletCount`, `v1DoubletCount` from the `F_2^4` Arf-1
+   line-bundle cocycle `q8CocycleQ1` of `mlD4Fprim`, `mlD4Triality`, and `mlChar2T`, proving
+   `Odd (q8DoubletCount (2m))` and `Odd (v0DoubletCount (2m))` for ALL even flux quanta `n = 2m`
+   (ruling out all even-`n` vacua including `n = 0`), `Even (q8DoubletCount (2m+1))` and
+   `Even (v0DoubletCount (2m+1))` for ALL odd `n = 2m+1` (with `v0DoubletCount n = 0 ↔ n = ±1`),
+   and exact parity contrast against `V_1`/`V_2`.
+6. `thm_zero_veto_3smooth_closure`: Universal prime-factorization characterization of 3-smooth
+   integers `IsThreeSmooth k := ∃ a b, k = 2^a * 3^b`, proving exact equivalence with absence of
+   prime factors `p ≥ 5` and exact invertibility `d * c = 6^(max a b)` in `ℤ[1/6]`, proving every
+   divisor `d ∣ 288 = |W(F_4)^+|/2` and `d ∣ 24 = |S_4|` is 3-smooth (closing `W(F_4)^+` zero-veto
+   orbit averaging inside `ℤ[ζ_9][1/6]`), and rejecting naive `S_12` orbit sizes `{5, 7, 10, 11}`.
+7. `thm_wf4_spin2_diffeo_uniqueness`: Full bidirectional linearized diffeomorphism uniqueness of
+   the 5-parameter `W(F_4)^+`-invariant quadratic spin-2 kinetic symbol `K^{μν,ρσ}(q; c₁..c₅)` over
+   `ℚ` (and hypercubic `ℤ^4` negative control), proving exact `W(F_4)^+` Hadamard invariance &
+   non-`SO(4)` independence of `I_5` vs `W(F_4)^+` failure of `I_5^{ℤ^4}`, and proving
+   `(∀ q ν ρ σ, ∑ μ, q μ * K c q μ ν ρ σ = 0) ↔ (c₂ = -2 c₁ ∧ c₃ = 2 c₁ ∧ c₄ = -c₁ ∧ c₅ = 0)`.
 -/
 
 set_option autoImplicit false
@@ -1182,6 +1196,852 @@ theorem thm_nec_monotone_velocity_bound (a₀ a₁ : ℝ) :
       linarith
     have hInvPos : 0 < 1 / z ^ 2 := by positivity
     exact ⟨hFge, hDivLe, by linarith⟩
+
+/-! ### 5. Exact `Q_8 < 2T_R` Witten `Z_2` Flux-Parity Selection Theorem -/
+
+/-- Exact `F_2^4` Arf-1 line-bundle quadratic cocycle `Q_1(v)` induced by `mlD4Fprim` on the
+    16 half-lattice 2-torsion points `(1/2) D_4 / D_4 ≅ F_2^4`. -/
+def q8CocycleQ1 (v : Fin 4 → ZMod 2) : ZMod 2 :=
+  (∑ a : Fin 4, v a) +
+    ∑ a : Fin 4, ∑ b : Fin 4,
+      if a < b then (mlD4Fprim a b : ZMod 2) * v a * v b else 0
+
+/-- Exact Arf-1 Gauss sum `∑_{v ∈ F_2^4} (-1)^{n Q_1(v)}` governing the Lefschetz trace at
+    the central element `-1 ∈ Q_8 < 2T_R` for integer flux quantum `n`. -/
+def q8ArfGaussSum (n : ℤ) : ℤ :=
+  ∑ v : Fin 4 → ZMod 2, if (n * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 then 1 else -1
+
+/-- Exact Atiyah-Segal-Singer Lefschetz trace `L(-1; n) = q8ArfGaussSum n / 4` at `-1 ∈ Q_8`
+    on `T^4_{D_4}` with flux `n F_prim` (`+4` for even `n`, `-2` for odd `n`). -/
+def q8LefNegId (n : ℤ) : ℤ :=
+  q8ArfGaussSum n / 4
+
+/-- Exact Atiyah-Segal-Singer Lefschetz trace `L(-L(q_3); n) = det(-M_{D_4} - I) = +1` from the
+    unique isolated fixed point `x = 0` of `-L(q_3)` on `T^4_{D_4}`. -/
+def q8LefNegTri : ℤ :=
+  (-mlD4Triality - 1).det
+
+/-- Exact `Z_3`-projected `-1 ∈ Q_8` character trace in the untwisted sector `V_0`. -/
+def q8CharNegUntwisted (n : ℤ) : ℤ :=
+  (q8LefNegId n + 2 * q8LefNegTri) / 3
+
+/-- Exact `Z_3`-projected `-1 ∈ Q_8` character trace in each twisted sector `V_1`, `V_2`. -/
+def q8CharNegTwisted (n : ℤ) : ℤ :=
+  (q8LefNegId n - q8LefNegTri) / 3
+
+/-- Total chiral `Q_8` doublet multiplicity `N_dbl(n) = (χ(+1) - χ(-1)) / 4` on `T^4_{D_4}`
+    across `V_0 ⊕ V_1 ⊕ V_2` (`6 m^2 - 1` for `n = 2 m`; `6 m^2 + 6 m + 2` for `n = 2 m + 1`). -/
+def q8DoubletCount (n : ℤ) : ℤ :=
+  (orbPfaffian n - q8LefNegId n) / 4
+
+/-- Untwisted `V_0` chiral `Q_8` doublet multiplicity `N_dbl(V_0; n) = (χ_{V_0}(+1) - χ_{V_0}(-1)) / 4`
+    (`2 m^2 - 1` for `n = 2 m`; `2 m^2 + 2 m` for `n = 2 m + 1`). -/
+def v0DoubletCount (n : ℤ) : ℤ :=
+  (orbIndUntwisted n - q8CharNegUntwisted n) / 4
+
+/-- Twisted `V_1` (= `V_2`) chiral `Q_8` doublet multiplicity `N_dbl(V_1; n) = (χ_{V_1}(+1) - χ_{V_1}(-1)) / 4`
+    (`2 m^2` for `n = 2 m`; `2 m^2 + 2 m + 1` for `n = 2 m + 1`). -/
+def v1DoubletCount (n : ℤ) : ℤ :=
+  (orbIndTwisted n - q8CharNegTwisted n) / 4
+
+/-- Headline 5: Exact `Q_8 < 2T_R` Witten `Z_2` Flux-Parity Selection Theorem.
+    Derives the total and per-sector `Q_8` doublet multiplicities directly from `mlD4Fprim`,
+    `mlD4Triality`, and `mlChar2T`:
+    (1) `2T_R` spinor-doublet projector `χ_i(+1) - χ_i(-1) = 4` iff `i ∈ {2, 2', 2''}` (`i ≥ 4`),
+    (2) Exact `F_2^4` Arf-1 Gauss sum (`+16` for even `n`, `-8` for odd `n`), exact `M_{D_4}`
+        triality invariance of `q8CocycleQ1`, and `det(-M_{D_4} - I) = 1`,
+    (3) Exact closed-form formulas for ALL `m : ℤ` (`q8DoubletCount`, `v0DoubletCount`,
+        `v1DoubletCount`, exact sum `v0 + 2 v1 = total`, and `2 N_dbl(n) = 3 n^2 - 2` vs `3 n^2 + 1`),
+    (4) Universal Witten `Z_2` anomaly parity for ALL `m : ℤ`: even flux `n = 2 m` has ODD
+        `q8DoubletCount` and ODD `v0DoubletCount` (killing all even-`n` vacua including `n = 0`)
+        with EVEN `v1DoubletCount`, whereas odd flux `n = 2 m + 1` has EVEN `q8DoubletCount` and
+        EVEN `v0DoubletCount` with ODD `v1DoubletCount`,
+    (5) Exact uniqueness `v0DoubletCount n = 0 ↔ n = 1 ∨ n = -1` and exact values at
+        `n ∈ {0, -1, 1, 2, 3, 4, 5}`. -/
+theorem thm_q8_witten_z2_flux_parity :
+    (∀ i : Fin 7, mlChar2T i 0 - mlChar2T i 1 = if 4 ≤ i.val then 4 else 0) ∧
+    ((∀ v : Fin 4 → ZMod 2,
+        q8CocycleQ1 ((mlD4Triality.map (Int.cast : ℤ → ZMod 2)).mulVec v) = q8CocycleQ1 v) ∧
+      q8LefNegTri = 1 ∧
+      (∀ m : ℤ, q8ArfGaussSum (2 * m) = 16 ∧ q8ArfGaussSum (2 * m + 1) = -8)) ∧
+    ((∀ m : ℤ,
+        q8DoubletCount (2 * m) = 6 * m ^ 2 - 1 ∧
+        q8DoubletCount (2 * m + 1) = 6 * m ^ 2 + 6 * m + 2 ∧
+        v0DoubletCount (2 * m) = 2 * m ^ 2 - 1 ∧
+        v0DoubletCount (2 * m + 1) = 2 * m ^ 2 + 2 * m ∧
+        v1DoubletCount (2 * m) = 2 * m ^ 2 ∧
+        v1DoubletCount (2 * m + 1) = 2 * m ^ 2 + 2 * m + 1) ∧
+      (∀ n : ℤ, v0DoubletCount n + 2 * v1DoubletCount n = q8DoubletCount n) ∧
+      (∀ m : ℤ,
+        2 * q8DoubletCount (2 * m) = 3 * (2 * m) ^ 2 - 2 ∧
+        2 * q8DoubletCount (2 * m + 1) = 3 * (2 * m + 1) ^ 2 + 1)) ∧
+    (∀ m : ℤ,
+      Odd (q8DoubletCount (2 * m)) ∧
+      Odd (v0DoubletCount (2 * m)) ∧
+      Even (v1DoubletCount (2 * m)) ∧
+      Even (q8DoubletCount (2 * m + 1)) ∧
+      Even (v0DoubletCount (2 * m + 1)) ∧
+      Odd (v1DoubletCount (2 * m + 1))) ∧
+    ((∀ n : ℤ, v0DoubletCount n = 0 ↔ n = 1 ∨ n = -1) ∧
+      (v0DoubletCount 0, v0DoubletCount (-1), v0DoubletCount 1, v0DoubletCount 2,
+        v0DoubletCount 3, v0DoubletCount 4, v0DoubletCount 5) = (-1, 0, 0, 1, 4, 7, 12) ∧
+      (v1DoubletCount 0, v1DoubletCount (-1), v1DoubletCount 1, v1DoubletCount 2,
+        v1DoubletCount 3, v1DoubletCount 4, v1DoubletCount 5) = (0, 1, 1, 2, 5, 8, 13) ∧
+      (q8DoubletCount 0, q8DoubletCount (-1), q8DoubletCount 1, q8DoubletCount 2,
+        q8DoubletCount 3, q8DoubletCount 4, q8DoubletCount 5) = (-1, 2, 2, 5, 14, 23, 38)) := by
+  have hProj : ∀ i : Fin 7, mlChar2T i 0 - mlChar2T i 1 = if 4 ≤ i.val then 4 else 0 := by
+    intro i
+    fin_cases i <;> simp [mlChar2T] <;> norm_num
+  have hTriInv : ∀ v : Fin 4 → ZMod 2,
+      q8CocycleQ1 ((mlD4Triality.map (Int.cast : ℤ → ZMod 2)).mulVec v) = q8CocycleQ1 v := by
+    decide
+  have hNegTri : q8LefNegTri = 1 := by
+    unfold q8LefNegTri
+    simp [mlD4Triality, Matrix.det_succ_row_zero, Fin.sum_univ_succ]
+    decide
+  have hGauss1 : q8ArfGaussSum 1 = -8 := by
+    decide
+  have hGaussAll : ∀ m : ℤ, q8ArfGaussSum (2 * m) = 16 ∧ q8ArfGaussSum (2 * m + 1) = -8 := by
+    intro m
+    constructor
+    · unfold q8ArfGaussSum
+      have hTerm : ∀ v : Fin 4 → ZMod 2,
+          (if (2 * m * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 then (1 : ℤ) else -1) = 1 := by
+        intro v
+        have hMod : (2 * m * ((q8CocycleQ1 v).val : ℤ)) % 2 = 0 := by omega
+        simp [hMod]
+      simp only [hTerm, Finset.sum_const, Finset.card_univ, Fintype.card_pi, ZMod.card]
+      decide
+    · rw [← hGauss1]
+      unfold q8ArfGaussSum
+      refine Finset.sum_congr rfl fun v _ => ?_
+      have hMod : ((2 * m + 1) * ((q8CocycleQ1 v).val : ℤ)) % 2 =
+          (1 * ((q8CocycleQ1 v).val : ℤ)) % 2 := by
+        have hEq : (2 * m + 1) * ((q8CocycleQ1 v).val : ℤ) =
+            2 * (m * ((q8CocycleQ1 v).val : ℤ)) + 1 * ((q8CocycleQ1 v).val : ℤ) := by ring
+        rw [hEq]
+        omega
+      rw [hMod]
+  have hOrbForm := thm_untwisted_anomaly_uniqueness.2.2.1
+  have hFormulas : ∀ m : ℤ,
+      q8DoubletCount (2 * m) = 6 * m ^ 2 - 1 ∧
+      q8DoubletCount (2 * m + 1) = 6 * m ^ 2 + 6 * m + 2 ∧
+      v0DoubletCount (2 * m) = 2 * m ^ 2 - 1 ∧
+      v0DoubletCount (2 * m + 1) = 2 * m ^ 2 + 2 * m ∧
+      v1DoubletCount (2 * m) = 2 * m ^ 2 ∧
+      v1DoubletCount (2 * m + 1) = 2 * m ^ 2 + 2 * m + 1 := by
+    intro m
+    rcases hGaussAll m with ⟨hGE, hGO⟩
+    have hLefE : q8LefNegId (2 * m) = 4 := by rw [q8LefNegId, hGE]; norm_num
+    have hLefO : q8LefNegId (2 * m + 1) = -2 := by rw [q8LefNegId, hGO]; norm_num
+    have hChUE : q8CharNegUntwisted (2 * m) = 2 := by
+      rw [q8CharNegUntwisted, hLefE, hNegTri]; norm_num
+    have hChUO : q8CharNegUntwisted (2 * m + 1) = 0 := by
+      rw [q8CharNegUntwisted, hLefO, hNegTri]; norm_num
+    have hChTE : q8CharNegTwisted (2 * m) = 1 := by
+      rw [q8CharNegTwisted, hLefE, hNegTri]; norm_num
+    have hChTO : q8CharNegTwisted (2 * m + 1) = -1 := by
+      rw [q8CharNegTwisted, hLefO, hNegTri]; norm_num
+    have hDiv4 : (4 : ℤ) ≠ 0 := by decide
+    refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+    · rw [q8DoubletCount, orbPfaffian, hLefE]
+      have hNum : 6 * (2 * m) ^ 2 - 4 = 4 * (6 * m ^ 2 - 1) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+    · rw [q8DoubletCount, orbPfaffian, hLefO]
+      have hNum : 6 * (2 * m + 1) ^ 2 - -2 = 4 * (6 * m ^ 2 + 6 * m + 2) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+    · rw [v0DoubletCount, (hOrbForm (2 * m)).1, hChUE]
+      have hNum : 2 * (2 * m) ^ 2 - 2 - 2 = 4 * (2 * m ^ 2 - 1) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+    · rw [v0DoubletCount, (hOrbForm (2 * m + 1)).1, hChUO]
+      have hNum : 2 * (2 * m + 1) ^ 2 - 2 - 0 = 4 * (2 * m ^ 2 + 2 * m) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+    · rw [v1DoubletCount, (hOrbForm (2 * m)).2, hChTE]
+      have hNum : 2 * (2 * m) ^ 2 + 1 - 1 = 4 * (2 * m ^ 2) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+    · rw [v1DoubletCount, (hOrbForm (2 * m + 1)).2, hChTO]
+      have hNum : 2 * (2 * m + 1) ^ 2 + 1 - -1 = 4 * (2 * m ^ 2 + 2 * m + 1) := by ring
+      rw [hNum, Int.mul_ediv_cancel_left _ hDiv4]
+  have hSum : ∀ n : ℤ, v0DoubletCount n + 2 * v1DoubletCount n = q8DoubletCount n := by
+    intro n
+    rcases Int.even_or_odd n with ⟨m, rfl⟩ | ⟨m, rfl⟩
+    · have h2m : m + m = 2 * m := by ring
+      rw [h2m]
+      rcases hFormulas m with ⟨hT, _, h0, _, h1, _⟩
+      rw [hT, h0, h1]
+      ring
+    · rcases hFormulas m with ⟨_, hT, _, h0, _, h1⟩
+      rw [hT, h0, h1]
+      ring
+  have hTwoN : ∀ m : ℤ,
+      2 * q8DoubletCount (2 * m) = 3 * (2 * m) ^ 2 - 2 ∧
+      2 * q8DoubletCount (2 * m + 1) = 3 * (2 * m + 1) ^ 2 + 1 := by
+    intro m
+    rcases hFormulas m with ⟨hE, hO, _, _, _, _⟩
+    rw [hE, hO]
+    constructor <;> ring
+  have hParity : ∀ m : ℤ,
+      Odd (q8DoubletCount (2 * m)) ∧
+      Odd (v0DoubletCount (2 * m)) ∧
+      Even (v1DoubletCount (2 * m)) ∧
+      Even (q8DoubletCount (2 * m + 1)) ∧
+      Even (v0DoubletCount (2 * m + 1)) ∧
+      Odd (v1DoubletCount (2 * m + 1)) := by
+    intro m
+    rcases hFormulas m with ⟨hTE, hTO, h0E, h0O, h1E, h1O⟩
+    rw [hTE, hTO, h0E, h0O, h1E, h1O]
+    exact ⟨⟨3 * m ^ 2 - 1, by ring⟩, ⟨m ^ 2 - 1, by ring⟩, ⟨m ^ 2, by ring⟩,
+      ⟨3 * m ^ 2 + 3 * m + 1, by ring⟩, ⟨m ^ 2 + m, by ring⟩, ⟨m ^ 2 + m, by ring⟩⟩
+  have hV0Zero : ∀ n : ℤ, v0DoubletCount n = 0 ↔ n = 1 ∨ n = -1 := by
+    intro n
+    constructor
+    · intro h
+      rcases Int.even_or_odd n with ⟨m, rfl⟩ | ⟨m, rfl⟩
+      · have h2m : m + m = 2 * m := by ring
+        rw [h2m, (hFormulas m).2.2.1] at h
+        omega
+      · rw [(hFormulas m).2.2.2.1] at h
+        have hFac : m * (m + 1) = 0 := by linarith
+        rcases mul_eq_zero.mp hFac with hm | hm1
+        · left; omega
+        · right; omega
+    · rintro (rfl | rfl)
+      · have h1 := (hFormulas 0).2.2.2.1
+        norm_num at h1 ⊢
+        exact h1
+      · have hm1 := (hFormulas (-1)).2.2.2.1
+        norm_num at hm1 ⊢
+        exact hm1
+  have hValsV0 :
+      (v0DoubletCount 0, v0DoubletCount (-1), v0DoubletCount 1, v0DoubletCount 2,
+        v0DoubletCount 3, v0DoubletCount 4, v0DoubletCount 5) = (-1, 0, 0, 1, 4, 7, 12) := by
+    have h0 := (hFormulas 0).2.2.1
+    have hm1 := (hFormulas (-1)).2.2.2.1
+    have h1 := (hFormulas 0).2.2.2.1
+    have h2 := (hFormulas 1).2.2.1
+    have h3 := (hFormulas 1).2.2.2.1
+    have h4 := (hFormulas 2).2.2.1
+    have h5 := (hFormulas 2).2.2.2.1
+    norm_num at h0 hm1 h1 h2 h3 h4 h5
+    simp only [h0, hm1, h1, h2, h3, h4, h5]
+  have hValsV1 :
+      (v1DoubletCount 0, v1DoubletCount (-1), v1DoubletCount 1, v1DoubletCount 2,
+        v1DoubletCount 3, v1DoubletCount 4, v1DoubletCount 5) = (0, 1, 1, 2, 5, 8, 13) := by
+    have h0 := (hFormulas 0).2.2.2.2.1
+    have hm1 := (hFormulas (-1)).2.2.2.2.2
+    have h1 := (hFormulas 0).2.2.2.2.2
+    have h2 := (hFormulas 1).2.2.2.2.1
+    have h3 := (hFormulas 1).2.2.2.2.2
+    have h4 := (hFormulas 2).2.2.2.2.1
+    have h5 := (hFormulas 2).2.2.2.2.2
+    norm_num at h0 hm1 h1 h2 h3 h4 h5
+    simp only [h0, hm1, h1, h2, h3, h4, h5]
+  have hValsTot :
+      (q8DoubletCount 0, q8DoubletCount (-1), q8DoubletCount 1, q8DoubletCount 2,
+        q8DoubletCount 3, q8DoubletCount 4, q8DoubletCount 5) = (-1, 2, 2, 5, 14, 23, 38) := by
+    have h0 := (hFormulas 0).1
+    have hm1 := (hFormulas (-1)).2.1
+    have h1 := (hFormulas 0).2.1
+    have h2 := (hFormulas 1).1
+    have h3 := (hFormulas 1).2.1
+    have h4 := (hFormulas 2).1
+    have h5 := (hFormulas 2).2.1
+    norm_num at h0 hm1 h1 h2 h3 h4 h5
+    simp only [h0, hm1, h1, h2, h3, h4, h5]
+  exact ⟨hProj, ⟨hTriInv, hNegTri, hGaussAll⟩, ⟨hFormulas, hSum, hTwoN⟩, hParity,
+    ⟨hV0Zero, hValsV0, hValsV1, hValsTot⟩⟩
+
+/-! ### 6. Exact 3-Smooth Closure of `W(F_4)^+` Zero-Veto Orbit Averaging in `ℤ[ζ_9][1/6]` -/
+
+/-- A natural number `k` is 3-smooth iff `k = 2^a * 3^b` for some `a, b : ℕ`
+    (equivalently, `k` is invertible in `ℤ[1/6]` and in `ℤ[ζ_9][1/6]`). -/
+def IsThreeSmooth (k : ℕ) : Prop :=
+  ∃ a b : ℕ, k = 2 ^ a * 3 ^ b
+
+private theorem isThreeSmooth_of_dvd_two_three_pow :
+    ∀ d : ℕ, ∀ a b : ℕ, d ∣ 2 ^ a * 3 ^ b → IsThreeSmooth d := by
+  intro d
+  induction d using Nat.strongRecOn with
+  | ind d ih =>
+    intro a b hdvd
+    by_cases hd0 : d = 0
+    · subst hd0
+      have hPos : 0 < 2 ^ a * 3 ^ b := by positivity
+      have hEq0 : 2 ^ a * 3 ^ b = 0 := zero_dvd_iff.mp hdvd
+      omega
+    · by_cases hd1 : d = 1
+      · subst hd1
+        exact ⟨0, 0, by norm_num⟩
+      · let p := d.minFac
+        have hp : Nat.Prime p := Nat.minFac_prime hd1
+        have hpd : p ∣ d := Nat.minFac_dvd d
+        have hpmul : p ∣ 2 ^ a * 3 ^ b := dvd_trans hpd hdvd
+        have hlt : d / p < d := Nat.div_lt_self (Nat.pos_of_ne_zero hd0) hp.one_lt
+        have hMulDiv : p * (d / p) = d := Nat.mul_div_cancel' hpd
+        have hDivDvd : d / p ∣ d := ⟨p, by rw [mul_comm, hMulDiv]⟩
+        have hSub : IsThreeSmooth (d / p) := ih (d / p) hlt a b (dvd_trans hDivDvd hdvd)
+        rcases hSub with ⟨a', b', hEq⟩
+        rcases hp.dvd_mul.mp hpmul with hp2 | hp3
+        · have hpEq2 : p = 2 := Nat.prime_eq_prime_of_dvd_pow hp Nat.prime_two hp2
+          refine ⟨a' + 1, b', ?_⟩
+          calc
+            d = p * (d / p) := hMulDiv.symm
+            _ = 2 * (2 ^ a' * 3 ^ b') := by rw [hpEq2, hEq]
+            _ = 2 ^ (a' + 1) * 3 ^ b' := by ring
+        · have hpEq3 : p = 3 := Nat.prime_eq_prime_of_dvd_pow hp Nat.prime_three hp3
+          refine ⟨a', b' + 1, ?_⟩
+          calc
+            d = p * (d / p) := hMulDiv.symm
+            _ = 3 * (2 ^ a' * 3 ^ b') := by rw [hpEq3, hEq]
+            _ = 2 ^ a' * 3 ^ (b' + 1) := by ring
+
+private theorem isThreeSmooth_no_prime_ge_five {d : ℕ} (hs : IsThreeSmooth d)
+    {p : ℕ} (hp : Nat.Prime p) (hp5 : p ≥ 5) : ¬ (p ∣ d) := by
+  intro hpd
+  rcases hs with ⟨a, b, rfl⟩
+  rcases hp.dvd_mul.mp hpd with hp2 | hp3
+  · have h2 := Nat.prime_eq_prime_of_dvd_pow hp Nat.prime_two hp2
+    omega
+  · have h3 := Nat.prime_eq_prime_of_dvd_pow hp Nat.prime_three hp3
+    omega
+
+private theorem isThreeSmooth_dvd_pow_six {d : ℕ} (hs : IsThreeSmooth d) :
+    ∃ (a b c : ℕ), d * c = 6 ^ max a b := by
+  rcases hs with ⟨a, b, rfl⟩
+  refine ⟨a, b, 2 ^ (max a b - a) * 3 ^ (max a b - b), ?_⟩
+  have h2 : 2 ^ a * 2 ^ (max a b - a) = 2 ^ max a b := by
+    rw [← pow_add, Nat.add_sub_of_le (le_max_left a b)]
+  have h3 : 3 ^ b * 3 ^ (max a b - b) = 3 ^ max a b := by
+    rw [← pow_add, Nat.add_sub_of_le (le_max_right a b)]
+  calc
+    2 ^ a * 3 ^ b * (2 ^ (max a b - a) * 3 ^ (max a b - b))
+      = (2 ^ a * 2 ^ (max a b - a)) * (3 ^ b * 3 ^ (max a b - b)) := by ring
+    _ = 2 ^ max a b * 3 ^ max a b := by rw [h2, h3]
+    _ = (2 * 3) ^ max a b := by rw [← mul_pow]
+    _ = 6 ^ max a b := by norm_num
+
+/-- Headline 6: Exact 3-Smooth Closure of `W(F_4)^+` Zero-Veto Orbit Averaging in `ℤ[ζ_9][1/6]`.
+    Proves using Mathlib prime divisibility:
+    (1) Closure of `IsThreeSmooth` under multiplication and arbitrary divisors,
+    (2) Exact equivalence with absence of prime factors `p ≥ 5` and exact `ℤ[1/6]` invertibility
+        (`∃ k c, m * c = 6^k`),
+    (3) Every divisor `d ∣ 288 = 2^5 · 3^2 = |W(F_4)^+| / 2` and every divisor `d ∣ 24 = 2^3 · 3 = |S_4|`
+        is 3-smooth, has no prime factor `p ≥ 5`, and admits an exact inverse `d * c = 6^(max a b)`
+        inside `ℤ[1/6]` (and hence inside `ℤ[ζ_9][1/6]`),
+    (4) Exact `W(F_4)^+` orbit decompositions (`3 + 8 = 11` with `3 ∣ 288, 8 ∣ 288`; `18 + 48 = 66`
+        with `18 ∣ 288, 48 ∣ 288`; single-frame counts `1, 4, 6` all dividing `24`),
+    (5) Sharp negative control: naive `S_12` orbit denominators `M ∈ {5, 7, 10, 11}` are NOT
+        3-smooth and divide NO power `6^k` for any `k : ℕ`. -/
+theorem thm_zero_veto_3smooth_closure :
+    (∀ m n : ℕ, IsThreeSmooth m → IsThreeSmooth n → IsThreeSmooth (m * n)) ∧
+    (∀ d m : ℕ, d ∣ m → IsThreeSmooth m → IsThreeSmooth d) ∧
+    (∀ m : ℕ, 0 < m →
+      (IsThreeSmooth m ↔ ∃ k c : ℕ, m * c = 6 ^ k)) ∧
+    (∀ d : ℕ, d ∣ 288 →
+      IsThreeSmooth d ∧
+      (∀ p : ℕ, Nat.Prime p → p ≥ 5 → ¬ (p ∣ d)) ∧
+      (∃ a b c : ℕ, d * c = 6 ^ max a b)) ∧
+    (∀ d : ℕ, d ∣ 24 →
+      IsThreeSmooth d ∧
+      (∀ p : ℕ, Nat.Prime p → p ≥ 5 → ¬ (p ∣ d)) ∧
+      (∃ a b c : ℕ, d * c = 6 ^ max a b)) ∧
+    ((3 + 8 = 11 ∧ 3 ∣ 288 ∧ 8 ∣ 288) ∧
+      (18 + 48 = 66 ∧ 18 ∣ 288 ∧ 48 ∣ 288) ∧
+      (1 ∣ 24 ∧ 4 ∣ 24 ∧ 6 ∣ 24)) ∧
+    ((¬ IsThreeSmooth 5 ∧ ¬ IsThreeSmooth 7 ∧ ¬ IsThreeSmooth 10 ∧ ¬ IsThreeSmooth 11) ∧
+      (∀ k : ℕ, ¬ (5 ∣ 6 ^ k) ∧ ¬ (7 ∣ 6 ^ k) ∧ ¬ (10 ∣ 6 ^ k) ∧ ¬ (11 ∣ 6 ^ k))) := by
+  have hMul : ∀ m n : ℕ, IsThreeSmooth m → IsThreeSmooth n → IsThreeSmooth (m * n) := by
+    rintro m n ⟨a₁, b₁, rfl⟩ ⟨a₂, b₂, rfl⟩
+    refine ⟨a₁ + a₂, b₁ + b₂, ?_⟩
+    rw [pow_add, pow_add]
+    ring
+  have hDvd : ∀ d m : ℕ, d ∣ m → IsThreeSmooth m → IsThreeSmooth d := by
+    rintro d m hd ⟨a, b, rfl⟩
+    exact isThreeSmooth_of_dvd_two_three_pow d a b hd
+  have hPow6Smooth : ∀ k : ℕ, IsThreeSmooth (6 ^ k) := by
+    intro k
+    refine ⟨k, k, ?_⟩
+    rw [← mul_pow]
+  have hEquiv6 : ∀ m : ℕ, 0 < m → (IsThreeSmooth m ↔ ∃ k c : ℕ, m * c = 6 ^ k) := by
+    intro m _
+    constructor
+    · intro hs
+      rcases isThreeSmooth_dvd_pow_six hs with ⟨a, b, c, hc⟩
+      exact ⟨max a b, c, hc⟩
+    · rintro ⟨k, c, hc⟩
+      exact hDvd m (6 ^ k) ⟨c, hc.symm⟩ (hPow6Smooth k)
+  have h288 : IsThreeSmooth 288 := ⟨5, 2, by norm_num⟩
+  have h24 : IsThreeSmooth 24 := ⟨3, 1, by norm_num⟩
+  have hFor288 : ∀ d : ℕ, d ∣ 288 →
+      IsThreeSmooth d ∧
+      (∀ p : ℕ, Nat.Prime p → p ≥ 5 → ¬ (p ∣ d)) ∧
+      (∃ a b c : ℕ, d * c = 6 ^ max a b) := by
+    intro d hd
+    have hs := hDvd d 288 hd h288
+    exact ⟨hs, fun p hp hp5 => isThreeSmooth_no_prime_ge_five hs hp hp5,
+      isThreeSmooth_dvd_pow_six hs⟩
+  have hFor24 : ∀ d : ℕ, d ∣ 24 →
+      IsThreeSmooth d ∧
+      (∀ p : ℕ, Nat.Prime p → p ≥ 5 → ¬ (p ∣ d)) ∧
+      (∃ a b c : ℕ, d * c = 6 ^ max a b) := by
+    intro d hd
+    have hs := hDvd d 24 hd h24
+    exact ⟨hs, fun p hp hp5 => isThreeSmooth_no_prime_ge_five hs hp hp5,
+      isThreeSmooth_dvd_pow_six hs⟩
+  have hp5 : Nat.Prime 5 := by decide
+  have hp7 : Nat.Prime 7 := by decide
+  have hp11 : Nat.Prime 11 := by decide
+  refine ⟨hMul, hDvd, hEquiv6, hFor288, hFor24, by decide, ⟨?_, ?_⟩⟩
+  · refine ⟨?_, ?_, ?_, ?_⟩
+    · intro h; exact isThreeSmooth_no_prime_ge_five h hp5 (by omega) dvd_rfl
+    · intro h; exact isThreeSmooth_no_prime_ge_five h hp7 (by omega) dvd_rfl
+    · intro h; exact isThreeSmooth_no_prime_ge_five h hp5 (by omega) (by decide)
+    · intro h; exact isThreeSmooth_no_prime_ge_five h hp11 (by omega) dvd_rfl
+  · intro k
+    have h6 := hPow6Smooth k
+    refine ⟨isThreeSmooth_no_prime_ge_five h6 hp5 (by omega),
+      isThreeSmooth_no_prime_ge_five h6 hp7 (by omega),
+      fun h10 => isThreeSmooth_no_prime_ge_five h6 hp5 (by omega) (dvd_trans (by decide) h10),
+      isThreeSmooth_no_prime_ge_five h6 hp11 (by omega)⟩
+
+/-! ### 7. Exact `W(F_4)^+` Spin-2 Linearized Diffeomorphism Uniqueness Theorem -/
+
+/-- Rational Kronecker delta `δ_{μν}` on `Fin 4`. -/
+def spin2Delta (μ ν : Fin 4) : ℚ :=
+  if μ = ν then 1 else 0
+
+/-- Squared Euclidean momentum norm `q^2 = ∑_a q_a^2` over `ℚ`. -/
+def spin2QNormSq (q : Fin 4 → ℚ) : ℚ :=
+  ∑ a : Fin 4, q a ^ 2
+
+/-- `SO(4)` spin-2 kinetic basis tensor `I_1 = q^2 (δ_{μρ} δ_{νσ} + δ_{μσ} δ_{νρ}) / 2`
+    (quadratic form `q^2 Tr(h^2)`). -/
+def spin2I1 (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  spin2QNormSq q * (spin2Delta μ ρ * spin2Delta ν σ + spin2Delta μ σ * spin2Delta ν ρ) / 2
+
+/-- `SO(4)` spin-2 kinetic basis tensor
+    `I_2 = (q_μ q_ρ δ_{νσ} + q_μ q_σ δ_{νρ} + q_ν q_ρ δ_{μσ} + q_ν q_σ δ_{μρ}) / 4`
+    (quadratic form `‖q h‖^2`). -/
+def spin2I2 (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  (q μ * q ρ * spin2Delta ν σ + q μ * q σ * spin2Delta ν ρ +
+   q ν * q ρ * spin2Delta μ σ + q ν * q σ * spin2Delta μ ρ) / 4
+
+/-- `SO(4)` spin-2 kinetic basis tensor `I_3 = (q_μ q_ν δ_{ρσ} + q_ρ q_σ δ_{μν}) / 2`
+    (quadratic form `(q^T h q) Tr(h)`). -/
+def spin2I3 (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  (q μ * q ν * spin2Delta ρ σ + q ρ * q σ * spin2Delta μ ν) / 2
+
+/-- `SO(4)` spin-2 kinetic basis tensor `I_4 = q^2 δ_{μν} δ_{ρσ}`
+    (quadratic form `q^2 (Tr h)^2`). -/
+def spin2I4 (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  spin2QNormSq q * spin2Delta μ ν * spin2Delta ρ σ
+
+/-- Unique non-`SO(4)` `W(F_4)^+`-invariant 2-derivative spin-2 tensor over the 24 `D_4` roots:
+    `I_5^{μν,ρσ}(q) = ∑_{i : Fin 24} (r_i · q)^2 r_{iμ} r_{iν} r_{iρ} r_{iσ}`. -/
+def spin2I5 (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  ∑ i : Fin 24,
+    (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+    (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)
+
+/-- Hypercubic `W(B_4)^+` (`ℤ^4`) 4-index spin-2 tensor
+    `I_5^{ℤ^4}(q)_{μν,ρσ} = ∑_a q_a^2 δ_{μa} δ_{νa} δ_{ρa} δ_{σa}`
+    (negative control: invariant on `ℤ^4`, NOT invariant under `W(F_4)^+`). -/
+def spin2I5Hypercubic (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  ∑ a : Fin 4, q a ^ 2 * spin2Delta μ a * spin2Delta ν a * spin2Delta ρ a * spin2Delta σ a
+
+/-- Full 5-parameter `W(F_4)^+`-invariant quadratic spin-2 kinetic symbol `K^{μν,ρσ}(q; c₁..c₅)`. -/
+def wf4Spin2Kernel (c₁ c₂ c₃ c₄ c₅ : ℚ) (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  c₁ * spin2I1 q μ ν ρ σ + c₂ * spin2I2 q μ ν ρ σ +
+  c₃ * spin2I3 q μ ν ρ σ + c₄ * spin2I4 q μ ν ρ σ + c₅ * spin2I5 q μ ν ρ σ
+
+/-- Full 5-parameter hypercubic `ℤ^4` quadratic spin-2 kinetic symbol with `I_5^{ℤ^4}`. -/
+def z4Spin2Kernel (c₁ c₂ c₃ c₄ c₅ : ℚ) (q : Fin 4 → ℚ) (μ ν ρ σ : Fin 4) : ℚ :=
+  c₁ * spin2I1 q μ ν ρ σ + c₂ * spin2I2 q μ ν ρ σ +
+  c₃ * spin2I3 q μ ν ρ σ + c₄ * spin2I4 q μ ν ρ σ + c₅ * spin2I5Hypercubic q μ ν ρ σ
+
+/-- Quadratic action `h_{μν} T^{μν,ρσ}(q) h_{ρσ}` evaluated on a symmetric metric perturbation `h`. -/
+def spin2QuadForm (T : (Fin 4 → ℚ) → Fin 4 → Fin 4 → Fin 4 → Fin 4 → ℚ)
+    (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ) : ℚ :=
+  ∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
+    h μ ν * T q μ ν ρ σ * h ρ σ
+
+/-- Proper Hadamard generator `g_{F_4} ∈ W(F_4)^+ \ W(B_4)^+` (`g gᵀ = I_4`, `det g = +1`). -/
+def wf4HadamardMat : Matrix (Fin 4) (Fin 4) ℚ :=
+  (1 / 2 : ℚ) • !![1,  1,  1,  1;
+                   1,  1, -1, -1;
+                   1, -1,  1, -1;
+                  -1,  1,  1, -1]
+
+private def wf4HadamardInt2 : Matrix (Fin 4) (Fin 4) ℤ :=
+  !![1,  1,  1,  1;
+     1,  1, -1, -1;
+     1, -1,  1, -1;
+    -1,  1,  1, -1]
+
+private def wf4HadamardRootImg (i : Fin 24) : Fin 24 :=
+  match (List.finRange 24).find? (fun j =>
+      decide (∀ a : Fin 4,
+        (∑ b : Fin 4, wf4HadamardInt2 b a * mlD4Root i b) = 2 * mlD4Root j a)) with
+  | some j => j
+  | none => i
+
+private def spin2I5ProbeZ (q : Fin 4 → ℤ) (ν ρ σ : Fin 4) : ℤ :=
+  ∑ i : Fin 24, (mlDot4 (mlD4Root i) q) ^ 3 * mlD4Root i ν * mlD4Root i ρ * mlD4Root i σ
+
+private theorem spin2_sum_q_delta (q : Fin 4 → ℚ) (α : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2Delta μ α) = q α := by
+  simp [spin2Delta]
+
+private theorem spin2_div_I1 (q : Fin 4 → ℚ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2I1 q μ ν ρ σ) =
+      spin2QNormSq q * (q ρ * spin2Delta ν σ + q σ * spin2Delta ν ρ) / 2 := by
+  simp only [spin2I1, spin2Delta]
+  simp [Fin.sum_univ_four]
+  fin_cases ν <;> fin_cases ρ <;> fin_cases σ <;> simp <;> ring
+
+private theorem spin2_div_I2 (q : Fin 4 → ℚ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2I2 q μ ν ρ σ) =
+      (spin2QNormSq q * (q ρ * spin2Delta ν σ + q σ * spin2Delta ν ρ) +
+        2 * q ν * q ρ * q σ) / 4 := by
+  simp only [spin2I2, spin2QNormSq, spin2Delta]
+  simp [Fin.sum_univ_four]
+  fin_cases ν <;> fin_cases ρ <;> fin_cases σ <;> simp <;> ring
+
+private theorem spin2_div_I3 (q : Fin 4 → ℚ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2I3 q μ ν ρ σ) =
+      (spin2QNormSq q * q ν * spin2Delta ρ σ + q ν * q ρ * q σ) / 2 := by
+  simp only [spin2I3, spin2QNormSq, spin2Delta]
+  simp [Fin.sum_univ_four]
+  fin_cases ν <;> fin_cases ρ <;> fin_cases σ <;> simp <;> ring
+
+private theorem spin2_div_I4 (q : Fin 4 → ℚ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2I4 q μ ν ρ σ) =
+      spin2QNormSq q * q ν * spin2Delta ρ σ := by
+  simp only [spin2I4, spin2QNormSq, spin2Delta]
+  simp [Fin.sum_univ_four]
+  fin_cases ν <;> fin_cases ρ <;> fin_cases σ <;> simp <;> ring
+
+private theorem spin2_div_I5 (q : Fin 4 → ℚ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, q μ * spin2I5 q μ ν ρ σ) =
+      ∑ i : Fin 24,
+        (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 3 *
+        (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ) := by
+  unfold spin2I5
+  simp_rw [Finset.mul_sum]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  have hFactor :
+      (∑ μ : Fin 4,
+          q μ * ((∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ))) =
+      (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+        (∑ μ : Fin 4, (mlD4Root i μ : ℚ) * q μ) *
+        (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ) := by
+    simp_rw [Finset.mul_sum, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun μ _ => ?_
+    ring
+  rw [hFactor]
+  ring
+
+private theorem spin2_div_I5_cast (q : Fin 4 → ℤ) (ν ρ σ : Fin 4) :
+    (∑ μ : Fin 4, (q μ : ℚ) * spin2I5 (fun a => (q a : ℚ)) μ ν ρ σ) =
+      (spin2I5ProbeZ q ν ρ σ : ℚ) := by
+  rw [spin2_div_I5]
+  unfold spin2I5ProbeZ mlDot4
+  push_cast
+  rfl
+
+private theorem spin2_quadForm_I5_factored (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ) :
+    spin2QuadForm spin2I5 q h =
+      ∑ i : Fin 24,
+        (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+        (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * h μ ν * (mlD4Root i ν : ℚ)) ^ 2 := by
+  unfold spin2QuadForm spin2I5
+  have hSwap :
+      (∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
+        h μ ν *
+          (∑ i : Fin 24,
+            (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+              (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
+          h ρ σ) =
+      ∑ i : Fin 24, ∑ μ : Fin 4, ∑ ν : Fin 4, ∑ ρ : Fin 4, ∑ σ : Fin 4,
+        h μ ν *
+          ((∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (mlD4Root i μ : ℚ) * (mlD4Root i ν : ℚ) * (mlD4Root i ρ : ℚ) * (mlD4Root i σ : ℚ)) *
+          h ρ σ := by
+    simp_rw [Finset.mul_sum, Finset.sum_mul]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun μ _ => ?_
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun ν _ => ?_
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun ρ _ => ?_
+    rw [Finset.sum_comm]
+  rw [hSwap]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [pow_two]
+  simp_rw [Finset.mul_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun μ _ => Finset.sum_congr rfl fun ν _ =>
+    Finset.sum_congr rfl fun ρ _ => Finset.sum_congr rfl fun σ _ => ?_
+  ring
+
+/-- Headline 7: Exact `W(F_4)^+` Spin-2 Linearized Diffeomorphism Uniqueness Theorem.
+    (1) Proper Hadamard generator `wf4HadamardMat ∈ SO(4) ∩ W(F_4)^+ \ W(B_4)^+` (`g gᵀ = 1`,
+        `det g = 1`) leaves `spin2I5` strictly invariant for ALL `(q, h)` over `ℚ`, while
+        strictly breaking the hypercubic `ℤ^4` tensor `spin2I5Hypercubic` (`1/16 ≠ 1`),
+    (2) `spin2I5` is genuinely independent of the 4 `SO(4)` invariants `I_1..I_4` (same
+        `I_1..I_4` values on `diag(0, 1, -1, 0)` vs `e_1 e_2ᵀ + e_2 e_1ᵀ`, yet `I_5` gives `8 ≠ 0`),
+    (3) Full bidirectional linearized diffeomorphism uniqueness for `wf4Spin2Kernel` over `ℚ`:
+        `(∀ q ν ρ σ, ∑ μ, q μ * wf4Spin2Kernel c₁ c₂ c₃ c₄ c₅ q μ ν ρ σ = 0) ↔
+         (c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0)`,
+        forcing the unique 1D Einstein-Hilbert ray `(1, -2, +2, -1, 0)` and `c₅ = 0`,
+    (4) Matching full bidirectional linearized diffeomorphism uniqueness for the hypercubic `ℤ^4`
+        control `z4Spin2Kernel`, likewise forcing `(c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0)`. -/
+theorem thm_wf4_spin2_diffeo_uniqueness :
+    ((wf4HadamardMat * wf4HadamardMatᵀ = 1 ∧ wf4HadamardMat.det = 1) ∧
+      (∀ (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ),
+        spin2QuadForm spin2I5 (wf4HadamardMat.mulVec q)
+          (wf4HadamardMat * h * wf4HadamardMatᵀ) = spin2QuadForm spin2I5 q h) ∧
+      (∃ (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ),
+        spin2QuadForm spin2I5Hypercubic (wf4HadamardMat.mulVec q)
+          (wf4HadamardMat * h * wf4HadamardMatᵀ) ≠ spin2QuadForm spin2I5Hypercubic q h)) ∧
+    (∃ (q : Fin 4 → ℚ) (hA hB : Matrix (Fin 4) (Fin 4) ℚ),
+      spin2QuadForm spin2I1 q hA = spin2QuadForm spin2I1 q hB ∧
+      spin2QuadForm spin2I2 q hA = spin2QuadForm spin2I2 q hB ∧
+      spin2QuadForm spin2I3 q hA = spin2QuadForm spin2I3 q hB ∧
+      spin2QuadForm spin2I4 q hA = spin2QuadForm spin2I4 q hB ∧
+      spin2QuadForm spin2I5 q hA ≠ spin2QuadForm spin2I5 q hB) ∧
+    (∀ c₁ c₂ c₃ c₄ c₅ : ℚ,
+      (∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+        (∑ μ : Fin 4, q μ * wf4Spin2Kernel c₁ c₂ c₃ c₄ c₅ q μ ν ρ σ) = 0) ↔
+      (c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0)) ∧
+    (∀ c₁ c₂ c₃ c₄ c₅ : ℚ,
+      (∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+        (∑ μ : Fin 4, q μ * z4Spin2Kernel c₁ c₂ c₃ c₄ c₅ q μ ν ρ σ) = 0) ↔
+      (c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0)) := by
+  have hHadOrth : wf4HadamardMat * wf4HadamardMatᵀ = 1 := by
+    ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [wf4HadamardMat, Matrix.mul_apply, Fin.sum_univ_four] <;> norm_num
+  have hHadDet : wf4HadamardMat.det = 1 := by
+    simp [wf4HadamardMat, Matrix.det_succ_row_zero, Fin.sum_univ_succ]
+    norm_num
+  have hHadRoot : ∀ i : Fin 24, ∀ a : Fin 4,
+      (∑ b : Fin 4, wf4HadamardInt2 b a * mlD4Root i b) =
+        2 * mlD4Root (wf4HadamardRootImg i) a := by
+    decide
+  have hHadBij : Function.Bijective wf4HadamardRootImg := by
+    refine ⟨?_, ?_⟩
+    · intro i j hEq
+      revert i j hEq
+      decide
+    · intro j
+      have hEx : ∀ k : Fin 24, ∃ i : Fin 24, wf4HadamardRootImg i = k := by decide
+      exact hEx j
+  have hHadInv : ∀ (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ),
+      spin2QuadForm spin2I5 (wf4HadamardMat.mulVec q)
+        (wf4HadamardMat * h * wf4HadamardMatᵀ) = spin2QuadForm spin2I5 q h := by
+    intro q h
+    rw [spin2_quadForm_I5_factored, spin2_quadForm_I5_factored]
+    have hVecEq : ∀ i : Fin 24, ∀ a : Fin 4,
+        (∑ b : Fin 4, (mlD4Root i b : ℚ) * wf4HadamardMat b a) =
+          (mlD4Root (wf4HadamardRootImg i) a : ℚ) := by
+      intro i a
+      have hZ := hHadRoot i a
+      have hQ : (∑ b : Fin 4, (wf4HadamardInt2 b a : ℚ) * (mlD4Root i b : ℚ)) =
+          2 * (mlD4Root (wf4HadamardRootImg i) a : ℚ) := by
+        exact_mod_cast hZ
+      have hEntry : ∀ b : Fin 4, wf4HadamardMat b a = (1 / 2 : ℚ) * (wf4HadamardInt2 b a : ℚ) := by
+        intro b
+        fin_cases b <;> fin_cases a <;>
+          simp [wf4HadamardMat, wf4HadamardInt2] <;> norm_num
+      simp_rw [hEntry]
+      have hRew : (∑ b : Fin 4, (mlD4Root i b : ℚ) * ((1 / 2 : ℚ) * (wf4HadamardInt2 b a : ℚ))) =
+          (1 / 2 : ℚ) * (∑ b : Fin 4, (wf4HadamardInt2 b a : ℚ) * (mlD4Root i b : ℚ)) := by
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun b _ => ?_
+        ring
+      rw [hRew, hQ]
+      ring
+    have hTermEq : ∀ i : Fin 24,
+        (∑ a : Fin 4, (mlD4Root i a : ℚ) * (wf4HadamardMat.mulVec q) a) ^ 2 *
+          (∑ μ : Fin 4, ∑ ν : Fin 4,
+            (mlD4Root i μ : ℚ) * (wf4HadamardMat * h * wf4HadamardMatᵀ) μ ν * (mlD4Root i ν : ℚ)) ^ 2 =
+        (∑ a : Fin 4, (mlD4Root (wf4HadamardRootImg i) a : ℚ) * q a) ^ 2 *
+          (∑ μ : Fin 4, ∑ ν : Fin 4,
+            (mlD4Root (wf4HadamardRootImg i) μ : ℚ) * h μ ν *
+              (mlD4Root (wf4HadamardRootImg i) ν : ℚ)) ^ 2 := by
+      intro i
+      have hDot : (∑ a : Fin 4, (mlD4Root i a : ℚ) * (wf4HadamardMat.mulVec q) a) =
+          ∑ b : Fin 4, (mlD4Root (wf4HadamardRootImg i) b : ℚ) * q b := by
+        simp only [Matrix.mulVec, dotProduct]
+        simp_rw [Finset.mul_sum]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun b _ => ?_
+        rw [← hVecEq i b, Finset.sum_mul]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        ring
+      have hQuad : (∑ μ : Fin 4, ∑ ν : Fin 4,
+            (mlD4Root i μ : ℚ) * (wf4HadamardMat * h * wf4HadamardMatᵀ) μ ν * (mlD4Root i ν : ℚ)) =
+          ∑ α : Fin 4, ∑ β : Fin 4,
+            (mlD4Root (wf4HadamardRootImg i) α : ℚ) * h α β *
+              (mlD4Root (wf4HadamardRootImg i) β : ℚ) := by
+        simp only [Matrix.mul_apply, Matrix.transpose_apply]
+        simp_rw [← hVecEq i]
+        simp only [Fin.sum_univ_four]
+        ring
+      rw [hDot, hQuad]
+    simp_rw [hTermEq]
+    exact Fintype.sum_bijective wf4HadamardRootImg hHadBij _ _ fun _ => rfl
+  have hHypBreak : ∃ (q : Fin 4 → ℚ) (h : Matrix (Fin 4) (Fin 4) ℚ),
+      spin2QuadForm spin2I5Hypercubic (wf4HadamardMat.mulVec q)
+        (wf4HadamardMat * h * wf4HadamardMatᵀ) ≠ spin2QuadForm spin2I5Hypercubic q h := by
+    refine ⟨![1, 0, 0, 0], Matrix.diagonal ![1, 0, 0, 0], ?_⟩
+    simp only [spin2QuadForm, spin2I5Hypercubic, spin2Delta, wf4HadamardMat,
+      Matrix.mulVec, dotProduct, Matrix.mul_apply, Matrix.transpose_apply,
+      Matrix.diagonal_apply, Fin.sum_univ_four]
+    norm_num
+  have hIndep : ∃ (q : Fin 4 → ℚ) (hA hB : Matrix (Fin 4) (Fin 4) ℚ),
+      spin2QuadForm spin2I1 q hA = spin2QuadForm spin2I1 q hB ∧
+      spin2QuadForm spin2I2 q hA = spin2QuadForm spin2I2 q hB ∧
+      spin2QuadForm spin2I3 q hA = spin2QuadForm spin2I3 q hB ∧
+      spin2QuadForm spin2I4 q hA = spin2QuadForm spin2I4 q hB ∧
+      spin2QuadForm spin2I5 q hA ≠ spin2QuadForm spin2I5 q hB := by
+    let q : Fin 4 → ℚ := ![1, 0, 0, 0]
+    let hA : Matrix (Fin 4) (Fin 4) ℚ := Matrix.diagonal ![0, 1, -1, 0]
+    let hB : Matrix (Fin 4) (Fin 4) ℚ :=
+      !![0, 0, 0, 0;
+         0, 0, 1, 0;
+         0, 1, 0, 0;
+         0, 0, 0, 0]
+    refine ⟨q, hA, hB, ?_, ?_, ?_, ?_, ?_⟩
+    · simp [q, hA, hB, spin2QuadForm, spin2I1, spin2QNormSq, spin2Delta, Fin.sum_univ_four]
+    · simp [q, hA, hB, spin2QuadForm, spin2I2, spin2Delta, Fin.sum_univ_four]
+    · simp [q, hA, hB, spin2QuadForm, spin2I3, spin2Delta, Fin.sum_univ_four]
+    · simp [q, hA, hB, spin2QuadForm, spin2I4, spin2QNormSq, spin2Delta, Fin.sum_univ_four]
+    · rw [spin2_quadForm_I5_factored, spin2_quadForm_I5_factored]
+      have hAVal :
+          (∑ i : Fin 24,
+            (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * hA μ ν * (mlD4Root i ν : ℚ)) ^ 2) =
+          (((∑ i : Fin 24,
+              (mlD4Root i 0) ^ 2 * ((mlD4Root i 1) ^ 2 - (mlD4Root i 2) ^ 2) ^ 2 : ℤ)) : ℚ) := by
+        push_cast
+        refine Finset.sum_congr rfl fun i _ => ?_
+        simp [q, hA, Fin.sum_univ_four]
+        ring
+      have hBVal :
+          (∑ i : Fin 24,
+            (∑ a : Fin 4, (mlD4Root i a : ℚ) * q a) ^ 2 *
+            (∑ μ : Fin 4, ∑ ν : Fin 4, (mlD4Root i μ : ℚ) * hB μ ν * (mlD4Root i ν : ℚ)) ^ 2) =
+          (((∑ i : Fin 24,
+              (mlD4Root i 0) ^ 2 * (2 * mlD4Root i 1 * mlD4Root i 2) ^ 2 : ℤ)) : ℚ) := by
+        push_cast
+        refine Finset.sum_congr rfl fun i _ => ?_
+        simp [q, hB, Fin.sum_univ_four]
+        ring
+      have hAZ : (∑ i : Fin 24,
+          (mlD4Root i 0) ^ 2 * ((mlD4Root i 1) ^ 2 - (mlD4Root i 2) ^ 2) ^ 2 : ℤ) = 8 := by decide
+      have hBZ : (∑ i : Fin 24,
+          (mlD4Root i 0) ^ 2 * (2 * mlD4Root i 1 * mlD4Root i 2) ^ 2 : ℤ) = 0 := by decide
+      rw [hAVal, hBVal, hAZ, hBZ]
+      norm_num
+  have hP1 : spin2I5ProbeZ ![1, 0, 0, 0] 0 0 0 = 12 := by decide
+  have hP2 : spin2I5ProbeZ ![1, 0, 0, 0] 0 1 1 = 4 := by decide
+  have hP3 : spin2I5ProbeZ ![1, 0, 0, 0] 1 0 1 = 4 := by decide
+  have hP4 : spin2I5ProbeZ ![1, 1, 0, 0] 0 1 1 = 16 := by decide
+  have hWF4Iff : ∀ c₁ c₂ c₃ c₄ c₅ : ℚ,
+      (∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+        (∑ μ : Fin 4, q μ * wf4Spin2Kernel c₁ c₂ c₃ c₄ c₅ q μ ν ρ σ) = 0) ↔
+      (c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0) := by
+    intro c₁ c₂ c₃ c₄ c₅
+    constructor
+    · intro h
+      have hSplit : ∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+          c₁ * (∑ μ : Fin 4, q μ * spin2I1 q μ ν ρ σ) +
+          c₂ * (∑ μ : Fin 4, q μ * spin2I2 q μ ν ρ σ) +
+          c₃ * (∑ μ : Fin 4, q μ * spin2I3 q μ ν ρ σ) +
+          c₄ * (∑ μ : Fin 4, q μ * spin2I4 q μ ν ρ σ) +
+          c₅ * (∑ μ : Fin 4, q μ * spin2I5 q μ ν ρ σ) = 0 := by
+        intro q ν ρ σ
+        have hq := h q ν ρ σ
+        simp only [wf4Spin2Kernel, mul_add, Finset.sum_add_distrib] at hq
+        have hPull : ∀ f : Fin 4 → ℚ, ∀ c : ℚ,
+            (∑ μ : Fin 4, q μ * (c * f μ)) = c * ∑ μ : Fin 4, q μ * f μ := by
+          intro f c
+          rw [Finset.mul_sum]
+          refine Finset.sum_congr rfl fun μ _ => ?_
+          ring
+        simp only [hPull] at hq
+        exact hq
+      let q1Z : Fin 4 → ℤ := ![1, 0, 0, 0]
+      let q2Z : Fin 4 → ℤ := ![1, 1, 0, 0]
+      let q1 : Fin 4 → ℚ := fun a => (q1Z a : ℚ)
+      let q2 : Fin 4 → ℚ := fun a => (q2Z a : ℚ)
+      have hEq1 := hSplit q1 0 0 0
+      have hEq2 := hSplit q1 0 1 1
+      have hEq3 := hSplit q1 1 0 1
+      have hEq4 := hSplit q2 0 1 1
+      rw [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4, spin2_div_I5_cast, hP1] at hEq1
+      rw [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4, spin2_div_I5_cast, hP2] at hEq2
+      rw [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4, spin2_div_I5_cast, hP3] at hEq3
+      rw [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4, spin2_div_I5_cast, hP4] at hEq4
+      simp [q1, q1Z, spin2QNormSq, spin2Delta, Fin.sum_univ_four] at hEq1 hEq2 hEq3
+      simp [q2, q2Z, spin2QNormSq, spin2Delta, Fin.sum_univ_four] at hEq4
+      refine ⟨by linarith, by linarith, by linarith, by linarith⟩
+    · rintro ⟨rfl, rfl, rfl, rfl⟩ q ν ρ σ
+      have hPull : ∀ f : Fin 4 → ℚ, ∀ c : ℚ,
+          (∑ μ : Fin 4, q μ * (c * f μ)) = c * ∑ μ : Fin 4, q μ * f μ := by
+        intro f c
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun μ _ => ?_
+        ring
+      simp only [wf4Spin2Kernel, zero_mul, add_zero, mul_add, Finset.sum_add_distrib, hPull,
+        spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4]
+      ring
+  have hZ4Iff : ∀ c₁ c₂ c₃ c₄ c₅ : ℚ,
+      (∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+        (∑ μ : Fin 4, q μ * z4Spin2Kernel c₁ c₂ c₃ c₄ c₅ q μ ν ρ σ) = 0) ↔
+      (c₂ = -2 * c₁ ∧ c₃ = 2 * c₁ ∧ c₄ = -c₁ ∧ c₅ = 0) := by
+    intro c₁ c₂ c₃ c₄ c₅
+    constructor
+    · intro h
+      have hSplit : ∀ (q : Fin 4 → ℚ) (ν ρ σ : Fin 4),
+          c₁ * (∑ μ : Fin 4, q μ * spin2I1 q μ ν ρ σ) +
+          c₂ * (∑ μ : Fin 4, q μ * spin2I2 q μ ν ρ σ) +
+          c₃ * (∑ μ : Fin 4, q μ * spin2I3 q μ ν ρ σ) +
+          c₄ * (∑ μ : Fin 4, q μ * spin2I4 q μ ν ρ σ) +
+          c₅ * (∑ μ : Fin 4, q μ * spin2I5Hypercubic q μ ν ρ σ) = 0 := by
+        intro q ν ρ σ
+        have hq := h q ν ρ σ
+        simp only [z4Spin2Kernel, mul_add, Finset.sum_add_distrib] at hq
+        have hPull : ∀ f : Fin 4 → ℚ, ∀ c : ℚ,
+            (∑ μ : Fin 4, q μ * (c * f μ)) = c * ∑ μ : Fin 4, q μ * f μ := by
+          intro f c
+          rw [Finset.mul_sum]
+          refine Finset.sum_congr rfl fun μ _ => ?_
+          ring
+        simp only [hPull] at hq
+        exact hq
+      have hEq1 := hSplit ![1, 0, 0, 0] 0 0 0
+      have hEq2 := hSplit ![1, 0, 0, 0] 0 1 1
+      have hEq3 := hSplit ![1, 0, 0, 0] 1 0 1
+      have hEq4 := hSplit ![1, 1, 0, 0] 0 1 1
+      simp only [spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4,
+        spin2I5Hypercubic, spin2QNormSq, spin2Delta, Fin.sum_univ_four] at hEq1 hEq2 hEq3 hEq4
+      norm_num at hEq1 hEq2 hEq3 hEq4
+      refine ⟨by linarith, by linarith, by linarith, by linarith⟩
+    · rintro ⟨rfl, rfl, rfl, rfl⟩ q ν ρ σ
+      have hPull : ∀ f : Fin 4 → ℚ, ∀ c : ℚ,
+          (∑ μ : Fin 4, q μ * (c * f μ)) = c * ∑ μ : Fin 4, q μ * f μ := by
+        intro f c
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun μ _ => ?_
+        ring
+      simp only [z4Spin2Kernel, zero_mul, add_zero, mul_add, Finset.sum_add_distrib, hPull,
+        spin2_div_I1, spin2_div_I2, spin2_div_I3, spin2_div_I4]
+      ring
+  exact ⟨⟨⟨hHadOrth, hHadDet⟩, hHadInv, hHypBreak⟩, hIndep, hWF4Iff, hZ4Iff⟩
 
 end Vibe
 

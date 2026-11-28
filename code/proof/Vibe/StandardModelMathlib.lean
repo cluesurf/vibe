@@ -5,9 +5,9 @@ public import Mathlib.Data.Matrix.Basic
 public import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 public import Mathlib.LinearAlgebra.UnitaryGroup
 public import Mathlib.Data.ZMod.Basic
-public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Linarith
-public import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.NormNum
 
 /-!
 # Vibe Theory: Standard Model Continuous & Canonical Mathlib Proofs (`v4.35.0`)
